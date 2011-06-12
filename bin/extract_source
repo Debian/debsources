@@ -19,6 +19,7 @@ fi
 base=$(basename $dsc)    # e.g.: "dosemu_1.4.0+svn.2010-1.dsc"
 pkg=${base%%_*}          # e.g.: "dosemu"
 dirkey=""                # e.g.: "d" (or "libd" for libraries)
+sect=$(echo $dsc | cut -f 5 -d'/')    # e.g.: "contrib"
 case "$base" in
     lib*)
         dirkey=${base:0:4}
@@ -27,7 +28,7 @@ case "$base" in
         dirkey=${base:0:1}
         ;;
 esac
-pkgdir="$dest/$dirkey/$pkg"
+pkgdir="$dest/$sect/$dirkey/$pkg"
 
 if [ -f "$pkgdir/$base.done" ] ; then    # already extracted, avoid re-extraction
     exit 0
