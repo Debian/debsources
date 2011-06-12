@@ -1,0 +1,24 @@
+#!/bin/bash
+
+root="/home/zack/source.debian.org"
+bindir="$root/bin/"
+
+total=$($bindir/list_sources | wc -l)
+pkgcount=0
+
+print_stats() {
+    used=$(du -sh | cut -f 1)
+    free=$(df -h . | tail -n 1 | awk '{print $3}')
+    echo "$pkgcount / $total (used/free: $used / $free)"
+}
+
+print_stats
+$bindir/list_sources | \
+while read dsc ; do
+    pkgcount=$[$pkgcount+1]
+    if [ $[$pkgcount % 100] -eq 0 ] ; then
+        print_stats
+    fi
+    $bindir/extract_source $dsc
+done
+

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+root="/home/zack/source.debian.org"
+bindir="$root/bin/"
+
+TODO

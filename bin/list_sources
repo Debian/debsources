@@ -1,0 +1,6 @@
+#!/bin/bash
+
+root="/home/zack/source.debian.org"
+
+mirror_dir="/srv/debian-mirror"
+find "$mirror_dir/pool" -type f -name "*.dsc"
