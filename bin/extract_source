@@ -39,7 +39,7 @@ else
     fi
     mkdir -p "$pkgdir"
     (cd "$pkgdir" && \
-        dpkg-source --no-copy --no-check -x "$dsc" > "$base.log" && \
+        dpkg-source --no-copy --no-check -x "$dsc" &> "$base.log" && \
         touch "$base.done")
 fi
 
