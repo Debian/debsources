@@ -7,9 +7,10 @@ total=$($bindir/list_sources | wc -l)
 pkgcount=0
 
 print_stats() {
-    used=$(du -sh | cut -f 1)
-    free=$(df -h . | tail -n 1 | awk '{print $3}')
-    echo "$pkgcount / $total (used/free: $used / $free)"
+    # used=$(du -sh | cut -f 1)
+    # free=$(df -h . | tail -n 1 | awk '{print $3}')
+    # echo "$pkgcount / $total (used/free: $used / $free)"
+    echo "$pkgcount / $total"
 }
 
 print_stats
