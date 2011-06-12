@@ -1,18 +1,24 @@
 #!/bin/bash
 
+# Extract a given .dsc into the source repository.
+#
+# A .dsc will be extracted only if needed; older extracted sources of the same
+# source package, if any, will be deleted (i.e. only the extracted version of
+# the most recent source package will be kept). 
+
 root="/home/zack/source.debian.org"
 
 dest="$root/sources"
-dsc="$1"    # e.g.: /srv/debian-mirror/pool/contrib/d/dosemu/dosemu_1.4.0+svn.2010-1.dsc
+dsc="$1"    # e.g.: "/srv/debian-mirror/pool/contrib/d/dosemu/dosemu_1.4.0+svn.2010-1.dsc"
 
 if [ -z "$dsc" -o ! -f "$dsc" ] ; then
     echo "Usage: extract_source DSC"
     exit 1
 fi
 
-base=$(basename $dsc)    # e.g.: dosemu_1.4.0+svn.2010-1.dsc
-pkg=${base%%_*}          # e.g.: dosemu
-dirkey=""    # e.g. "d" (or "libd" for libraries)
+base=$(basename $dsc)    # e.g.: "dosemu_1.4.0+svn.2010-1.dsc"
+pkg=${base%%_*}          # e.g.: "dosemu"
+dirkey=""                # e.g.: "d" (or "libd" for libraries)
 case "$base" in
     lib*)
         dirkey=${base:0:4}
@@ -22,10 +28,17 @@ case "$base" in
         ;;
 esac
 pkgdir="$dest/$dirkey/$pkg"
-if [ -d "$pkgdir" ] ; then    # get rid of old versions
-    rm -rf "$pkgdir"
+
+if [ -f "$pkgdir/$base.done" ] ; then    # already extracted, avoid re-extraction
+    exit 0
+else
+    echo "I: extracting $base ..."
+    if [ -d "$pkgdir" ] ; then    # get rid of old versions, if any
+        rm -rf "$pkgdir"
+    fi
+    mkdir -p "$pkgdir"
+    (cd "$pkgdir" && \
+        dpkg-source --no-copy --no-check -x "$dsc" > "$base.log" && \
+        touch "$base.done")
 fi
-mkdir -p "$pkgdir"
-(cd "$pkgdir" && \
- dpkg-source --no-copy --no-check -x "$dsc" > "$base.log" && \
- touch "$base.done")
+

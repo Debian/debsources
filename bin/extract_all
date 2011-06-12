@@ -1,7 +1,7 @@
 #!/bin/bash
 
 root="/home/zack/source.debian.org"
-bindir="$root/bin/"
+bindir="$root/bin"
 
 total=$($bindir/list_sources | wc -l)
 pkgcount=0
