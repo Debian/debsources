@@ -1,6 +1,31 @@
 #!/bin/bash
 
-root="/home/zack/source.debian.org"
+# List .dsc files found in a given Debian (source) mirror.
+#
+# For each source package, only the most recent .dsc file is listed, in case
+# more than once are present. Criteria for "recent-ness" is Debian version
+# comparison.
 
+root="/home/zack/source.debian.org"
 mirror_dir="/srv/debian-mirror"
-find "$mirror_dir/pool" -type f -name "*.dsc"
+
+# first find package directories (which might contain several .dsc-s)
+find "$mirror_dir/pool" -mindepth 3 -maxdepth 3 -type d | \
+while read dir ; do
+    newest=""
+    newest_dsc=""
+    if [ $(ls $dir/*.dsc | wc -l) -eq 1 ] ; then
+        echo $dir/*.dsc
+    else
+        for dsc in $dir/*.dsc ; do
+            version=$(grep ^Version: $dsc | head -n 1 | awk '{print $2}')
+            # note: rely on the fact that "gt" treats empty version as earlier than any version
+            if dpkg --compare-versions "$version" gt "$newest" ; then
+                newest="$version"
+                newest_dsc="$dsc"
+            fi
+        done
+        echo "$newest_dsc"
+    fi
+done
+
