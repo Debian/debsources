@@ -1,4 +1,4 @@
 zack@tytso:~/source.debian.org$ time bin/extract_all 
-real    157m42.209s
-user    87m1.750s
-sys     53m24.904s
+real    111m46.898s
+user    74m26.915s
+sys     19m7.196s
