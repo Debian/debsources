@@ -1,31 +1,67 @@
 #!/bin/bash
 
-# List .dsc files found in a given Debian (source) mirror.
+# List <package, version, .dsc> pairs found in a given Debian (source) mirror.
 #
-# For each source package, only the most recent .dsc file is listed, in case
-# more than once are present. Criteria for "recent-ness" is Debian version
-# comparison.
+# Output format: "PACKAGE\tVERSION\tDSC\n"
+#
+# By default, only list the triple corresponding to the most recent package,
+# according to the version. Pass --all to list all entries.
+
+# Depends: dctrl-tools
 
 root="/srv/sources.debian.org"
 source "$root/etc/config.sh"
 
-# first find package directories (which might contain several .dsc-s)
-find "$mirror_dir/pool" -mindepth 3 -maxdepth 3 -type d | \
-while read dir ; do
-    newest=""
-    newest_dsc=""
-    if [ $(ls $dir/*.dsc | wc -l) -eq 1 ] ; then
-        echo $dir/*.dsc
-    else
-        for dsc in $dir/*.dsc ; do
-            version=$(grep ^Version: $dsc | head -n 1 | awk '{print $2}')
-            # note: rely on the fact that "gt" treats empty version as earlier than any version
-            if dpkg --compare-versions "$version" gt "$newest" ; then
-                newest="$version"
-                newest_dsc="$dsc"
+list_all="no"
+
+if [ "$1" = "-a" -o "$1" = "--all" ] ; then
+    shift
+    list_all="yes"
+fi
+
+parse_dsc() {
+    files_done="no"
+    dsc="NONE"
+    while [ "$files_done" = "no" ] ; do
+        read hash size file        # line(s) "40bf5c1792a2a2555f2fc6edd2314005 1085 hello_1.2-3.dsc
+        if [ -z "$hash" ] ; then   # line "\n"
+            files_done="yes"
+        elif [ "${file: -3:3}" = "dsc" ] ; then
+            dsc="$mirror_dir/$directory/$file"
+        fi
+    done
+}
+
+emit() {
+    echo -e "$prev_package\\t$prev_version\\t$prev_dsc"
+}
+
+# find "$mirror_dir/dists/unstable/contrib" -type f -name Sources.gz | \
+
+find "$mirror_dir/dists/unstable/" -type f -name Sources.gz | \
+while read Sources ; do
+    prev_package=""
+    prev_version=""
+    prev_dsc=""
+    gunzip -c $Sources | \
+    sort-dctrl -k Package,Version:v | \
+    grep-dctrl -s Package,Version,Directory,Files '' - | \
+    {
+        while read key package ; do    # line "Package: foo\n"
+            read _key version          # line "Version: 1.2-3\n"
+            read _key directory        # line "Directory: pool/main/h/hello\n"
+            read _key                  # line "Files:\n"
+            parse_dsc
+            if [ "$list_all" = "yes" -a -n "$prev_package" ] ; then
+                emit
+            elif [ "$package" != "$prev_package" -a -n "$prev_package" ] ; then
+                emit
             fi
+            prev_package="$package"
+            prev_version="$version"
+            prev_dsc="$dsc"
         done
-        echo "$newest_dsc"
-    fi
+        emit
+    }
 done
 
