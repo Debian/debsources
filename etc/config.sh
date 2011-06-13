@@ -11,3 +11,6 @@ bindir="$root/bin"
 # Directories where a Debian source mirror can be found.
 mirror_dir="/srv/debian-mirror"
 
+# Directories where extracted Debian source packages will be put.
+sources_dir="$root/sources"
+

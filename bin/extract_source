@@ -19,7 +19,6 @@ if [ "$1" = "-q" -o "$1" = "--quiet" ] ; then
     verbose="0"
 fi
 
-dest="$root/sources"
 dsc="$1"    # e.g.: "/srv/debian-mirror/pool/contrib/d/dosemu/dosemu_1.4.0+svn.2010-1.dsc"
 
 if [ -z "$dsc" -o ! -f "$dsc" ] ; then
@@ -39,7 +38,7 @@ case "$base" in
         dirkey=${base:0:1}
         ;;
 esac
-pkgdir="$dest/$sect/$dirkey/$pkg"
+pkgdir="$sources_dir/$sect/$dirkey/$pkg"
 
 if [ -f "$pkgdir/$base.done" ] ; then    # already extracted, avoid re-extraction
     exit 0
