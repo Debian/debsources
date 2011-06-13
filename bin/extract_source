@@ -9,7 +9,7 @@
 # Options:
 #     -q/--quiet    suppress all (non-error) output
 
-root="/home/zack/source.debian.org"
+root="/srv/sources.debian.org"
 
 verbose="1"
 

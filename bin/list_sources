@@ -6,7 +6,7 @@
 # more than once are present. Criteria for "recent-ness" is Debian version
 # comparison.
 
-root="/home/zack/source.debian.org"
+root="/srv/sources.debian.org"
 mirror_dir="/srv/debian-mirror"
 
 # first find package directories (which might contain several .dsc-s)
