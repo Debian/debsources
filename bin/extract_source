@@ -6,6 +6,7 @@
 # source package, if any, will be deleted (i.e. only the extracted version of
 # the most recent source package will be kept). 
 #
+# Usage: extract_source [OPTION]... PACKAGE VERSION DSC_FILE
 # Options:
 #     -q/--quiet    suppress all (non-error) output
 
@@ -19,15 +20,16 @@ if [ "$1" = "-q" -o "$1" = "--quiet" ] ; then
     verbose="0"
 fi
 
-dsc="$1"    # e.g.: "/srv/debian-mirror/pool/contrib/d/dosemu/dosemu_1.4.0+svn.2010-1.dsc"
+package="$1"    # e.g.: "dosemu"
+version="$2"    # e.g.: "1.4.0+svn.2010-1"
+dsc="$3"        # e.g.: "/srv/debian-mirror/pool/contrib/d/dosemu/dosemu_1.4.0+svn.2010-1.dsc"
 
-if [ -z "$dsc" -o ! -f "$dsc" ] ; then
-    echo "Usage: extract_source [OPTION]... DSC"
+if [ -z "$package" -o -z "$version" -o -z "$dsc" -o ! -f "$dsc" ] ; then
+    echo "Usage: extract_source [OPTION]... PACKAGE VERSION DSC_FILE"
     exit 1
 fi
 
 base=$(basename $dsc)    # e.g.: "dosemu_1.4.0+svn.2010-1.dsc"
-pkg=${base%%_*}          # e.g.: "dosemu"
 dirkey=""                # e.g.: "d" (or "libd" for libraries)
 sect=$(echo $dsc | cut -f 5 -d'/')    # e.g.: "contrib"
 case "$base" in
@@ -38,9 +40,10 @@ case "$base" in
         dirkey=${base:0:1}
         ;;
 esac
-pkgdir="$sources_dir/$sect/$dirkey/$pkg"
+pkgdir="$sources_dir/$sect/$dirkey/$package"
+vpkgdir="$sources_dir/$sect/$dirkey/$package/$version"
 
-if [ -f "$pkgdir/$base.done" ] ; then    # already extracted, avoid re-extraction
+if [ -f "$vpkgdir/$base.done" ] ; then    # already extracted, avoid re-extraction
     exit 0
 else
     if [ "$verbose" = "1" ] ; then
@@ -49,8 +52,8 @@ else
     if [ -d "$pkgdir" ] ; then    # get rid of old versions, if any
         rm -rf "$pkgdir"
     fi
-    mkdir -p "$pkgdir"
-    (cd "$pkgdir" && \
+    mkdir -p "$vpkgdir"
+    (cd "$vpkgdir" && \
         dpkg-source --no-copy --no-check -x "$dsc" &> "$base.log" && \
         chgrp -R "$gid" . && \
         touch "$base.done")

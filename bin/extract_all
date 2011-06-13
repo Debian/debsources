@@ -29,7 +29,7 @@ print_stats() {
 
 print_stats
 $bindir/list_sources | \
-while read dsc ; do
+while read package version dsc ; do
     pkgcount=$[$pkgcount+1]
     if [ $[$pkgcount % 100] -eq 0 ] ; then
         print_stats
@@ -38,6 +38,6 @@ while read dsc ; do
     if [ "$verbose" = "0" ] ; then
         flags="$flags --quiet"
     fi
-    $bindir/extract_source $flags $dsc
+    $bindir/extract_source $flags "$package" "$version" "$dsc"
 done
 
