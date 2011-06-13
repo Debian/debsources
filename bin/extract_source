@@ -53,6 +53,7 @@ else
     mkdir -p "$pkgdir"
     (cd "$pkgdir" && \
         dpkg-source --no-copy --no-check -x "$dsc" &> "$base.log" && \
+        chgrp -R "$gid" . && \
         touch "$base.done")
 fi
 
