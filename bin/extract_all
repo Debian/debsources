@@ -1,16 +1,30 @@
 #!/bin/bash
 
+# Main script: extract all (new/unextracted) sources
+#
+# Options:
+#     -q/--quiet    suppress all (non-error) output
+
 root="/home/zack/source.debian.org"
+
 bindir="$root/bin"
+verbose="1"
+
+if [ "$1" = "-q" -o "$1" = "--quiet" ] ; then
+    shift
+    verbose="0"
+fi
 
 total=$($bindir/list_sources | wc -l)
 pkgcount=0
 
 print_stats() {
-    # used=$(du -sh | cut -f 1)
-    # free=$(df -h . | tail -n 1 | awk '{print $3}')
-    # echo "$pkgcount / $total (used/free: $used / $free)"
-    echo "$pkgcount / $total"
+    if [ "$verbose" = "1" ] ; then
+        # used=$(du -sh | cut -f 1)
+        # free=$(df -h . | tail -n 1 | awk '{print $3}')
+        # echo "$pkgcount / $total (used/free: $used / $free)"
+        echo "$pkgcount / $total"
+    fi
 }
 
 print_stats
@@ -19,6 +33,10 @@ while read dsc ; do
     pkgcount=$[$pkgcount+1]
     if [ $[$pkgcount % 100] -eq 0 ] ; then
         print_stats
+    fi
+    flags=""
+    if [ "$verbose" = "0" ] ; then
+        flags="$flags --quiet"
     fi
     $bindir/extract_source $dsc
 done
