@@ -6,8 +6,8 @@
 #     -q/--quiet    suppress all (non-error) output
 
 root="/srv/sources.debian.org"
+source "$root/etc/config.sh"
 
-bindir="$root/bin"
 verbose="1"
 
 if [ "$1" = "-q" -o "$1" = "--quiet" ] ; then

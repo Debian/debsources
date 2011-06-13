@@ -7,7 +7,7 @@
 # comparison.
 
 root="/srv/sources.debian.org"
-mirror_dir="/srv/debian-mirror"
+source "$root/etc/config.sh"
 
 # first find package directories (which might contain several .dsc-s)
 find "$mirror_dir/pool" -mindepth 3 -maxdepth 3 -type d | \

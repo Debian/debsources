@@ -10,6 +10,7 @@
 #     -q/--quiet    suppress all (non-error) output
 
 root="/srv/sources.debian.org"
+source "$root/etc/config.sh"
 
 verbose="1"
 
