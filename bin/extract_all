@@ -38,6 +38,6 @@ while read dsc ; do
     if [ "$verbose" = "0" ] ; then
         flags="$flags --quiet"
     fi
-    $bindir/extract_source $dsc
+    $bindir/extract_source $flags $dsc
 done
 
