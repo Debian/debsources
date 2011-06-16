@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# List <package, version, .dsc> pairs found in a given Debian (source) mirror.
+# List <package, version, .dsc, dest> pairs found in a given Debian (source) mirror.
 #
-# Output format: "PACKAGE\tVERSION\tDSC\n"
+# Output format: "PACKAGE\tVERSION\tDSC\tDEST\n"
 #
 # By default, only list the triple corresponding to the most recent package,
 # according to the version. Pass --all to list all entries.
@@ -33,7 +33,7 @@ parse_dsc() {
 }
 
 emit() {
-    echo -e "$prev_package\\t$prev_version\\t$prev_dsc"
+    echo -e "$prev_package\\t$prev_version\\t$prev_dsc\\t$prev_dest"
 }
 
 # find "$mirror_dir/dists/unstable/contrib" -type f -name Sources.gz | \
@@ -43,6 +43,7 @@ while read Sources ; do
     prev_package=""
     prev_version=""
     prev_dsc=""
+    prev_dest=""
     gunzip -c $Sources | \
     sort-dctrl -k Package,Version:v | \
     grep-dctrl -s Package,Version,Directory,Files '' - | \
@@ -57,9 +58,11 @@ while read Sources ; do
             elif [ "$package" != "$prev_package" -a -n "$prev_package" ] ; then
                 emit
             fi
+            dest="$sources_dir/${directory#*/}/$version"
             prev_package="$package"
             prev_version="$version"
             prev_dsc="$dsc"
+            prev_dest="$dest"
         done
         emit
     }
