@@ -33,38 +33,34 @@ parse_dsc() {
 }
 
 emit() {
-    echo -e "$prev_package\\t$prev_version\\t$prev_dsc\\t$prev_dest"
+    echo -e "$package\\t$version\\t$dsc\\t$dest"
 }
 
-# find "$mirror_dir/dists/unstable/contrib" -type f -name Sources.gz | \
+# find "$mirror_dir/dists/unstable/contrib" -type f -name Sources.gz |
 
-find "$mirror_dir/dists/unstable/" -type f -name Sources.gz | \
-while read Sources ; do
+src_indexes=$(find "$mirror_dir/dists/" -type f -name Sources.gz)
+
+zcat $src_indexes | \
+sort-dctrl -k Package,Version:vr | \
+grep-dctrl -s Package,Version,Directory,Files '' - | \
+{
     prev_package=""
     prev_version=""
-    prev_dsc=""
-    prev_dest=""
-    gunzip -c $Sources | \
-    sort-dctrl -k Package,Version:v | \
-    grep-dctrl -s Package,Version,Directory,Files '' - | \
-    {
-        while read key package ; do    # line "Package: foo\n"
-            read _key version          # line "Version: 1.2-3\n"
-            read _key directory        # line "Directory: pool/main/h/hello\n"
-            read _key                  # line "Files:\n"
-            parse_dsc
-            if [ "$list_all" = "yes" -a -n "$prev_package" ] ; then
-                emit
-            elif [ "$package" != "$prev_package" -a -n "$prev_package" ] ; then
-                emit
-            fi
-            dest="$sources_dir/${directory#*/}/$version"
-            prev_package="$package"
-            prev_version="$version"
-            prev_dsc="$dsc"
-            prev_dest="$dest"
-        done
-        emit
-    }
-done
+    while read _key package ; do   # line "Package: foo\n"
+        read _key version          # line "Version: 1.2-3\n"
+        read _key directory        # line "Directory: pool/main/h/hello\n"
+        read _key                  # line "Files:\n"
+        parse_dsc
+        dest="$sources_dir/${directory#*/}/$version"
+	if [ "$package" != "$prev_package" ]; then
+	    # first of his name, i.e. most recent
+	    emit
+        elif [ "$list_all" = "yes" -a "$version" != "$prev_version" ] ; then
+	    # emit all versions, as requested, but suppress duplicates
+	    emit
+        fi
+        prev_package="$package"
+        prev_version="$version"
+    done
+}
 
