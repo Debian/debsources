@@ -7,15 +7,9 @@
 
 root="/srv/sources.debian.org"
 source "$root/etc/config.sh"
+source "$root/bin/lib.sh"
 
 verbose="1"
-
-info() {
-    local msg="$1"
-    if [ "$verbose" = "1" ] ; then
-	echo "I: $msg"
-    fi
-}
 
 if [ "$1" = "-q" -o "$1" = "--quiet" ] ; then
     shift
@@ -27,8 +21,7 @@ trap "rm -f $sources_list" EXIT
 
 info "listing source packages..."
 if ! $bindir/list_sources --all > $sources_list ; then
-    echo "E: cannot list available sources. Abort."
-    exit 2
+    err "cannot list available sources. Abort." 2
 fi
 
 total=$(wc -l $sources_list | cut -f 1 -d' ')
@@ -91,7 +84,7 @@ while read package version dsc dest ; do
         flags="$flags --quiet"
     fi
     if ! $bindir/extract_source $flags "$package" "$version" "$dsc" "$dest" ; then
-	echo "W: failed to extract package '$package' '$version'"
+	warn "failed to extract package '$package' '$version'"
     fi
 done
 

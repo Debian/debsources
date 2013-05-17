@@ -10,6 +10,7 @@
 
 root="/srv/sources.debian.org"
 source "$root/etc/config.sh"
+source "$root/bin/lib.sh"
 
 verbose="1"
 
@@ -34,9 +35,7 @@ vpkgdir="$dest"
 if [ -f "$vpkgdir/$base.done" ] ; then    # already extracted, avoid re-extraction
     exit 0
 else
-    if [ "$verbose" = "1" ] ; then
-        echo "I: extracting $base ..."
-    fi
+    info "extracting $base ..."
     mkdir -p "$vpkgdir"
     (cd "$vpkgdir" && \
         dpkg-source --no-copy --no-check -x "$dsc" &> "$base.log" && \
