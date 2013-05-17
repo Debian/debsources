@@ -10,34 +10,91 @@ source "$root/etc/config.sh"
 
 verbose="1"
 
+info() {
+    local msg="$1"
+    if [ "$verbose" = "1" ] ; then
+	echo "I: $msg"
+    fi
+}
+
 if [ "$1" = "-q" -o "$1" = "--quiet" ] ; then
     shift
     verbose="0"
 fi
 
-total=$($bindir/list_sources | wc -l)
-pkgcount=0
+sources_list=$(mktemp --tmpdir sources.d.o.XXXXXXXXXX)
+trap "rm -f $sources_list" EXIT
+
+info "listing source packages..."
+if ! $bindir/list_sources --all > $sources_list ; then
+    echo "E: cannot list available sources. Abort."
+    exit 2
+fi
+
+total=$(wc -l $sources_list | cut -f 1 -d' ')
+
+init_stats() {
+    pkgcount=0
+}
 
 print_stats() {
+    local label="$1"
     if [ "$verbose" = "1" ] ; then
         # used=$(du -sh | cut -f 1)
         # free=$(df -h . | tail -n 1 | awk '{print $3}')
         # echo "$pkgcount / $total (used/free: $used / $free)"
-        echo "$pkgcount / $total"
+        echo "$label: $pkgcount / $total"
     fi
 }
 
+garbage_collect() {
+    init_stats
+    info "garbage collection of old packages/versions..."
+    # ASSUMPTION: pool structure $root/sources/{main,contrib,non-free,...}/HASH/PACKAGE
+    # e.g. /srv/sources.debian.org/sources/main/d/dotclear
+    #      /srv/sources.debian.org/sources/main/libg/libglade2
+    find "$sources_dir" -mindepth 3 -maxdepth 3 -type d | \
+    while read pkgdir ; do
+	pkgcount=$[$pkgcount+1]
+	if [ $[$pkgcount % 100] -eq 0 ] ; then
+            # XXX BUG: total is not accurate for GC stats
+            print_stats "gc"
+	fi
+	local pkg=$(basename "$pkgdir")
+	if ! grep -q "^${pkg}[[:blank:]]" "$sources_list" ; then
+	    # completely remove disappeared package
+	    info "GC: rm ${pkg}"
+	    rm -rf "$pkgdir"
+	else
+	    find "$pkgdir" -mindepth 1 -maxdepth 1 -type d | \
+	    while read versiondir ; do
+		local version=$(basename "$versiondir")
+		if ! grep -q "^${pkg}[[:blank:]]${version}" "$sources_list" ; then
+		    info "GC: rm ${pkg} ${version}"
+		    rm -rf "$versiondir"
+		fi
+	    done
+	fi
+    done
+}
+
+init_stats
 print_stats
-$bindir/list_sources | \
+cat $sources_list | \
 while read package version dsc dest ; do
     pkgcount=$[$pkgcount+1]
     if [ $[$pkgcount % 100] -eq 0 ] ; then
-        print_stats
+        print_stats "extraction"
     fi
     flags=""
     if [ "$verbose" = "0" ] ; then
         flags="$flags --quiet"
     fi
-    $bindir/extract_source $flags "$package" "$version" "$dsc" "$dest"
+    if ! $bindir/extract_source $flags "$package" "$version" "$dsc" "$dest" ; then
+	echo "W: failed to extract package '$package' '$version'"
+    fi
 done
 
+garbage_collect
+
+info "extract_all: done."

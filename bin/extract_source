@@ -2,9 +2,7 @@
 
 # Extract a given .dsc into the source repository.
 #
-# A .dsc will be extracted only if needed; older extracted sources of the same
-# source package, if any, will be deleted (i.e. only the extracted version of
-# the most recent source package will be kept). 
+# A .dsc will be extracted only if needed.
 #
 # Usage: extract_source [OPTION]... PACKAGE VERSION DSC_FILE DEST_DIR
 # Options:
@@ -31,7 +29,6 @@ if [ -z "$package" -o -z "$version" -o -z "$dsc" -o -z "$dest" -o ! -f "$dsc" ] 
 fi
 
 base=$(basename $dsc)    # e.g.: "dosemu_1.4.0+svn.2010-1.dsc"
-pkgdir="${dest%/*}"
 vpkgdir="$dest"
 
 if [ -f "$vpkgdir/$base.done" ] ; then    # already extracted, avoid re-extraction
@@ -40,13 +37,9 @@ else
     if [ "$verbose" = "1" ] ; then
         echo "I: extracting $base ..."
     fi
-    if [ -d "$pkgdir" ] ; then    # get rid of old versions, if any
-        rm -rf "$pkgdir"
-    fi
     mkdir -p "$vpkgdir"
     (cd "$vpkgdir" && \
         dpkg-source --no-copy --no-check -x "$dsc" &> "$base.log" && \
         chgrp -R "$gid" . && \
         touch "$base.done")
 fi
-
