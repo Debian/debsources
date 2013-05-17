@@ -1,4 +1,6 @@
 
+verbose="1"
+
 info() {
     local msg="$1"
     if [ "$verbose" = "1" ] ; then

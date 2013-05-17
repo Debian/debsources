@@ -12,8 +12,6 @@ root="/srv/sources.debian.org"
 source "$root/etc/config.sh"
 source "$root/bin/lib.sh"
 
-verbose="1"
-
 if [ "$1" = "-q" -o "$1" = "--quiet" ] ; then
     shift
     verbose="0"
