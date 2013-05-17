@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 root="/srv/sources.debian.org"
 source "$root/etc/config.sh"
