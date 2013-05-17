@@ -1,0 +1,16 @@
+#!/bin/sh
+# require debian package "debmirror"
+
+root="/srv/sources.debian.org"
+source "$root/etc/config.sh"
+
+debmirror \
+  --source \
+  --host=${mirror_host} \
+  --method=rsync \
+  --dist=${mirror_suites} \
+  --section=${mirror_sections} \
+  --arch=none \
+  --ignore-release-gpg \
+  $* \
+  "$mirror_dir"

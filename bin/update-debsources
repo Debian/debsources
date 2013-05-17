@@ -1,0 +1,9 @@
+#!/bin/sh
+
+root="/srv/sources.debian.org"
+
+# update source mirror
+${root}/bin/debian-source-mirror > /dev/null
+
+# update debsources archive of extracted sources
+${root}/bin/extract_all --quiet
