@@ -4,6 +4,8 @@ root="/srv/sources.debian.org"
 source "$root/etc/config.sh"
 source "$root/bin/lib.sh"
 
+info "update-debsources: starting at $(date)"
+
 if [ -f "$lockfile" ] ; then
     err "lockfile found. Abort" 2
 fi
@@ -11,7 +13,11 @@ echo $$ > "$lockfile"
 trap "rm -f $lockfile" EXIT
 
 # update source mirror
-${root}/bin/debian-source-mirror > /dev/null
+info "update-debsources: updating source mirror"
+${root}/bin/debian-source-mirror
 
-# update debsources archive of extracted sources
-${root}/bin/extract_all --quiet
+# extract sources
+info "update-debsources: extracting source packages"
+${root}/bin/extract_all
+
+info "update-debsources: all done at $(date)"

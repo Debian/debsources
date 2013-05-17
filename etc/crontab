@@ -1,2 +1,5 @@
-# m	h		dom	mon	dow	command
-1	0,6,12,18	*	*	*	/srv/sources.debian.org/bin/update-debsources
+DEBSRC=/srv/sources.debian.org
+LOGFILE=/var/log/debsources/debsources.log
+
+# m h         dom mon dow command
+1   0,6,12,18 *   *   *   $DEBSRC/bin/update-debsources >> $LOGFILE 2>&1 || echo "update-debsources returned non 0 exit code"

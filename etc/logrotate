@@ -1,0 +1,9 @@
+/var/log/debsources/*.log {
+        daily
+        missingok
+        rotate 52
+        compress
+        delaycompress
+        notifempty
+        create 644 debian-mirror sourcesdo
+}
