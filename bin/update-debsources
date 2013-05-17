@@ -1,6 +1,14 @@
 #!/bin/sh
 
 root="/srv/sources.debian.org"
+source "$root/etc/config.sh"
+source "$root/bin/lib.sh"
+
+if [ -f "$lockfile" ] ; then
+    err "lockfile found. Abort" 2
+fi
+echo $$ > "$lockfile"
+trap "rm -f $lockfile" EXIT
 
 # update source mirror
 ${root}/bin/debian-source-mirror > /dev/null

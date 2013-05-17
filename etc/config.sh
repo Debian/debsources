@@ -19,3 +19,4 @@ mirror_dir="/srv/debian-mirror"
 # Directories where extracted Debian source packages will be put.
 sources_dir="$root/sources"
 
+lockfile="$root/ONGOING-UPDATE.pid"
