@@ -1,0 +1,2 @@
+# m	h		dom	mon	dow	command
+1	0,6,12,18	*	*	*	/srv/sources.debian.org/bin/update-debsources
