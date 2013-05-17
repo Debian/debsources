@@ -70,7 +70,6 @@ garbage_collect() {
 }
 
 init_stats
-print_stats
 cat $sources_list | \
 while read package version dsc dest ; do
     pkgcount=$[$pkgcount+1]
