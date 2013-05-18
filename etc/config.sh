@@ -3,7 +3,7 @@
 # Unix group owning debsources archive.  We need to set this explicitly after
 # each .dsc extraction, since dpkg-source -x insists in not inheriting group
 # from (+s) dirs.
-gid="sourcesdo"
+gid="debsources"
 
 # Directories where debsources binaries can be found.
 bindir="$root/bin"

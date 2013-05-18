@@ -5,5 +5,5 @@
         compress
         delaycompress
         notifempty
-        create 644 debian-mirror sourcesdo
+        create 644 debian-mirror debsources
 }
