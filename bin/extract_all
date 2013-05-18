@@ -9,6 +9,8 @@ root="/srv/debsources"
 source "$root/etc/config.sh"
 source "$root/bin/lib.sh"
 
+heartbeat_period=1000
+
 if [ "$1" = "-q" -o "$1" = "--quiet" ] ; then
     shift
     verbose="0"
@@ -34,7 +36,7 @@ print_stats() {
         # used=$(du -sh | cut -f 1)
         # free=$(df -h . | tail -n 1 | awk '{print $3}')
         # echo "$pkgcount / $total (used/free: $used / $free)"
-        echo "$label: $pkgcount / $total"
+        echo "$label heartbeat: $pkgcount / $total"
     fi
 }
 
@@ -47,7 +49,7 @@ garbage_collect() {
     find "$sources_dir" -mindepth 3 -maxdepth 3 -type d | \
     while read pkgdir ; do
 	pkgcount=$[$pkgcount+1]
-	if [ $[$pkgcount % 100] -eq 0 ] ; then
+	if [ $[$pkgcount % $heartbeat_period] -eq 0 ] ; then
             # XXX BUG: total is not accurate for GC stats
             print_stats "gc"
 	fi
@@ -73,7 +75,7 @@ init_stats
 cat $sources_list | \
 while read package version dsc dest ; do
     pkgcount=$[$pkgcount+1]
-    if [ $[$pkgcount % 100] -eq 0 ] ; then
+    if [ $[$pkgcount % $heartbeat_period] -eq 0 ] ; then
         print_stats "extraction"
     fi
     flags=""
