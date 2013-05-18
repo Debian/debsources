@@ -1,4 +1,5 @@
 MAILTO=zack
+DEBSRC=/srv/debsources
 
 # m h         dom mon dow user           command
 1   0,6,12,18 *   *   *   debian-mirror  $DEBSRC/bin/update-debsources
