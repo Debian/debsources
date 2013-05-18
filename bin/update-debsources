@@ -1,6 +1,6 @@
 #!/bin/bash
 
-root="/srv/sources.debian.org"
+root="/srv/debsources"
 source "$root/etc/config.sh"
 source "$root/bin/lib.sh"
 

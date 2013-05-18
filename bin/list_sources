@@ -9,7 +9,7 @@
 
 # Depends: dctrl-tools
 
-root="/srv/sources.debian.org"
+root="/srv/debsources"
 source "$root/etc/config.sh"
 
 list_all="no"

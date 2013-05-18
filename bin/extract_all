@@ -5,7 +5,7 @@
 # Options:
 #     -q/--quiet    suppress all (non-error) output
 
-root="/srv/sources.debian.org"
+root="/srv/debsources"
 source "$root/etc/config.sh"
 source "$root/bin/lib.sh"
 
@@ -14,7 +14,7 @@ if [ "$1" = "-q" -o "$1" = "--quiet" ] ; then
     verbose="0"
 fi
 
-sources_list=$(mktemp --tmpdir sources.d.o.XXXXXXXXXX)
+sources_list=$(mktemp --tmpdir debsources.XXXXXXXXXX)
 trap "rm -f $sources_list" EXIT
 
 info "listing source packages..."
@@ -42,8 +42,8 @@ garbage_collect() {
     init_stats
     info "garbage collection of old packages/versions..."
     # ASSUMPTION: pool structure $root/sources/{main,contrib,non-free,...}/HASH/PACKAGE
-    # e.g. /srv/sources.debian.org/sources/main/d/dotclear
-    #      /srv/sources.debian.org/sources/main/libg/libglade2
+    # e.g. /srv/debsources/sources/main/d/dotclear
+    #      /srv/debsources/sources/main/libg/libglade2
     find "$sources_dir" -mindepth 3 -maxdepth 3 -type d | \
     while read pkgdir ; do
 	pkgcount=$[$pkgcount+1]

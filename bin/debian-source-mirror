@@ -1,7 +1,7 @@
 #!/bin/bash
 # require debian package "debmirror"
 
-root="/srv/sources.debian.org"
+root="/srv/debsources"
 source "$root/etc/config.sh"
 
 debmirror \

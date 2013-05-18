@@ -1,5 +1,5 @@
 MAILTO=zack
-DEBSRC=/srv/sources.debian.org
+DEBSRC=/srv/debsources
 LOGFILE=/var/log/debsources/debsources.log
 
 # m h         dom mon dow user           command
