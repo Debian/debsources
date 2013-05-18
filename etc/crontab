@@ -1,6 +1,4 @@
 MAILTO=zack
-DEBSRC=/srv/debsources
-LOGFILE=/var/log/debsources/debsources.log
 
 # m h         dom mon dow user           command
-1   0,6,12,18 *   *   *   debian-mirror  $DEBSRC/bin/update-debsources >> $LOGFILE 2>&1 || echo "update-debsources returned non 0 exit code"
+1   0,6,12,18 *   *   *   debian-mirror  $DEBSRC/bin/update-debsources

@@ -20,3 +20,5 @@ mirror_dir="/srv/debian-mirror"
 sources_dir="$root/sources"
 
 lockfile="$root/ONGOING-UPDATE.pid"
+
+logfile="/var/log/debsources/debsources.log"
