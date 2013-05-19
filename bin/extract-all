@@ -79,22 +79,25 @@ garbage_collect() {
     done
 }
 
-init_stats
-cat $sources_list | \
-while read package version dsc dest ; do
-    pkgcount=$[$pkgcount+1]
-    if [ $[$pkgcount % $heartbeat_period] -eq 0 ] ; then
-        print_stats "extraction"
-    fi
-    flags=""
-    if [ "$verbose" = "0" ] ; then
-        flags="$flags --quiet"
-    fi
-    if ! $bindir/extract-source $flags "$package" "$version" "$dsc" "$dest" ; then
-	warn "failed to extract package '$package' '$version'"
-    fi
-done
+extract_sources() {
+    init_stats
+    cat $sources_list | \
+	while read package version dsc dest ; do
+	    pkgcount=$[$pkgcount+1]
+	    if [ $[$pkgcount % $heartbeat_period] -eq 0 ] ; then
+		print_stats "extraction"
+	    fi
+	    flags=""
+	    if [ "$verbose" = "0" ] ; then
+		flags="$flags --quiet"
+	    fi
+	    if ! $bindir/extract-source $flags "$package" "$version" "$dsc" "$dest" ; then
+		warn "failed to extract package '$package' '$version'"
+	    fi
+    done
+}
 
+extract_sources
 garbage_collect
 
 info "extract-all: done."
