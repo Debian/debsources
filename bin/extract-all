@@ -15,13 +15,17 @@ if [ "$1" = "-q" -o "$1" = "--quiet" ] ; then
     shift
     verbose="0"
 fi
+if [ -n "$1" -a -f "$1" ] ; then
+    sources_list="$1"
+    shift
+else
+    sources_list=$(mktemp --tmpdir debsources.XXXXXXXXXX)
+    trap "rm -f $sources_list" EXIT
 
-sources_list=$(mktemp --tmpdir debsources.XXXXXXXXXX)
-trap "rm -f $sources_list" EXIT
-
-info "listing source packages..."
-if ! $bindir/list-sources --all > $sources_list ; then
-    err "cannot list available sources. Abort." 2
+    info "listing source packages..."
+    if ! $bindir/list-sources --all > $sources_list ; then
+	err "cannot list available sources. Abort." 2
+    fi
 fi
 
 total=$(wc -l $sources_list | cut -f 1 -d' ')
