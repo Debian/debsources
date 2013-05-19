@@ -24,13 +24,12 @@ else
 
     info "listing available source packages..."
     if ! $bindir/list-sources --all > $sources_list ; then
-	err "cannot list available sources. Abort." 2
+	err "cannot list available source packages. Abort." 2
     fi
 fi
 
-total=$(wc -l $sources_list | cut -f 1 -d' ')
-
 init_stats() {
+    total="$1"
     pkgcount=0
 }
 
@@ -40,12 +39,16 @@ print_stats() {
         # used=$(du -sh | cut -f 1)
         # free=$(df -h . | tail -n 1 | awk '{print $3}')
         # echo "$pkgcount / $total (used/free: $used / $free)"
-        info "$label heartbeat: $pkgcount / $total"
+	msg="$label heartbeat: $pkgcount"
+	if [ -n "$total" ] ; then
+	    msg="$msg / $total"
+	fi
+        info "$msg"
     fi
 }
 
 garbage_collect() {
-    init_stats
+    init_stats ""
     info "garbage collection of old packages/versions..."
     # ASSUMPTION: pool structure $root/sources/{main,contrib,non-free,...}/HASH/PACKAGE
     # e.g. /srv/debsources/sources/main/d/dotclear
@@ -54,7 +57,6 @@ garbage_collect() {
     while read pkgdir ; do
 	pkgcount=$[$pkgcount+1]
 	if [ $[$pkgcount % $heartbeat_period] -eq 0 ] ; then
-            # XXX BUG: total is not accurate for GC stats
             print_stats "gc"
 	fi
 	local pkg=$(basename "$pkgdir")
@@ -80,7 +82,9 @@ garbage_collect() {
 }
 
 extract_sources() {
-    init_stats
+    local sources_count=$(wc -l $sources_list | cut -f 1 -d' ')
+    init_stats "$sources_count"
+    info "extracting new source packages..."
     cat $sources_list | \
 	while read package version dsc dest ; do
 	    pkgcount=$[$pkgcount+1]
