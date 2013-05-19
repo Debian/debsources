@@ -22,3 +22,8 @@ sources_dir="$root/sources"
 lockfile="$root/ONGOING-UPDATE.pid"
 
 logfile="/var/log/debsources/debsources.log"
+
+# Set to "yes" to avoid doing any distructive operation on the unpacked source
+# tree.  Note: this does not affect the debmirror update pulse, which will be
+# executed anyhow.
+dry_run="no"

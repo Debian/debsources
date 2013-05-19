@@ -57,14 +57,18 @@ garbage_collect() {
 	if ! grep -q "^${pkg}[[:blank:]]" "$sources_list" ; then
 	    # completely remove disappeared package
 	    info "GC: rm ${pkg}"
-	    rm -rf "$pkgdir"
+	    if [ "$dry_run" != "yes" ] ; then
+		rm -rf "$pkgdir"
+	    fi
 	else
 	    find "$pkgdir" -mindepth 1 -maxdepth 1 -type d | \
 	    while read versiondir ; do
 		local version=$(basename "$versiondir")
 		if ! grep -q "^${pkg}[[:blank:]]${version}" "$sources_list" ; then
 		    info "GC: rm ${pkg} ${version}"
-		    rm -rf "$versiondir"
+		    if [ "$dry_run" != "yes" ] ; then
+			rm -rf "$versiondir"
+		    fi
 		fi
 	    done
 	fi
