@@ -27,18 +27,19 @@ if [ -z "$package" -o -z "$version" -o -z "$dsc" -o -z "$dest" -o ! -f "$dsc" ] 
     exit 1
 fi
 
-base=$(basename $dsc)    # e.g.: "dosemu_1.4.0+svn.2010-1.dsc"
-vpkgdir="$dest"
+base="$(basename $dsc)"
+donefile="${dest}.done"		# e.g.: "/srv/debsources/sources/main/z/zodb/1:3.9.7-2.done"
+logfile="${dest}.log"		# e.g.: "/srv/debsources/sources/main/z/zodb/1:3.9.7-2.log"
+parentdir="$(dirname $dest)"	# e.g.: "/srv/debsources/sources/main/z/zodb"
 
-if [ -f "$vpkgdir/$base.done" ] ; then    # already extracted, avoid re-extraction
+if [ -f "$donefile" ] ; then    # already extracted, avoid re-extraction
     exit 0
 else
-    info "extracting $base ..."
+    info "extracting ${base} ..."
     if [ "$dry_run" != "yes" ] ; then
-	mkdir -p "$vpkgdir"
-	(cd "$vpkgdir" && \
-            dpkg-source --no-copy --no-check -x "$dsc" &> "$base.log" && \
-            chgrp -R "$gid" . && \
-            touch "$base.done")
+	mkdir -p "$parentdir"
+        dpkg-source --no-copy --no-check -x "$dsc" "$dest" &> "$logfile"
+        chgrp -R "$dest" .
+	touch "$donefile"
     fi
 fi

@@ -71,7 +71,7 @@ garbage_collect() {
 		if ! grep -q "^${pkg}[[:blank:]]${version}" "$sources_list" ; then
 		    info "GC: rm ${pkg} ${version}"
 		    if [ "$dry_run" != "yes" ] ; then
-			rm -rf "$versiondir"
+			rm -rf "$versiondir" "${versiondir}.log" "${versiondir}.done"
 		    fi
 		fi
 	    done
