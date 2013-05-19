@@ -22,7 +22,7 @@ else
     sources_list=$(mktemp --tmpdir debsources.XXXXXXXXXX)
     trap "rm -f $sources_list" EXIT
 
-    info "listing source packages..."
+    info "listing available source packages..."
     if ! $bindir/list-sources --all > $sources_list ; then
 	err "cannot list available sources. Abort." 2
     fi
@@ -40,7 +40,7 @@ print_stats() {
         # used=$(du -sh | cut -f 1)
         # free=$(df -h . | tail -n 1 | awk '{print $3}')
         # echo "$pkgcount / $total (used/free: $used / $free)"
-        echo "$label heartbeat: $pkgcount / $total"
+        info "$label heartbeat: $pkgcount / $total"
     fi
 }
 
@@ -60,7 +60,7 @@ garbage_collect() {
 	local pkg=$(basename "$pkgdir")
 	if ! grep -q "^${pkg}[[:blank:]]" "$sources_list" ; then
 	    # completely remove disappeared package
-	    info "GC: rm ${pkg}"
+	    info "gc: rm ${pkg}"
 	    if [ "$dry_run" != "yes" ] ; then
 		rm -rf "$pkgdir"
 	    fi
