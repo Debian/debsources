@@ -4,7 +4,7 @@
 #
 # A .dsc will be extracted only if needed.
 #
-# Usage: extract_source [OPTION]... PACKAGE VERSION DSC_FILE DEST_DIR
+# Usage: extract-source [OPTION]... PACKAGE VERSION DSC_FILE DEST_DIR
 # Options:
 #     -q/--quiet    suppress all (non-error) output
 
@@ -23,7 +23,7 @@ dsc="$3"        # e.g.: "/srv/debian-mirror/pool/contrib/d/dosemu/dosemu_1.4.0+s
 dest="$4"       # e.g.: "/srv/debsources/sources/contrib/d/dosemu/1.4.0+svn.2010-1"
 
 if [ -z "$package" -o -z "$version" -o -z "$dsc" -o -z "$dest" -o ! -f "$dsc" ] ; then
-    echo "Usage: extract_source [OPTION]... PACKAGE VERSION DSC_FILE DEST_DIR"
+    echo "Usage: extract-source [OPTION]... PACKAGE VERSION DSC_FILE DEST_DIR"
     exit 1
 fi
 

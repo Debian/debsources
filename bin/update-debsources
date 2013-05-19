@@ -19,7 +19,7 @@ main() {
 
     # extract sources
     info "update-debsources: extracting source packages"
-    ${root}/bin/extract_all
+    ${root}/bin/extract-all
 
     info "update-debsources: all done at $(date)"
 }

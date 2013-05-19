@@ -20,7 +20,7 @@ sources_list=$(mktemp --tmpdir debsources.XXXXXXXXXX)
 trap "rm -f $sources_list" EXIT
 
 info "listing source packages..."
-if ! $bindir/list_sources --all > $sources_list ; then
+if ! $bindir/list-sources --all > $sources_list ; then
     err "cannot list available sources. Abort." 2
 fi
 
@@ -82,11 +82,11 @@ while read package version dsc dest ; do
     if [ "$verbose" = "0" ] ; then
         flags="$flags --quiet"
     fi
-    if ! $bindir/extract_source $flags "$package" "$version" "$dsc" "$dest" ; then
+    if ! $bindir/extract-source $flags "$package" "$version" "$dsc" "$dest" ; then
 	warn "failed to extract package '$package' '$version'"
     fi
 done
 
 garbage_collect
 
-info "extract_all: done."
+info "extract-all: done."
