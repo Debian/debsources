@@ -17,10 +17,10 @@ if [ "$1" = "-q" -o "$1" = "--quiet" ] ; then
     verbose="0"
 fi
 
-package="$1"    # e.g.: "dosemu"
-version="$2"    # e.g.: "1.4.0+svn.2010-1"
-dsc="$3"        # e.g.: "/srv/debian-mirror/pool/contrib/d/dosemu/dosemu_1.4.0+svn.2010-1.dsc"
-dest="$4"       # e.g.: "/srv/debsources/sources/contrib/d/dosemu/1.4.0+svn.2010-1"
+package="$1"    # e.g.: "zodb"
+version="$2"    # e.g.: "1:3.9.7-2"
+dsc="$3"        # e.g.: "/srv/debian-mirror/pool/main/z/zodb/zodb_3.9.7-2.dsc"
+dest="$4"       # e.g.: "/srv/debsources/sources/main/z/zodb/1:3.9.7-2"
 
 if [ -z "$package" -o -z "$version" -o -z "$dsc" -o -z "$dest" -o ! -f "$dsc" ] ; then
     echo "Usage: extract-source [OPTION]... PACKAGE VERSION DSC_FILE DEST_DIR"
