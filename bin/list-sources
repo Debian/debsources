@@ -11,6 +11,7 @@
 
 root="/srv/debsources"
 source "$root/etc/config.sh"
+source "$root/bin/lib.sh"
 
 list_all="no"
 

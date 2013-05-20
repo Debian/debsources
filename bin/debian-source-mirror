@@ -3,6 +3,7 @@
 
 root="/srv/debsources"
 source "$root/etc/config.sh"
+source "$root/etc/lib.sh"
 
 debmirror \
   --source \

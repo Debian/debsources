@@ -1,4 +1,6 @@
 
+umask 0002
+
 verbose="1"
 
 info() {
