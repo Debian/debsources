@@ -39,7 +39,7 @@ print_stats() {
         # used=$(du -sh | cut -f 1)
         # free=$(df -h . | tail -n 1 | awk '{print $3}')
         # echo "$pkgcount / $total (used/free: $used / $free)"
-	msg="$label heartbeat: $pkgcount"
+	msg="heartbeat: $pkgcount"
 	if [ -n "$total" ] ; then
 	    msg="$msg / $total"
 	fi
@@ -71,7 +71,7 @@ garbage_collect() {
 	    while read versiondir ; do
 		local version=$(basename "$versiondir")
 		if ! grep -q "^${pkg}[[:blank:]]${version}" "$sources_list" ; then
-		    info "GC: rm ${pkg} ${version}"
+		    info "gc: rm ${pkg} ${version}"
 		    if [ "$dry_run" != "yes" ] ; then
 			rm -rf "$versiondir" "${versiondir}.log" "${versiondir}.done"
 		    fi
