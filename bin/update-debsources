@@ -21,6 +21,9 @@ main() {
     info "update-debsources: extracting source packages"
     ${root}/bin/extract-all
 
+    info "update-debsources: creating http redirection map"
+    ${root}/bin/srclist2redirmap < "$sources_list" > "$sources_map"
+
     info "update-debsources: all done at $(date)"
 }
 
