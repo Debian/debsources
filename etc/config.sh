@@ -22,6 +22,7 @@ sources_dir="$root/sources"
 # Local cache of available source packages
 sources_list="${root}/sources.txt"
 sources_map="${root}/sources.map"
+sources_dbm="${root}/sources.dbm"
 
 lockfile="$root/ONGOING-UPDATE.pid"
 

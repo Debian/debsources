@@ -1,8 +1,12 @@
 #!/bin/bash
 
+# Depends: apache2-utils (for httxt2dbm)
+
 root="/srv/debsources"
 source "$root/etc/config.sh"
 source "$root/bin/lib.sh"
+
+export PATH="$PATH:/usr/sbin"	# httxt2dbm (currently) lives in sbin
 
 main() {
     info "update-debsources: starting at $(date)"
@@ -23,6 +27,8 @@ main() {
 
     info "update-debsources: creating http redirection map"
     ${root}/bin/srclist2redirmap < "$sources_list" > "$sources_map"
+    httxt2dbm -i "$sources_map" -o "$sources_dbm"
+    chmod 664 "$sources_dbm"
 
     info "update-debsources: all done at $(date)"
 }
