@@ -19,6 +19,9 @@ mirror_dir="/srv/debian-mirror"
 # Directories where extracted Debian source packages will be put.
 sources_dir="$root/sources"
 
+# Local cache of available source packages
+sources_list="${root}/sources.txt"
+
 lockfile="$root/ONGOING-UPDATE.pid"
 
 logfile="/var/log/debsources/debsources.log"

@@ -19,13 +19,19 @@ if [ -n "$1" -a -f "$1" ] ; then
     sources_list="$1"
     shift
 else
-    sources_list=$(mktemp --tmpdir debsources.XXXXXXXXXX)
-    trap "rm -f $sources_list" EXIT
+    tmp_list=$(mktemp --tmpdir debsources.XXXXXXXXXX)
+    trap "rm -f ${tmp_list}" EXIT
 
     info "listing available source packages..."
-    if ! $bindir/list-sources --all > $sources_list ; then
+    if ! $bindir/list-sources --all > $tmp_list ; then
 	err "cannot list available source packages. Abort." 2
     fi
+    if [ -f "$sources_list" ] ; then
+	mv "$sources_list" "${sources_list}.old"
+    fi
+    mv "$tmp_list" "$sources_list"
+    chmod 664 "$sources_list"
+    chgrp $gid "$sources_list"
 fi
 
 init_stats() {
