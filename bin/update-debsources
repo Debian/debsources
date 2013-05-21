@@ -56,10 +56,15 @@ main() {
     info "update-debsources: starting at $(date)"
 
     if [ -f "$lockfile" ] ; then
-	err "lockfile found. Abort" 2
+	pid=$(head "$lockfile")
+	if ! ps "$pid" > /dev/null ; then
+	    info "update-debsources: remove stale lockfile for pid '$pid'"
+	    rm -f "$lockfile"
+	else
+	    err "lockfile found. Abort" 2
+	fi
     fi
     echo $$ > "$lockfile"
-    trap "rm -f $lockfile" EXIT
 
     update_mirror
     list_sources	# fill $sources_list_new
@@ -71,6 +76,7 @@ main() {
     garbage_collect "$sources_list"
     update_maps "$sources_list"
 
+    rm -f "$lockfile"
     info "update-debsources: all done at $(date)"
 }
 
