@@ -9,8 +9,6 @@ root="/srv/debsources"
 source "$root/etc/config.sh"
 source "$root/bin/lib.sh"
 
-heartbeat_period=1000
-
 if [ "$1" = "-q" -o "$1" = "--quiet" ] ; then
     shift
     verbose="0"
@@ -34,37 +32,15 @@ else
     chgrp $gid "$sources_list"
 fi
 
-init_stats() {
-    total="$1"
-    pkgcount=0
-}
-
-print_stats() {
-    local label="$1"
-    if [ "$verbose" = "1" ] ; then
-        # used=$(du -sh | cut -f 1)
-        # free=$(df -h . | tail -n 1 | awk '{print $3}')
-        # echo "$pkgcount / $total (used/free: $used / $free)"
-	msg="heartbeat: $pkgcount"
-	if [ -n "$total" ] ; then
-	    msg="$msg / $total"
-	fi
-        info "$msg"
-    fi
-}
-
 garbage_collect() {
-    init_stats ""
     info "garbage collection of old packages/versions..."
+    stats_init "gc" ""
     # ASSUMPTION: pool structure $root/sources/{main,contrib,non-free,...}/HASH/PACKAGE
     # e.g. /srv/debsources/sources/main/d/dotclear
     #      /srv/debsources/sources/main/libg/libglade2
     find "$sources_dir" -mindepth 3 -maxdepth 3 -type d | \
     while read pkgdir ; do
-	pkgcount=$[$pkgcount+1]
-	if [ $[$pkgcount % $heartbeat_period] -eq 0 ] ; then
-            print_stats "gc"
-	fi
+	stats_tick
 	local pkg=$(basename "$pkgdir")
 	if ! grep -q "^${pkg}[[:blank:]]" "$sources_list" ; then
 	    # completely remove disappeared package
@@ -89,14 +65,11 @@ garbage_collect() {
 
 extract_sources() {
     local sources_count=$(wc -l $sources_list | cut -f 1 -d' ')
-    init_stats "$sources_count"
     info "extracting new source packages..."
+    stats_init "extract" "$sources_count"
     cat $sources_list | \
 	while read package version dsc dest ; do
-	    pkgcount=$[$pkgcount+1]
-	    if [ $[$pkgcount % $heartbeat_period] -eq 0 ] ; then
-		print_stats "extraction"
-	    fi
+	    stats_tick
 	    flags=""
 	    if [ "$verbose" = "0" ] ; then
 		flags="$flags --quiet"
