@@ -43,13 +43,13 @@ garbage_collect() {
 
 update_maps() {
     # update maps, indexes, and co.
-    # TODO BUG: update_maps is currently not atomic, use a symlink (although
-    # it's not *such* a big deal, given it's currently very fast)
     local srclist="$1"
     info "update-debsources: creating http redirection map"
-    ${root}/bin/srclist2redirmap < "$srclist" > "$sources_map"
-    httxt2dbm -i "$sources_map" -o "$sources_dbm"
-    chmod 664 "$sources_dbm"
+    ${root}/bin/srclist2redirmap < "$srclist" > "${sources_map}.new"
+    mv "${sources_map}.new" "$sources_map"
+    httxt2dbm -i "$sources_map" -o "${sources_dbm}.new"
+    chmod 664 "${sources_dbm}.new"
+    mv "${sources_dbm}.new" "$sources_dbm"
 }
 
 main() {
