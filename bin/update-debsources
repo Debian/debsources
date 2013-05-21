@@ -14,38 +14,40 @@ update_mirror() {
     ${root}/bin/debian-source-mirror
 }
 
+# result: fill $sources_list_new with a path to new source packages list
 list_sources() {
     info "update-debsources: listing available source packages..."
 
-    tmp_list=$(mktemp --tmpdir debsources.XXXXXXXXXX)
-    trap "rm -f ${tmp_list}" EXIT
-
-    if ! $bindir/list-sources --all > $tmp_list ; then
+    # note: no risk of sub-second race here, thanks to $lockfile
+    sources_list_new="${sources_list}.$(date +%s)"
+    if ! $bindir/list-sources --all > "${sources_list_new}" ; then
 	err "cannot list available source packages. Abort." 2
     fi
-    if [ -f "$sources_list" ] ; then
-	mv "$sources_list" "${sources_list}.old"
-    fi
-    mv "$tmp_list" "$sources_list"
-    chmod 664 "$sources_list"
-    chgrp $gid "$sources_list"
+    chmod 664 "${sources_list_new}"
+    chgrp $gid "${sources_list_new}"
 }
 
 extract_sources() {
     # extract all source packages
+    local srclist="$1"
     info "update-debsources: extracting source packages..."
-    ${root}/bin/extract-all
+    ${root}/bin/extract-all "$srclist"
 }
 
 garbage_collect() {
     # extract all source packages
+    local srclist="$1"
     info "update-debsources: garbage collection..."
-    ${root}/bin/gc
+    ${root}/bin/gc "$srclist"
 }
 
 update_maps() {
+    # update maps, indexes, and co.
+    # TODO BUG: update_maps is currently not atomic, use a symlink (although
+    # it's not *such* a big deal, given it's currently very fast)
+    local srclist="$1"
     info "update-debsources: creating http redirection map"
-    ${root}/bin/srclist2redirmap < "$sources_list" > "$sources_map"
+    ${root}/bin/srclist2redirmap < "$srclist" > "$sources_map"
     httxt2dbm -i "$sources_map" -o "$sources_dbm"
     chmod 664 "$sources_dbm"
 }
@@ -60,10 +62,14 @@ main() {
     trap "rm -f $lockfile" EXIT
 
     update_mirror
-    list_sources
-    extract_sources
-    garbage_collect
-    update_maps
+    list_sources	# fill $sources_list_new
+    extract_sources "$sources_list_new"
+    if [ ! -L "$sources_list" ] ; then	# clean up if non symlink
+	rm -f "$sources_list"
+    fi
+    ln -fs "$sources_list_new" "$sources_list"	# atomically switch symlink
+    garbage_collect "$sources_list"
+    update_maps "$sources_list"
 
     info "update-debsources: all done at $(date)"
 }

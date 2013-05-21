@@ -14,8 +14,9 @@ if [ "$1" = "-q" -o "$1" = "--quiet" ] ; then
     shift
     verbose="0"
 fi
-if [ ! -f "$sources_list" ] ; then
-    err "gc: cannot find sources list at ${sources_list}. Abort" 2
+srclist="$1"
+if [ -z "$srclist" -o ! -f "$srclist" ] ; then
+    err "Usage: extract-all SOURCES_LIST" 3
 fi
 
 garbage_collect() {
@@ -27,7 +28,7 @@ garbage_collect() {
     while read pkgdir ; do
 	stats_tick
 	local pkg=$(basename "$pkgdir")
-	if ! grep -q "^${pkg}[[:blank:]]" "$sources_list" ; then
+	if ! grep -q "^${pkg}[[:blank:]]" "$srclist" ; then
 	    # completely remove disappeared package
 	    info "gc: rm ${pkg}"
 	    if [ "$dry_run" != "yes" ] ; then
@@ -37,7 +38,7 @@ garbage_collect() {
 	    find "$pkgdir" -mindepth 1 -maxdepth 1 -type d | \
 	    while read versiondir ; do
 		local version=$(basename "$versiondir")
-		if ! grep -q "^${pkg}[[:blank:]]${version}" "$sources_list" ; then
+		if ! grep -q "^${pkg}[[:blank:]]${version}" "$srclist" ; then
 		    info "gc: rm ${pkg} ${version}"
 		    if [ "$dry_run" != "yes" ] ; then
 			rm -rf "$versiondir" "${versiondir}.log" "${versiondir}.done"
