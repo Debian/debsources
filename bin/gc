@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# Garbage collection: get rid of source packages that are no longer referenced
+# from the local mirror
+#
+# Options:
+#     -q/--quiet    suppress all (non-error) output
+
+root="/srv/debsources"
+source "$root/etc/config.sh"
+source "$root/bin/lib.sh"
+
+if [ "$1" = "-q" -o "$1" = "--quiet" ] ; then
+    shift
+    verbose="0"
+fi
+srclist="$1"
+if [ -z "$srclist" -o ! -f "$srclist" ] ; then
+    err "Usage: extract-all SOURCES_LIST" 3
+fi
+
+garbage_collect() {
+    stats_init "gc" ""
+    # ASSUMPTION: pool structure $root/sources/{main,contrib,non-free,...}/HASH/PACKAGE
+    # e.g. /srv/debsources/sources/main/d/dotclear
+    #      /srv/debsources/sources/main/libg/libglade2
+    find "$sources_dir" -mindepth 3 -maxdepth 3 -type d | \
+    while read pkgdir ; do
+	stats_tick
+	local pkg=$(basename "$pkgdir")
+	if ! grep -q "^${pkg}[[:blank:]]" "$srclist" ; then
+	    # completely remove disappeared package
+	    info "gc: rm ${pkg}"
+	    if [ "$dry_run" != "yes" ] ; then
+		rm -rf "$pkgdir"
+	    fi
+	else
+	    find "$pkgdir" -mindepth 1 -maxdepth 1 -type d | \
+	    while read versiondir ; do
+		local version=$(basename "$versiondir")
+		if ! grep -q "^${pkg}[[:blank:]]${version}" "$srclist" ; then
+		    info "gc: rm ${pkg} ${version}"
+		    if [ "$dry_run" != "yes" ] ; then
+			rm -rf "$versiondir" "${versiondir}.log" "${versiondir}.done"
+		    fi
+		fi
+	    done
+	fi
+    done
+}
+
+garbage_collect
+
+info "gc: done."

@@ -8,28 +8,80 @@ source "$root/bin/lib.sh"
 
 export PATH="$PATH:/usr/sbin"	# httxt2dbm (currently) lives in sbin
 
+update_mirror() {
+    # update source mirror
+    info "update-debsources: updating source mirror..."
+    ${root}/bin/debian-source-mirror
+}
+
+# result: fill $sources_list_new with a path to new source packages list
+list_sources() {
+    info "update-debsources: listing available source packages..."
+
+    # note: no risk of sub-second race here, thanks to $lockfile
+    sources_list_new="${sources_list}.$(date +%s)"
+    if ! $bindir/list-sources --all > "${sources_list_new}" ; then
+	err "cannot list available source packages. Abort." 2
+    fi
+    chmod 664 "${sources_list_new}"
+    chgrp $gid "${sources_list_new}"
+}
+
+extract_sources() {
+    # extract all source packages
+    local srclist="$1"
+    info "update-debsources: extracting source packages..."
+    ${root}/bin/extract-all "$srclist"
+}
+
+garbage_collect() {
+    # extract all source packages
+    local srclist="$1"
+    info "update-debsources: garbage collection..."
+    ${root}/bin/gc "$srclist"
+}
+
+update_maps() {
+    # update maps, indexes, and co.
+    local srclist="$1"
+    info "update-debsources: creating http redirection map"
+    ${root}/bin/srclist2redirmap < "$srclist" > "${sources_map}.new"
+    mv "${sources_map}.new" "$sources_map"
+    httxt2dbm -i "$sources_map" -o "${sources_dbm}.new"
+    chmod 664 "${sources_dbm}.new"
+    mv "${sources_dbm}.new" "$sources_dbm"
+}
+
 main() {
     info "update-debsources: starting at $(date)"
 
     if [ -f "$lockfile" ] ; then
-	err "lockfile found. Abort" 2
+	pid=$(head "$lockfile")
+	if ! ps "$pid" > /dev/null ; then
+	    info "update-debsources: remove stale lockfile for pid '$pid'"
+	    rm -f "$lockfile"
+	else
+	    err "lockfile found. Abort" 2
+	fi
     fi
     echo $$ > "$lockfile"
-    trap "rm -f $lockfile" EXIT
 
-    # update source mirror
-    info "update-debsources: updating source mirror"
-    ${root}/bin/debian-source-mirror
+    update_mirror
+    list_sources	# fill $sources_list_new
+    extract_sources "$sources_list_new"
+    if [ ! -L "$sources_list" ] ; then	# clean up if non symlink
+	rm -f "$sources_list"
+    else
+	sources_list_old=$(readlink "$sources_list")
+    fi
+    ln -fs "$sources_list_new" "$sources_list"	# atomically switch symlink
+    if [ -n "$sources_list_old" ] ; then
+	rm -f "$sources_list_old"
+    fi
+    update_maps "$sources_list"
+    garbage_collect "$sources_list"
 
-    # extract sources
-    info "update-debsources: extracting source packages"
-    ${root}/bin/extract-all
-
-    info "update-debsources: creating http redirection map"
-    ${root}/bin/srclist2redirmap < "$sources_list" > "$sources_map"
-    httxt2dbm -i "$sources_map" -o "$sources_dbm"
-    chmod 664 "$sources_dbm"
-
+    rm -f "$lockfile"
     info "update-debsources: all done at $(date)"
 }
 
