@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Main script: extract all (new/unextracted) sources
+# Extract all (new/unextracted) sources
 #
 # Options:
 #     -q/--quiet    suppress all (non-error) output
@@ -32,37 +32,6 @@ else
     chgrp $gid "$sources_list"
 fi
 
-garbage_collect() {
-    info "garbage collection of old packages/versions..."
-    stats_init "gc" ""
-    # ASSUMPTION: pool structure $root/sources/{main,contrib,non-free,...}/HASH/PACKAGE
-    # e.g. /srv/debsources/sources/main/d/dotclear
-    #      /srv/debsources/sources/main/libg/libglade2
-    find "$sources_dir" -mindepth 3 -maxdepth 3 -type d | \
-    while read pkgdir ; do
-	stats_tick
-	local pkg=$(basename "$pkgdir")
-	if ! grep -q "^${pkg}[[:blank:]]" "$sources_list" ; then
-	    # completely remove disappeared package
-	    info "gc: rm ${pkg}"
-	    if [ "$dry_run" != "yes" ] ; then
-		rm -rf "$pkgdir"
-	    fi
-	else
-	    find "$pkgdir" -mindepth 1 -maxdepth 1 -type d | \
-	    while read versiondir ; do
-		local version=$(basename "$versiondir")
-		if ! grep -q "^${pkg}[[:blank:]]${version}" "$sources_list" ; then
-		    info "gc: rm ${pkg} ${version}"
-		    if [ "$dry_run" != "yes" ] ; then
-			rm -rf "$versiondir" "${versiondir}.log" "${versiondir}.done"
-		    fi
-		fi
-	    done
-	fi
-    done
-}
-
 extract_sources() {
     local sources_count=$(wc -l $sources_list | cut -f 1 -d' ')
     info "extracting new source packages..."
@@ -81,6 +50,5 @@ extract_sources() {
 }
 
 extract_sources
-garbage_collect
 
 info "extract-all: done."

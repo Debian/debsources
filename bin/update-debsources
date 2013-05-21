@@ -21,6 +21,13 @@ extract_sources() {
     ${root}/bin/extract-all
 }
 
+garbage_collect() {
+    # extract all source packages
+    # side effect: update $sources_list
+    info "update-debsources: garbage collection"
+    ${root}/bin/gc
+}
+
 update_maps() {
     info "update-debsources: creating http redirection map"
     ${root}/bin/srclist2redirmap < "$sources_list" > "$sources_map"
@@ -39,6 +46,7 @@ main() {
 
     update_mirror
     extract_sources
+    garbage_collect
     update_maps
 
     info "update-debsources: all done at $(date)"
