@@ -19,7 +19,6 @@ fi
 
 extract_sources() {
     local sources_count=$(wc -l $sources_list | cut -f 1 -d' ')
-    info "extracting new source packages..."
     stats_init "extract" "$sources_count"
     cat $sources_list | \
 	while read package version dsc dest ; do

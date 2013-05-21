@@ -10,12 +10,12 @@ export PATH="$PATH:/usr/sbin"	# httxt2dbm (currently) lives in sbin
 
 update_mirror() {
     # update source mirror
-    info "update-debsources: updating source mirror"
+    info "update-debsources: updating source mirror..."
     ${root}/bin/debian-source-mirror
 }
 
 list_sources() {
-    info "listing available source packages..."
+    info "update-debsources: listing available source packages..."
 
     tmp_list=$(mktemp --tmpdir debsources.XXXXXXXXXX)
     trap "rm -f ${tmp_list}" EXIT
@@ -33,13 +33,13 @@ list_sources() {
 
 extract_sources() {
     # extract all source packages
-    info "update-debsources: extracting source packages"
+    info "update-debsources: extracting source packages..."
     ${root}/bin/extract-all
 }
 
 garbage_collect() {
     # extract all source packages
-    info "update-debsources: garbage collection"
+    info "update-debsources: garbage collection..."
     ${root}/bin/gc
 }
 
