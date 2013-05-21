@@ -14,16 +14,31 @@ update_mirror() {
     ${root}/bin/debian-source-mirror
 }
 
+list_sources() {
+    info "listing available source packages..."
+
+    tmp_list=$(mktemp --tmpdir debsources.XXXXXXXXXX)
+    trap "rm -f ${tmp_list}" EXIT
+
+    if ! $bindir/list-sources --all > $tmp_list ; then
+	err "cannot list available source packages. Abort." 2
+    fi
+    if [ -f "$sources_list" ] ; then
+	mv "$sources_list" "${sources_list}.old"
+    fi
+    mv "$tmp_list" "$sources_list"
+    chmod 664 "$sources_list"
+    chgrp $gid "$sources_list"
+}
+
 extract_sources() {
     # extract all source packages
-    # side effect: update $sources_list
     info "update-debsources: extracting source packages"
     ${root}/bin/extract-all
 }
 
 garbage_collect() {
     # extract all source packages
-    # side effect: update $sources_list
     info "update-debsources: garbage collection"
     ${root}/bin/gc
 }
@@ -45,6 +60,7 @@ main() {
     trap "rm -f $lockfile" EXIT
 
     update_mirror
+    list_sources
     extract_sources
     garbage_collect
     update_maps

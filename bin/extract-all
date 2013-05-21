@@ -13,23 +13,8 @@ if [ "$1" = "-q" -o "$1" = "--quiet" ] ; then
     shift
     verbose="0"
 fi
-if [ -n "$1" -a -f "$1" ] ; then
-    sources_list="$1"
-    shift
-else
-    tmp_list=$(mktemp --tmpdir debsources.XXXXXXXXXX)
-    trap "rm -f ${tmp_list}" EXIT
-
-    info "listing available source packages..."
-    if ! $bindir/list-sources --all > $tmp_list ; then
-	err "cannot list available source packages. Abort." 2
-    fi
-    if [ -f "$sources_list" ] ; then
-	mv "$sources_list" "${sources_list}.old"
-    fi
-    mv "$tmp_list" "$sources_list"
-    chmod 664 "$sources_list"
-    chgrp $gid "$sources_list"
+if [ ! -f "$sources_list" ] ; then
+    err "extract-all: cannot find sources list at ${sources_list}. Abort" 2
 fi
 
 extract_sources() {

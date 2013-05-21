@@ -14,6 +14,9 @@ if [ "$1" = "-q" -o "$1" = "--quiet" ] ; then
     shift
     verbose="0"
 fi
+if [ ! -f "$sources_list" ] ; then
+    err "gc: cannot find sources list at ${sources_list}. Abort" 2
+fi
 
 garbage_collect() {
     stats_init "gc" ""
