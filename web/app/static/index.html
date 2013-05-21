@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Debian sources</title>
+    <script src="/javascript/jquery/jquery.js"></script>
+    <!-- todo: apt-get install libjs-highlight -->
+    <link rel="stylesheet"
+          href="http://yandex.st/highlightjs/7.3/styles/default.min.css">
+    <script src="http://yandex.st/highlightjs/7.3/highlight.min.js"></script>
+    <script src="getsource.js"></script>
+    <script type="text/javascript">
+      function loadFromButton(){
+          loadSource($('#fileUrl').val(), $('#sourcecode'));
+      }
+      function loadFromBody(){
+          loadSource("decimal.py", $('#sourcecode'));
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Debian sources</h1>
+    <hr />
+    <pre>
+      <code id="sourcecode">loading...
+      </code>
+    </pre>
+    <!--
+    <input type="text" name="fileUrl" value="decimal.py" id="fileUrl" />
+    <button type="button" onclick="loadFromButton()">Get source</button>
+    -->
+    <script type="text/javascript">loadFromBody();</script>
+  </body>
+</html>
