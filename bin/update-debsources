@@ -8,6 +8,26 @@ source "$root/bin/lib.sh"
 
 export PATH="$PATH:/usr/sbin"	# httxt2dbm (currently) lives in sbin
 
+update_mirror() {
+    # update source mirror
+    info "update-debsources: updating source mirror"
+    ${root}/bin/debian-source-mirror
+}
+
+extract_sources() {
+    # extract all source packages
+    # side effect: update $sources_list
+    info "update-debsources: extracting source packages"
+    ${root}/bin/extract-all
+}
+
+update_maps() {
+    info "update-debsources: creating http redirection map"
+    ${root}/bin/srclist2redirmap < "$sources_list" > "$sources_map"
+    httxt2dbm -i "$sources_map" -o "$sources_dbm"
+    chmod 664 "$sources_dbm"
+}
+
 main() {
     info "update-debsources: starting at $(date)"
 
@@ -17,18 +37,9 @@ main() {
     echo $$ > "$lockfile"
     trap "rm -f $lockfile" EXIT
 
-    # update source mirror
-    info "update-debsources: updating source mirror"
-    ${root}/bin/debian-source-mirror
-
-    # extract sources
-    info "update-debsources: extracting source packages"
-    ${root}/bin/extract-all
-
-    info "update-debsources: creating http redirection map"
-    ${root}/bin/srclist2redirmap < "$sources_list" > "$sources_map"
-    httxt2dbm -i "$sources_map" -o "$sources_dbm"
-    chmod 664 "$sources_dbm"
+    update_mirror
+    extract_sources
+    update_maps
 
     info "update-debsources: all done at $(date)"
 }
