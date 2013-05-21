@@ -71,8 +71,13 @@ main() {
     extract_sources "$sources_list_new"
     if [ ! -L "$sources_list" ] ; then	# clean up if non symlink
 	rm -f "$sources_list"
+    else
+	sources_list_old=$(readlink "$sources_list")
     fi
     ln -fs "$sources_list_new" "$sources_list"	# atomically switch symlink
+    if [ -n "$sources_list_old" ] ; then
+	rm -f "$sources_list_old"
+    fi
     garbage_collect "$sources_list"
     update_maps "$sources_list"
 
