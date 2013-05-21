@@ -2,3 +2,4 @@
 /sources.dbm*
 /sources.map*
 /sources.txt*
+*.pyc
