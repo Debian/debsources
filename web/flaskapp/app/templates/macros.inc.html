@@ -1,0 +1,46 @@
+{# from
+http://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Pagination.iter_pages #}
+{% macro render_pagination(pagination, endpoint) %}
+  <div class=pagination>
+  {%- for page in pagination.iter_pages(left_edge=5, left_current=5, right_current=5, right_edge=5) %}
+    {% if page %}
+      {% if page != pagination.page %}
+        <a href="{{ url_for(endpoint, page=page) }}">{{ page }}</a>
+      {% else %}
+        <strong>{{ page }}</strong>
+      {% endif %}
+    {% else %}
+      <span class=ellipsis>…</span>
+    {% endif %}
+  {%- endfor %}
+  </div>
+{% endmacro %}
+
+
+{% macro searchform(form, display="block") -%}
+  <form action="." name="searchform"
+        method="post" style="display: {{ display }};">
+    {{ form.hidden_tag() }}
+    {{ form.packagename }}
+    {% for error in form.errors.packagename %}
+      <em>{{ error }}</em>
+    {% endfor %}
+    <input type="submit" value="Search" />
+  </form>
+{%- endmacro %}
+
+{% macro listpackages(packages, exclude=None) -%}
+  <ul>
+    {% for package in packages %}
+      {% if package != exclude %}
+        <li><strong>{{ package.name }}</strong>:
+          <ul>
+            {% for version in package.versions %}
+              <li>{{ version }}</li>
+            {% endfor %}
+          </ul>
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+{%- endmacro %}

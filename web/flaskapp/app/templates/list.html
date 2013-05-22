@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% import "macros.inc.html" as macros %}
+
+{% block content %}
+
+<h2>Package list</h2>
+{{ macros.listpackages(packages.items) }}
+
+{{ macros.render_pagination(packages, "list") }}
+
+{% endblock %}

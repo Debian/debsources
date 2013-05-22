@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% import "searchform.inc.html" as searchf %}
+{% import "macros.inc.html" as macros %}
 
 {% block content %}
 
@@ -7,11 +7,13 @@
 <p>This is the index page, where you can navigate through Debian sources.</p>
 <ul>
   <li>Search for a package name:
-    {{ searchf.loginform(searchform, display="inline") }}</li>
-  <li>View package list (alphabetically)</li>
+    {{ macros.searchform(searchform, display="inline") }}</li>
+  <li><a href="{{ url_for('list', page=1) }}">View package list</a> 
+    (alphabetically)</li>
   <li>By first letter:
-    {% for letter in "0123456789abcdefghijklmnopqrstuvwxyz" %}{{
-    letter }} {% endfor %}</li>
+    {% for letter in letters %}
+      <a href="{{ url_for('letter', letter=letter) }}">{{ letter }}</a>
+    {% endfor %}</li>
 </ul>
 
 {% endblock %}
