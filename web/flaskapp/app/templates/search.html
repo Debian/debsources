@@ -16,7 +16,7 @@
   No exact matching found
 {% endif %}
 <h2>Other results</h2>
-{% if other_results[1] or not exact_matching %}
+{% if other_results[1] or (not exact_matching and other_results[0]) %}
   <ul>
     {% for package in other_results %}
       {% if package != exact_matching %}
