@@ -13,6 +13,10 @@ def get_letters():
             'libv','libw','libx','liby','libz',
             'm','n','o','p','q','r','s','t','u','v','w','x','y','z']
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
 @app.route('/', methods=['POST', 'GET']) # navigation
 @app.route('/nav/', methods=['POST', 'GET'])
 def index():
