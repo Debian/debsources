@@ -71,5 +71,5 @@ if __name__ == "__main__":
     #os.environ['PYTHONINSPECT'] = 'True'
 
     sources2db(args.sources, url, drop=args.drop)
-    print()
-    print(time.time() - start_time)
+    print("\n")
+    print("Execution time: %f s" % (time.time() - start_time))
