@@ -1,14 +1,10 @@
 from flask import render_template
 
-from app import app, db
-from models import Package, Version
-
-from flask.ext.sqlalchemy import BaseQuery
+from app import app
+from models_app import Package_app, Version_app
 
 @app.route('/') # navigation
 def index():
-    #a=BaseQuery(Package, session=db.session).paginate(1).items
-    #packages = db.session.query(Package).paginate(1, 10, False).items#all()
-    packages = db.session.query(Package).order_by(Package.name).limit(50)
+    packages = Package_app.query.order_by(Package_app.name).paginate(1, 10).items
     return render_template('index.html',
-                           packages=packages)#packages[:])
+                           packages=packages)

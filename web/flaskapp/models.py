@@ -1,8 +1,6 @@
-from sqlalchemy import Table, MetaData, Column, ForeignKey, Integer, String, \
-    and_
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.schema import Sequence
 
 Base = declarative_base()
 
