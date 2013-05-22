@@ -18,7 +18,7 @@ def index():
 @app.route('/nav/search/<packagename>')
 def search(packagename):
     exact_matching = Package_app.query.filter_by(name=packagename).first()
-    other_results = Package_app.query.filter(Package_app.name.like('%'+packagename+'%'))
+    other_results = Package_app.query.filter(Package_app.name.contains(packagename))
     return render_template('search.html',
                            exact_matching=exact_matching,
                            other_results=other_results)
