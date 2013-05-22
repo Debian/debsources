@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% import "macros.inc.html" as macros %}
+
+{% block content %}
+
+<h2>Package list</h2>
+{{ macros.listpackages(packages) }}
+
+{% endblock %}

@@ -1,35 +1,16 @@
 {% extends "base.html" %}
+{% import "macros.inc.html" as macros %}
 
 {% block content %}
 <h2>Exact matching</h2>
 {% if exact_matching %}
-  <ul>
-    <li><strong>{{ exact_matching.name }}</strong>:
-      <ul>
-      {% for version in exact_matching.versions %}
-        <li>{{ version }}</li>
-      {% endfor %}
-      </ul>
-    </li>
-  </ul>
+  {{ macros.listpackages([exact_matching]) }}
 {% else %}
   No exact matching found
 {% endif %}
 <h2>Other results</h2>
 {% if other_results[1] or (not exact_matching and other_results[0]) %}
-  <ul>
-    {% for package in other_results %}
-      {% if package != exact_matching %}
-        <li><strong>{{ package.name }}</strong>:
-          <ul>
-            {% for version in package.versions %}
-              <li>{{ version }}</li>
-            {% endfor %}
-          </ul>
-        </li>
-      {% endif %}
-    {% endfor %}
-  </ul>
+  {{ macros.listpackages(other_results, exact_matching) }}
 {% else %}
   No other results found
 {% endif %}
