@@ -16,10 +16,10 @@ def get_letters():
 @app.route('/', methods=['POST', 'GET']) # navigation
 @app.route('/nav/', methods=['POST', 'GET'])
 def index():
-    #packages = Package_app.query.order_by(Package_app.name).paginate(1, 10).items
     searchform = SearchForm()
     if searchform.validate_on_submit():
-        return redirect(url_for("search", packagename=searchform.packagename.data))
+        return redirect(url_for("search",
+                                packagename=searchform.packagename.data))
     return render_template('index.html',
                            searchform=searchform,
                            letters=get_letters())
@@ -29,7 +29,8 @@ def index():
 def search(packagename):
     packagename = packagename.replace('%', '').replace('_', '')
     exact_matching = Package_app.query.filter_by(name=packagename).first()
-    other_results = Package_app.query.filter(Package_app.name.contains(packagename))
+    other_results = Package_app.query.filter(
+        Package_app.name.contains(packagename)).order_by(Package_app.name)
     return render_template('search.html',
                            exact_matching=exact_matching,
                            other_results=other_results)
@@ -37,7 +38,8 @@ def search(packagename):
 @app.route('/nav/list/')
 @app.route('/nav/list/<int:page>/')
 def list(page=1):
-    packages = Package_app.query.order_by(Package_app.name).paginate(page, 20, False)
+    packages = Package_app.query.order_by(
+        Package_app.name).paginate(page, 20, False)
     return render_template('list.html',
                            packages=packages)
 
@@ -45,7 +47,8 @@ def list(page=1):
 @app.route('/nav/letter/<letter>')
 def letter(letter='a'):
     if letter in get_letters():
-        packages = Package_app.query.filter(Package_app.name.startswith(letter))
+        packages = Package_app.query.filter(
+            Package_app.name.startswith(letter)).order_by(Package_app.name)
         return render_template("letter.html",
                                packages=packages)
     else:
