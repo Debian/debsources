@@ -58,8 +58,8 @@ if __name__ == "__main__":
                         help="absolute or relative path to the sqlite file")
     parser.add_argument("sources",
                         help="absolute or relative path to the sources.txt file")
-    parser.add_argument("--drop",
-                        help="drops the database before", action="store_true")
+    #parser.add_argument("--drop",
+    #                    help="drops the database before", action="store_true")
     args = parser.parse_args()
     
     if args.sqlite_file[0] != '/': # relatve path
@@ -70,6 +70,6 @@ if __name__ == "__main__":
     
     #os.environ['PYTHONINSPECT'] = 'True'
 
-    sources2db(args.sources, url, drop=args.drop)
+    sources2db(args.sources, url, drop=True)
     print("\n")
     print("Execution time: %f s" % (time.time() - start_time))
