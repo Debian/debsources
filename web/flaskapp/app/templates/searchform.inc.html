@@ -1,0 +1,11 @@
+{% macro loginform(form, display="block") -%}
+  <form action="." name="searchform"
+        method="post" style="display: {{ display }};">
+    {{ form.hidden_tag() }}
+    {{ form.packagename }}
+    {% for error in form.errors.packagename %}
+      <em>{{ error }}</em>
+    {% endfor %}
+    <input type="submit" value="Search" />
+  </form>
+{%- endmacro %}

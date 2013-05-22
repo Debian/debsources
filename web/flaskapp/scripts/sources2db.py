@@ -38,8 +38,8 @@ def sources2db(sources,  db_url, drop=False):
     Package.__table__.insert(bind=engine).execute(
         [dict(name=p) for p in packages]
         )
-    # we get the packages list along with their ids
-    packages = session.query(Package).all()
+    # we get the packages list along with their ids(without the joined versions)
+    packages = session.query(Package).enable_eagerloads(False).all()
     # we build the dict (package1: id1, ...)
     packids = dict()
     for p in packages:

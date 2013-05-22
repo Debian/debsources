@@ -10,7 +10,7 @@ class Package(Base):
     
     id = Column('id', Integer, primary_key=True)
     name = Column('name', String)
-    versions = relationship("Version", backref="package")
+    versions = relationship("Version", backref="package", lazy="joined")
     
     def __init__(self, name):
         self.name = name

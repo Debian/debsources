@@ -1,12 +1,17 @@
 {% extends "base.html" %}
+{% import "searchform.inc.html" as searchf %}
+
 {% block content %}
+
 <h2>Index</h2>
-This is the index page, where you can navigate through Debian sources.
-<br />
+<p>This is the index page, where you can navigate through Debian sources.</p>
 <ul>
-  {% for package in packages %}
-  <li><span style="color: blue;">{{ package.name }}</span>
-    {% for version in package.versions %}{{ version }}/{% endfor %}</li>
-  {% endfor %}
+  <li>Search for a package name:
+    {{ searchf.loginform(searchform, display="inline") }}</li>
+  <li>View package list (alphabetically)</li>
+  <li>By first letter:
+    {% for letter in "0123456789abcdefghijklmnopqrstuvwxyz" %}{{
+    letter }} {% endfor %}</li>
 </ul>
+
 {% endblock %}

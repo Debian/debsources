@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Exact matching</h2>
+{% if exact_matching %}
+  <ul>
+    <li><strong>{{ exact_matching.name }}</strong>:
+      <ul>
+      {% for version in exact_matching.versions %}
+        <li>{{ version }}</li>
+      {% endfor %}
+      </ul>
+    </li>
+  </ul>
+{% else %}
+  No exact matching found
+{% endif %}
+<h2>Other results</h2>
+{% if other_results[1] or not exact_matching %}
+  <ul>
+    {% for package in other_results %}
+      {% if package != exact_matching %}
+        <li><strong>{{ package.name }}</strong>:
+          <ul>
+            {% for version in package.versions %}
+              <li>{{ version }}</li>
+            {% endfor %}
+          </ul>
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+{% else %}
+  No other results found
+{% endif %}
+{% endblock %}
