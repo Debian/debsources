@@ -5,8 +5,9 @@
     <title>Debian sources</title>
     <script src="/javascript/jquery/jquery.js"></script>
     <!-- todo: apt-get install libjs-highlight -->
-    <link rel="stylesheet"
-          href="http://yandex.st/highlightjs/7.3/styles/default.min.css">
+    <!-- we use the googlecode theme to avoid color conflicts
+         with custom lines highlighting -->
+    <link rel="stylesheet" href="http://yandex.st/highlightjs/7.3/styles/default.min.css">
     <script src="http://yandex.st/highlightjs/7.3/highlight.min.js"></script>
     <script src="getsource.js"></script>
     <script type="text/javascript">
@@ -17,14 +18,27 @@
           loadSource("decimal.py", $('#sourcecode'));
       }
     </script>
+    <style>
+      ol{/*list-style-type: none;*/}
+      ol li{/*list-style: none;*/display: block;margin:0px;padding:0px;}
+    </style>
   </head>
   <body>
     <h1>Debian sources</h1>
     <hr />
     <pre>
-      <code id="sourcecode">loading...
+      <code id="sourcecode" class="python">loading...
+<ol>
+<li>def coucou():</li>
+<li>  print("coucou2")</li>
+<li>  return 4</li>
+<li>class Hello(object):</li>
+<li>  def __init__(self, a):</li>
+<li>    self.a = a</li>
+</ol>
       </code>
     </pre>
+
     <!--
     <input type="text" name="fileUrl" value="decimal.py" id="fileUrl" />
     <button type="button" onclick="loadFromButton()">Get source</button>

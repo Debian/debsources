@@ -13,6 +13,22 @@ def get_letters():
             'libv','libw','libx','liby','libz',
             'm','n','o','p','q','r','s','t','u','v','w','x','y','z']
 
+def get_path_links(package, version, path_to=""):
+    """
+    returns the path hierarchy with urls, to use with 'You are here:'
+    """
+    pathl = []
+    pathl.append((package, url_for('source', package=package)))
+    pathl.append((version, url_for('source', package=package, version=version)))
+    if path_to != "":
+        prev_path = ""
+        for p in path_to.split('/'):
+            pathl.append((p, url_for('source', package=package,
+                                     version=version,
+                                     path_to=prev_path+p)))
+            prev_path += p+"/"
+    return pathl
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
@@ -59,6 +75,48 @@ def letter(letter='a'):
         return render_template('404.html'), 404
 
 
-@app.route('/nav/package/<packagename>/<packageversion>/')
-def package(packagename, packageversion):
-    pass
+@app.route('/src/<package>/')
+@app.route('/src/<package>/<version>/')
+@app.route('/src/<package>/<version>/<path:path_to>/')
+def source(package, version="", path_to=None):
+    if version == "": # we list the versions for this package
+        return render_template("source_package.html") # todo
+    
+    import os
+    from flask import safe_join
+    if path_to is None:
+        path = "data/"+package+"/"+version
+        path_to = ""
+    else:
+        path = safe_join("data/"+package+"/"+version, path_to)
+    
+    if os.path.isdir(path): # we list the files in this folder
+        def quickurl(path_to, f):
+            if path_to != "":
+                path_to = path_to+"/"
+            return url_for('source', package=package,
+                           version=version,
+                           path_to=path_to+f)
+        
+        files = sorted((f, quickurl(path_to, f)) for f in os.listdir(path)
+                       if os.path.isfile(os.path.join(path, f)))
+
+        dirs = sorted((d, quickurl(path_to, d)) for d in os.listdir(path)
+                      if os.path.isdir(os.path.join(path, d)))
+        
+        return render_template("source_folder.html",
+                               files=files, dirs=dirs,
+                               pathl=get_path_links(package, version, path_to))
+    
+    elif os.path.exists(path): # we return the source code
+        pass
+    else: # 404
+        return render_template('404.html'), 404
+
+"""
+<p>You are here: {{ package }}/{{ version }}/{%
+  if splittedpath[0] != '' %}{%
+    for f in splittedpath %}{{ f }}/{%
+    endfor %}{%
+  endif %}</p>
+"""

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<p>You are here:
+  {% for (p, link) in pathl
+    %}<a href="{{ link }}">{{ p }}</a>/{%
+  endfor %}
+</p>
+
+<ul>
+{% for (dir, link) in dirs %}
+  <li>(folder) - <a href="{{ link }}">{{ dir }}</a></li>
+{% endfor %}
+
+{% for (file_, link) in files %}
+  <li>(file) - <a href="{{ link }}">{{ file_ }}</a></li>
+{% endfor %}
+</ul>
+
+{% endblock %}
