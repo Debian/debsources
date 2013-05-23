@@ -7,10 +7,10 @@ from forms import SearchForm
 def get_letters():
     return ['0','1','2','3','4','5','6','7','8','9',
             'a','b','c','d','e','f','g','h','i','j','k',
-            'liba','libb','libc','libd','libe','libf','libg',
-            'libh','libi','libj','libk','libl','libm','libn',
-            'libo','libp','libq','libr','libs','libt','libu',
-            'libv','libw','libx','liby','libz',
+            'lib3','liba','libb','libc','libd','libe','libf',
+            'libg','libh','libi','libj','libk','libl','libm',
+            'libn','libo','libp','libq','libr','libs','libt',
+            'libu','libv','libw','libx','liby','libz',
             'm','n','o','p','q','r','s','t','u','v','w','x','y','z']
 
 def get_path_links(package, version="", path_to=""):
