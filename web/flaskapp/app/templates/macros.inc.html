@@ -36,7 +36,7 @@ http://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginatio
         <li><strong>{{ package.name }}</strong>:
           <ul>
             {% for version in package.versions %}
-              <li>{{ version }}</li>
+              <li>{{ version.vnumber }} ({{ version.area }})</li>
             {% endfor %}
           </ul>
         </li>

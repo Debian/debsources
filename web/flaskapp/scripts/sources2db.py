@@ -31,9 +31,9 @@ def sources2db(sources,  db_url, drop=False):
     versions = []
     with open(sources) as sfile:
         for line in sfile:
-            cols = line.split() # package, version, other stuff
+            cols = line.split() # package, version, area, other stuff
             packages.add(cols[0])
-            versions.append((cols[0], cols[1]))
+            versions.append((cols[0], cols[1], cols[2]))
     # now the associated dict to work with execute
     Package.__table__.insert(bind=engine).execute(
         [dict(name=p) for p in packages]
@@ -46,7 +46,7 @@ def sources2db(sources,  db_url, drop=False):
         packids[p.name] = p.id
     # finally the versions dict to work with execute
     Version.__table__.insert(bind=engine).execute(
-        [dict(vnumber=b, package_id=packids[a]) for a, b in versions]
+        [dict(vnumber=b, package_id=packids[a], area=c) for a, b, c in versions]
         )
             
 

@@ -8,8 +8,8 @@ Base = declarative_base()
 class Package(Base):
     __tablename__ = 'packages'
     
-    id = Column('id', Integer, primary_key=True)
-    name = Column('name', String)
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
     versions = relationship("Version", backref="package", lazy="joined")
     
     def __init__(self, name):
@@ -21,11 +21,12 @@ class Package(Base):
 class Version(Base):
     __tablename__ = 'versions'
     
-    id = Column('id', Integer, primary_key=True)
-    vnumber = Column('vnumber', String)
+    id = Column(Integer, primary_key=True)
+    vnumber = Column(String)
     package_id = Column(Integer, ForeignKey('packages.id'))
+    area = Column(String(8)) # main, contrib, nonfree
     
-    def __init__(self, vnumber):
+    def __init__(self, vnumber, area="main"):
         self.vnumber = vnumber
 
     def __repr__(self):
