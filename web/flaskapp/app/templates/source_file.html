@@ -1,7 +1,28 @@
 {% extends "source_base.html" %}
 
+{% block head %}
+  {{ super() }}
+  <script src="/static/js/jquery.js"></script>
+  <script src="/static/js/getsource.js"></script>
+  <link rel="stylesheet" href="http://yandex.st/highlightjs/7.3/styles/googlecode.min.css">
+  <script src="http://yandex.st/highlightjs/7.3/highlight.min.js"></script>
+  <script type="text/javascript">
+      function loadFromBody(){
+          loadSource("{{ path }}", $('#sourcecode'));
+      }
+    </script>
+{% endblock %}
+
 {% block source_content %}
 
-{{ path }}
+<pre><code id="sourcecode">loading...</code></pre>
+
+<noscript>
+  You seem not to have Javascript on your browser. You can
+  get <a href="{{ path }}">a plain text version of the file</a>
+  instead.
+</noscript>
+
+<script type="text/javascript">loadFromBody();</script>
 
 {% endblock %}
