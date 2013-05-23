@@ -3,9 +3,9 @@
 {% block content %}
 
 <p>You are here:
-  {% for (p, link) in pathl
+  {% for (p, link) in pathl[:-1]
     %}<a href="{{ link }}">{{ p }}</a>/{%
-  endfor %}
+  endfor %}{{ pathl[-1][0] }}
 </p>
 
 {% block source_content %}{% endblock %}
