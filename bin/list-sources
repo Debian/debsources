@@ -1,10 +1,16 @@
 #!/bin/bash
 
-# List <package, version, .dsc, dest> pairs found in a given Debian (source) mirror.
+# List information about source package found in a given debsources instance
 #
-# Output format: "PACKAGE\tVERSION\tDSC\tDEST\n"
+# Output format: "PACKAGE\tVERSION\tAREA\tDSC\tDEST\n"
 #
-# By default, only list the triple corresponding to the most recent package,
+# - PACKAGE is the source package name
+# - VERSION is the source version
+# - AREA is the archive area of origin, i.e. one of main, contrib, non-free
+# - DSC is the absolute path to the package .dsc in the source mirror
+# - DEST is the absolute path to the package unpacking directory
+#
+# By default, only list the tuples corresponding to the most recent packages,
 # according to the version. Pass --all to list all entries.
 
 # Depends: dctrl-tools
@@ -34,7 +40,7 @@ parse_dsc() {
 }
 
 emit() {
-    echo -e "$package\\t$version\\t$dsc\\t$dest"
+    echo -e "$package\\t$version\\t$area\\t$dsc\\t$dest"
 }
 
 # find "$mirror_dir/dists/unstable/contrib" -type f -name Sources.gz |
@@ -53,6 +59,8 @@ grep-dctrl -s Package,Version,Directory,Files '' - | \
         read _key                  # line "Files:\n"
         parse_dsc
         dest="$sources_dir/${directory#*/}/$version"
+	area="${directory#*/}"
+	area="${area%%/*}"
 	if [ "$package" != "$prev_package" ]; then
 	    # first of his name, i.e. most recent
 	    emit
