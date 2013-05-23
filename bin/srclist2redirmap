@@ -4,7 +4,7 @@ use strict;
 while (my $line = <>) {
     chomp $line;
     my @fields = split /\s+/, $line;
-    my ($pkg, $version, $dest) = ($fields[0], $fields[1], $fields[3]);
+    my ($pkg, $version, $dest) = ($fields[0], $fields[1], $fields[4]);
     my @path = split /\//, $dest;
     my $location = join '/', @path[-4..-1];
     print "$pkg/$version $location\n";	# e.g. 2vcard/0.5-3 main/2/2vcard/0.5-3

@@ -18,8 +18,8 @@ update_mirror() {
 list_sources() {
     info "update-debsources: listing available source packages..."
 
-    # note: no risk of sub-second race here, thanks to $lockfile
-    sources_list_new="${sources_list}.$(date +%s)"
+    # note: no risk of race here, thanks to $lockfile
+    sources_list_new="${sources_list}.new"
     if ! $bindir/list-sources --all > "${sources_list_new}" ; then
 	err "cannot list available source packages. Abort." 2
     fi
@@ -69,15 +69,7 @@ main() {
     update_mirror
     list_sources	# fill $sources_list_new
     extract_sources "$sources_list_new"
-    if [ ! -L "$sources_list" ] ; then	# clean up if non symlink
-	rm -f "$sources_list"
-    else
-	sources_list_old=$(readlink "$sources_list")
-    fi
-    ln -fs "$sources_list_new" "$sources_list"	# atomically switch symlink
-    if [ -n "$sources_list_old" ] ; then
-	rm -f "$sources_list_old"
-    fi
+    mv "$sources_list_new" "$sources_list"
     update_maps "$sources_list"
     garbage_collect "$sources_list"
 

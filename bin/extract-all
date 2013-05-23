@@ -22,7 +22,7 @@ extract_sources() {
     local sources_count=$(wc -l $srclist | cut -f 1 -d' ')
     stats_init "extract" "$sources_count"
     cat $srclist | \
-	while read package version dsc dest ; do
+	while read package version _area dsc dest ; do
 	    stats_tick
 	    flags=""
 	    if [ "$verbose" = "0" ] ; then
