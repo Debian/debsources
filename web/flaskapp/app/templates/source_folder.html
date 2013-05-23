@@ -9,6 +9,9 @@
 </p>
 
 <ul>
+{% if parentfolder %}
+  <li>(folder) - <a href="{{ pathl[-2][1] }}">..</a></li>
+{% endif %}
 {% for (dir, link) in dirs %}
   <li>(folder) - <a href="{{ link }}">{{ dir }}</a></li>
 {% endfor %}

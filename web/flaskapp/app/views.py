@@ -93,22 +93,28 @@ def source(package, version="", path_to=None):
         path = safe_join("data/"+package+"/"+version, path_to)
     
     if os.path.isdir(path): # we list the files in this folder
-        def quickurl(path_to, f):
-            if path_to != "":
-                path_to = path_to+"/"
-            return url_for('source', package=package,
-                           version=version,
-                           path_to=path_to+f)
+        def quickurl(f):
+            if version == "":
+                return url_for('source', package=package, version=f)
+            elif path_to == "":
+                return url_for('source', package=package,
+                               version=version, path_to=f)
+            else:
+                return url_for('source', package=package,
+                               version=version,
+                               path_to=path_to+"/"+f)
         
-        files = sorted((f, quickurl(path_to, f)) for f in os.listdir(path)
+        files = sorted((f, quickurl(f)) for f in os.listdir(path)
                        if os.path.isfile(os.path.join(path, f)))
 
-        dirs = sorted((d, quickurl(path_to, d)) for d in os.listdir(path)
+        dirs = sorted((d, quickurl(d)) for d in os.listdir(path)
                       if os.path.isdir(os.path.join(path, d)))
         
         return render_template("source_folder.html",
                                files=files, dirs=dirs,
-                               pathl=get_path_links(package, version, path_to))
+                               pathl=get_path_links(package, version, path_to),
+                               parentfolder=(version != ""))
+                                 # we want .. except for a package file
     
     elif os.path.exists(path): # we return the source code
         pass
