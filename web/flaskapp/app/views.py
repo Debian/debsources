@@ -13,13 +13,15 @@ def get_letters():
             'libv','libw','libx','liby','libz',
             'm','n','o','p','q','r','s','t','u','v','w','x','y','z']
 
-def get_path_links(package, version, path_to=""):
+def get_path_links(package, version="", path_to=""):
     """
     returns the path hierarchy with urls, to use with 'You are here:'
     """
     pathl = []
     pathl.append((package, url_for('source', package=package)))
-    pathl.append((version, url_for('source', package=package, version=version)))
+    if version != "":
+        pathl.append((version, url_for('source', package=package,
+                                       version=version)))
     if path_to != "":
         prev_path = ""
         for p in path_to.split('/'):
@@ -79,8 +81,8 @@ def letter(letter='a'):
 @app.route('/src/<package>/<version>/')
 @app.route('/src/<package>/<version>/<path:path_to>/')
 def source(package, version="", path_to=None):
-    if version == "": # we list the versions for this package
-        return render_template("source_package.html") # todo
+    #if version == "": # we list the versions for this package
+    #    return render_template("source_package.html") # todo
     
     import os
     from flask import safe_join
