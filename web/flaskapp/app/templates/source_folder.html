@@ -1,12 +1,6 @@
-{% extends "base.html" %}
+{% extends "source_base.html" %}
 
-{% block content %}
-
-<p>You are here:
-  {% for (p, link) in pathl
-    %}<a href="{{ link }}">{{ p }}</a>/{%
-  endfor %}
-</p>
+{% block source_content %}
 
 <ul>
 {% if parentfolder %}
