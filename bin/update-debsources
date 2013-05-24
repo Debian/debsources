@@ -73,7 +73,7 @@ main() {
     fi
     echo $$ > "$lockfile"
 
-    #update_mirror
+    update_mirror
     list_sources	# fill $sources_list_new
     extract_sources "$sources_list_new"
     mv "$sources_list_new" "$sources_list"
