@@ -90,7 +90,8 @@ def source(package, version="", path_to=None):
         path_to = ""
     sources_path = os.path.join(app.config['SOURCES_FOLDER'],
                                 package, version, path_to)
-    #return sources_path
+    sources_path_server = os.path.join(app.config['SOURCES_SERVER'],
+                                       package, version, path_to)
 
     if os.path.isdir(sources_path): # we list the files in this folder
         def quickurl(f):
@@ -119,7 +120,7 @@ def source(package, version="", path_to=None):
     elif os.path.exists(sources_path): # it's a file, we return the source code
         
         return render_template("source_file.html",
-                               path=app.config['SOURCES_PREFIX']+sources_path,
+                               sources_path_server=sources_path_server,
                                pathl=get_path_links(package, version, path_to))
     else: # 404
         return render_template('404.html'), 404

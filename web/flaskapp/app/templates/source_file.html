@@ -8,7 +8,7 @@
   <script src="http://yandex.st/highlightjs/7.3/highlight.min.js"></script>
   <script type="text/javascript">
       function loadFromBody(){
-          loadSource("{{ path }}", $('#sourcecode'));
+          loadSource("{{ sources_path_server }}", $('#sourcecode'));
       }
     </script>
 {% endblock %}
@@ -17,7 +17,7 @@
 
 <table border="1">
   <tr>
-    <td><pre><code></code></pre></td>
+    <td><pre><code id="sourceslinenumbers"></code></pre></td>
     <td>
       <pre><code id="sourcecode">loading...</code></pre>
     </td>
