@@ -35,6 +35,10 @@ def get_path_links(package, version="", path_to=""):
 def page_not_found(e):
     return render_template('404.html'), 404
 
+@app.route('/doc/')
+def doc():
+    return render_template('doc.html', url_prefix="http://example.net")
+
 @app.route('/', methods=['POST', 'GET']) # navigation
 @app.route('/nav/', methods=['POST', 'GET'])
 def index():
