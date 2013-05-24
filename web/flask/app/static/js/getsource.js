@@ -7,7 +7,16 @@ function getParameterByName(name) {
 
 loadSource = function(fileUrl, codeNode){
     $.get(fileUrl, function(respons) {
-        codeNode.text(respons).html(); //displaying the code
+        //respons = respons.replace("\r\n", "\n");
+        respons = respons.split("\n");
+
+        codeNode.text("");
+        $.each(respons, function(n, elem) {
+            codeNode.append(elem);
+            codeNode.append("\n");
+        })
+
+        //codeNode.text(respons).html(); //displaying the code
         hljs.highlightBlock(codeNode[0]); //colorizing it
     })
         .fail(function() {codeNode.text("This file doesn't exist.")});
