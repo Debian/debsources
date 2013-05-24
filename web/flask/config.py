@@ -1,6 +1,7 @@
 import os
 
-_basedir = os.path.abspath(os.path.dirname(__file__))
+_basedir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# grand-parent folder
 
 DEBUG = True
 

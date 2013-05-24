@@ -6,9 +6,10 @@ app.config.from_object('config')
 
 db = SQLAlchemy(app)
 
-from app import views
-
 import os, sys
-parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0,parentdir) 
 
+grandparentdir = os.path.dirname(os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, grandparentdir)
+
+from app import views
