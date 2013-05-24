@@ -41,15 +41,22 @@ garbage_collect() {
     ${root}/bin/gc "$srclist"
 }
 
-update_maps() {
+update_db() {
     # update maps, indexes, and co.
     local srclist="$1"
-    info "update-debsources: creating http redirection map"
+    info "update-debsources: update indexes"
+
+    # http redirection maps
     ${root}/bin/srclist2redirmap < "$srclist" > "${sources_map}.new"
     mv "${sources_map}.new" "$sources_map"
     httxt2dbm -i "$sources_map" -o "${sources_dbm}.new"
     chmod 664 "${sources_dbm}.new"
     mv "${sources_dbm}.new" "$sources_dbm"
+
+    # sqlite db
+    python ${root}/web/scripts/sources2db.py "${sources_sql}.new" "$srclist"
+    chmod 664 "${sources_sql}.new"
+    mv "${sources_sql}.new" "$sources_sql"
 }
 
 main() {
@@ -66,11 +73,11 @@ main() {
     fi
     echo $$ > "$lockfile"
 
-    update_mirror
+    #update_mirror
     list_sources	# fill $sources_list_new
     extract_sources "$sources_list_new"
     mv "$sources_list_new" "$sources_list"
-    update_maps "$sources_list"
+    update_db "$sources_list"
     garbage_collect "$sources_list"
 
     rm -f "$lockfile"

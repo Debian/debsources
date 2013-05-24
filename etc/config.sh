@@ -23,6 +23,7 @@ sources_dir="$root/sources"
 sources_list="${root}/sources.txt"
 sources_map="${root}/sources.map"
 sources_dbm="${root}/sources.dbm"
+sources_sql="${root}/sources.sqlite"
 
 lockfile="$root/ONGOING-UPDATE.pid"
 
