@@ -16,6 +16,8 @@
     #sourceslinenumbers{text-align: right; border-right: 1px solid black;}
     #sourceslinenumbers a{display: block; text-decoration: none;
     color: black}
+    #sourcecode div{margin: 0px; padding: 0px;}
+    #sourcecode .highlight{background-color: #dddddd;}
   </style>
 {% endblock %}
 
@@ -29,7 +31,8 @@
       endfor %}</code></pre></td>
     <td>
       <pre><code id="sourcecode">{%
-          for line in code %}{{ line }}{% endfor %}</code></pre>
+          for (line, class) in code %}<div class="{{ class }}">{{
+            line }}</div>{% endfor %}</code></pre>
     </td>
   </tr>
 </table>

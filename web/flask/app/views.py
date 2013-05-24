@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for
+from flask import render_template, redirect, url_for, request
 
 from app import app
 from models_app import Package_app, Version_app
@@ -79,7 +79,7 @@ def letter(letter='a'):
 
 @app.route('/src/<package>/')
 @app.route('/src/<package>/<version>/')
-@app.route('/src/<package>/<version>/<path:path_to>/')
+@app.route('/src/<package>/<version>/<path:path_to>/', methods=['POST', 'GET'])
 def source(package, version="", path_to=None):
     #if version == "": # we list the versions for this package
     #    return render_template("source_package.html") # todo
@@ -118,13 +118,23 @@ def source(package, version="", path_to=None):
                                  # we want '..', except for a package file
     
     elif os.path.exists(sources_path): # it's a file, we return the source code
+        try:
+            hlbegin = int(request.args.get('hlbegin'))
+        except (KeyError, ValueError, TypeError):
+            hlbegin = None
+        try:
+            hlend = int(request.args.get('hlend'))
+        except (KeyError, ValueError, TypeError):
+            hlend = None
         
         nlines = 1
         with open(sources_path) as sfile:
             for line in sfile: nlines += 1 # counts the total number of lines
         from modules.sourcecode import SourceCodeIterator
         return render_template("source_file.html",
-                               code = SourceCodeIterator(sources_path),
+                               code = SourceCodeIterator(sources_path,
+                                                         hlbegin=hlbegin,
+                                                         hlend=hlend),
                                nlines=nlines,
                                pathl=get_path_links(package, version, path_to))
     else: # 404
