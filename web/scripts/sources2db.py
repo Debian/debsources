@@ -12,14 +12,14 @@ sys.path.insert(0,parentdir)
 
 from models import Base, Package, Version
 
-def get_engine_session(url):
-    engine = create_engine(url, echo=True)
+def get_engine_session(url, verbose=True):
+    engine = create_engine(url, echo=verbose)
     Session = sessionmaker(bind=engine)
     session = Session()
     return engine, session
 
-def sources2db(sources,  db_url, drop=False):
-    engine, session = get_engine_session(url)
+def sources2db(sources,  db_url, drop=False, verbose=True):
+    engine, session = get_engine_session(url, verbose)
     
     if drop:
         Base.metadata.drop_all(engine)
@@ -60,6 +60,8 @@ if __name__ == "__main__":
                         help="absolute or relative path to the sources.txt file")
     #parser.add_argument("--drop",
     #                    help="drops the database before", action="store_true")
+    parser.add_argument("--verbose", action="store_true",
+                        help="verbose logging (default: be quiet)")
     args = parser.parse_args()
     
     if args.sqlite_file[0] != '/': # relatve path
@@ -70,6 +72,7 @@ if __name__ == "__main__":
     
     #os.environ['PYTHONINSPECT'] = 'True'
 
-    sources2db(args.sources, url, drop=True)
-    print("\n")
-    print("Execution time: %f s" % (time.time() - start_time))
+    sources2db(args.sources, url, drop=True, verbose=args.verbose)
+    if args.verbose:
+        print("\n")
+        print("Execution time: %f s" % (time.time() - start_time))
