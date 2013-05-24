@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Iterate a given command in each unpacked source package dir
+#
+# Usage: foreach COMMAND...
+
+root="/srv/debsources"
+source "$root/etc/config.sh"
+source "$root/bin/lib.sh"
+
+srclist="$sources_list"
+
+if [ -z "$1" ] ; then
+    err "Usage: foreach COMMAND..." 2
+fi
+
+cat $srclist | \
+while read package version area dsc dest ; do
+    if ! [ -d "$dest" ] ; then
+	warn "directory for ${package}/${version} does not exist, skipping."
+    else
+	(cd "$dest" && eval "$@")
+    fi
+done
