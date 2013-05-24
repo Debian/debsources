@@ -7,8 +7,8 @@
   <link rel="stylesheet" href="/static/highlight.js/googlecode.min.css">
   <script src="/static/highlight.js/highlight.min.js"></script>
   <script type="text/javascript">
-      function loadFromBody(){
-          loadSource("{{ sources_path_server }}", $('#sourcecode'));
+      function loadFromBody(){ // to remove
+          loadSource("{ sources_path_server }", $('#sourcecode'));
       }
     </script>
   <style>
@@ -24,21 +24,22 @@
 <table border="0">
   <tr>
     <td><pre><code id="sourceslinenumbers">{%
-      for i in range(1,6407)
-          %}<a name="loc{{ i }}" href="#loc{{ i }}">{{ i }}{%
+      for i in range(1,nlines)
+          %}<a name="L{{ i }}" href="#L{{ i }}">{{ i }}{%
       endfor %}</code></pre></td>
     <td>
-      <pre><code id="sourcecode">loading...</code></pre>
+      <pre><code id="sourcecode">{%
+          for line in code %}{{ line }}{% endfor %}</code></pre>
     </td>
   </tr>
 </table>
+
+<script type="text/javascript">hljs.highlightBlock($('#sourcecode')[0])</script>
 
 <noscript>
   You seem not to have Javascript on your browser. You can
   get <a href="{{ path }}">a plain text version of the file</a>
   instead.
 </noscript>
-
-<script type="text/javascript">loadFromBody();</script>
 
 {% endblock %}

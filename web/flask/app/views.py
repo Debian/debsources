@@ -119,8 +119,13 @@ def source(package, version="", path_to=None):
     
     elif os.path.exists(sources_path): # it's a file, we return the source code
         
+        nlines = 1
+        with open(sources_path) as sfile:
+            for line in sfile: nlines += 1 # counts the total number of lines
+        from modules.sourcecode import SourceCodeIterator
         return render_template("source_file.html",
-                               sources_path_server=sources_path_server,
+                               code = SourceCodeIterator(sources_path),
+                               nlines=nlines,
                                pathl=get_path_links(package, version, path_to))
     else: # 404
         return render_template('404.html'), 404
