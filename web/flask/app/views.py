@@ -124,11 +124,3 @@ def source(package, version="", path_to=None):
                                pathl=get_path_links(package, version, path_to))
     else: # 404
         return render_template('404.html'), 404
-
-"""
-<p>You are here: {{ package }}/{{ version }}/{%
-  if splittedpath[0] != '' %}{%
-    for f in splittedpath %}{{ f }}/{%
-    endfor %}{%
-  endif %}</p>
-"""
