@@ -44,7 +44,7 @@ garbage_collect() {
 update_db() {
     # update maps, indexes, and co.
     local srclist="$1"
-    info "update-debsources: update indexes"
+    info "update-debsources: updating indexes..."
 
     # http redirection maps
     ${root}/bin/srclist2redirmap < "$srclist" > "${sources_map}.new"
@@ -75,10 +75,17 @@ main() {
 
     update_mirror
     list_sources	# fill $sources_list_new
-    extract_sources "$sources_list_new"
-    mv "$sources_list_new" "$sources_list"
-    update_db "$sources_list"
-    garbage_collect "$sources_list"
+    if ! [ -f "$sources_list" ] \
+	|| ! (diff "$sources_list" "$sources_list_new" > /dev/null)
+    then
+	extract_sources "$sources_list_new"
+	mv "$sources_list_new" "$sources_list"
+	update_db "$sources_list"
+	garbage_collect "$sources_list"
+    else
+	info "update-debsources: no changes"
+	rm "$sources_list_new"
+    fi
 
     rm -f "$lockfile"
     info "update-debsources: all done at $(date)"
