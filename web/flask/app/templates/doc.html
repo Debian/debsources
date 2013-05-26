@@ -13,23 +13,26 @@
 <h3>Package versions</h3>
 
 You can list the different versions of a package, accessing this URL:
-<span class="url">{{ url_prefix }}/PACKAGENAME/</span>
+<span class="url">{{ url_prefix }}/src/PACKAGENAME/</span>
 
 <h3>Navigation within a package</h3>
 
 You can list the files in a package or in a particular folder of
 package, accessing one of these URLs:
-<span class="url">{{ url_prefix }}/PACKAGENAME/VERSION/</span>
-<span class="url">{{ url_prefix }}/PACKAGENAME/VERSION/path/to/dir/</span>
+<span class="url">{{ url_prefix }}/src/PACKAGENAME/VERSION/</span>
+<span class="url">{{ url_prefix }}/src/PACKAGENAME/VERSION/path/to/dir/</span>
 
 <h3>Source code displaying</h3>
 
 To simply display a source file:
-<span class="url">{{ url_prefix }}/PACKAGENAME/VERSION/path/to/file/</span>
+<span class="url">{{ url_prefix }}/src/PACKAGENAME/VERSION/path/to/file/</span>
+
+To point a specific line in a source file:
+<span class="url">{{ url_prefix }}/src/PACKAGENAME/VERSION/path/to/file/#L42</span>
 
 To use with options:
 <span class="url">{{ url_prefix
-  }}/PACKAGENAME/VERSION/path/to/file/?opt1=val1&opt2=val2[...]</span>
+  }}/src/PACKAGENAME/VERSION/path/to/file/?opt1=val1&opt2=val2[...]</span>
 
 <h4>Available options</h4>
 <ul>
