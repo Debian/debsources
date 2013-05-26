@@ -1,0 +1,8 @@
+Dependencies:
+
+Debian packages:
+python-flask
+python-flaskext.wtf
+
+Pip packages:
+flask-sqlalchemy
