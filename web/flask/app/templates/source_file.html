@@ -6,24 +6,14 @@
   <script src="/static/js/getsource.js"></script>
   <link rel="stylesheet" href="/static/highlight.js/googlecode.min.css">
   <script src="/static/highlight.js/highlight.min.js"></script>
+  <link rel="stylesheet" type="text/css"
+        href="/static/css/source_file.css" />
   <script type="text/javascript">
       function loadFromBody(){ // to remove
           loadSource("{ sources_path_server }", $('#sourcecode'));
       }
     </script>
-  <style>
-    td{vertical-align: top; margin: 0px; padding: 0px;}
-    #sourceslinenumbers{text-align: right; border-right: 1px solid
-    black; padding-right: 5px; margin-right: 10px;}
-    #sourceslinenumbers a{text-decoration: none; color: black}
-    #sourcecode{margin: 0px; padding: 0px;}
-    #sourcecode span{margin: 0px; padding: 0px;}
-    #sourcecode .highlight{background-color: #dddddd;/*display:block;*/}
-    #messages .message{/*border-left: 1px solid black;*/ background-color:
-    #feff6f; min-width: 300px; max-width:400px; white-space: pre-wrap;
-    /*other browsers */white-space: -moz-pre-wrap; white-space:-o-pre-wrap;
-    word-wrap: break-word;}
-  </style>
+
 {% endblock %}
 
 {% block source_content %}

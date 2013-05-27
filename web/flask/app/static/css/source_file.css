@@ -1,0 +1,43 @@
+td{
+    vertical-align: top;
+    margin: 0px;
+    padding: 0px;
+}
+
+#sourceslinenumbers{
+    text-align: right;
+    border-right: 1px solid
+    black; padding-right: 5px;
+    margin-right: 10px;
+}
+
+#sourceslinenumbers a{
+    text-decoration: none;
+    color: black
+}
+
+#sourcecode{
+    margin: 0px;
+    padding: 0px;
+}
+
+#sourcecode span{
+    margin: 0px;
+    padding: 0px;
+}
+
+#sourcecode .highlight{
+    background-color: #dddddd;
+    /*display:block;*/
+}
+
+#messages .message{
+    /*border-left: 1px solid black;*/
+    background-color: #feff6f;
+    min-width: 300px; max-width:400px;
+    white-space: pre-wrap;
+    /*other browsers */
+    white-space: -moz-pre-wrap;
+    white-space:-o-pre-wrap;
+    word-wrap: break-word;
+}
