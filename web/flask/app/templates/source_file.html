@@ -14,8 +14,7 @@
   <style>
     td{vertical-align: top; margin: 0px; padding: 0px;}
     #sourceslinenumbers{text-align: right; border-right: 1px solid black;}
-    #sourceslinenumbers a{display: block; text-decoration: none;
-    color: black}
+    #sourceslinenumbers a{text-decoration: none; color: black}
     #sourcecode span{margin: 0px; padding: 0px;}
     #sourcecode .highlight{background-color: #dddddd;}
   </style>
@@ -27,7 +26,7 @@
   <tr>
     <td><pre><code id="sourceslinenumbers">{%
       for i in range(1, nlines)
-          %}<a name="L{{ i }}" href="#L{{ i }}">{{ i }}{%
+          %}<a name="L{{ i }}" href="#L{{ i }}">{{ i }}</a><br />{%
       endfor %}</code></pre></td>
     <td>
       <pre><code id="sourcecode">{%
