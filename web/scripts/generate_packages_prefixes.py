@@ -20,7 +20,20 @@ def get_engine_session(url, verbose=False):
 
 def generate_prefixes(db_url):
     engine, session = get_engine_session(url)
-    print(url)
+    prefixes = set()
+    packages = session.query(Package).all()
+    for p in packages:
+        prefixes.add(p.name[0]) # simple character
+        if p.name[0:3] == "lib": # lib+simple character
+            prefixes.add(p.name[0:4])
+    return sorted(prefixes)
+
+def output_python(prefixes):
+    sys.stdout.write("packages_prefixes = [")
+    for p in prefixes:
+        sys.stdout.write("'%s', " % (p))
+    sys.stdout.write("]\n")
+    
             
 
 if __name__ == "__main__":
@@ -41,4 +54,5 @@ if __name__ == "__main__":
     
     #os.environ['PYTHONINSPECT'] = 'True'
 
-    generate_prefixes(url)
+    prefixes = generate_prefixes(url)
+    output_python(prefixes)

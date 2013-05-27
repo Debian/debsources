@@ -1,2 +1,1 @@
-packages_prefixes = ['a', 'b', 'c']
-
+packages_prefixes = ['0', '2', '3', '4', '6', '7', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'lib3', 'liba', 'libb', 'libc', 'libd', 'libe', 'libf', 'libg', 'libh', 'libi', 'libj', 'libk', 'libl', 'libm', 'libn', 'libo', 'libp', 'libq', 'libr', 'libs', 'libt', 'libu', 'libv', 'libw', 'libx', 'liby', 'libz', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ]
