@@ -5,15 +5,6 @@
 
 <h2>Index</h2>
 <p>This is the index page, where you can navigate through Debian sources.</p>
-<ul>
-  <li>Search for a package name:
-    {{ macros.searchform(searchform, display="inline") }}</li>
-  <li><a href="{{ url_for('list', page=1) }}">View package list</a> 
-    (alphabetically)</li>
-  <li>By first letter:
-    {% for letter in letters %}
-      <a href="{{ url_for('letter', letter=letter) }}">{{ letter }}</a>
-    {% endfor %}</li>
-</ul>
+{{ lipsum() }}
 
 {% endblock %}

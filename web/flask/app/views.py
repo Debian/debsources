@@ -26,6 +26,11 @@ def get_path_links(package, version="", path_to=""):
             prev_path += p+"/"
     return pathl
 
+@app.context_processor # variables needed by "base.html" skeleton
+def skeleton_variables():
+    return dict(packages_prefixes = get_letters(),
+                searchform = SearchForm())
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
@@ -37,15 +42,21 @@ def doc():
 @app.route('/', methods=['POST', 'GET']) # navigation
 @app.route('/nav/', methods=['POST', 'GET'])
 def index():
-    searchform = SearchForm()
+    #searchform = SearchForm()
+    #if searchform.validate_on_submit():
+    #    return redirect(url_for("search",
+    #                            packagename=searchform.packagename.data))
+    return render_template('index.html')
+
+@app.route('/nav/search/', methods=['POST'])
+def receive_search():
+    searchform = SearchForm(request.form)
     if searchform.validate_on_submit():
         return redirect(url_for("search",
                                 packagename=searchform.packagename.data))
-    return render_template('index.html',
-                           searchform=searchform,
-                           letters=get_letters())
+    else:
+        return render_template('index.html', searchform=searchform)
 
-#@app.route('/nav/search/', methods=['POST'])
 @app.route('/nav/search/<packagename>/')
 def search(packagename):
     packagename = packagename.replace('%', '').replace('_', '')

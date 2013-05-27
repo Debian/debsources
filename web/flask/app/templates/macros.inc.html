@@ -18,12 +18,12 @@ http://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginatio
 
 
 {% macro searchform(form, display="block") -%}
-  <form action="." name="searchform"
+  <form action="/nav/search/" name="searchform"
         method="post" style="display: {{ display }};">
     {{ form.hidden_tag() }}
     {{ form.packagename }}
     {% for error in form.errors.packagename %}
-      <em>{{ error }}</em>
+      <em>{{ error }}</em><br />
     {% endfor %}
     <input type="submit" value="Search" />
   </form>

@@ -1,8 +1,11 @@
+{% import "macros.inc.html" as macros %}
+
 <!doctype html>
 <html>
   <head>
     {% block head %}
     <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="/static/css/base.css" />
     <title>Debian sources</title>
     {% endblock %}
   </head>
@@ -10,7 +13,21 @@
     <h1>Debian sources</h1>
     <a href="/">Home</a> | <a href="/doc/">API help</a>
     <hr />
-    {% block content %}
-    {% endblock %}
+    <div id="leftmenu">
+      <h2>Find a package</h2>
+      <p>Search for a package name:
+        {{ macros.searchform(searchform, display="inline") }}</p>
+      <p><a href="{{ url_for('list', page=1) }}">View package list</a> 
+        (alphabetically)</p>
+      <p>By first letter:
+      {% for letter in packages_prefixes %}
+      <a href="{{ url_for('letter', letter=letter) }}">{{ letter }}</a>
+      {% endfor %}</p>
+
+    </div>
+    <div id="content">
+      {% block content %}
+      {% endblock %}
+    </div>
   </body>
 </html>
