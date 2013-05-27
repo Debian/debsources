@@ -38,8 +38,7 @@
     <td>
       <pre><code id="sourcecode">{% for (line, highlight) in code -%}
           {% if highlight -%}
-            <span class="highlight">{{ line }}</span>
-          {% else -%}
+            <span class="highlight">{{ line }}</span>{% else -%}
             {{ line }}
           {%- endif %}
          {%- endfor %}</code></pre>
