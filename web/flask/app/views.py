@@ -118,6 +118,7 @@ def source(package, version="", path_to=None):
     
     elif os.path.exists(sources_path): # it's a file, we return the source code
         def msg_strtodict(msg):
+            if msg is None: return dict()
             msgsplit = msg.split(':')
             msgdict = dict()
             try:
