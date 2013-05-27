@@ -11,7 +11,7 @@ class Package(Base):
     
     id = Column(Integer, primary_key=True)
     name = Column(String, index=True, unique=True)
-    versions = relationship("Version", backref="package", lazy="joined")
+    versions = relationship("Version", backref="package")#, lazy="joined")
     
     def __init__(self, name):
         self.name = name

@@ -33,13 +33,7 @@ http://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginatio
   <ul>
     {% for package in packages %}
       {% if package != exclude %}
-        <li><strong>{{ package.name }}</strong>:
-          <ul>
-            {% for version in package.versions %}
-              <li>{{ version.vnumber }} ({{ version.area }})</li>
-            {% endfor %}
-          </ul>
-        </li>
+        <li>{{ package.name }}</li>
       {% endif %}
     {% endfor %}
   </ul>
