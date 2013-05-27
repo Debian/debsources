@@ -1,19 +1,31 @@
 {% extends "source_base.html" %}
 
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css"
+      href="/static/css/source_folder.css" />
+{% endblock %}
+
 {% block title %}Folder: {{ pathl[-1][0] }}{% endblock %}
 {% block source_content %}
 <h2>{{ self.title() }}</h2>
 
-<ul>
+<ul id="ls">
 {% if parentfolder %}
-  <li>(folder) - <a href="{{ pathl[-2][1] }}">..</a></li>
+  <li><img src="/static/img/folder.png" alt="folder" />
+    <a href="{{ pathl[-2][1] }}">.. (parent)</a>
+  </li>
 {% endif %}
 {% for (dir, link) in dirs %}
-  <li>(folder) - <a href="{{ link }}">{{ dir }}</a></li>
+  <li><img src="/static/img/folder.png" alt="folder" />
+    <a href="{{ link }}">{{ dir }}</a>
+  </li>
 {% endfor %}
 
 {% for (file_, link) in files %}
-  <li>(file) - <a href="{{ link }}">{{ file_ }}</a></li>
+  <li><img src="/static/img/ascii.png" alt="file" />
+    <a href="{{ link }}">{{ file_ }}</a>
+  </li>
 {% endfor %}
 </ul>
 
