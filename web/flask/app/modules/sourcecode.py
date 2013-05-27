@@ -33,16 +33,9 @@ class SourceCodeIterator(object):
         return self
     
     def next(self):
-        #tell = self.file.tell()
-        #line = self.file.readline()
-        #if tell == self.file.tell():
-        #    self.file.close()
-        #    raise StopIteration
-        #else:
-        #    return line
         self.current_line += 1
-        if self.current_line in self.hls:#self.hlbegin <= self.current_line <= self.hlend:
+        if self.current_line in self.hls:
             class_ = True
         else:
             class_ = False
-        return (self.file.next(), class_)#readline() or raise StopIteration
+        return (self.file.next(), class_)
