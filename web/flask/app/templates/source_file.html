@@ -16,7 +16,7 @@
     #sourceslinenumbers{text-align: right; border-right: 1px solid black;}
     #sourceslinenumbers a{display: block; text-decoration: none;
     color: black}
-    #sourcecode div{margin: 0px; padding: 0px;}
+    #sourcecode span{margin: 0px; padding: 0px;}
     #sourcecode .highlight{background-color: #dddddd;}
   </style>
 {% endblock %}
@@ -26,13 +26,16 @@
 <table border="0">
   <tr>
     <td><pre><code id="sourceslinenumbers">{%
-      for i in range(1,nlines)
+      for i in range(1, nlines)
           %}<a name="L{{ i }}" href="#L{{ i }}">{{ i }}{%
       endfor %}</code></pre></td>
     <td>
       <pre><code id="sourcecode">{%
-          for (line, class) in code %}<div class="{{ class }}">{{
-            line }}</div>{% endfor %}</code></pre>
+          for (line, highlight) in code %}{%
+            if highlight %}<span class="highlight">{{ line }}</span>{%
+            else %}{{ line }}{%
+            endif %}{%
+          endfor %}</code></pre>
     </td>
   </tr>
 </table>

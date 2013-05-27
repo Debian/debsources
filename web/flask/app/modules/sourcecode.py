@@ -34,7 +34,7 @@ class SourceCodeIterator(object):
         #    return line
         self.current_line += 1
         if self.hlbegin <= self.current_line <= self.hlend:
-            class_ = "highlight"
+            class_ = True
         else:
-            class_ = ""
+            class_ = False
         return (self.file.next(), class_)#readline() or raise StopIteration
