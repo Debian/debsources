@@ -1,6 +1,2 @@
-/sources
-/sources.dbm*
-/sources.map*
-/sources.txt*
-/sources.sqlite*
+/cache
 *.pyc
