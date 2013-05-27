@@ -19,11 +19,11 @@
 {% block source_content %}
 <h2>File: {{ pathl[-1][0] }}</h2>
 
-<table border="0">
-  <tr vertical-align="top">
+<table id="codetable">
+  <tr>
     <td>
       <pre id="sourceslinenumbers">{% for i in range(1, nlines) -%}
-        <a name="L{{ i }}" href="#L{{ i }}">{{ i }}</a><br />
+        <a id="L{{ i }}" href="#L{{ i }}">{{ i }}</a><br />
         {%- endfor %}</pre>
     </td>
     <td>

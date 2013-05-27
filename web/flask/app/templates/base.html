@@ -4,7 +4,7 @@
 <html>
   <head>
     {% block head %}
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="/static/css/base.css" />
     <title>Debian sources</title>
     {% endblock %}
@@ -24,8 +24,8 @@
     <div id="leftmenu">
       <h2>Find a package</h2>
       <hr />
-      <p>Search for a package name:
-        {{ macros.searchform(searchform, display="inline") }}</p>
+      <p>Search for a package name:</p>
+        {{ macros.searchform(searchform, display="inline") }}
       <hr />
       <p><a href="{{ url_for('list', page=1) }}">View package list</a> 
         (alphabetically)</p>

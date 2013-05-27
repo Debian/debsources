@@ -1,37 +1,41 @@
-td{
+#codetable{
+    border: 0;
+}
+
+#codetable td{
     vertical-align: top;
     margin: 0px;
     padding: 0px;
 }
 
-#sourceslinenumbers{
+#codetable #sourceslinenumbers{
     text-align: right;
     border-right: 1px solid
     black; padding-right: 5px;
     margin-right: 10px;
 }
 
-#sourceslinenumbers a{
+#codetable #sourceslinenumbers a{
     text-decoration: none;
     color: black
 }
 
-#sourcecode{
+#codetable #sourcecode{
     margin: 0px;
     padding: 0px;
 }
 
-#sourcecode span{
+#codetable #sourcecode span{
     margin: 0px;
     padding: 0px;
 }
 
-#sourcecode .highlight{
+#ccodetable #sourcecode .highlight{
     background-color: #dddddd;
     /*display:block;*/
 }
 
-#messages .message{
+#codetable #messages .message{
     /*border-left: 1px solid black;*/
     background-color: #feff6f;
     min-width: 300px; max-width:400px;
