@@ -20,10 +20,10 @@ mirror_dir="/srv/debian-mirror"
 sources_dir="$root/sources"
 
 # Local cache of available source packages
-sources_list="${root}/sources.txt"
-sources_map="${root}/sources.map"
-sources_dbm="${root}/sources.dbm"
-sources_sql="${root}/sources.sqlite"
+sources_list="${root}/cache/sources.txt"
+sources_map="${root}/cache/webredir.map"
+sources_dbm="${root}/cache/webredir.dbm"
+sources_sql="${root}/cache/sources.sqlite"
 
 lockfile="$root/ONGOING-UPDATE.pid"
 
