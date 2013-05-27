@@ -10,6 +10,11 @@
     margin: 5px;
 }
 
+#leftmenu hr{
+    /*height: 1px;*/
+    border-width: 1;
+}
+
 #content{
     padding: 15px;
     margin-left: 230px;
@@ -34,10 +39,14 @@
     display: inline;
 }
 
+h2{
+    margin-top: 8px;
+}
+
 /* from www.debian.org/debian.css */
 body{
     background-color: white;
-    background-image:url('/static/img/gradient.png');
+    background-image:url('/static/img/gradient.png');/* modified */
     background-position: 0 0;
     background-repeat: repeat-x;
 }
@@ -96,7 +105,7 @@ a:active {
 }
 
 #navbar a:hover, #navbar a:visited:hover {
-	background-color: #f5f6f7;
+	background-color: #f7f8f9;/* modified */
 	border-left: 1px solid  #d2d3d7;
 	border-right: 1px solid #d2d3d7;
 	text-decoration: underline;

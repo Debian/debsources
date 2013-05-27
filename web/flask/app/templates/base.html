@@ -13,7 +13,6 @@
     <div id="header">
       <a href="http://www.debian.org"><img src="/static/img/debian-50.png"
                                            alt="Debian logo" /></a>
-      <!-- from http://www.hermann-uwe.de/contributions -> OK? -->
       <h1>Debian sources</h1>
       <div id="navbar">
         <ul>
@@ -22,14 +21,15 @@
         </ul>
       </div>
     </div>
-    <!--<a href="/">Home</a> | <a href="/doc/">API help</a>
-    <hr />-->
     <div id="leftmenu">
       <h2>Find a package</h2>
+      <hr />
       <p>Search for a package name:
         {{ macros.searchform(searchform, display="inline") }}</p>
+      <hr />
       <p><a href="{{ url_for('list', page=1) }}">View package list</a> 
         (alphabetically)</p>
+      <hr />
       <p>By first letter:
       {% for letter in packages_prefixes %}
       <a href="{{ url_for('letter', letter=letter) }}">{{ letter }}</a>
