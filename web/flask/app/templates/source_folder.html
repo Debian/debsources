@@ -1,7 +1,8 @@
 {% extends "source_base.html" %}
 
+{% block title %}Folder: {{ pathl[-1][0] }}{% endblock %}
 {% block source_content %}
-<h2>Folder: {{ pathl[-1][0] }}</h2>
+<h2>{{ self.title() }}</h2>
 
 <ul>
 {% if parentfolder %}

@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% import "macros.inc.html" as macros %}
 
+{% block title %}Home{% endblock %}
 {% block content %}
 
-<h2>Home</h2>
+<h2>{{ self.title() }}</h2>
 
 {{ lipsum() }}
 

@@ -7,9 +7,10 @@
 </style>
 {% endblock %}
 
+{% block title %}API documentation{% endblock %}
 {% block content %}
 
-<h2>API documentation</h2>
+<h2>{{ self.title() }}</h2>
 
 <h3>Package versions</h3>
 

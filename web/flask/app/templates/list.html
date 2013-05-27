@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% import "macros.inc.html" as macros %}
 
+{% block title %}Package list: page {{ page }}{% endblock %}
 {% block content %}
 
-<h2>Package list: {{ page }}</h2>
+<h2>{{ self.title() }}</h2>
 {{ macros.listpackages(packages.items) }}
 
 {{ macros.render_pagination(packages, "list") }}

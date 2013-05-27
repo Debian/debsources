@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% import "macros.inc.html" as macros %}
 
+{% block title %}Search: {{ search }}{% endblock %}
 {% block content %}
-<h2>Search: {{ search }}</h2>
+<h2>{{ self.title() }}</h2>
 <h3>Exact matching</h3>
 {% if exact_matching %}
   {{ macros.listpackages([exact_matching]) }}
