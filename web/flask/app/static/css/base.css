@@ -12,5 +12,92 @@
 
 #content{
     padding: 15px;
-    margin-left: 220px;
+    margin-left: 230px;
+}
+
+#header{
+    padding: 0;
+    margin: 0;
+}
+
+#header img{
+    /*display: inline;*/
+    margin: 0;
+    width: 35px;
+    vertical-align: middle;
+}
+
+#header h1{
+    /*margin: 0;
+    padding: 0;*/
+    margin-left: 20px;
+    display: inline;
+}
+
+/* from www.debian.org/debian.css */
+body{
+    background-color: white;
+    background-image:url('/static/img/gradient.png');
+    background-position: 0 0;
+    background-repeat: repeat-x;
+}
+/* Links */
+
+a:link {
+	color: #0035c7;
+	text-decoration: underline;
+}
+a:visited {
+	color: #54638c;
+}
+a:link:hover {
+	text-decoration: none;
+	color: #00207a;
+}
+a:visited:hover {
+	text-decoration: none;
+}
+a:active {
+	color:#c2c3c7;
+}
+
+#navbar {
+	background-color: transparent;
+	list-style:none;
+	display:block;
+	border-bottom:1px solid #c70036;
+	text-indent:0;
+	padding: 0;
+	margin-top:0;
+	margin-bottom:10px;
+}
+#navbar ul {
+	margin: 0;
+	padding: 0;
+	clear: both;
+	overflow: hidden;
+	min-height: 45px;
+}
+#navbar li {
+	list-style: none;
+	float: left;
+	padding: 0;
+	margin: 0;
+}
+#navbar a:link, #navbar a:visited {
+	padding: 1.75em 0.5em 0.25em 0.5em;
+	border-left: 1px solid transparent;
+	border-right: 1px solid transparent;
+	display: block;
+	text-decoration: none;
+}
+#navbar a:visited {
+	color: #54638c;
+}
+
+#navbar a:hover, #navbar a:visited:hover {
+	background-color: #f5f6f7;
+	border-left: 1px solid  #d2d3d7;
+	border-right: 1px solid #d2d3d7;
+	text-decoration: underline;
 }
