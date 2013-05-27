@@ -1,5 +1,5 @@
 class SourceCodeIterator(object):
-    def __init__(self, filename, hlbegin=None, hlend=None):
+    def __init__(self, filename, hl=None):
         """
         creates a new SourceCodeIterator object
         
@@ -12,14 +12,22 @@ class SourceCodeIterator(object):
         """
         self.file = open(filename)
         self.current_line = 0
-        if hlbegin is not None:
-            self.hlbegin = hlbegin
-            if hlend is not None and hlend >= hlbegin:
-                self.hlend = hlend
-            else:
-                self.hlend = hlbegin
-        else:
-            self.hlbegin, self.hlend = -1, -1
+        self.hls = set()
+        if hl is not None:
+            hlranges = hl.split(',')
+            for r in hlranges:
+                if ':' in r: # it's a range
+                    try:
+                        rbegin, rend = r.split(':')
+                        for i in range(int(rbegin), int(rend) + 1):
+                            self.hls.add(i)
+                    except ValueError, TypeError:
+                        pass
+                else: # it's a single line
+                    try:
+                        self.hls.add(int(r))
+                    except:
+                        pass
         
     def __iter__(self):
         return self
@@ -33,7 +41,7 @@ class SourceCodeIterator(object):
         #else:
         #    return line
         self.current_line += 1
-        if self.hlbegin <= self.current_line <= self.hlend:
+        if self.current_line in self.hls:#self.hlbegin <= self.current_line <= self.hlend:
             class_ = True
         else:
             class_ = False

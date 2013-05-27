@@ -117,14 +117,18 @@ def source(package, version="", path_to=None):
                                  # we want '..', except for a package file
     
     elif os.path.exists(sources_path): # it's a file, we return the source code
+        # try:
+        #     hlbegin = int(request.args.get('hlbegin'))
+        # except (KeyError, ValueError, TypeError):
+        #     hlbegin = None
+        # try:
+        #     hlend = int(request.args.get('hlend'))
+        # except (KeyError, ValueError, TypeError):
+        #     hlend = None
         try:
-            hlbegin = int(request.args.get('hlbegin'))
+            hl = request.args.get('hl')
         except (KeyError, ValueError, TypeError):
-            hlbegin = None
-        try:
-            hlend = int(request.args.get('hlend'))
-        except (KeyError, ValueError, TypeError):
-            hlend = None
+            hl = None
         
         nlines = 1
         with open(sources_path) as sfile:
@@ -132,8 +136,7 @@ def source(package, version="", path_to=None):
         from modules.sourcecode import SourceCodeIterator
         return render_template("source_file.html",
                                code = SourceCodeIterator(sources_path,
-                                                         hlbegin=hlbegin,
-                                                         hlend=hlend),
+                                                         hl=hl),
                                nlines=nlines,
                                pathl=get_path_links(package, version, path_to))
     else: # 404
