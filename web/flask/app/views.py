@@ -64,6 +64,7 @@ def search(packagename):
     other_results = Package_app.query.filter(
         Package_app.name.contains(packagename)).order_by(Package_app.name)
     return render_template('search.html',
+                           search=packagename,
                            exact_matching=exact_matching,
                            other_results=other_results)
 
@@ -73,7 +74,8 @@ def list(page=1):
     packages = Package_app.query.order_by(
         Package_app.name).paginate(page, 20, False)
     return render_template('list.html',
-                           packages=packages)
+                           packages=packages,
+                           page=page)
 
 @app.route('/nav/letter/')
 @app.route('/nav/letter/<letter>')
@@ -82,7 +84,8 @@ def letter(letter='a'):
         packages = Package_app.query.filter(
             Package_app.name.startswith(letter)).order_by(Package_app.name)
         return render_template("letter.html",
-                               packages=packages)
+                               packages=packages,
+                               letter=letter)
     else:
         return render_template('404.html'), 404
 

@@ -2,13 +2,14 @@
 {% import "macros.inc.html" as macros %}
 
 {% block content %}
-<h2>Exact matching</h2>
+<h2>Search: {{ search }}</h2>
+<h3>Exact matching</h3>
 {% if exact_matching %}
   {{ macros.listpackages([exact_matching]) }}
 {% else %}
   No exact matching found
 {% endif %}
-<h2>Other results</h2>
+<h3>Other results</h3>
 {% if other_results[1] or (not exact_matching and other_results[0]) %}
   {{ macros.listpackages(other_results, exact_matching) }}
 {% else %}

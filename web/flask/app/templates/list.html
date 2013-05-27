@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<h2>Package list</h2>
+<h2>Package list: {{ page }}</h2>
 {{ macros.listpackages(packages.items) }}
 
 {{ macros.render_pagination(packages, "list") }}
