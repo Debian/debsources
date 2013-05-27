@@ -13,21 +13,27 @@
     </script>
   <style>
     td{vertical-align: top; margin: 0px; padding: 0px;}
-    #sourceslinenumbers{text-align: right; border-right: 1px solid black;}
+    #sourceslinenumbers{text-align: right; border-right: 1px solid
+    black; padding-right: 5px; margin-right: 10px;}
     #sourceslinenumbers a{text-decoration: none; color: black}
+    #sourcecode{margin: 0px; padding: 0px;}
     #sourcecode span{margin: 0px; padding: 0px;}
-    #sourcecode .highlight{background-color: #dddddd;}
+    #sourcecode .highlight{background-color: #dddddd;/*display:block;*/}
+    #messages .message{/*border-left: 1px solid black;*/ background-color:
+    #feff6f; min-width: 300px; max-width:400px; white-space: pre-wrap;
+    /*other browsers */white-space: -moz-pre-wrap; white-space:-o-pre-wrap;
+    word-wrap: break-word;}
   </style>
 {% endblock %}
 
 {% block source_content %}
 
 <table border="0">
-  <tr>
-    <td><pre><code id="sourceslinenumbers">{%
+  <tr vertical-align="top">
+    <td><pre id="sourceslinenumbers">{%
       for i in range(1, nlines)
           %}<a name="L{{ i }}" href="#L{{ i }}">{{ i }}</a><br />{%
-      endfor %}</code></pre></td>
+      endfor %}</pre></td>
     <td>
       <pre><code id="sourcecode">{%
           for (line, highlight) in code %}{%
@@ -35,6 +41,18 @@
             else %}{{ line }}{%
             endif %}{%
           endfor %}</code></pre>
+    </td>
+    <td>
+      <pre id="messages">{%
+        if msg %}{%
+          for i in range(1, msg.position) %}<br />{% endfor
+          %}<div class="message">{% if msg.title
+              %}<strong>{{ msg.title }}</strong><br />{%
+            endif %}{%
+            if msg.message %}{{
+              msg.message }}{%
+            endif %}</div>{%
+        endif %}</pre>
     </td>
   </tr>
 </table>

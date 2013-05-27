@@ -117,18 +117,32 @@ def source(package, version="", path_to=None):
                                  # we want '..', except for a package file
     
     elif os.path.exists(sources_path): # it's a file, we return the source code
-        # try:
-        #     hlbegin = int(request.args.get('hlbegin'))
-        # except (KeyError, ValueError, TypeError):
-        #     hlbegin = None
-        # try:
-        #     hlend = int(request.args.get('hlend'))
-        # except (KeyError, ValueError, TypeError):
-        #     hlend = None
+        def msg_strtodict(msg):
+            msgsplit = msg.split(':')
+            msgdict = dict()
+            try:
+                msgdict['position'] = int(msgsplit[0])
+            except ValueError:
+                msgdict['position'] = 1
+            try:
+                msgdict['title'] = msgsplit[1]
+            except IndexError:
+                msgdict['title'] = ""
+            try:
+                msgdict['message'] = ":".join(msgsplit[2:])
+            except IndexError:
+                msgdict['message'] = ""
+            return msgdict
+
         try:
             hl = request.args.get('hl')
         except (KeyError, ValueError, TypeError):
             hl = None
+        try:
+            msg = request.args.get('msg')
+            msg = msg_strtodict(msg)
+        except (KeyError, ValueError, TypeError):
+            msg = None
         
         nlines = 1
         with open(sources_path) as sfile:
@@ -137,7 +151,7 @@ def source(package, version="", path_to=None):
         return render_template("source_file.html",
                                code = SourceCodeIterator(sources_path,
                                                          hl=hl),
-                               nlines=nlines,
+                               nlines=nlines, msg=msg,
                                pathl=get_path_links(package, version, path_to))
     else: # 404
         return render_template('404.html'), 404
