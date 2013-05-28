@@ -70,11 +70,10 @@ def letter(letter='a'):
 @app.route('/src/<package>/<version>/')
 @app.route('/src/<package>/<version>/<path:path_to>/', methods=['POST', 'GET'])
 def source(package, version=None, path_to=None):
-    #try:
-    #    location = Location(package, version, path_to)
-    #except InvalidPackageOrVersionError: # 404
-    #    return render_template("404.html"), 404
-    location = Location(package, version, path_to)
+    try:
+        location = Location(package, version, path_to)
+    except InvalidPackageOrVersionError: # 404
+        return render_template("404.html"), 404
     
     if location.ispackage(): # it's a package, we list its versions
         location = PackageFolder(package)
