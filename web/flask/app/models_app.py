@@ -8,7 +8,12 @@ from flask import url_for
 import os
 
 class Package_app(models.Package, db.Model):
-    pass
+    @staticmethod
+    def get_packages_prefixes():
+        """
+        returns the packages prefixes (a, b, ..., liba, libb, ..., y, z)
+        """
+        return packages_prefixes
 
 class Version_app(models.Version, db.Model):
     pass
@@ -126,6 +131,3 @@ class SourceFile(Location):
     def get_code(self):
         return self.code
 
-def get_packages_prefixes():
-    """ returns the packages prefixes (a, b, ..., liba, libb, ..., y, z) """
-    return packages_prefixes

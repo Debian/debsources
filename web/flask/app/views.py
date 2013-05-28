@@ -1,13 +1,12 @@
 from flask import render_template, redirect, url_for, request, safe_join
 
 from app import app
-from models_app import Package_app, Version_app, get_packages_prefixes, \
-    Location, Directory, SourceFile
+from models_app import Package_app, Version_app, Location, Directory, SourceFile
 from forms import SearchForm
 
 @app.context_processor # variables needed by "base.html" skeleton
 def skeleton_variables():
-    return dict(packages_prefixes = get_packages_prefixes(),
+    return dict(packages_prefixes = Package_app.get_packages_prefixes(),
                 searchform = SearchForm())
 
 @app.errorhandler(404)
@@ -56,7 +55,7 @@ def list(page=1):
 @app.route('/nav/letter/')
 @app.route('/nav/letter/<letter>')
 def letter(letter='a'):
-    if letter in get_packages_prefixes():
+    if letter in Package_app.get_packages_prefixes():
         packages = Package_app.query.filter(
             Package_app.name.startswith(letter)).order_by(Package_app.name)
         return render_template("letter.html",
