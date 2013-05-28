@@ -1,6 +1,6 @@
 #codewrap{
     border: 1px solid #c70036;
-    /*min-width: 100%;*/
+    overflow: auto;
 }
 
 #codetable{
@@ -8,7 +8,6 @@
 }
 
 #codewrap #codecaption{
-    /*width: 100%;*/
     background-color: #c70036;
     color: white;
     text-align: left;
@@ -49,13 +48,10 @@
 
 #codetable #sourcecode .highlight{
     background-color: #dddddd;
-    /*display:block;*/
 }
 
 #codetable #messages .message{
-    /*border-left: 1px solid black;*/
     background-color: #feff6f;
-    /*min-width: 300px; max-width:400px;*/
     padding: 10px;
     white-space: pre-wrap;
     /*other browsers */
