@@ -18,4 +18,7 @@ CSRF_SESSION_KEY = "somethingimpossibletoguess"
 
 SQLALCHEMY_ECHO = True
 
-SOURCES_FOLDER = "app/static/data" # for listing folders and files
+APP_FOLDER = "app"
+
+SOURCES_FOLDER = APP_FOLDER + "/static/data" # for listing folders and files
+SOURCES_RAW = "/static/data" # for external links

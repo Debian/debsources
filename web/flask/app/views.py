@@ -81,7 +81,10 @@ def source(package, version=None, path_to=None):
                                parentfolder=not(location.is_top_folder()))
                                  # we want '..', except for a package file
     
-    elif location.isfile(): # it's a file, we display the source code
+    elif location.isfile(): # it's a file, we check if it's a text file
+        if not(location.istextfile()): # binary file
+            return redirect(location.raw_url())
+        # else: text file, we display the source code
         try:
             highlight = request.args.get('hl')
         except (KeyError, ValueError, TypeError):

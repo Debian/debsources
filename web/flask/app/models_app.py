@@ -5,7 +5,7 @@ from modules.sourcecode import SourceCodeIterator
 
 from flask import url_for
 
-import os
+import os, subprocess, re
 
 class Package_app(models.Package, db.Model):
     @staticmethod
@@ -27,8 +27,13 @@ class Location(object):
         
         # we wanna list the package versions in each of main/contrib/nonfree
         self.sources_path = os.path.join(app.config['SOURCES_FOLDER'],
+                                         "main", "h", # TODO
                                          self.package, self.version,
                                          self.path_to)
+        self.sources_path_raw = os.path.join(app.config['SOURCES_RAW'],
+                                             "main", "h", # TODO
+                                             self.package, self.version,
+                                             self.path_to)
     
     def isdir(self):
         """ True if self is a directory, False if it's not """
@@ -37,6 +42,18 @@ class Location(object):
     def isfile(self):
         """ True if sels is a file, False if it's not """
         return os.path.isfile(self.sources_path)
+    
+    def istextfile(self):
+        """ 
+        True if self is a text file, False if it's not.
+        Based on the UNIX command 'file' result, also doesn't work elsewhere
+        """
+        mime = subprocess.Popen(["file", self.sources_path],
+                                stdout=subprocess.PIPE).communicate()[0]
+        return re.search('text', mime) != None
+
+    def raw_url(self):
+        return self.sources_path_raw
     
     def get_path_links(self):
         """
