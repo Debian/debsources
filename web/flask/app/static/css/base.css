@@ -52,6 +52,12 @@ h2{
     margin-top: 8px;
 }
 
+#footer{
+    clear: both;
+    border-top: 1px solid #c70036;
+    text-align: center;
+}
+
 /* This part is from www.debian.org/debian.css */
 body{
     background-color: white;
