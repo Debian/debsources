@@ -1,7 +1,20 @@
+/*
+Copyright (C) 1997-2013 Software in the Public Interest, Inc. and others
+SPI can be contacted at:
+P.O. Box 501248
+Indianapolis, IN 46250-6248
+United States
+*/
+
+/*
+Copyright (C) 2013  Matthieu Caneill <matthieu.caneill42@gmail.com>
+License: GNU Affero General Public License, version 3 or above.
+*/
+
+
 /* Base (templates/base.html styles */
 
 #leftmenu{
-    /*border-right: 1px solid black;*/
     border: 1px solid #dddddd;
     background-color: #f5f5f5;
     float:left;
@@ -11,7 +24,6 @@
 }
 
 #leftmenu hr{
-    /*height: 1px;*/
     border-width: 1;
 }
 
@@ -26,15 +38,12 @@
 }
 
 #header img{
-    /*display: inline;*/
     margin: 0;
     width: 35px;
     vertical-align: middle;
 }
 
 #header h1{
-    /*margin: 0;
-    padding: 0;*/
     margin-left: 20px;
     display: inline;
 }
@@ -43,7 +52,7 @@ h2{
     margin-top: 8px;
 }
 
-/* from www.debian.org/debian.css */
+/* This part is from www.debian.org/debian.css */
 body{
     background-color: white;
     background-image:url('/static/img/gradient.png');/* modified */
@@ -53,60 +62,61 @@ body{
 /* Links */
 
 a:link {
-	color: #0035c7;
-	text-decoration: underline;
+    color: #0035c7;
+    text-decoration: underline;
 }
 a:visited {
-	color: #54638c;
+    color: #54638c;
 }
 a:link:hover {
-	text-decoration: none;
-	color: #00207a;
+    text-decoration: none;
+    color: #00207a;
 }
 a:visited:hover {
-	text-decoration: none;
+    text-decoration: none;
 }
 a:active {
-	color:#c2c3c7;
+    color:#c2c3c7;
 }
 
 #navbar {
-	background-color: transparent;
-	list-style:none;
-	display:block;
-	border-bottom:1px solid #c70036;
-	text-indent:0;
-	padding: 0;
-	margin-top:0;
-	margin-bottom:10px;
+    background-color: transparent;
+    list-style:none;
+    display:block;
+    border-bottom:1px solid #c70036;
+    text-indent:0;
+    padding: 0;
+    margin-top:0;
+    margin-bottom:10px;
 }
 #navbar ul {
-	margin: 0;
-	padding: 0;
-	clear: both;
-	overflow: hidden;
-	min-height: 45px;
+    margin: 0;
+    padding: 0;
+    clear: both;
+    overflow: hidden;
+    min-height: 45px;
 }
 #navbar li {
-	list-style: none;
-	float: left;
-	padding: 0;
-	margin: 0;
+    list-style: none;
+    float: left;
+    padding: 0;
+    margin: 0;
 }
 #navbar a:link, #navbar a:visited {
-	padding: 1.75em 0.5em 0.25em 0.5em;
-	border-left: 1px solid transparent;
-	border-right: 1px solid transparent;
-	display: block;
-	text-decoration: none;
+    padding: 1.75em 0.5em 0.25em 0.5em;
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
+    display: block;
+    text-decoration: none;
 }
 #navbar a:visited {
 	color: #54638c;
 }
 
 #navbar a:hover, #navbar a:visited:hover {
-	background-color: #f7f8f9;/* modified */
-	border-left: 1px solid  #d2d3d7;
-	border-right: 1px solid #d2d3d7;
-	text-decoration: underline;
+    background-color: #f7f8f9;/* modified */
+    border-left: 1px solid  #d2d3d7;
+    border-right: 1px solid #d2d3d7;
+    text-decoration: underline;
 }
+/* end of www.debian.org/debian.css part */

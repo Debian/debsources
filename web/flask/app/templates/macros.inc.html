@@ -1,7 +1,12 @@
+{#
+  Copyright (C) 2013  Matthieu Caneill <matthieu.caneill42@gmail.com>
+  License: GNU Affero General Public License, version 3 or above.
+#}
+
 {# from
 http://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Pagination.iter_pages #}
 {% macro render_pagination(pagination, endpoint) %}
-  <div class=pagination>
+  <div class="pagination">
   {%- for page in pagination.iter_pages(left_edge=5, left_current=5, right_current=5, right_edge=5) %}
     {% if page %}
       {% if page != pagination.page %}
@@ -10,7 +15,7 @@ http://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginatio
         <strong>{{ page }}</strong>
       {% endif %}
     {% else %}
-      <span class=ellipsis>…</span>
+      <span class="ellipsis">…</span>
     {% endif %}
   {%- endfor %}
   </div>
