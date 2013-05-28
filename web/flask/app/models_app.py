@@ -25,11 +25,10 @@ class Location(object):
         self.version = version or ""
         self.path_to = path_to or ""
         
+        # we wanna list the package versions in each of main/contrib/nonfree
         self.sources_path = os.path.join(app.config['SOURCES_FOLDER'],
                                          self.package, self.version,
                                          self.path_to)
-        #self.sources_path_server = os.path.join(app.config['SOURCES_SERVER'],
-        #                                        package, version, path_to)
     
     def isdir(self):
         """ True if self is a directory, False if it's not """

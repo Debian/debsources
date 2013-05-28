@@ -18,6 +18,4 @@ CSRF_SESSION_KEY = "somethingimpossibletoguess"
 
 SQLALCHEMY_ECHO = True
 
-SOURCES_FOLDER = "app/static/data" # for listing files
-SOURCES_SERVER = "/static/data" # for get request from the browser
-# to test this: $ chromium-browser --disable-web-security
+SOURCES_FOLDER = "app/static/data" # for listing folders and files
