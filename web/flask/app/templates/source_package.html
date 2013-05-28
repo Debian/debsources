@@ -1,0 +1,22 @@
+{% extends "source_base.html" %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css"
+      href="/static/css/source_folder.css" />
+{% endblock %}
+
+{% block title %}Package: {{ package }}{% endblock %}
+{% block source_content %}
+<h2>{{ self.title() }}</h2>
+
+<ul id="ls">
+{% for v in versions %}
+  <li><a href="{{ url_for('source', package=package, version=v.vnumber) }}">
+      <img src="/static/img/folder.png" alt="package" />{{ v.vnumber }}</a>
+    ({{ v.area }})
+  </li>
+{% endfor %}
+</ul>
+
+{% endblock %}

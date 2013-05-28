@@ -35,6 +35,10 @@ class Location(object):
                                              self.package, self.version,
                                              self.path_to)
     
+    def ispackage(self):
+        """ True if self is a package (top folder) """
+        return self.version == ""
+    
     def isdir(self):
         """ True if self is a directory, False if it's not """
         return os.path.isdir(self.sources_path)
@@ -74,6 +78,24 @@ class Location(object):
                                          path_to=prev_path+p)))
                 prev_path += p+"/"
         return pathl
+
+class PackageFolder(Location):
+    """
+    The top directory of a package
+    We use another class to ensure the same layout than a folder when we
+    do a package versions listing (e.g. we need get_path_links()
+    """
+    def __init__(self, package):
+        self.p = Package_app.query.filter(Package_app.name==package).first()
+        super(PackageFolder, self).__init__(package)
+    
+    def get_package_name(self):
+        """ returns the name of the package """
+        return self.package
+    
+    def get_versions(self):
+        """ returns the list of versions of the package """
+        return self.p.versions
 
 class Directory(Location):
     """ a folder in a package """

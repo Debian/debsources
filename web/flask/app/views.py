@@ -1,7 +1,8 @@
 from flask import render_template, redirect, url_for, request, safe_join
 
 from app import app
-from models_app import Package_app, Version_app, Location, Directory, SourceFile
+from models_app import Package_app, Version_app, Location, Directory, \
+    SourceFile, PackageFolder
 from forms import SearchForm
 
 @app.context_processor # variables needed by "base.html" skeleton
@@ -70,6 +71,14 @@ def letter(letter='a'):
 @app.route('/src/<package>/<version>/<path:path_to>/', methods=['POST', 'GET'])
 def source(package, version=None, path_to=None):
     location = Location(package, version, path_to)
+    
+    if location.ispackage(): # it's a package, we list its versions
+        location = PackageFolder(package)
+        
+        return render_template("source_package.html",
+                               package=location.get_package_name(),
+                               versions=location.get_versions(),
+                               pathl=location.get_path_links())
     
     if location.isdir(): # it's a folder, we list its content
         location = Directory(package, version, path_to)
