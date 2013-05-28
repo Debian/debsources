@@ -12,19 +12,19 @@
 
 <ul id="ls">
 {% if parentfolder %}
-  <li><img src="/static/img/folder.png" alt="folder" />
-    <a href="{{ pathl[-2][1] }}">.. (parent)</a>
+  <li><a href="{{ pathl[-2][1] }}">
+      <img src="/static/img/folder.png" alt="folder" />.. (parent)</a>
   </li>
 {% endif %}
 {% for (dir, link) in dirs %}
-  <li><img src="/static/img/folder.png" alt="folder" />
-    <a href="{{ link }}">{{ dir }}</a>
+  <li><a href="{{ link }}">
+      <img src="/static/img/folder.png" alt="folder" />{{ dir }}</a>
   </li>
 {% endfor %}
 
 {% for (file_, link) in files %}
-  <li><img src="/static/img/ascii.png" alt="file" />
-    <a href="{{ link }}">{{ file_ }}</a>
+  <li><a href="{{ link }}">
+      <img src="/static/img/ascii.png" alt="file" />{{ file_ }}</a>
   </li>
 {% endfor %}
 </ul>
