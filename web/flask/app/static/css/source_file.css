@@ -56,6 +56,7 @@
     /*border-left: 1px solid black;*/
     background-color: #feff6f;
     /*min-width: 300px; max-width:400px;*/
+    padding: 10px;
     white-space: pre-wrap;
     /*other browsers */
     white-space: -moz-pre-wrap;
