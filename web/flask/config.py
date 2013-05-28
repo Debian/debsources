@@ -21,4 +21,4 @@ SQLALCHEMY_ECHO = True
 APP_FOLDER = "app"
 
 SOURCES_FOLDER = APP_FOLDER + "/static/data" # for listing folders and files
-SOURCES_RAW = "/static/data" # for external links
+SOURCES_STATIC = "/static/data" # for external links

@@ -18,22 +18,63 @@ class Package_app(models.Package, db.Model):
 class Version_app(models.Version, db.Model):
     pass
 
+class InvalidPackageOrVersionError(ValueError):
+    pass
+
 class Location(object):
     """ a location in a package, can be a directory or a file """
+    
+    def _get_debian_path(self, package, version):
+        """
+        Returns the Debian path of a package version.
+        For example: main/h
+                     contrib/libz
+        It's the path of a *version*, since a package can have multiple
+        versions in multiple areas (ie main/contrib/nonfree).
+        """
+        try:
+            p_id = Package_app.query.filter(
+                Package_app.name==package).first().id
+            varea = Version_app.query.filter(db.and_(
+                        Version_app.package_id==p_id,
+                        Version_app.vnumber==version)).first().area
+        except:
+            # the package or version doesn't exist
+            raise InvalidPackageOrVersionError("%s %s" % (package, version))
+        
+        if package[0:3] == "lib":
+            prefix = package[0:4]
+        else:
+            prefix = package[0]
+        return os.path.join(varea, prefix)
+            
+    
     def __init__(self, package, version=None, path_to=None):
         self.package = package
         self.version = version or ""
         self.path_to = path_to or ""
         
-        # we wanna list the package versions in each of main/contrib/nonfree
-        self.sources_path = os.path.join(app.config['SOURCES_FOLDER'],
-                                         "main", "h", # TODO
-                                         self.package, self.version,
-                                         self.path_to)
-        self.sources_path_raw = os.path.join(app.config['SOURCES_RAW'],
-                                             "main", "h", # TODO
-                                             self.package, self.version,
-                                             self.path_to)
+        # if it's a package, we check its existence
+        if self.version == "":
+            try:
+                p = Package_app.query.filter(
+                    Package_app.name==self.package).first().id
+            except:
+                raise InvalidPackageOrVersionError("%s" % self.package)
+        else: #_get_debian_path also checks the existence
+            debian_path = self._get_debian_path(self.package, self.version)
+            
+            self.sources_path = os.path.join(
+                app.config['SOURCES_FOLDER'],
+                debian_path,
+                self.package, self.version,
+                self.path_to)
+            
+            self.sources_path_static = os.path.join(
+                app.config['SOURCES_STATIC'],
+                self._get_debian_path(self.package, self.version),
+                self.package, self.version,
+                self.path_to)
     
     def ispackage(self):
         """ True if self is a package (top folder) """
@@ -57,7 +98,7 @@ class Location(object):
         return re.search('text', mime) != None
 
     def get_raw_url(self):
-        return self.sources_path_raw
+        return self.sources_path_static
     
     def get_path_links(self):
         """
@@ -168,4 +209,3 @@ class SourceFile(Location):
     
     def get_code(self):
         return self.code
-

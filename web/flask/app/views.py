@@ -2,7 +2,7 @@ from flask import render_template, redirect, url_for, request, safe_join
 
 from app import app
 from models_app import Package_app, Version_app, Location, Directory, \
-    SourceFile, PackageFolder
+    SourceFile, PackageFolder, InvalidPackageOrVersionError
 from forms import SearchForm
 
 @app.context_processor # variables needed by "base.html" skeleton
@@ -70,6 +70,10 @@ def letter(letter='a'):
 @app.route('/src/<package>/<version>/')
 @app.route('/src/<package>/<version>/<path:path_to>/', methods=['POST', 'GET'])
 def source(package, version=None, path_to=None):
+    #try:
+    #    location = Location(package, version, path_to)
+    #except InvalidPackageOrVersionError: # 404
+    #    return render_template("404.html"), 404
     location = Location(package, version, path_to)
     
     if location.ispackage(): # it's a package, we list its versions
