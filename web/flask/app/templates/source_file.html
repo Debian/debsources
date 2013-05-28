@@ -21,33 +21,40 @@
 {% block source_content %}
 <h2>{{ self.title() }}</h2>
 
-<table id="codetable">
-  <tr>
-    <td>
-      <pre id="sourceslinenumbers">{% for i in range(1, nlines) -%}
-        <a id="L{{ i }}" href="#L{{ i }}">{{ i }}</a><br />
-        {%- endfor %}</pre>
-    </td>
-    <td>
-      <pre><code id="sourcecode">{% for (line, highlight) in code -%}
-          {% if highlight -%}
-            <span class="highlight">{{ line }}</span>{% else -%}
-            {{ line }}
-          {%- endif %}
-         {%- endfor %}</code></pre>
-    </td>
-    <td>
-      <pre id="messages">{% if msg -%}
-        {% for i in range(1, msg.position) -%}
-          <br />
-        {%- endfor %}<div class="message">{% if msg.title -%}
-            <strong>{{ msg.title }}</strong><br />
+<div id="codewrap">
+  <div id="codecaption">
+    File {{ pathl[-1][0] }} ({{ nlines }} lines) |
+    <a href="{{ pathl[-2][1] }}">Return to parent folder</a> |
+    <a href="{{ raw_url }}">Download raw file</a>
+  </div>
+  <table id="codetable">
+    <tr>
+      <td>
+        <pre id="sourceslinenumbers">{% for i in range(1, nlines+1) -%}
+          <a id="L{{ i }}" href="#L{{ i }}">{{ i }}</a><br />
+          {%- endfor %}</pre>
+      </td>
+      <td>
+        <pre><code id="sourcecode">{% for (line, highlight) in code -%}
+            {% if highlight -%}
+              <span class="highlight">{{ line }}</span>{% else -%}
+              {{ line }}
+            {%- endif %}
+        {%- endfor %}</code></pre>
+      </td>
+      <td>
+        <pre id="messages">{% if msg -%}
+          {% for i in range(1, msg.position) -%}
+            <br />
+            {%- endfor %}<div class="message">{% if msg.title -%}
+              <strong>{{ msg.title }}</strong><br />
             {%- endif %}{% if msg.message -%}
               {{ msg.message }}
             {%- endif %}</div>{%- endif %}</pre>
-    </td>
-  </tr>
-</table>
+      </td>
+    </tr>
+  </table>
+</div>
 
 <script type="text/javascript">hljs.highlightBlock($('#sourcecode')[0])</script>
 

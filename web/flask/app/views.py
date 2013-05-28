@@ -83,7 +83,7 @@ def source(package, version=None, path_to=None):
     
     elif location.isfile(): # it's a file, we check if it's a text file
         if not(location.istextfile()): # binary file
-            return redirect(location.raw_url())
+            return redirect(location.get_raw_url())
         # else: text file, we display the source code
         try:
             highlight = request.args.get('hl')
@@ -100,7 +100,8 @@ def source(package, version=None, path_to=None):
                                code = location.get_code(),
                                nlines=location.get_number_of_lines(),
                                msg=location.get_msgdict(),
-                               pathl=location.get_path_links())
+                               pathl=location.get_path_links(),
+                               raw_url=location.get_raw_url())
     
     else: # 404
         return render_template('404.html'), 404

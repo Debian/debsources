@@ -1,5 +1,22 @@
+#codewrap{
+    border: 1px solid #c70036;
+    /*min-width: 100%;*/
+}
+
 #codetable{
-    border: 0;
+    
+}
+
+#codewrap #codecaption{
+    /*width: 100%;*/
+    background-color: #c70036;
+    color: white;
+    text-align: left;
+    padding: 3px;
+}
+
+#codewrap #codecaption a{
+    color: white;
 }
 
 #codetable td{
@@ -10,8 +27,8 @@
 
 #codetable #sourceslinenumbers{
     text-align: right;
-    border-right: 1px solid
-    black; padding-right: 5px;
+    border-right: 1px solid black;
+    padding-right: 5px;
     margin-right: 10px;
 }
 
@@ -38,7 +55,7 @@
 #codetable #messages .message{
     /*border-left: 1px solid black;*/
     background-color: #feff6f;
-    min-width: 300px; max-width:400px;
+    /*min-width: 300px; max-width:400px;*/
     white-space: pre-wrap;
     /*other browsers */
     white-space: -moz-pre-wrap;

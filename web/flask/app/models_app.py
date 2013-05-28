@@ -52,7 +52,7 @@ class Location(object):
                                 stdout=subprocess.PIPE).communicate()[0]
         return re.search('text', mime) != None
 
-    def raw_url(self):
+    def get_raw_url(self):
         return self.sources_path_raw
     
     def get_path_links(self):
@@ -139,7 +139,7 @@ class SourceFile(Location):
     def get_number_of_lines(self):
         if self.number_of_lines is not None:
             return number_of_lines
-        number_of_lines = 1
+        number_of_lines = 0
         with open(self.sources_path) as sfile:
             for line in sfile: number_of_lines += 1
         return number_of_lines
