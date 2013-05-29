@@ -16,27 +16,33 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import os
-
-_basedir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# grand-parent folder
-
-DEBUG = True
-
 SECRET_KEY = 'SecretKeyForSessionSigning'
-
-SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(_basedir, 'app.db')
-#SQLALCHEMY_MIGRATE_REPO = os.path.join(_basedir, 'db_repository')
-#DATABASE_CONNECT_OPTIONS = {}
 
 #THREADS_PER_PAGE = 8
 
 CSRF_ENABLED = True
 CSRF_SESSION_KEY = "somethingimpossibletoguess"
 
-SQLALCHEMY_ECHO = True
 
-APP_FOLDER = "app"
+# you have to set up flask/app/__init__.py:
+# app.config.from_pyfile('path/to/this_file')
 
-SOURCES_FOLDER = APP_FOLDER + "/static/data" # for listing folders and files
-SOURCES_STATIC = "/static/data" # for external links
+### PROD ###
+
+DEBUG = False
+SQLALCHEMY_ECHO = False
+SQLALCHEMY_DATABASE_URI = 'sqlite:////srv/debsources/cache/app.db'
+SOURCES_FOLDER = "/srv/debsources/sources/" # for listing folders and files
+SOURCES_STATIC = "/data" # for external raw links
+MODELS_FOLDER = "/srv/debsources/path/to/web"
+
+
+
+### DEV ###
+
+# DEBUG = True
+# SQLALCHEMY_ECHO = True
+# SQLALCHEMY_DATABASE_URI = 'sqlite:////var/www/debsources/app.db'
+# SOURCES_FOLDER = "/var/www/debsources/app/static/data/" # for listing folders and files
+# SOURCES_STATIC = "/data" # for external raw links
+# MODELS_FOLDER = "/var/www/debsources/"

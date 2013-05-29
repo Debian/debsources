@@ -3,6 +3,8 @@ Dependencies:
 Debian packages:
 python-flask
 python-flaskext.wtf
+apache2
+libapache2-mod-wsgi
 
 Pip packages:
 flask-sqlalchemy

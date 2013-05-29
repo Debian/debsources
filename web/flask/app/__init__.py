@@ -20,14 +20,12 @@ from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy, BaseQuery
 
 app = Flask(__name__)
-app.config.from_object('config')
+
+app.config.from_pyfile('/var/www/debsources/appconfig.py')
 
 db = SQLAlchemy(app)
 
-import os, sys
-
-grandparentdir = os.path.dirname(os.path.dirname(
-        os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, grandparentdir)
+import sys
+sys.path.append(app.config['MODELS_FOLDER'])
 
 from app import views
