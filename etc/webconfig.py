@@ -12,7 +12,7 @@ CSRF_ENABLED = False
 # the place where the browser can GET the highlight.js library (JS + CSS)
 HIGHLIGHT_JS_FOLDER = "/javascript/highlight.js"
 
-
+# the place where the icons are 
 
 ### PROD ###
 
