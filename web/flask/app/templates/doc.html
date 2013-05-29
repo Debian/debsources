@@ -21,32 +21,30 @@
 <h3>Package versions</h3>
 
 You can list the different versions of a package, accessing this URL:
-<span class="url">{{ url_prefix }}/src/PACKAGENAME/</span>
+<span class="url">{{ url_prefix }}/src/<strong>packagename</strong>/</span>
 
 <h3>Navigation within a package</h3>
 
-You can list the files in a package or in a particular folder of
+You can list the files in a package or in a particular folder of a
 package, accessing one of these URLs:
-<span class="url">{{ url_prefix }}/src/PACKAGENAME/VERSION/</span>
-<span class="url">{{ url_prefix }}/src/PACKAGENAME/VERSION/path/to/dir/</span>
+<span class="url">{{ url_prefix }}/src/<strong>packagename</strong>/<strong>version</strong>/</span>
+<span class="url">{{ url_prefix }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/dir</strong>/</span>
 
 <h3>Source code displaying</h3>
 
 To simply display a source file:
-<span class="url">{{ url_prefix }}/src/PACKAGENAME/VERSION/path/to/file/</span>
+<span class="url">{{ url_prefix }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong>/</span>
 
 To point a specific line in a source file:
-<span class="url">{{ url_prefix }}/src/PACKAGENAME/VERSION/path/to/file/#L42</span>
+<span class="url">{{ url_prefix }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong>/#L<strong>42</strong></span>
 
 To use with options:
-<span class="url">{{ url_prefix
-  }}/src/PACKAGENAME/VERSION/path/to/file/?opt1=val1&opt2=val2[...]</span>
+<span class="url">{{ url_prefix }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong>/?<strong>opt1</strong>=<strong>val1</strong>&<strong>opt2</strong>=<strong>val2</strong>[...]</span>
 
 <h4>Available options</h4>
 <ul>
-  <li>hl=1:5,10,13:16 -- highlights the lines: 1 to 5, 10, 13 to 16</li>
-  <li>msg=5:title:message -- adds a popup message near line 5 (the
-    title cannot contain the ':' symbol)</li>
+  <li><strong>hl=1:5,10,13:16</strong> -- highlights the lines: 1 to 5, 10, 13 to 16</li>
+  <li><strong>msg=5:title:message</strong> -- adds a popup message near line 5 (the title cannot contain the ':' symbol)</li>
 </ul>
 
 {% endblock %}
