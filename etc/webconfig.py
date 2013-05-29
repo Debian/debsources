@@ -1,6 +1,8 @@
 # this file is loaded as a Python module from flask/app/__init__.py using a
 # relative path ('../../../etc/appconfig.py')
 
+DOMAIN = "sources.upsilon.cc"
+
 SECRET_KEY = 'SecretKeyForSessionSigning'
 
 #THREADS_PER_PAGE = 8
