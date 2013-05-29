@@ -15,13 +15,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy, BaseQuery
 
 app = Flask(__name__)
 
-app.config.from_pyfile('/var/www/debsources/appconfig.py')
+app.config.from_pyfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../../webconfig.py'))
 
 db = SQLAlchemy(app)
 
