@@ -12,12 +12,7 @@
   <link rel="stylesheet" href="/static/highlight.js/googlecode.min.css">
   <script src="/static/highlight.js/highlight.min.js"></script>
   <link rel="stylesheet" type="text/css"
-        href="/static/css/source_file.css" />
-  <script type="text/javascript">
-      function loadFromBody(){ // to remove
-          loadSource("{ sources_path_server }", $('#sourcecode'));
-      }
-    </script>
+        href="{{ url_for('static', filename='css/source_file.css') }}" />
 
 {% endblock %}
 

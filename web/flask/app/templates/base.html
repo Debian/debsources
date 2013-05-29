@@ -11,7 +11,7 @@
     {% block head %}
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css"
-          href="/static/css/base.css" />
+          href="{{ url_for('static', filename='css/base.css') }}" />
     <link rel="shortcut icon"
           href="{{ url_for('static', filename='favicon.ico') }}" />
     <title>{% block title %}{% endblock %} | Debian sources</title>
@@ -19,8 +19,9 @@
   </head>
   <body>
     <div id="header">
-      <a href="http://www.debian.org"><img src="/static/img/debian-50.png"
-                                           alt="Debian logo" /></a>
+      <a href="http://www.debian.org">
+        <img src="{{ url_for('static', filename='img/debian-50.png') }}"
+             alt="Debian logo" /></a>
       <h1>Debian sources</h1>
       <div id="navbar">
         <ul>

@@ -23,7 +23,7 @@ http://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginatio
 
 
 {% macro searchform(form, display="block") -%}
-  <form action="/nav/search/" name="searchform"
+  <form action="{{ url_for('receive_search') }}" name="searchform"
         method="post" style="display: {{ display }};">
     {{ form.hidden_tag() }}
     {{ form.packagename }}

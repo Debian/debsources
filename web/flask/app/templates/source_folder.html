@@ -8,7 +8,7 @@
 {% block head %}
 {{ super() }}
 <link rel="stylesheet" type="text/css"
-      href="/static/css/source_folder.css" />
+      href="{{ url_for('static', filename='css/source_folder.css') }}" />
 {% endblock %}
 
 {% block title %}Folder: {{ pathl[-1][0] }}{% endblock %}
@@ -18,18 +18,21 @@
 <ul id="ls">
 {% if parentfolder %}
   <li><a href="{{ pathl[-2][1] }}">
-      <img src="/static/img/folder.png" alt="folder" />.. (parent)</a>
+      <img src="{{ url_for('static', filename='img/folder.png') }}"
+           alt="folder" />.. (parent)</a>
   </li>
 {% endif %}
 {% for (dir, link) in dirs %}
   <li><a href="{{ link }}">
-      <img src="/static/img/folder.png" alt="folder" />{{ dir }}</a>
+      <img src="{{ url_for('static', filename='img/folder.png') }}"
+           alt="folder" />{{ dir }}</a>
   </li>
 {% endfor %}
 
 {% for (file_, link) in files %}
   <li><a href="{{ link }}">
-      <img src="/static/img/ascii.png" alt="file" />{{ file_ }}</a>
+      <img src="{{ url_for('static', filename='img/ascii.png') }}"
+           alt="file" />{{ file_ }}</a>
   </li>
 {% endfor %}
 </ul>
