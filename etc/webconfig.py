@@ -3,10 +3,11 @@
 
 DOMAIN = "sources.upsilon.cc"
 
-SECRET_KEY = 'SecretKeyForSessionSigning'
+#SECRET_KEY = 'SecretKeyForSessionSigning' # not in use
 
-CSRF_ENABLED = True
-CSRF_SESSION_KEY = "somethingimpossibletoguess"
+# we don't have any form which writes data
+CSRF_ENABLED = False
+#CSRF_SESSION_KEY = "somethingimpossibletoguess" # not in use
 
 
 ### PROD ###
