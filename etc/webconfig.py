@@ -10,7 +10,7 @@ CSRF_ENABLED = False
 #CSRF_SESSION_KEY = "somethingimpossibletoguess" # not in use
 
 # the place where the browser can GET the highlight.js library (JS + CSS)
-HIGHLIGHT_JS_FOLDER = "/javascript/highlight.js"
+HIGHLIGHT_JS_FOLDER = "/javascript/highlight"
 
 # the place where the icons are 
 
