@@ -18,10 +18,10 @@ HIGHLIGHT_JS_FOLDER = "/javascript/highlight.js"
 
 DEBUG = False
 SQLALCHEMY_ECHO = False
-SQLALCHEMY_DATABASE_URI = 'sqlite:////srv/debsources/cache/app.db'
+SQLALCHEMY_DATABASE_URI = 'sqlite:////srv/debsources/cache/sources.sqlite'
 SOURCES_FOLDER = "/srv/debsources/sources/" # for listing folders and files
 SOURCES_STATIC = "/data" # for external raw links
-MODELS_FOLDER = "/srv/debsources/path/to/web"
+MODELS_FOLDER = "/srv/debsources/web"
 
 
 
