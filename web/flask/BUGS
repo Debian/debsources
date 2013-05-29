@@ -1,6 +1,6 @@
 * Line highlighting 
 
-  When we highlight a line, we have to use a display:line tag (whose
+  When we highlight a line, we have to use a display:inline tag (whose
   rendering isn't cool, because an highlighted block doesn't have the
   same width verywhere). With a display:blog tag, newlines are added
   by the browser/highlight.js (?), because tags conflicts with
@@ -10,5 +10,10 @@
      """aaa
      aaa
      """ zzz = 3
+     
+  Edit: the browser close tags automatically, and since our tags
+  aren't correct (ie
+  <span class="string"><div class="highlight">foo</span></div>
+  ), closing display:block tags are inserted.
 
-  Debugging: maybe with inline-block and other css tricks
+ Debugging: maybe with inline-block and other css tricks
