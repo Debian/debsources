@@ -32,6 +32,10 @@ def skeleton_variables():
 def page_not_found(e):
     return render_template('404.html'), 404
 
+@app.errorhandler(500)
+def server_error(e):
+    return render_template('500.html'), 500
+
 @app.route('/doc/')
 def doc():
     return render_template('doc.html', url_prefix="http://example.net")
