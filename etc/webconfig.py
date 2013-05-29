@@ -5,8 +5,6 @@ DOMAIN = "sources.upsilon.cc"
 
 SECRET_KEY = 'SecretKeyForSessionSigning'
 
-#THREADS_PER_PAGE = 8
-
 CSRF_ENABLED = True
 CSRF_SESSION_KEY = "somethingimpossibletoguess"
 
