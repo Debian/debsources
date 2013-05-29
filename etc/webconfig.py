@@ -9,6 +9,10 @@ DOMAIN = "sources.upsilon.cc"
 CSRF_ENABLED = False
 #CSRF_SESSION_KEY = "somethingimpossibletoguess" # not in use
 
+# the place where the browser can GET the highlight.js library (JS + CSS)
+HIGHLIGHT_JS_FOLDER = "/javascript/highlight.js"
+
+
 
 ### PROD ###
 

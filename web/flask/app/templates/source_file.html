@@ -8,8 +8,9 @@
 {% block head %}
   {{ super() }}
 
-  <link rel="stylesheet" href="/static/highlight.js/googlecode.min.css">
-  <script src="/static/highlight.js/highlight.min.js"></script>
+  <link rel="stylesheet"
+        href="{{ config.HIGHLIGHT_JS_FOLDER }}/styles/googlecode.min.css">
+  <script src="{{ config.HIGHLIGHT_JS_FOLDER }}/highlight.min.js"></script>
   <link rel="stylesheet" type="text/css"
         href="{{ url_for('static', filename='css/source_file.css') }}" />
 
