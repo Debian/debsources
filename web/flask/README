@@ -6,6 +6,7 @@ python-flaskext.wtf
 apache2
 libapache2-mod-wsgi
 tango-icon-theme
+libjs-highlight.js
 
 Pip packages:
 flask-sqlalchemy
