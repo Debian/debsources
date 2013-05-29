@@ -11,6 +11,17 @@
 
 <h2>{{ self.title() }}</h2>
 
-{{ lipsum() }}
+<p>
+Debsources is aimed to provide an easy access to the sources of Debian
+packages. You can simply navigate into the packages list, or search
+for one in particular. The source files will be syntax-highlighted if
+you have enabled Javascript on your browser.
+</p>
+<p>
+You can also use Debsources as an API to point a particular place in a
+file from a source package, and possibly add a message in front of
+this. Everything is detailed in the <a href="{{ url_for('doc') }}">API
+    documentation</a>.
+</p>
 
 {% endblock %}

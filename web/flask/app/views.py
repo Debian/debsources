@@ -38,7 +38,7 @@ def server_error(e):
 
 @app.route('/doc/')
 def doc():
-    return render_template('doc.html', url_prefix="http://example.net")
+    return render_template('doc.html')
 
 @app.route('/')
 @app.route('/nav/') # navigation
