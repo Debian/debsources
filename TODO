@@ -24,3 +24,7 @@
 
 
 
+* TODO LOGGING_FILE entry in webconfig.py
+  Q: do we really need logging other than the Apache one? WSGI can log via
+  its appplication server...
+  (also it should be LOGFILE, if any :-))
