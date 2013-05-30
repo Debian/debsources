@@ -1,7 +1,7 @@
 # this file is loaded as a Python module from flask/app/__init__.py using a
 # relative path ('../../../etc/appconfig.py')
 
-DOMAIN = "sources.upsilon.cc"
+DOMAIN = "sources.debian.net"
 LOGGING_FILE = "/tmp/debsources-flask.log"
 
 #SECRET_KEY = 'SecretKeyForSessionSigning' # not in use
