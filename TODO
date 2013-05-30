@@ -31,5 +31,4 @@
   list. Not. Handy.
 ** inspiration:
    http://anonscm.debian.org/gitweb/?p=mirror/snapshot.debian.org.git;a=blob_plain;f=API
-* TODO config debsources.wsgi must use relative path
 * TODO symbolic link for use with tango icons (currently in static/img/)
