@@ -188,7 +188,7 @@ class SourceFile(Location):
     
     def prepare_code(self, highlight=None, msg=None):
         """ sets the highlighting, the message and the SourceCodeIterator """
-        if highlight is not None: self.hl = hl
+        if highlight is not None: self.highlight = highlight
         if msg is not None: self.msg = msg
         self.code = SourceCodeIterator(self.sources_path, self.highlight,
                                        encoding=self.mime['encoding'])
