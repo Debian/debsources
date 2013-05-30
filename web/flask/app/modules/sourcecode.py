@@ -17,7 +17,7 @@
 
 
 class SourceCodeIterator(object):
-    def __init__(self, filename, hl=None):
+    def __init__(self, filename, hl=None, encoding="utf8"):
         """
         creates a new SourceCodeIterator object
         
@@ -29,6 +29,7 @@ class SourceCodeIterator(object):
         hlend: last line which will be highlighted
         """
         self.file = open(filename)
+        self.encoding = encoding
         self.current_line = 0
         self.hls = set()
         if hl is not None:
@@ -56,4 +57,4 @@ class SourceCodeIterator(object):
             class_ = True
         else:
             class_ = False
-        return (unicode(self.file.next(), "utf8"), class_)
+        return (unicode(self.file.next(), self.encoding), class_)

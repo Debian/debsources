@@ -106,18 +106,25 @@ class Location(object):
         """ True if sels is a file, False if it's not """
         return os.path.isfile(self.sources_path)
     
+    def set_mime(self):
+        mime = magic.open(magic.MAGIC_MIME)
+        mime.load()
+        self.mime = mime.file(self.sources_path)
+    
     def istextfile(self):
         """ 
         True if self is a text file, False if it's not.
+        Sets self.mime
         """
-        mime = magic.open(magic.MAGIC_MIME)
-        mime.load()
-        mime = mime.file(self.sources_path)
+        try:
+            self.mime
+        except:
+            self.set_mime()
         #return 'text' in mime.file(self.sources_path).split(';')[0]
     
         #mime = subprocess.Popen(["file", self.sources_path],
         #                        stdout=subprocess.PIPE).communicate()[0]
-        return re.search('text', mime) != None
+        return re.search('text', self.mime) != None
 
     def get_raw_url(self):
         return self.sources_path_static
@@ -197,7 +204,13 @@ class SourceFile(Location):
         self.highlight = highlight
         self.msg = msg
         self.number_of_lines = None
-        self.code = SourceCodeIterator(self.sources_path, self.highlight)
+        try:
+            self.mime
+        except:
+            self.set_mime()
+        self.file_encoding = self.mime.split("charset=")[-1]
+        self.code = SourceCodeIterator(self.sources_path, self.highlight,
+                                       encoding=self.file_encoding)
     
     def get_msgdict(self):
         """
