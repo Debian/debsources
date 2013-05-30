@@ -1,12 +1,5 @@
 #    -*- mode: org -*-
 
-* TODO 500 status code for changelog
-  e.g.:
-** KO http://sources.debian.net/src/ocaml/4.00.1-1/Changes/
-** OK http://sources.debian.net/src/cairo-ocaml/1:1.2.0-2/ChangeLog/
-** OK http://sources.debian.net/src/librapi2/0.15-2.1/ChangeLog/
-   although I've found some "ChangeLog" named entry that fail
-** KO http://sources.debian.net/src/wesnoth-1.11/1:1.11.2-1/changelog/
 * TODO file URLs end with trailing '/'
   e.g. http://sources.debian.net/src/librapi2/0.15-2.1/Makefile.am/
   not nice :-)
