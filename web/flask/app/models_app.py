@@ -23,7 +23,7 @@ from modules.sourcecode import SourceCodeIterator
 
 from flask import url_for
 
-import os, subprocess, re
+import os, subprocess, re, magic
 
 class Package_app(models.Package, db.Model):
     @staticmethod
@@ -109,10 +109,14 @@ class Location(object):
     def istextfile(self):
         """ 
         True if self is a text file, False if it's not.
-        Based on the UNIX command 'file' result, also doesn't work elsewhere
         """
-        mime = subprocess.Popen(["file", self.sources_path],
-                                stdout=subprocess.PIPE).communicate()[0]
+        mime = magic.open(magic.MAGIC_MIME)
+        mime.load()
+        mime = mime.file(self.sources_path)
+        #return 'text' in mime.file(self.sources_path).split(';')[0]
+    
+        #mime = subprocess.Popen(["file", self.sources_path],
+        #                        stdout=subprocess.PIPE).communicate()[0]
         return re.search('text', mime) != None
 
     def get_raw_url(self):

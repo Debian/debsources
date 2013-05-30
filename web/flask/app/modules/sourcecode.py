@@ -56,4 +56,4 @@ class SourceCodeIterator(object):
             class_ = True
         else:
             class_ = False
-        return (self.file.next(), class_)
+        return (unicode(self.file.next(), "utf8"), class_)
