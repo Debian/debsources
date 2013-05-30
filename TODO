@@ -23,6 +23,12 @@
   since it is retrieved from /javascript/highlight
 
 
+* TODO xsl files aren't considered as text?
+  http://sources.debian.net/src/libical-parser-html-perl/1.07-1/lib/iCal/Parser/HTML/stylesheet
+
+* TODO ADA colorisation (considered as brainfuck :D)
+  http://sources.debian.net/src/adabrowse/4.0.3-5/ad-compiler.adb
+
 
 * TODO LOGGING_FILE entry in webconfig.py
   Q: do we really need logging other than the Apache one? WSGI can log via
