@@ -24,6 +24,8 @@
 
 
 * TODO xsl files aren't considered as text?
+  because text is not in 'application/xml'
+  other mime types return False as well
   http://sources.debian.net/src/libical-parser-html-perl/1.07-1/lib/iCal/Parser/HTML/stylesheet
 
 * TODO ADA colorisation (considered as brainfuck :D)
