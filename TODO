@@ -1,8 +1,5 @@
 #    -*- mode: org -*-
 
-* TODO file URLs end with trailing '/'
-  e.g. http://sources.debian.net/src/librapi2/0.15-2.1/Makefile.am/
-  not nice :-)
 * TODO should the first page be static?
   (or maybe cached?)
 * TODO search based on the file name
@@ -26,3 +23,5 @@
   since it is retrieved from /javascript/highlight
 
 
+
+* TODO add class="language" to <code> to help hl.js

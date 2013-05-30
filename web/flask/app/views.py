@@ -111,7 +111,7 @@ def letter(letter='a'):
 
 @app.route('/src/<package>/')
 @app.route('/src/<package>/<version>/')
-@app.route('/src/<package>/<version>/<path:path_to>/', methods=['POST', 'GET'])
+@app.route('/src/<package>/<version>/<path:path_to>', methods=['POST', 'GET'])
 def source(package, version=None, path_to=None):
     try:
         location = Location(package, version, path_to)
