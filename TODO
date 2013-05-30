@@ -1,7 +1,7 @@
 #    -*- mode: org -*-
 
 * TODO should the first page be static?
-  (or maybe cached?)
+  (or maybe cached?) -> strict to set packages_prefixes static
 * TODO search based on the file name
   should be feasible, if the mlocate database is to be believed. Maybe we
   should simply use it, making the indexing available *in* the VM?
