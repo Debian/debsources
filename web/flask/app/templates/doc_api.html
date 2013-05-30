@@ -1,0 +1,52 @@
+{#
+  Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
+  License: GNU Affero General Public License, version 3 or above.
+#}
+
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<style>
+  .url{display: block; margin-left: 50px;}
+</style>
+{% endblock %}
+
+{% block title %}API documentation{% endblock %}
+{% block content %}
+{% set url_prefix = "http://" + config.DOMAIN %}
+
+<h2>{{ self.title() }}</h2>
+
+<h3>Search</h3>
+
+By accessing the following URL:
+<span class="url">{{ url_prefix }}/mr/search/<strong>hello</strong></span>
+
+You will get a JSON object similar to this:
+<pre>
+{
+  "query": "hello", 
+  "results": {
+    "other_results": [
+      {
+        "name": "gpe-othello"
+      }, 
+      {
+        "name": "hello"
+      }, 
+      {
+        "name": "hello-debhelper"
+      }, 
+      {
+        "name": "ruby-mixlib-shellout"
+      }
+    ], 
+    "exact_matching": {
+      "name": "hello"
+    }
+  }
+}
+</pre>
+
+{% endblock %}

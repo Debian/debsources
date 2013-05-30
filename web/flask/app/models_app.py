@@ -32,6 +32,9 @@ class Package_app(models.Package, db.Model):
         returns the packages prefixes (a, b, ..., liba, libb, ..., y, z)
         """
         return packages_prefixes
+    
+    def to_dict(self):
+        return dict(name=self.name)
 
 class Version_app(models.Version, db.Model):
     pass

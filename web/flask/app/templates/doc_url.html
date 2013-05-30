@@ -12,11 +12,16 @@
 </style>
 {% endblock %}
 
-{% block title %}API documentation{% endblock %}
+{% block title %}URL scheme{% endblock %}
 {% block content %}
 {% set url_prefix = "http://" + config.DOMAIN %}
 
 <h2>{{ self.title() }}</h2>
+
+<h3>Search</h3>
+
+You can simply point a search query with the followinf URL:
+<span class="url">{{ url_prefix }}/search/<strong>query</strong></span>
 
 <h3>Package versions</h3>
 

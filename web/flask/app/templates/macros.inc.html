@@ -26,8 +26,8 @@ http://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginatio
   <form action="{{ url_for('receive_search') }}" name="searchform"
         method="post" style="display: {{ display }};">
     {{ form.hidden_tag() }}
-    {{ form.packagename }}
-    {% for error in form.errors.packagename %}
+    {{ form.query }}
+    {% for error in form.errors.query %}
       <em>{{ error }}</em><br />
     {% endfor %}
     <input type="submit" value="Search" />

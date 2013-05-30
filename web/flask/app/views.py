@@ -16,70 +16,111 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from flask import render_template, redirect, url_for, request, safe_join
+from flask import render_template, redirect, url_for, request, safe_join, \
+    jsonify
+from flask.views import View
 
 from app import app
 from models_app import Package_app, Version_app, Location, Directory, \
     SourceFile, PackageFolder, InvalidPackageOrVersionError
 from forms import SearchForm
 
+#import modules.tasks as tasks
+
 @app.context_processor # variables needed by "base.html" skeleton
 def skeleton_variables():
     return dict(packages_prefixes = Package_app.get_packages_prefixes(),
                 searchform = SearchForm())
 
+def deal_404_error(error, mode='html'):
+    if mode == 'json':
+        return jsonify(dict(error=404))
+    else:
+        return render_template('404.html'), 404
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
 
-def deal_500_error(error):
+def deal_500_error(error, mode='html'):
     """ logs a 500 error and returns the correct template """
     app.logger.error(error)
-    return render_template('500.html'), 500
+    if mode == 'json':
+        return jsonify(dict(error=500))
+    else:
+        return render_template('500.html'), 500
 
 @app.errorhandler(500)
 def server_error(e):
     return render_template('500.html'), 500
 
-# @app.route('/test')
-# def test():
-#     try:
-#         a = 2/0
-#     except Exception as e:
-#         return deal_500_error(e)
+@app.route('/doc/url/')
+def doc_url():
+    return render_template('doc_url.html')
 
-@app.route('/doc/')
-def doc():
-    return render_template('doc.html')
+@app.route('/doc/api/')
+def doc_api():
+    return render_template('doc_api.html')
+
 
 @app.route('/')
 @app.route('/nav/') # navigation
 def index():
     return render_template('index.html')
 
-@app.route('/nav/search/', methods=['GET', 'POST'])
+
+### SEARCH ###
+
+@app.route('/search/', methods=['GET', 'POST'])
 def receive_search():
     searchform = SearchForm(request.form)
     if searchform.validate_on_submit():
-        return redirect(url_for("search",
-                                packagename=searchform.packagename.data))
+        return redirect(url_for("search_html",
+                                query=searchform.query.data))
     else:
         # we return the form, to display the errors
         return render_template('index.html', searchform=searchform)
 
-@app.route('/nav/search/<packagename>/')
-def search(packagename):
-    packagename = packagename.replace('%', '').replace('_', '')
-    try:
-        exact_matching = Package_app.query.filter_by(name=packagename).first()
-        other_results = Package_app.query.filter(
-            Package_app.name.contains(packagename)).order_by(Package_app.name)
-    except Exception as e:
-        return deal_500_error(e)
-    return render_template('search.html',
-                           search=packagename,
-                           exact_matching=exact_matching,
-                           other_results=other_results)
+@app.route('/mr/search/')
+def receive_empty_search_json():
+    return deal_404_error(None, 'json')
+
+class SearchView(View):
+    def __init__(self, mode='html'):
+        self.mode = mode
+    
+    def dispatch_request(self, query=None):
+        self.query = query.replace('%', '').replace('_', '')
+        context = self.get_objects()
+        if self.mode == 'html':
+            return render_template("search.html", **context)
+        elif self.mode == 'json':
+            return jsonify(**context)
+    
+    def get_objects(self):
+        try:
+            exact_matching = Package_app.query.filter_by(
+                name=self.query).first().to_dict()
+        
+            other_results = Package_app.query.filter(
+                Package_app.name.contains(
+                    self.query)).order_by(Package_app.name)
+        except Exception as e:
+            return deal_500_error(e, mode=self.mode)
+        
+        other_results = [o.to_dict() for o in other_results]
+        results = dict(exact_matching=exact_matching,
+                       other_results=other_results)
+        return dict(results=results, query=self.query)
+
+
+app.add_url_rule('/search/<query>/',
+                 view_func=SearchView.as_view('search_html', mode='html'))
+
+app.add_url_rule('/mr/search/<query>/',
+                 view_func=SearchView.as_view('search_json', mode='json'))
+
+### NAVIGATION ###
 
 @app.route('/nav/list/')
 @app.route('/nav/list/<int:page>/')
