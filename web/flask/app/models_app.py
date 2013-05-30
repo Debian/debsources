@@ -106,26 +106,6 @@ class Location(object):
         """ True if sels is a file, False if it's not """
         return os.path.isfile(self.sources_path)
     
-    def set_mime(self):
-        mime = magic.open(magic.MAGIC_MIME)
-        mime.load()
-        self.mime = mime.file(self.sources_path)
-    
-    def istextfile(self):
-        """ 
-        True if self is a text file, False if it's not.
-        Sets self.mime
-        """
-        try:
-            self.mime
-        except:
-            self.set_mime()
-        #return 'text' in mime.file(self.sources_path).split(';')[0]
-    
-        #mime = subprocess.Popen(["file", self.sources_path],
-        #                        stdout=subprocess.PIPE).communicate()[0]
-        return re.search('text', self.mime) != None
-
     def get_raw_url(self):
         return self.sources_path_static
     
@@ -199,19 +179,54 @@ class Directory(Location):
 
 class SourceFile(Location):
     """ a source file in a package """
-    def __init__(self, package, version, path_to, highlight, msg):
+    def __init__(self, package, version, path_to, highlight=None, msg=None):
         super(SourceFile, self).__init__(package, version, path_to)
         self.highlight = highlight
         self.msg = msg
         self.number_of_lines = None
-        try:
-            self.mime
-        except:
-            self.set_mime()
-        self.file_encoding = self.mime.split("charset=")[-1]
-        self.code = SourceCodeIterator(self.sources_path, self.highlight,
-                                       encoding=self.file_encoding)
+        self.mime = self._find_mime()
     
+    def prepare_code(self, highlight=None, msg=None):
+        """ sets the highlighting, the message and the SourceCodeIterator """
+        if highlight is not None: self.hl = hl
+        if msg is not None: self.msg = msg
+        self.code = SourceCodeIterator(self.sources_path, self.highlight,
+                                       encoding=self.mime['encoding'])
+    
+    def get_file_language(self):
+        """
+        Returns a class name, usable by highlight.hs, to help it to guess
+        the source language.
+        Currently: returns cpp if it's a .h, .c, .cpp, .hpp, .C, .cc
+        since hl.js doesn't guess it correctly.
+        In future, maybe use self.mime['type'], but for example it's not
+        efficient for a Django template:
+                 self.mime['type'] = 'text/html',
+                 but hl.js recognizes directly 'django'
+        Uncomment lines in _find_mime to get mime type
+        """
+        cpp_exts = ['h', 'c', 'cpp', 'hpp', 'C', 'cc']
+        if self.sources_path.split('.')[-1] in cpp_exts:
+            return "cpp"
+        else:
+            return None
+    
+    def _find_mime(self):
+        # mime = magic.open(magic.MIME_TYPE)
+        # mime.load()
+        # type = mime.file(self.sources_path)
+        mime = magic.open(magic.MIME_ENCODING)
+        mime.load()
+        encoding = mime.file(self.sources_path)
+        return dict(encoding=encoding) #,type=type)
+
+    def istextfile(self):
+        """ 
+        True if self is a text file, False if it's not.
+        """
+        return re.search('text', self.mime['type']) != None
+
+
     def get_msgdict(self):
         """
         returns a dict(position=, title=, message=) generated from

@@ -137,6 +137,8 @@ def source(package, version=None, path_to=None):
                                  # we want '..', except for a package file
     
     elif location.isfile(): # it's a file, we check if it's a text file
+        location = SourceFile(package, version, path_to)
+        
         if not(location.istextfile()): # binary file
             return redirect(location.get_raw_url())
         # else: text file, we display the source code
@@ -149,14 +151,15 @@ def source(package, version=None, path_to=None):
         except (KeyError, ValueError, TypeError):
             msg = None
             
-        location = SourceFile(package, version, path_to, highlight, msg)
+        location.prepare_code(highlight=highlight, msg=msg)
         
         return render_template("source_file.html",
                                code = location.get_code(),
                                nlines=location.get_number_of_lines(),
                                msg=location.get_msgdict(),
                                pathl=location.get_path_links(),
-                               raw_url=location.get_raw_url())
+                               raw_url=location.get_raw_url(),
+                               file_language=location.get_file_language())
     
     else: # 404
         return render_template('404.html'), 404
