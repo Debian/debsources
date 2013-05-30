@@ -32,9 +32,21 @@ def skeleton_variables():
 def page_not_found(e):
     return render_template('404.html'), 404
 
+def deal_500_error(error):
+    """ logs a 500 error and returns the correct template """
+    app.logger.error(error)
+    return render_template('500.html'), 500
+
 @app.errorhandler(500)
 def server_error(e):
     return render_template('500.html'), 500
+
+# @app.route('/test')
+# def test():
+#     try:
+#         a = 2/0
+#     except Exception as e:
+#         return deal_500_error(e)
 
 @app.route('/doc/')
 def doc():
@@ -62,8 +74,8 @@ def search(packagename):
         exact_matching = Package_app.query.filter_by(name=packagename).first()
         other_results = Package_app.query.filter(
             Package_app.name.contains(packagename)).order_by(Package_app.name)
-    except:
-        return render_template('500.html'), 500
+    except Exception as e:
+        return deal_500_error(e)
     return render_template('search.html',
                            search=packagename,
                            exact_matching=exact_matching,
@@ -75,8 +87,8 @@ def list(page=1):
     try:
         packages = Package_app.query.order_by(
             Package_app.name).paginate(page, 20, False)
-    except:
-        return render_template('500.html'), 500
+    except Exception as e:
+        return deal_500_error(e)
     return render_template('list.html',
                            packages=packages,
                            page=page)
@@ -88,8 +100,8 @@ def letter(letter='a'):
         try:
             packages = Package_app.query.filter(
                 Package_app.name.startswith(letter)).order_by(Package_app.name)
-        except:
-            return render_template('500.html'), 500
+        except Exception as e:
+            return deal_500_error(e)
         return render_template("letter.html",
                                packages=packages,
                                letter=letter)

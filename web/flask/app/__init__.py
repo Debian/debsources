@@ -16,9 +16,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import logging
+from logging import Formatter
+from logging.handlers import RotatingFileHandler
 
 from flask import Flask
-from flask.ext.sqlalchemy import SQLAlchemy, BaseQuery
+from flask.ext.sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
@@ -30,3 +33,12 @@ import sys
 sys.path.append(app.config['MODELS_FOLDER'])
 
 from app import views
+
+# logging
+handler = RotatingFileHandler(app.config['LOGGING_FILE'])
+handler.setFormatter(Formatter(
+        '%(asctime)s %(levelname)s: %(message)s '
+        '[in %(pathname)s:%(lineno)d]'
+        ))
+handler.setLevel(logging.INFO)
+app.logger.addHandler(handler)

@@ -1,7 +1,8 @@
 # this file is loaded as a Python module from flask/app/__init__.py using a
 # relative path ('../../../etc/appconfig.py')
 
-DOMAIN = "sources.debian.net"
+DOMAIN = "sources.upsilon.cc"
+LOGGING_FILE = "/tmp/debsources-flask.log"
 
 #SECRET_KEY = 'SecretKeyForSessionSigning' # not in use
 
@@ -29,7 +30,7 @@ MODELS_FOLDER = "/srv/debsources/web"
 
 # DEBUG = True
 # SQLALCHEMY_ECHO = True
-# SQLALCHEMY_DATABASE_URI = 'sqlite:////var/www/debsources/app.db'
+# SQLALCHEMY_DATABASE_URI = 'sqlite:////home/matthieu/work/debian/debsources/web/app.db'
 # SOURCES_FOLDER = "/var/www/debsources/app/static/data/" # for listing folders and files
-# SOURCES_STATIC = "/data" # for external raw links
-# MODELS_FOLDER = "/var/www/debsources/"
+# SOURCES_STATIC = "/static/data" # for external raw links
+# MODELS_FOLDER = "/home/matthieu/work/debian/debsources/web/"
