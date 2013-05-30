@@ -1,0 +1,35 @@
+#    -*- mode: org -*-
+
+* TODO OCaml files, e.g.
+  http://sources.debian.net/data/main/o/ocaml/4.00.1-1/bytecomp/bytesections.ml
+** should be fixed when switching to python-magic
+* TODO 500 status code for changelog
+  e.g.:
+** KO http://sources.debian.net/src/ocaml/4.00.1-1/Changes/
+** OK http://sources.debian.net/src/cairo-ocaml/1:1.2.0-2/ChangeLog/
+** OK http://sources.debian.net/src/librapi2/0.15-2.1/ChangeLog/
+   although I've found some "ChangeLog" named entry that fail
+** KO http://sources.debian.net/src/wesnoth-1.11/1:1.11.2-1/changelog/
+* TODO file URLs end with trailing '/'
+  e.g. http://sources.debian.net/src/librapi2/0.15-2.1/Makefile.am/
+  not nice :-)
+* TODO should the first page be static?
+  (or maybe cached?)
+* TODO search based on the file name
+  should be feasible, if the mlocate database is to be believed. Maybe we
+  should simply use it, making the indexing available *in* the VM?
+* TODO [0/1] integration with http://codesearch.debian.net
+** forward: have a search box on sources.d.n that search there
+** backward: have search results there pointing back to sources.d.n
+** TODO contact: Michael Stapelberg <stapelberg@debian.org>
+* TODO API is currently not an API
+  is more of an URL scheme (and it's good to have!). But we do need an API,
+  e.g. rooted at /api/ which send answers in a machine parseable format such as
+  Json
+* TODO API method to retrieve the complete list of available packages
+  rationale: currently the only way to get them is via a paginated long
+  list. Not. Handy.
+** inspiration:
+   http://anonscm.debian.org/gitweb/?p=mirror/snapshot.debian.org.git;a=blob_plain;f=API
+* TODO config debsources.wsgi must use relative path
+* TODO symbolic link for use with tango icons (currently in static/img/)
