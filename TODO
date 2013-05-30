@@ -8,7 +8,7 @@
 * TODO [0/1] integration with http://codesearch.debian.net
 ** forward: have a search box on sources.d.n that search there
 ** backward: have search results there pointing back to sources.d.n
-** TODO contact: Michael Stapelberg <stapelberg@debian.org>
+** TODO contact: stapelberg@d.o
 * TODO API is currently not an API
   is more of an URL scheme (and it's good to have!). But we do need an API,
   e.g. rooted at /api/ which send answers in a machine parseable format such as
