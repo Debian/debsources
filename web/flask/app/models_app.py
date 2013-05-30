@@ -203,7 +203,6 @@ class SourceFile(Location):
         efficient for a Django template:
                  self.mime['type'] = 'text/html',
                  but hl.js recognizes directly 'django'
-        Uncomment lines in _find_mime to get mime type
         """
         cpp_exts = ['h', 'c', 'cpp', 'hpp', 'C', 'cc']
         if self.sources_path.split('.')[-1] in cpp_exts:
@@ -212,13 +211,13 @@ class SourceFile(Location):
             return None
     
     def _find_mime(self):
-        # mime = magic.open(magic.MIME_TYPE)
-        # mime.load()
-        # type = mime.file(self.sources_path)
+        mime = magic.open(magic.MIME_TYPE)
+        mime.load()
+        type = mime.file(self.sources_path)
         mime = magic.open(magic.MIME_ENCODING)
         mime.load()
         encoding = mime.file(self.sources_path)
-        return dict(encoding=encoding) #,type=type)
+        return dict(encoding=encoding, type=type)
 
     def istextfile(self):
         """ 
