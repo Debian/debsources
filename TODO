@@ -1,8 +1,5 @@
 #    -*- mode: org -*-
 
-* TODO OCaml files, e.g.
-  http://sources.debian.net/data/main/o/ocaml/4.00.1-1/bytecomp/bytesections.ml
-** should be fixed when switching to python-magic
 * TODO 500 status code for changelog
   e.g.:
 ** KO http://sources.debian.net/src/ocaml/4.00.1-1/Changes/
@@ -32,3 +29,7 @@
 ** inspiration:
    http://anonscm.debian.org/gitweb/?p=mirror/snapshot.debian.org.git;a=blob_plain;f=API
 * TODO symbolic link for use with tango icons (currently in static/img/)
+* TODO highlight.js is way slower
+  since it is retrieved from /javascript/highlight
+
+
