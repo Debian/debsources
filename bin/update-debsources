@@ -74,6 +74,9 @@ update_db() {
     python ${root}/web/scripts/sources2db.py "${sources_sql}.new" "$srclist"
     chmod 664 "${sources_sql}.new"
     mv "${sources_sql}.new" "$sources_sql"
+
+    # timestamp
+    date --utc --rfc-2822 > "$timestamp_file"
 }
 
 main() {

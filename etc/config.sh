@@ -24,6 +24,7 @@ sources_list="${root}/cache/sources.txt"
 sources_map="${root}/cache/webredir.map"
 sources_dbm="${root}/cache/webredir.dbm"
 sources_sql="${root}/cache/sources.sqlite"
+timestamp_file="${root}/cache/last-update"
 
 lockfile="$root/ONGOING-UPDATE.pid"
 
