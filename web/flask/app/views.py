@@ -149,19 +149,44 @@ app.add_url_rule('/mr/search/<query>/', view_func=SearchView.as_view(
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
         ))
 
-### NAVIGATION ###
+### NAVIGATION: ALL PACKAGES ###
 
-@app.route('/nav/list/')
-@app.route('/nav/list/<int:page>/')
-def list(page=1):
-    try:
-        packages = Package_app.query.order_by(
-            Package_app.name).paginate(page, 20, False)
-    except Exception as e:
-        return deal_500_error(e)
-    return render_template('list.html',
-                           packages=packages,
-                           page=page)
+class ListpackagesView(GeneralView):
+    def __init__(self, render_func=jsonify, err_func=lambda *x: x, all_=False):
+        self.all_ = all_
+        super(ListpackagesView, self).__init__(
+            render_func=render_func, err_func=err_func)
+    
+    def get_objects(self, page=1):
+        if self.all_: # we retrieve all packages
+            try:
+                packages = Package_app.query.order_by(Package_app.name).all()
+                packages = [p.to_dict() for p in packages]
+                return dict(packages=packages)
+            except Exception as e:
+                raise Http500Error(e)
+        else: # we paginate
+            # WARNING: not serializable (TODO: serialize Pagination obj)
+            try:
+                packages = Package_app.query.order_by(
+                    Package_app.name).paginate(page, 20, False)
+                return dict(packages=packages, page=page)
+            except Exception as e:
+                raise Http500Error(e)
+
+app.add_url_rule('/list/<int:page>/', view_func=ListpackagesView.as_view(
+        'listpackages_html',
+        render_func=lambda **kwargs: render_template('list.html', **kwargs),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+app.add_url_rule('/mr/list/', view_func=ListpackagesView.as_view(
+        'listpackages_json',
+        all_=True,
+        render_func=jsonify,
+        err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
+        ))
+
+
 
 ### NAVIGATION BY PREFIX ###
 
@@ -185,12 +210,12 @@ class PrefixView(GeneralView):
 #         render_func=lambda **x: render_template('prefix.html', **x),
 #         err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
 #         ))
-app.add_url_rule('/prefix/<prefix>', view_func=PrefixView.as_view(
+app.add_url_rule('/prefix/<prefix>/', view_func=PrefixView.as_view(
         'prefix_html',
         render_func=lambda **kwargs: render_template('prefix.html', **kwargs),
         err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
         ))
-app.add_url_rule('/mr/prefix/<prefix>', view_func=PrefixView.as_view(
+app.add_url_rule('/mr/prefix/<prefix>/', view_func=PrefixView.as_view(
         'prefix_json',
         render_func=jsonify,
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
