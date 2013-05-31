@@ -32,6 +32,39 @@ def skeleton_variables():
     return dict(packages_prefixes = Package_app.get_packages_prefixes(),
                 searchform = SearchForm())
 
+### GENERAL VIEW HANDLING ###
+
+class GeneralView(View):
+    def __init__(self, render_func=jsonify, err_func=lambda *x: x):
+        self.render_func = render_func
+        self.err_func = err_func
+    
+    def dispatch_request(self, **kwargs):
+        try:
+            context = self.get_objects(**kwargs)
+            return self.render_func(**context)
+        except Http500Error as e:
+            return self.err_func(e, http=500)
+        except Http404Error as e:
+            return self.err_func(e, http=404)
+
+
+### EXCEPTIONS ###
+
+class Http500Error(Exception): pass
+class Http404Error(Exception): pass
+
+
+### ERRORS ###
+
+def deal_error(error, http=404, mode='html'):
+    if http == 404:
+        return deal_404_error(error, mode)
+    elif http == 500:
+        return deal_500_error(error, mode)
+    else:
+        raise Exception("Unimplemented HTTP error: %s" % str(http))
+
 def deal_404_error(error, mode='html'):
     if mode == 'json':
         return jsonify(dict(error=404))
@@ -53,6 +86,8 @@ def deal_500_error(error, mode='html'):
 @app.errorhandler(500)
 def server_error(e):
     return render_template('500.html'), 500
+
+### DOCUMENTATION ###
 
 @app.route('/doc/url/')
 def doc_url():
@@ -81,44 +116,39 @@ def receive_search():
         # we return the form, to display the errors
         return render_template('index.html', searchform=searchform)
 
-@app.route('/mr/search/')
-def receive_empty_search_json():
-    return deal_404_error(None, 'json')
+# @app.route('/mr/search/')
+# def receive_empty_search_json():
+#     return deal_404_error(None, 'json')
 
-class SearchView(View):
-    def __init__(self, mode='html'):
-        self.mode = mode
-    
-    def dispatch_request(self, query=None):
-        self.query = query.replace('%', '').replace('_', '')
-        context = self.get_objects()
-        if self.mode == 'html':
-            return render_template("search.html", **context)
-        elif self.mode == 'json':
-            return jsonify(**context)
-    
-    def get_objects(self):
+class SearchView(GeneralView):
+    def get_objects(self, query=None):
+        query = query.replace('%', '').replace('_', '')
         try:
             exact_matching = Package_app.query.filter_by(
-                name=self.query).first().to_dict()
+                name=query).first().to_dict()
         
             other_results = Package_app.query.filter(
                 Package_app.name.contains(
-                    self.query)).order_by(Package_app.name)
+                    query)).order_by(Package_app.name)
         except Exception as e:
-            return deal_500_error(e, mode=self.mode)
+            raise Http500Error(e) # db problem, ...
         
         other_results = [o.to_dict() for o in other_results]
         results = dict(exact_matching=exact_matching,
                        other_results=other_results)
-        return dict(results=results, query=self.query)
+        return dict(results=results, query=query)
 
+app.add_url_rule('/search/<query>/', view_func=SearchView.as_view(
+        'search_html',
+        render_func=lambda **x: render_template('search.html', **x),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
 
-app.add_url_rule('/search/<query>/',
-                 view_func=SearchView.as_view('search_html', mode='html'))
-
-app.add_url_rule('/mr/search/<query>/',
-                 view_func=SearchView.as_view('search_json', mode='json'))
+app.add_url_rule('/mr/search/<query>/', view_func=SearchView.as_view(
+        'search_json',
+        render_func=jsonify,
+        err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
+        ))
 
 ### NAVIGATION ###
 
@@ -134,20 +164,54 @@ def list(page=1):
                            packages=packages,
                            page=page)
 
-@app.route('/nav/letter/')
-@app.route('/nav/letter/<letter>')
-def letter(letter='a'):
-    if letter in Package_app.get_packages_prefixes():
-        try:
-            packages = Package_app.query.filter(
-                Package_app.name.startswith(letter)).order_by(Package_app.name)
-        except Exception as e:
-            return deal_500_error(e)
-        return render_template("letter.html",
-                               packages=packages,
-                               letter=letter)
-    else:
-        return render_template('404.html'), 404
+### NAVIGATION BY PREFIX ###
+
+class PrefixView(GeneralView):
+    def get_objects(self, prefix='a'):
+        if prefix in Package_app.get_packages_prefixes():
+            try:
+                packages = Package_app.query.filter(
+                    Package_app.name.startswith(prefix)).order_by(
+                    Package_app.name)
+                packages = [p.to_dict() for p in packages]
+            except Exception as e:
+                raise Http500Error(e)
+            return dict(packages=packages,
+                        prefix=prefix)
+        else:
+            raise Http404Error("prefix unknown: %s" % str(prefix))
+
+# app.add_url_rule('/prefix/', view_func=PrefixView.as_view(
+#         'prefix_html',
+#         render_func=lambda **x: render_template('prefix.html', **x),
+#         err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+#         ))
+app.add_url_rule('/prefix/<prefix>', view_func=PrefixView.as_view(
+        'prefix_html',
+        render_func=lambda **x: render_template('prefix.html', **x),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+app.add_url_rule('/mr/prefix/<prefix>', view_func=PrefixView.as_view(
+        'prefix_json',
+        render_func=jsonify,
+        err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
+        ))
+
+
+# @app.route('/nav/letter/')
+# @app.route('/nav/letter/<letter>')
+# def letter(letter='a'):
+#     if letter in Package_app.get_packages_prefixes():
+#         try:
+#             packages = Package_app.query.filter(
+#                 Package_app.name.startswith(letter)).order_by(Package_app.name)
+#         except Exception as e:
+#             return deal_500_error(e)
+#         return render_template("letter.html",
+#                                packages=packages,
+#                                letter=letter)
+#     else:
+#         return render_template('404.html'), 404
 
 
 @app.route('/src/<package>/')

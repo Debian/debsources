@@ -40,9 +40,9 @@
       <p><a href="{{ url_for('list', page=1) }}">View package list</a> 
         (alphabetically)</p>
       <hr />
-      <p>By first letter:
-      {% for letter in packages_prefixes %}
-      <a href="{{ url_for('letter', letter=letter) }}">{{ letter }}</a>
+      <p>By prefix:
+      {% for prefix in packages_prefixes %}
+      <a href="{{ url_for('prefix_html', prefix=prefix) }}">{{ prefix }}</a>
       {% endfor %}</p>
 
     </div>
