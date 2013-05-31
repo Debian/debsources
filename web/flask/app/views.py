@@ -139,7 +139,7 @@ class SearchView(GeneralView):
 
 app.add_url_rule('/search/<query>/', view_func=SearchView.as_view(
         'search_html',
-        render_func=lambda **x: render_template('search.html', **x),
+        render_func=lambda **kwargs: render_template('search.html', **kwargs),
         err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
         ))
 
@@ -187,7 +187,7 @@ class PrefixView(GeneralView):
 #         ))
 app.add_url_rule('/prefix/<prefix>', view_func=PrefixView.as_view(
         'prefix_html',
-        render_func=lambda **x: render_template('prefix.html', **x),
+        render_func=lambda **kwargs: render_template('prefix.html', **kwargs),
         err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
         ))
 app.add_url_rule('/mr/prefix/<prefix>', view_func=PrefixView.as_view(
