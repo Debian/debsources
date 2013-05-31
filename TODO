@@ -22,7 +22,6 @@
 * TODO highlight.js is way slower
   since it is retrieved from /javascript/highlight
 
-
 * TODO xsl files aren't considered as text?
   because text is not in 'application/xml'
   other mime types return False as well
@@ -30,7 +29,6 @@
 
 * TODO ADA colorisation (considered as brainfuck :D)
   http://sources.debian.net/src/adabrowse/4.0.3-5/ad-compiler.adb
-
 
 * TODO LOGGING_FILE entry in webconfig.py
   Q: do we really need logging other than the Apache one? WSGI can log via
