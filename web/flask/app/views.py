@@ -87,7 +87,11 @@ def deal_500_error(error, mode='html'):
 def server_error(e):
     return render_template('500.html'), 500
 
-### DOCUMENTATION ###
+### INDEX, DOCUMENTATION ###
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @app.route('/doc/url/')
 def doc_url():
@@ -97,11 +101,6 @@ def doc_url():
 def doc_api():
     return render_template('doc_api.html')
 
-
-@app.route('/')
-@app.route('/nav/') # navigation
-def index():
-    return render_template('index.html')
 
 
 ### SEARCH ###
@@ -197,21 +196,6 @@ app.add_url_rule('/mr/prefix/<prefix>', view_func=PrefixView.as_view(
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
         ))
 
-
-# @app.route('/nav/letter/')
-# @app.route('/nav/letter/<letter>')
-# def letter(letter='a'):
-#     if letter in Package_app.get_packages_prefixes():
-#         try:
-#             packages = Package_app.query.filter(
-#                 Package_app.name.startswith(letter)).order_by(Package_app.name)
-#         except Exception as e:
-#             return deal_500_error(e)
-#         return render_template("letter.html",
-#                                packages=packages,
-#                                letter=letter)
-#     else:
-#         return render_template('404.html'), 404
 
 
 @app.route('/src/<package>/')
