@@ -136,8 +136,8 @@ class SearchView(GeneralView):
             exact_matching = exact_matching.to_dict()
         if other_results != None:
             other_results = [o.to_dict() for o in other_results]
-        results = dict(exact_matching=exact_matching,
-                       other_results=other_results)
+        results = dict(exact=exact_matching,
+                       other=other_results)
         return dict(results=results, query=query)
 
 app.add_url_rule('/search/<query>/', view_func=SearchView.as_view(

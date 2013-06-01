@@ -33,4 +33,3 @@
   including cache/last-update, which is generated at each pulse
 * TODO API
 ** deactivate pretty printing
-** rename other_results and exact_matching

@@ -10,14 +10,14 @@
 {% block content %}
 <h2>{{ self.title() }}</h2>
 <h3>Exact matching</h3>
-{% if results.exact_matching %}
-  {{ macros.listpackages([results.exact_matching]) }}
+{% if results.exact %}
+  {{ macros.listpackages([results.exact]) }}
 {% else %}
   No exact matching found
 {% endif %}
 <h3>Other results</h3>
-{% if results.other_results[1] or (not results.exact_matching and results.other_results[0]) %}
-  {{ macros.listpackages(results.other_results, results.exact_matching) }}
+{% if results.other[1] or (not results.exact and results.other[0]) %}
+  {{ macros.listpackages(results.other, results.exact) }}
 {% else %}
   No other results found
 {% endif %}
