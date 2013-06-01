@@ -36,11 +36,15 @@ class Package_app(models.Package, db.Model):
     def to_dict(self):
         return dict(name=self.name)
 
+    
 class Version_app(models.Version, db.Model):
-    pass
+    def to_dict(self):
+        return dict(vnumber=self.vnumber, area=self.area)
 
 class InvalidPackageOrVersionError(ValueError):
     pass
+
+class FileOrFolderNotFound(Exception): pass
 
 class Location(object):
     """ a location in a package, can be a directory or a file """
@@ -70,148 +74,66 @@ class Location(object):
         return os.path.join(varea, prefix)
             
     
-    def __init__(self, package, version=None, path_to=None):
-        self.package = package
-        self.version = version or ""
-        self.path_to = path_to or ""
+    def __init__(self, package, version="", path_to=""):
+        debian_path = self._get_debian_path(package, version)
         
-        # if it's a package, we check its existence
-        if self.version == "":
-            try:
-                p = Package_app.query.filter(
-                    Package_app.name==self.package).first().id
-            except:
-                raise InvalidPackageOrVersionError("%s" % self.package)
-        else: #_get_debian_path also checks the existence
-            debian_path = self._get_debian_path(self.package, self.version)
-            
-            self.sources_path = os.path.join(
-                app.config['SOURCES_FOLDER'],
-                debian_path,
-                self.package, self.version,
-                self.path_to)
-            
-            self.sources_path_static = os.path.join(
-                app.config['SOURCES_STATIC'],
-                self._get_debian_path(self.package, self.version),
-                self.package, self.version,
-                self.path_to)
+        self.sources_path = os.path.join(
+            app.config['SOURCES_FOLDER'],
+            debian_path,
+            package, version,
+            path_to)
+        if not(os.path.exists(self.sources_path)):
+            raise FileOrFolderNotFound("%s %s %s" % (package, version, path_to))
+        
+        self.sources_path_static = os.path.join(
+            app.config['SOURCES_STATIC'],
+            debian_path,
+            package, version,
+            path_to)
     
-    def ispackage(self):
-        """ True if self is a package (top folder) """
-        return self.version == ""
-    
-    def isdir(self):
+    def is_dir(self):
         """ True if self is a directory, False if it's not """
         return os.path.isdir(self.sources_path)
     
-    def isfile(self):
+    def is_file(self):
         """ True if sels is a file, False if it's not """
         return os.path.isfile(self.sources_path)
     
-    def get_raw_url(self):
-        return self.sources_path_static
-    
-    def get_path_links(self):
+    @staticmethod
+    def get_path_links(endpoint, path_to):
         """
         returns the path hierarchy with urls, to use with 'You are here:'
         [(name, url(name)), (...), ...]
         """
+        path_dict = path_to.split('/')
         pathl = []
-        pathl.append((self.package, url_for('source', package=self.package)))
-        
-        if self.version != "":
-            pathl.append((self.version, url_for('source', package=self.package,
-                                                version=self.version)))
-        if self.path_to != "":
-            prev_path = ""
-            for p in self.path_to.split('/'):
-                pathl.append((p, url_for('source', package=self.package,
-                                         version=self.version,
-                                         path_to=prev_path+p)))
-                prev_path += p+"/"
+        for (i, p) in enumerate(path_dict):
+            pathl.append((p, url_for(endpoint,
+                                     path_to='/'.join(path_dict[:i+1]))))
         return pathl
 
-class PackageFolder(Location):
-    """
-    The top directory of a package
-    We use another class to ensure the same layout than a folder when we
-    do a package versions listing (e.g. we need get_path_links()
-    """
-    def __init__(self, package):
-        self.p = Package_app.query.filter(Package_app.name==package).first()
-        super(PackageFolder, self).__init__(package)
-    
-    def get_package_name(self):
-        """ returns the name of the package """
-        return self.package
-    
-    def get_versions(self):
-        """ returns the list of versions of the package """
-        return self.p.versions
-
-class Directory(Location):
+class Directory(object):
     """ a folder in a package """
-    def _sub_url(self, subfile):
-        """ returns the URL of a sub file/folder in this directory """
-        if self.version == "":
-            return url_for('source', package=self.package, version=subfile)
-        elif self.path_to == "":
-            return url_for('source', package=self.package,
-                           version=self.version, path_to=subfile)
-        else:
-            return url_for('source', package=self.package,
-                           version=self.version,
-                           path_to=self.path_to+"/"+subfile)
     
-    def get_subdirs(self):
-        """ returns the list of the subfolders along with their URLs """
-        return sorted((f, self._sub_url(f))
-                      for f in os.listdir(self.sources_path)
-                      if os.path.isdir(os.path.join(self.sources_path, f)))
-    
-    def get_subfiles(self):
-        """ returns the list of the subfiles along with their URLs """
-        return sorted((d, self._sub_url(d))
-                      for d in os.listdir(self.sources_path)
-                      if os.path.isfile(os.path.join(self.sources_path, d)))
-    
-    def is_top_folder(self):
-        """ True if this is a top folder of a package, False otherwise """
-        return self.version == ""
+    def __init__(self, location):
+        self.sources_path = location.sources_path
 
-class SourceFile(Location):
+    def get_listing(self):
+        def get_type(f):
+            if os.path.isdir(os.path.join(self.sources_path, f)):
+                return "directory"
+            else: 
+                return "file"
+        return sorted(dict(name=f, type=get_type(f))
+                      for f in os.listdir(self.sources_path))
+    
+
+class SourceFile(object):
     """ a source file in a package """
-    def __init__(self, package, version, path_to, highlight=None, msg=None):
-        super(SourceFile, self).__init__(package, version, path_to)
-        self.highlight = highlight
-        self.msg = msg
-        self.number_of_lines = None
+    def __init__(self, location, highlight=None, msg=None):
+        self.sources_path = location.sources_path
+        self.sources_path_static = location.sources_path_static
         self.mime = self._find_mime()
-    
-    def prepare_code(self, highlight=None, msg=None):
-        """ sets the highlighting, the message and the SourceCodeIterator """
-        if highlight is not None: self.highlight = highlight
-        if msg is not None: self.msg = msg
-        self.code = SourceCodeIterator(self.sources_path, self.highlight,
-                                       encoding=self.mime['encoding'])
-    
-    def get_file_language(self):
-        """
-        Returns a class name, usable by highlight.hs, to help it to guess
-        the source language.
-        Currently: returns cpp if it's a .h, .c, .cpp, .hpp, .C, .cc
-        since hl.js doesn't guess it correctly.
-        In future, maybe use self.mime['type'], but for example it's not
-        efficient for a Django template:
-                 self.mime['type'] = 'text/html',
-                 but hl.js recognizes directly 'django'
-        """
-        cpp_exts = ['h', 'c', 'cpp', 'hpp', 'C', 'cc']
-        if self.sources_path.split('.')[-1] in cpp_exts:
-            return "cpp"
-        else:
-            return None
     
     def _find_mime(self):
         mime = magic.open(magic.MIME_TYPE)
@@ -221,43 +143,15 @@ class SourceFile(Location):
         mime.load()
         encoding = mime.file(self.sources_path)
         return dict(encoding=encoding, type=type)
+    
+    def get_mime(self):
+        return self.mime
 
     def istextfile(self):
         """ 
         True if self is a text file, False if it's not.
         """
         return re.search('text', self.mime['type']) != None
-
-
-    def get_msgdict(self):
-        """
-        returns a dict(position=, title=, message=) generated from
-        the string message (position:title:message)
-        """
-        if self.msg is None: return dict()
-        msgsplit = self.msg.split(':')
-        msgdict = dict()
-        try:
-            msgdict['position'] = int(msgsplit[0])
-        except ValueError:
-            msgdict['position'] = 1
-        try:
-            msgdict['title'] = msgsplit[1]
-        except IndexError:
-            msgdict['title'] = ""
-        try:
-            msgdict['message'] = ":".join(msgsplit[2:])
-        except IndexError:
-            msgdict['message'] = ""
-        return msgdict
     
-    def get_number_of_lines(self):
-        if self.number_of_lines is not None:
-            return number_of_lines
-        number_of_lines = 0
-        with open(self.sources_path) as sfile:
-            for line in sfile: number_of_lines += 1
-        return number_of_lines
-    
-    def get_code(self):
-        return self.code
+    def get_raw_url(self):
+        return self.sources_path_static

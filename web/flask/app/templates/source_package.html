@@ -17,7 +17,7 @@
 
 <ul id="ls">
 {% for v in versions %}
-  <li><a href="{{ url_for('source', package=package, version=v.vnumber) }}">
+  <li><a href="{{ v.vnumber }}">
       <img src="{{ url_for('static', filename='img/folder.png') }}"
            alt="package" />{{ v.vnumber }}</a>
     ({{ v.area }})

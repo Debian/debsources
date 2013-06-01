@@ -11,28 +11,27 @@
       href="{{ url_for('static', filename='css/source_folder.css') }}" />
 {% endblock %}
 
-{% block title %}Folder: {{ pathl[-1][0] }}{% endblock %}
+{% block title %}Folder: {{ directory }}{% endblock %}
 {% block source_content %}
 <h2>{{ self.title() }}</h2>
 
 <ul id="ls">
-{% if parentfolder %}
-  <li><a href="{{ pathl[-2][1] }}">
+  <li><a href="../">
       <img src="{{ url_for('static', filename='img/folder.png') }}"
            alt="folder" />.. (parent)</a>
   </li>
-{% endif %}
-{% for (dir, link) in dirs %}
-  <li><a href="{{ link }}">
+
+{% for dir in subdirs %}
+  <li><a href="{{ dir.name }}">
       <img src="{{ url_for('static', filename='img/folder.png') }}"
-           alt="folder" />{{ dir }}</a>
+           alt="folder" />{{ dir.name }}</a>
   </li>
 {% endfor %}
 
-{% for (file_, link) in files %}
-  <li><a href="{{ link }}">
+{% for file_ in subfiles %}
+  <li><a href="{{ file_.name }}">
       <img src="{{ url_for('static', filename='img/ascii.png') }}"
-           alt="file" />{{ file_ }}</a>
+           alt="file" />{{ file_.name }}</a>
   </li>
 {% endfor %}
 </ul>

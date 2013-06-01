@@ -38,7 +38,7 @@ http://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginatio
   <ul>
     {% for package in packages %}
       {% if package != exclude %}
-        <li><a href="{{ url_for('source', package=package.name) }}">
+        <li><a href="{{ url_for('source_html', path_to=package.name) }}">
             {{ package.name }}</a></li>
       {% endif %}
     {% endfor %}

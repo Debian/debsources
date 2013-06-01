@@ -22,7 +22,8 @@ from flask.views import View
 
 from app import app
 from models_app import Package_app, Version_app, Location, Directory, \
-    SourceFile, PackageFolder, InvalidPackageOrVersionError
+    SourceFile, InvalidPackageOrVersionError, FileOrFolderNotFound
+from modules.sourcecode import SourceCodeIterator
 from forms import SearchForm
 
 #import modules.tasks as tasks
@@ -123,8 +124,7 @@ class SearchView(GeneralView):
     def get_objects(self, query=None):
         query = query.replace('%', '').replace('_', '')
         try:
-            exact_matching = Package_app.query.filter_by(
-                name=query).first().to_dict()
+            exact_matching = Package_app.query.filter_by(name=query).first()
         
             other_results = Package_app.query.filter(
                 Package_app.name.contains(
@@ -132,7 +132,10 @@ class SearchView(GeneralView):
         except Exception as e:
             raise Http500Error(e) # db problem, ...
         
-        other_results = [o.to_dict() for o in other_results]
+        if exact_matching != None:
+            exact_matching = exact_matching.to_dict()
+        if other_results != None:
+            other_results = [o.to_dict() for o in other_results]
         results = dict(exact_matching=exact_matching,
                        other_results=other_results)
         return dict(results=results, query=query)
@@ -221,59 +224,116 @@ app.add_url_rule('/mr/prefix/<prefix>/', view_func=PrefixView.as_view(
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
         ))
 
+### SOURCE (packages, versions, folders, files) ###
 
+class SourceView(GeneralView):
+    def get_objects(self, path_to):
+        path_dict = path_to.split('/')
+        
+        if len(path_dict) == 1: # package, we list the versions
+            package = path_dict[0]
+            try:
+                package_id = Package_app.query.filter(
+                    Package_app.name==package).first().id
+            except Exception as e:
+                raise Http500Error(e)
+            try:
+                versions = Version_app.query.filter(
+                    Version_app.package_id==package_id).all()
+            except Exception as e:
+                raise Http404Error(e)
+        
+            versions = [v.to_dict() for v in versions]
+        
+            return dict(type="package",
+                        package=package,
+                        versions=versions,
+                        path_to=path_to)
+        else:
+            package = path_dict[0]
+            version = path_dict[1]
+            path = '/'.join(path_dict[2:])
+            
+            try:
+                location = Location(package, version, path)
+            except FileOrFolderNotFound as e:
+                raise Http404Error(e)
+            except InvalidPackageOrVersionError as e:
+                raise Http404Error(e)
+            
+            if location.is_dir(): # folder, we list its content
+                directory = Directory(location)
+                return dict(type="directory",
+                            directory=path_dict[-1],
+                            content=directory.get_listing(),
+                            path_to=path_to)
+            
+            elif location.is_file(): # file
+                file_ = SourceFile(location)
+                return dict(type="file",
+                            file=path_dict[-1],
+                            mime=file_.get_mime(),
+                            raw_url=file_.get_raw_url(),
+                            path_to=path_to,
+                            text_file=file_.istextfile())
+        
+            else: # doesn't exist
+                raise Http404Error(None)
 
-@app.route('/src/<package>/')
-@app.route('/src/<package>/<version>/')
-@app.route('/src/<package>/<version>/<path:path_to>', methods=['POST', 'GET'])
-def source(package, version=None, path_to=None):
-    try:
-        location = Location(package, version, path_to)
-    except InvalidPackageOrVersionError: # 404
-        return render_template("404.html"), 404
+def render_source_file_html(**kwargs):
+    if kwargs['type'] == "package":
+        return render_template(
+            "source_package.html",
+            pathl=Location.get_path_links("source_html", kwargs['path_to']),
+            **kwargs)
     
-    if location.ispackage(): # it's a package, we list its versions
-        location = PackageFolder(package)
+    elif kwargs['type'] == "directory":
+        return render_template(
+            "source_folder.html",
+            subdirs=filter(lambda x: x['type']=="directory", kwargs['content']),
+            subfiles=filter(lambda x: x['type']=="file", kwargs['content']),
+            pathl=Location.get_path_links("source_html", kwargs['path_to']),
+            **kwargs)
+    else: # file
+        if not(kwargs['text_file']):
+            return redirect(kwargs['raw_url'])
         
-        return render_template("source_package.html",
-                               package=location.get_package_name(),
-                               versions=location.get_versions(),
-                               pathl=location.get_path_links())
-    
-    if location.isdir(): # it's a folder, we list its content
-        location = Directory(package, version, path_to)
+        sources_path = kwargs['raw_url'].replace(app.config['SOURCES_STATIC'],
+                                                 app.config['SOURCES_FOLDER'],
+                                                 1)
+        # ugly, but better than global variable,
+        # and better than re-requesting the db
+        # TODO: find proper solution for retrieving souces_path
+        # (without putting it in kwargs, we don't want it in json renderinf eg)
         
-        return render_template("source_folder.html",
-                               files=location.get_subfiles(),
-                               dirs=location.get_subdirs(),
-                               pathl=location.get_path_links(),
-                               parentfolder=not(location.is_top_folder()))
-                                 # we want '..', except for a package file
-    
-    elif location.isfile(): # it's a file, we check if it's a text file
-        location = SourceFile(package, version, path_to)
-        
-        if not(location.istextfile()): # binary file
-            return redirect(location.get_raw_url())
-        # else: text file, we display the source code
         try:
             highlight = request.args.get('hl')
         except (KeyError, ValueError, TypeError):
-            hl = None
+            highlight = None
         try:
             msg = request.args.get('msg')
         except (KeyError, ValueError, TypeError):
             msg = None
-            
-        location.prepare_code(highlight=highlight, msg=msg)
-        
-        return render_template("source_file.html",
-                               code = location.get_code(),
-                               nlines=location.get_number_of_lines(),
-                               msg=location.get_msgdict(),
-                               pathl=location.get_path_links(),
-                               raw_url=location.get_raw_url(),
-                               file_language=location.get_file_language())
-    
-    else: # 404
-        return render_template('404.html'), 404
+
+        sourcefile = SourceCodeIterator(sources_path, hl=highlight, msg=msg)
+        return render_template(
+            "source_file.html",
+            nlines=sourcefile.get_number_of_lines(),
+            pathl=Location.get_path_links("source_html", kwargs['path_to']),
+            file_language=sourcefile.get_file_language(),
+            msg=sourcefile.get_msgdict(),
+            code=sourcefile,
+            **kwargs
+            )
+
+app.add_url_rule('/src/<path:path_to>/', view_func=SourceView.as_view(
+        'source_html',
+        render_func=render_source_file_html,
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+
+app.add_url_rule('/mr/src/<path:path_to>/', view_func=SourceView.as_view(
+        'source_json',
+        render_func=jsonify,
+        err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
+        ))
