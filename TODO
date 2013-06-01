@@ -9,15 +9,6 @@
 ** forward: have a search box on sources.d.n that search there
 ** backward: have search results there pointing back to sources.d.n
 ** TODO contact: stapelberg@d.o
-* TODO API is currently not an API
-  is more of an URL scheme (and it's good to have!). But we do need an API,
-  e.g. rooted at /api/ which send answers in a machine parseable format such as
-  Json
-* TODO API method to retrieve the complete list of available packages
-  rationale: currently the only way to get them is via a paginated long
-  list. Not. Handy.
-** inspiration:
-   http://anonscm.debian.org/gitweb/?p=mirror/snapshot.debian.org.git;a=blob_plain;f=API
 * TODO symbolic link for use with tango icons (currently in static/img/)
 * TODO highlight.js is way slower
   since it is retrieved from /javascript/highlight
@@ -40,3 +31,6 @@
 * TODO encapsulate SourceCodeIterator in SourceCode
 * TODO "data last updated: ..." footer
   including cache/last-update, which is generated at each pulse
+* TODO API
+** deactivate pretty printing
+** rename other_results and exact_matching
