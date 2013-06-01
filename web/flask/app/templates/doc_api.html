@@ -21,7 +21,7 @@
 <h3>Search</h3>
 
 By accessing the following URL:
-<span class="url">{{ url_prefix }}/mr/search/<strong>hello</strong></span>
+<span class="url">{{ url_prefix }}/api/search/<strong>hello</strong></span>
 
 You will get a JSON object similar to this:
 <pre>
@@ -53,20 +53,20 @@ You will get a JSON object similar to this:
 
 <h4>All packages</h4>
 
-<span class="url">{{ url_prefix }}/mr/list/</span>
+<span class="url">{{ url_prefix }}/api/list/</span>
 
 <h4>By prefix</h4>
 
-<span class="url">{{ url_prefix }}/mr/prefix/<strong>libz</strong></span>
+<span class="url">{{ url_prefix }}/api/prefix/<strong>libz</strong></span>
 
 <h3>Navigation</h3>
 
 <span class="url">{{ url_prefix
-  }}/mr/src/<strong>packagename</strong></span>
+  }}/api/src/<strong>packagename</strong></span>
 <span class="url">{{ url_prefix
-  }}/mr/src/<strong>packagename</strong>/<strong>version</strong></span>
+  }}/api/src/<strong>packagename</strong>/<strong>version</strong></span>
 <span class="url">{{ url_prefix
-  }}/mr/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file_or_folder</strong></span>
+  }}/api/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file_or_folder</strong></span>
 
 
 {% endblock %}

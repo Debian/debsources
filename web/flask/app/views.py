@@ -116,7 +116,7 @@ def receive_search():
         # we return the form, to display the errors
         return render_template('index.html', searchform=searchform)
 
-# @app.route('/mr/search/')
+# @app.route('/api/search/')
 # def receive_empty_search_json():
 #     return deal_404_error(None, 'json')
 
@@ -146,7 +146,7 @@ app.add_url_rule('/search/<query>/', view_func=SearchView.as_view(
         err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
         ))
 
-app.add_url_rule('/mr/search/<query>/', view_func=SearchView.as_view(
+app.add_url_rule('/api/search/<query>/', view_func=SearchView.as_view(
         'search_json',
         render_func=jsonify,
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
@@ -182,7 +182,7 @@ app.add_url_rule('/list/<int:page>/', view_func=ListpackagesView.as_view(
         render_func=lambda **kwargs: render_template('list.html', **kwargs),
         err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
         ))
-app.add_url_rule('/mr/list/', view_func=ListpackagesView.as_view(
+app.add_url_rule('/api/list/', view_func=ListpackagesView.as_view(
         'listpackages_json',
         all_=True,
         render_func=jsonify,
@@ -218,7 +218,7 @@ app.add_url_rule('/prefix/<prefix>/', view_func=PrefixView.as_view(
         render_func=lambda **kwargs: render_template('prefix.html', **kwargs),
         err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
         ))
-app.add_url_rule('/mr/prefix/<prefix>/', view_func=PrefixView.as_view(
+app.add_url_rule('/api/prefix/<prefix>/', view_func=PrefixView.as_view(
         'prefix_json',
         render_func=jsonify,
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
@@ -332,7 +332,7 @@ app.add_url_rule('/src/<path:path_to>/', view_func=SourceView.as_view(
         err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
         ))
 
-app.add_url_rule('/mr/src/<path:path_to>/', view_func=SourceView.as_view(
+app.add_url_rule('/api/src/<path:path_to>/', view_func=SourceView.as_view(
         'source_json',
         render_func=jsonify,
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
