@@ -94,6 +94,10 @@ def server_error(e):
 def index():
     return render_template('index.html')
 
+@app.route('/doc/')
+def doc():
+    return render_template('doc.html')
+
 @app.route('/doc/url/')
 def doc_url():
     return render_template('doc_url.html')
