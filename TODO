@@ -22,10 +22,8 @@
   http://sources.debian.net/src/adabrowse/4.0.3-5/ad-compiler.adb
   extensions list in webconfig
 
-* TODO LOGGING_FILE entry in webconfig.py
-  Q: do we really need logging other than the Apache one? WSGI can log via
-  its appplication server...
-  (also it should be LOGFILE, if any :-))
+* TODO LOGFILE entry in webconfig.py
+  investigate logging to usual Apache logfile via WSGI
 
 * TODO trailing slashes (have come back with a littl bug)
 * TODO encapsulate SourceCodeIterator in SourceCode

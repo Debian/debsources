@@ -35,7 +35,7 @@ sys.path.append(app.config['MODELS_FOLDER'])
 from app import views
 
 # logging
-handler = RotatingFileHandler(app.config['LOGGING_FILE'])
+handler = RotatingFileHandler(app.config['LOGFILE'])
 handler.setFormatter(Formatter(
         '%(asctime)s %(levelname)s: %(message)s '
         '[in %(pathname)s:%(lineno)d]'
