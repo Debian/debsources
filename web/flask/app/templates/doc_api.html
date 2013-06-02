@@ -8,7 +8,7 @@
 {% block head %}
 {{ super() }}
 <style>
-  .url{display: block; margin-left: 50px;}
+  .url{display: block; /*margin-left: 50px;*/}
 </style>
 {% endblock %}
 
@@ -18,36 +18,16 @@
 
 <h2>{{ self.title() }}</h2>
 
+<p>You can query anything in the Debian sources, and get a JSON object
+  which allows you to navigate into packages and source files.</p>
+
+<p>The JSON result will be pretty-printed, unless the X-Requested-With header is set to XmlHttpRequest.</p>
+
 <h3>Search</h3>
 
 By accessing the following URL:
-<span class="url">{{ url_prefix }}/api/search/<strong>hello</strong></span>
-
-You will get a JSON object similar to this:
-<pre>
-{
-  "query": "hello", 
-  "results": {
-    "other_results": [
-      {
-        "name": "gpe-othello"
-      }, 
-      {
-        "name": "hello"
-      }, 
-      {
-        "name": "hello-debhelper"
-      }, 
-      {
-        "name": "ruby-mixlib-shellout"
-      }
-    ], 
-    "exact_matching": {
-      "name": "hello"
-    }
-  }
-}
-</pre>
+<span class="url">{{ url_prefix }}/api/search/<strong>query</strong></span>
+<a href="{{ url_prefix }}/api/search/hello">See example</a>
 
 <h3>Package list</h3>
 
@@ -57,16 +37,24 @@ You will get a JSON object similar to this:
 
 <h4>By prefix</h4>
 
-<span class="url">{{ url_prefix }}/api/prefix/<strong>libz</strong></span>
+<span class="url">{{ url_prefix
+  }}/api/prefix/<strong>prefix</strong></span>
+<a href="{{ url_prefix }}/api/prefix/libz">See example</a>
 
-<h3>Navigation</h3>
+<h3>Navigation in source folders and files</h3>
 
 <span class="url">{{ url_prefix
   }}/api/src/<strong>packagename</strong></span>
+<a href="{{ url_prefix }}/api/src/lolcat">See example</a>
+
 <span class="url">{{ url_prefix
   }}/api/src/<strong>packagename</strong>/<strong>version</strong></span>
+<a href="{{ url_prefix }}/api/src/ocaml/4.00.1-1">See example</a>
+
 <span class="url">{{ url_prefix
   }}/api/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file_or_folder</strong></span>
+<a href="{{ url_prefix }}/api/src/linux/3.8.13-1/kernel/kmod.c">See
+  example</a>
 
 
 {% endblock %}

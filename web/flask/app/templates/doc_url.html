@@ -8,7 +8,7 @@
 {% block head %}
 {{ super() }}
 <style>
-  .url{display: block; margin-left: 50px;}
+  .url{display: block; /*margin-left: 50px;*/}
 </style>
 {% endblock %}
 
@@ -21,45 +21,65 @@
 <h3>Search</h3>
 
 You can simply point a search query with the following URL:
-<span class="url">{{ url_prefix }}/search/<strong>query</strong></span>
+<span class="url">{{ url_prefix
+  }}/search/<strong>query</strong></span>
+<a href="{{ url_prefix }}/search/hello">See example</a>
 
 <h3>Package list</h3>
 
 <h4>Alphabetically</h4>
 
-<span class="url">{{ url_prefix }}/list/<strong>8</strong></span>
+<span class="url">{{ url_prefix }}/list/<strong>INT</strong></span>
+<a href="{{ url_prefix }}/list/8">See example</a>
 
 <h4>By prefix</h4>
 
-<span class="url">{{ url_prefix }}/prefix/<strong>libz</strong></span>
+<span class="url">{{ url_prefix
+  }}/prefix/<strong>prefix</strong></span>
+<a href="{{ url_prefix }}/prefix/libz">See example</a>
 
 <h3>Package versions</h3>
 
 You can list the different versions of a package, accessing this URL:
-<span class="url">{{ url_prefix }}/src/<strong>packagename</strong>/</span>
+<span class="url">{{ url_prefix
+  }}/src/<strong>packagename</strong>/</span>
+<a href="{{ url_prefix }}/src/lolcat">See example</a>
 
 <h3>Navigation within a package</h3>
 
 You can list the files in a package or in a particular folder of a
 package, accessing one of these URLs:
-<span class="url">{{ url_prefix }}/src/<strong>packagename</strong>/<strong>version</strong>/</span>
-<span class="url">{{ url_prefix }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/dir</strong></span>
+<span class="url">{{ url_prefix
+  }}/src/<strong>packagename</strong>/<strong>version</strong>/</span>
+<a href="{{ url_prefix }}/src/ocaml/4.00.1-1">See example</a>
+
+<span class="url">{{ url_prefix
+  }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/dir</strong></span>
+<a href="{{ url_prefix }}/src/ocaml/4.00.1-1/camlp4">See example</a>
 
 <h3>Source code displaying</h3>
 
 To simply display a source file:
-<span class="url">{{ url_prefix }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong></span>
+<span class="url">{{ url_prefix
+  }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong></span>
+<a href="{{ url_prefix }}/src/linux/3.8.13-1/kernel/kmod.c">See example</a>
+<br />
 
 To point a specific line in a source file:
-<span class="url">{{ url_prefix }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong>#L<strong>42</strong></span>
+<span class="url">{{ url_prefix
+  }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong>#L<strong>INT</strong></span>
+<a href="{{ url_prefix }}/src/linux/3.8.13-1/kernel/kmod.c#L42">See example</a>
+<br />
 
 To use with options:
-<span class="url">{{ url_prefix }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong>?<strong>opt1</strong>=<strong>val1</strong>&<strong>opt2</strong>=<strong>val2</strong>[...]#L<strong>42</strong></span>
+<span class="url">{{ url_prefix }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong>?<strong>opt1</strong>=<strong>val1</strong>&<strong>opt2</strong>=<strong>val2</strong>[...]#L<strong>INT</strong></span>
 
 <h4>Available options</h4>
 <ul>
   <li><strong>hl=1:5,10,13:16</strong> -- highlights the lines: 1 to 5, 10, 13 to 16</li>
   <li><strong>msg=5:title:message</strong> -- adds a popup message near line 5 (the title cannot contain the ':' symbol)</li>
 </ul>
+
+<a href="{{ url_prefix }}/src/vlc/2.0.6-1/src/libvlc.c/?hl=91:93&msg=91:VLC%20global%20variables:they%20are%20evil#L91">See complete example</a>
 
 {% endblock %}
