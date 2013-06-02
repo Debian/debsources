@@ -1,11 +1,5 @@
 #    -*- mode: org -*-
 
-* TODO navigation is broken for versions that include epoch
-  e.g. try the links at http://sources.debian.net/src/zlib/
-  OTOH, the individual pages work,
-  e.g. http://sources.debian.net/src/zlib/1:1.2.7.dfsg-13/
-  that's (likely) because ":" must be URL-escaped in URL path
-
 * TODO should the first page be static?
   (or maybe cached?) -> strict to set packages_prefixes static
 * TODO search based on the file name
