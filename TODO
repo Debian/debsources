@@ -29,3 +29,5 @@
 * TODO encapsulate SourceCodeIterator in SourceCode
 * TODO "data last updated: ..." footer
   including cache/last-update, which is generated at each pulse
+
+* TODO autofocus search form on index.html
