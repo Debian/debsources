@@ -31,19 +31,15 @@
       </div>
     </div>
     <div id="leftmenu">
-      <h2>Find a package</h2>
-      <hr />
-      <p>Search for a package name:</p>
-        {{ macros.searchform(searchform, display="inline") }}
-      <hr />
-      <p><a href="{{ url_for('listpackages_html', page=1) }}">View package list</a> 
-        (alphabetically)</p>
-      <hr />
-      <p>By prefix:
+      <h2>Packages</h2>
+      <p><b>Browse</b> by prefix:
       {% for prefix in packages_prefixes %}
       <a href="{{ url_for('prefix_html', prefix=prefix) }}">{{ prefix }}</a>
       {% endfor %}</p>
-
+      <p><b>View</b> <a href="{{ url_for('listpackages_html', page=1) }}">entire list</a> 
+        <small>(alphabetically)</small></p>
+      <p><b>Search</b> for package name:</p>
+        {{ macros.searchform(searchform, display="inline") }}
     </div>
     <div id="content">
       {% block content %}
