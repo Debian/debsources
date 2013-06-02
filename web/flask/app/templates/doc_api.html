@@ -43,17 +43,23 @@ By accessing the following URL:
 
 <h3>Navigation in source folders and files</h3>
 
+List different versions of a package:
 <span class="url">{{ url_prefix
   }}/api/src/<strong>packagename</strong></span>
-<a href="{{ url_prefix }}/api/src/lolcat">See example</a>
+<a href="{{ url_prefix }}/api/src/ocaml">See example</a>
+<br />
 
+List folders and files in a folder:
 <span class="url">{{ url_prefix
-  }}/api/src/<strong>packagename</strong>/<strong>version</strong></span>
-<a href="{{ url_prefix }}/api/src/ocaml/4.00.1-1">See example</a>
+  }}/api/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/folder</strong></span>
+<a href="{{ url_prefix }}/api/src/cowsay/3.03%2Bdfsg1-4/cows">See example</a>
+<br />
 
+Get information about a file (including the raw_url of the file, which
+allows you to retrieve its content):
 <span class="url">{{ url_prefix
-  }}/api/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file_or_folder</strong></span>
-<a href="{{ url_prefix }}/api/src/linux/3.8.13-1/kernel/kmod.c">See
+  }}/api/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong></span>
+<a href="{{ url_prefix }}/api/src/cowsay/3.03%2Bdfsg1-4/cowsay">See
   example</a>
 
 

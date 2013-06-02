@@ -43,7 +43,7 @@ You can simply point a search query with the following URL:
 You can list the different versions of a package, accessing this URL:
 <span class="url">{{ url_prefix
   }}/src/<strong>packagename</strong>/</span>
-<a href="{{ url_prefix }}/src/lolcat">See example</a>
+<a href="{{ url_prefix }}/src/ocaml">See example</a>
 
 <h3>Navigation within a package</h3>
 
@@ -51,24 +51,24 @@ You can list the files in a package or in a particular folder of a
 package, accessing one of these URLs:
 <span class="url">{{ url_prefix
   }}/src/<strong>packagename</strong>/<strong>version</strong>/</span>
-<a href="{{ url_prefix }}/src/ocaml/4.00.1-1">See example</a>
+<a href="{{ url_prefix }}/src/cowsay/3.03%2Bdfsg1-4">See example</a>
 
 <span class="url">{{ url_prefix
   }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/dir</strong></span>
-<a href="{{ url_prefix }}/src/ocaml/4.00.1-1/camlp4">See example</a>
+<a href="{{ url_prefix }}/src/cowsay/3.03%2Bdfsg1-4/cows">See example</a>
 
 <h3>Source code displaying</h3>
 
 To simply display a source file:
 <span class="url">{{ url_prefix
   }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong></span>
-<a href="{{ url_prefix }}/src/linux/3.8.13-1/kernel/kmod.c">See example</a>
+<a href="{{ url_prefix }}/src/cowsay/3.03%2Bdfsg1-4/cowsay">See example</a>
 <br />
 
 To point a specific line in a source file:
 <span class="url">{{ url_prefix
   }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong>#L<strong>INT</strong></span>
-<a href="{{ url_prefix }}/src/linux/3.8.13-1/kernel/kmod.c#L42">See example</a>
+<a href="{{ url_prefix }}/src/cowsay/3.03%2Bdfsg1-4/cowsay#L37">See example</a>
 <br />
 
 To use with options:
@@ -80,6 +80,6 @@ To use with options:
   <li><strong>msg=5:title:message</strong> -- adds a popup message near line 5 (the title cannot contain the ':' symbol)</li>
 </ul>
 
-<a href="{{ url_prefix }}/src/vlc/2.0.6-1/src/libvlc.c/?hl=91:93&msg=91:VLC%20global%20variables:they%20are%20evil#L91">See complete example</a>
+<a href="{{ url_prefix }}/src/cowsay/3.03%2Bdfsg1-4/cowsay?hl=22:28&msg=22:Cowsay:See?%20Cowsay%20variables%20are%20declared%20here.#L22">See complete example</a>
 
 {% endblock %}
