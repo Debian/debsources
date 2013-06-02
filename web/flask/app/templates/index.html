@@ -11,16 +11,25 @@
 
 <h2>{{ self.title() }}</h2>
 
-<p>
-Debsources is aimed to provide an easy access to the sources of Debian
-packages. You can simply navigate into the packages list, or search
-for one in particular. The source files will be syntax-highlighted if
-you have enabled Javascript on your browser.
-</p>
-<p>
-You can also use Debsources as an API to point a particular place in a
-file from a source package, and possibly add a message in front of
-this. But hey, read the docs!
-</p>
+<p>Debsources provide access to the source code of
+  the <a href="http://www.debian.org">Debian</a> operating system.</p>
+
+<p>You can start by browsing through the list of source packages, or searching
+  for a particular one based on its name. Multiple versions of each source
+  package might be available &mdash; currently, versions coming from
+  <a href="http://www.debian.org/releases/stable/">stable</a>,
+  <a href="http://www.debian.org/releases/testing/">testing</a>,
+  <a href="http://www.debian.org/releases/unstable/">unstable</a>, and
+  <a href="http://wiki.debian.org/DebianExperimental">experimental</a> are
+  available.</p>
+
+<p>Once chosen a specific version, you can browse through the source package
+  structure to inspect individual source files. If you have Javascript enabled
+  in your browser, source code will be syntax-highlighted and you will be able
+  to point to individual lines; otherwise the raw file will be returned.</p>
+
+<p>You can also use Debsources programmatically, or simply as a stable base to
+  point to particular lines in a source file, possibly adding custom
+  annotations to them. But hey, read the <a href="/doc">doc</a>!</p>
 
 {% endblock %}
