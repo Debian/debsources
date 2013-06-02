@@ -35,7 +35,6 @@
 * TODO "data last updated: ..." footer					:web:
   including cache/last-update, which is generated at each pulse
 
-* TODO autofocus search form on index.html				:web:
 * TODO bounding box of source code line is too narrow		    :web:css:
   when using highlight.js styles with a background (e.g. "default"), that gives
   unpleasant visual results
