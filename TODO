@@ -1,31 +1,41 @@
 #    -*- mode: org -*-
 
-* TODO should the first page be static?
+* TODO should the first page be static?				   :web:perf:
   (or maybe cached?) -> strict to set packages_prefixes static
-* TODO search based on the file name
+* TODO integrate prefix generation into cron jobs		       :cron:
+  - currently it needs ad-hoc runs
+  - also: it currently generates a python module outside /cache, which breaks
+    the code/data separation
+* TODO search based on the file name				 :web:search:
   should be feasible, if the mlocate database is to be believed. Maybe we
   should simply use it, making the indexing available *in* the VM?
-* TODO [0/1] integration with http://codesearch.debian.net
+* TODO [0/1] integration with http://codesearch.debian.net	 :web:search:
 ** forward: have a search box on sources.d.n that search there
 ** backward: have search results there pointing back to sources.d.n
 ** TODO contact: stapelberg@d.o
-* TODO symbolic link for use with tango icons (currently in static/img/)
-* TODO highlight.js is way slower
+* TODO symbolic link for use with tango icons			 :web:apache:
+  currently in static/img/
+* TODO highlight.js is way slower				   :web:perf:
   since it is retrieved from /javascript/highlight
 
-* TODO xsl files aren't considered as text?
+* TODO xsl files aren't considered as text?		    :web:bug:hilight:
   because text is not in 'application/xml'
   other mime types return False as well
   http://sources.debian.net/src/libical-parser-html-perl/1.07-1/lib/iCal/Parser/HTML/stylesheet
 
-* TODO ADA colorisation (considered as brainfuck :D)
+* TODO ADA colorisation (considered as brainfuck :D)	    :web:bug:hilight:
   http://sources.debian.net/src/adabrowse/4.0.3-5/ad-compiler.adb
   extensions list in webconfig
 
-* TODO LOGFILE entry in webconfig.py
+* TODO LOGFILE entry in webconfig.py				 :web:apache:
   investigate logging to usual Apache logfile via WSGI
 
-* TODO trailing slashes (have come back with a littl bug)
-* TODO encapsulate SourceCodeIterator in SourceCode
-* TODO "data last updated: ..." footer
+* TODO trailing slashes (have come back with a littl bug)		:web:
+* TODO encapsulate SourceCodeIterator in SourceCode	       :web:refactor:
+* TODO "data last updated: ..." footer					:web:
   including cache/last-update, which is generated at each pulse
+
+* TODO autofocus search form on index.html				:web:
+* TODO bounding box of source code line is too narrow		    :web:css:
+  when using highlight.js styles with a background (e.g. "default"), that gives
+  unpleasant visual results
