@@ -26,10 +26,8 @@
   Q: do we really need logging other than the Apache one? WSGI can log via
   its appplication server...
   (also it should be LOGFILE, if any :-))
-<<<<<<< HEAD
+
 * TODO trailing slashes (have come back with a littl bug)
 * TODO encapsulate SourceCodeIterator in SourceCode
 * TODO "data last updated: ..." footer
   including cache/last-update, which is generated at each pulse
-* TODO API
-** deactivate pretty printing
