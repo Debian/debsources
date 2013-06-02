@@ -248,7 +248,7 @@ class SourceView(GeneralView):
             return dict(type="package",
                         package=package,
                         versions=versions,
-                        path_to=path_to)
+                        path=path_to)
         else:
             package = path_dict[0]
             version = path_dict[1]
@@ -266,7 +266,7 @@ class SourceView(GeneralView):
                 return dict(type="directory",
                             directory=path_dict[-1],
                             content=directory.get_listing(),
-                            path_to=path_to)
+                            path=path_to)
             
             elif location.is_file(): # file
                 file_ = SourceFile(location)
@@ -274,7 +274,7 @@ class SourceView(GeneralView):
                             file=path_dict[-1],
                             mime=file_.get_mime(),
                             raw_url=file_.get_raw_url(),
-                            path_to=path_to,
+                            path=path_to,
                             text_file=file_.istextfile())
         
             else: # doesn't exist
@@ -284,7 +284,7 @@ def render_source_file_html(**kwargs):
     if kwargs['type'] == "package":
         return render_template(
             "source_package.html",
-            pathl=Location.get_path_links("source_html", kwargs['path_to']),
+            pathl=Location.get_path_links("source_html", kwargs['path']),
             **kwargs)
     
     elif kwargs['type'] == "directory":
@@ -292,7 +292,7 @@ def render_source_file_html(**kwargs):
             "source_folder.html",
             subdirs=filter(lambda x: x['type']=="directory", kwargs['content']),
             subfiles=filter(lambda x: x['type']=="file", kwargs['content']),
-            pathl=Location.get_path_links("source_html", kwargs['path_to']),
+            pathl=Location.get_path_links("source_html", kwargs['path']),
             **kwargs)
     else: # file
         if not(kwargs['text_file']):
@@ -319,7 +319,7 @@ def render_source_file_html(**kwargs):
         return render_template(
             "source_file.html",
             nlines=sourcefile.get_number_of_lines(),
-            pathl=Location.get_path_links("source_html", kwargs['path_to']),
+            pathl=Location.get_path_links("source_html", kwargs['path']),
             file_language=sourcefile.get_file_language(),
             msg=sourcefile.get_msgdict(),
             code=sourcefile,
