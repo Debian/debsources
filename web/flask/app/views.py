@@ -30,8 +30,12 @@ from forms import SearchForm
 
 @app.context_processor # variables needed by "base.html" skeleton
 def skeleton_variables():
+    with app.config['LAST_UPDATE_FILE'].open() as f:
+        last_update = f.readline()
+    
     return dict(packages_prefixes = Package_app.get_packages_prefixes(),
-                searchform = SearchForm())
+                searchform = SearchForm(),
+                last_update=last_update)
 
 ### GENERAL VIEW HANDLING ###
 

@@ -28,7 +28,7 @@ SQLALCHEMY_DATABASE_URI = 'sqlite:////srv/debsources/cache/sources.sqlite'
 SOURCES_FOLDER = "/srv/debsources/sources/" # for listing folders and files
 SOURCES_STATIC = "/data" # for external raw links
 MODELS_FOLDER = "/srv/debsources/web"
-
+LAST_UPDATE_FILE = "/srv/debsources/cache/last-update"
 
 
 ### DEV ###
