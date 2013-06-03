@@ -334,13 +334,13 @@ def render_source_file_html(**kwargs):
             **kwargs
             )
 
-app.add_url_rule('/src/<path:path_to>/', view_func=SourceView.as_view(
+app.add_url_rule('/src/<path:path_to>', view_func=SourceView.as_view(
         'source_html',
         render_func=render_source_file_html,
         err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
         ))
 
-app.add_url_rule('/api/src/<path:path_to>/', view_func=SourceView.as_view(
+app.add_url_rule('/api/src/<path:path_to>', view_func=SourceView.as_view(
         'source_json',
         render_func=jsonify,
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
