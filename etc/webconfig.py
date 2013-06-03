@@ -2,7 +2,6 @@
 # relative path ('../../../etc/appconfig.py')
 
 DOMAIN = "sources.debian.net"
-LOGFILE = "/tmp/debsources-flask.log"
 
 #SECRET_KEY = 'SecretKeyForSessionSigning' # not in use
 

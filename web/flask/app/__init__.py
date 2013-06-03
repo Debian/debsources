@@ -17,15 +17,15 @@
 
 import os
 import logging
-from logging import Formatter
-from logging.handlers import RotatingFileHandler
+from logging import Formatter, StreamHandler
 
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-app.config.from_pyfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../../etc/webconfig.py'))
+app.config.from_pyfile(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    '../../../etc/webconfig.py'))
 
 db = SQLAlchemy(app)
 
@@ -35,7 +35,8 @@ sys.path.append(app.config['MODELS_FOLDER'])
 from app import views
 
 # logging
-handler = RotatingFileHandler(app.config['LOGFILE'])
+import sys
+handler = StreamHandler()
 handler.setFormatter(Formatter(
         '%(asctime)s %(levelname)s: %(message)s '
         '[in %(pathname)s:%(lineno)d]'
