@@ -27,9 +27,6 @@
   http://sources.debian.net/src/adabrowse/4.0.3-5/ad-compiler.adb
   extensions list in webconfig
 
-* TODO LOGFILE entry in webconfig.py				 :web:apache:
-  investigate logging to usual Apache logfile via WSGI
-
 * TODO encapsulate SourceCodeIterator in SourceCode	       :web:refactor:
 * TODO bounding box of source code line is too narrow		    :web:css:
   when using highlight.js styles with a background (e.g. "default"), that gives
