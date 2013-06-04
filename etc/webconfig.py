@@ -5,6 +5,9 @@
 # this file is loaded as a Python module from flask/app/__init__.py using a
 # relative path ('../../../etc/appconfig.py')
 
+import os
+
+
 # the domain of the webapp, used in documentation:
 DOMAIN = "sources.debian.net"
 
