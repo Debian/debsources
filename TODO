@@ -23,10 +23,6 @@
   other mime types return False as well
   http://sources.debian.net/src/libical-parser-html-perl/1.07-1/lib/iCal/Parser/HTML/stylesheet
 
-* TODO ADA colorisation (considered as brainfuck :D)	    :web:bug:hilight:
-  http://sources.debian.net/src/adabrowse/4.0.3-5/ad-compiler.adb
-  extensions list in webconfig
-
 * TODO encapsulate SourceCodeIterator in SourceCode	       :web:refactor:
 * TODO bounding box of source code line is too narrow		    :web:css:
   when using highlight.js styles with a background (e.g. "default"), that gives
