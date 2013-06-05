@@ -16,7 +16,7 @@
 <h2>{{ self.title() }}</h2>
 
 <ul id="ls">
-  <li><a href="../">
+  <li><a href="{{ url_for('source_html', path_to='/'.join(path.split('/')[:-1])) }}">
       <img src="{{ url_for('static', filename='img/folder.png') }}"
            alt="folder" />.. (parent)</a>
   </li>
