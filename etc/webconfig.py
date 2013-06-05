@@ -28,6 +28,11 @@ HIGHLIGHT_JS_FOLDER = "/javascript/highlight"
 # see http://softwaremaniacs.org/media/soft/highlight/test.html
 # HIGHLIGHT_STYLE = "default"
 HIGHLIGHT_STYLE = "googlecode"
+HIGHLIGHT_CLASSES = [
+    ("cpp", ['h', 'c', 'cpp', 'hpp', 'C', 'cc']),
+    ("diff", ['patch']),
+    ]
+
 
 # the place where the tango icons (or other icons) are :
 ICONS_FOLDER = "foo" # TODO

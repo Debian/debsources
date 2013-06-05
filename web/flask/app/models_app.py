@@ -19,7 +19,7 @@
 from app import app, db
 import models
 from modules.packages_prefixes import packages_prefixes
-from modules.sourcecode import SourceCodeIterator
+#from modules.sourcecode import SourceCodeIterator
 
 from flask import url_for
 

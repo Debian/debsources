@@ -324,7 +324,10 @@ def render_source_file_html(**kwargs):
         except (KeyError, ValueError, TypeError):
             msg = None
 
-        sourcefile = SourceCodeIterator(sources_path, hl=highlight, msg=msg)
+        sourcefile = SourceCodeIterator(
+            sources_path, hl=highlight, msg=msg,
+            classes_exts=app.config['HIGHLIGHT_CLASSES'])
+        
         return render_template(
             "source_file.html",
             nlines=sourcefile.get_number_of_lines(),

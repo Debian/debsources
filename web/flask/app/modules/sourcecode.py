@@ -17,7 +17,8 @@
 
 
 class SourceCodeIterator(object):
-    def __init__(self, filename, hl=None, msg=None, encoding="utf8"):
+    def __init__(self, filename, hl=None, msg=None, encoding="utf8",
+                 classes_exts=None):
         """
         creates a new SourceCodeIterator object
         
@@ -27,6 +28,10 @@ class SourceCodeIterator(object):
         Keyword arguments:
         hlbegin: first line whixh will be highlighted
         hlend: last line which will be highlighted
+        encoding: the file character encoding
+        classes_exts: a tuples list, containing classes to associate with
+                      file extensions, eg:
+                      [("cpp", ['cpp','hpp']), (...), ...]
         """
         self.filename = filename
         self.file = open(filename)
@@ -34,6 +39,7 @@ class SourceCodeIterator(object):
         self.current_line = 0
         self.number_of_lines = None
         self.msg = msg
+        self.classes_exts = classes_exts
         self.hls = set()
         if hl is not None:
             hlranges = hl.split(',')
@@ -72,18 +78,17 @@ class SourceCodeIterator(object):
         """
         Returns a class name, usable by highlight.hs, to help it to guess
         the source language.
-        Currently: returns cpp if it's a .h, .c, .cpp, .hpp, .C, .cc
-        since hl.js doesn't guess it correctly.
-        In future, maybe use self.mime['type'], but for example it's not
-        efficient for a Django template:
-                 self.mime['type'] = 'text/html',
-                 but hl.js recognizes directly 'django'
         """
-        cpp_exts = ['h', 'c', 'cpp', 'hpp', 'C', 'cc']
-        if self.filename.split('.')[-1] in cpp_exts:
-            return "cpp"
-        else:
-            return None
+        # cpp_exts = ['h', 'c', 'cpp', 'hpp', 'C', 'cc']
+        # if self.filename.split('.')[-1] in cpp_exts:
+        #     return "cpp"
+        # else:
+        #     return None
+        filename_ext = self.filename.split('.')[-1]
+        for class_, exts in self.classes_exts:
+            if filename_ext in exts:
+                return class_
+        return None
 
     def get_msgdict(self):
         """
