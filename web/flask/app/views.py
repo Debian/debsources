@@ -93,6 +93,16 @@ def deal_500_error(error, mode='html'):
 def server_error(e):
     return render_template('500.html'), 500
 
+### PING ###
+
+@app.route('/ping/')
+def ping():
+    try:
+        a = Package_app.query.first().id
+    except:
+        return jsonify(dict(result="db error"))
+    return jsonify(dict(result="pong"))
+
 ### INDEX, DOCUMENTATION ###
 
 @app.route('/')
