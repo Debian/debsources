@@ -17,12 +17,7 @@
   currently in static/img/
 * TODO highlight.js is way slower				   :web:perf:
   since it is retrieved from /javascript/highlight
-
-* TODO xsl files aren't considered as text?		    :web:bug:hilight:
-  because text is not in 'application/xml'
-  other mime types return False as well
-  http://sources.debian.net/src/libical-parser-html-perl/1.07-1/lib/iCal/Parser/HTML/stylesheet
-
+  
 * TODO bounding box of source code line is too narrow		    :web:css:
   when using highlight.js styles with a background (e.g. "default"), that gives
   unpleasant visual results
