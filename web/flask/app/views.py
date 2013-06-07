@@ -100,7 +100,7 @@ def ping():
     try:
         a = Package_app.query.first().id
     except:
-        return jsonify(dict(result="db error", http_status_code=500))
+        return jsonify(dict(result="db error", http_status_code=500)), 500
     return jsonify(dict(result="pong", http_status_code=200))
 
 ### INDEX, DOCUMENTATION ###
