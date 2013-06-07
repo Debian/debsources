@@ -29,8 +29,26 @@ HIGHLIGHT_JS_FOLDER = "/javascript/highlight"
 # HIGHLIGHT_STYLE = "default"
 HIGHLIGHT_STYLE = "googlecode"
 HIGHLIGHT_CLASSES = [
+    ("haskell", ['hs', 'lhs']),
+    ("python", ['py']),
+    ("ruby", ['rb']),
+    ("perl", ['pl']),
+    ("php", ['php']),
+    ("scala", ['scala']),
+    ("go", ['go']),
+    ("xml", ['xml']),
+    # we let hl.js distinguish django and html (both .html)
+    ("markdown", ['md']),
+    ("css", ['css']),
+    ("json", ['json']),
+    ("javascript", ['js']),
+    ("coffeescript", ['coffee']),
+    ("lua", ['lua']),
+    ("java", ['java']),
     ("cpp", ['h', 'c', 'cpp', 'hpp', 'C', 'cc']),
     ("diff", ['patch']),
+    ("bash", ['sh']),
+    ("tex", ['tex']),
     ]
 
 # strings which will be searched in the mime type of a file to determine
