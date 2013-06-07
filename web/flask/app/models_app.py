@@ -147,11 +147,14 @@ class SourceFile(object):
     def get_mime(self):
         return self.mime
 
-    def istextfile(self):
+    def istextfile(self, text_file_mimes):
         """ 
         True if self is a text file, False if it's not.
         """
-        return re.search('text', self.mime['type']) != None
+        for substring in text_file_mimes:
+            if substring in self.mime['type']:
+                return True
+        return False
     
     def get_raw_url(self):
         return self.sources_path_static

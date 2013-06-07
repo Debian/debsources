@@ -284,7 +284,8 @@ class SourceView(GeneralView):
                             mime=file_.get_mime(),
                             raw_url=file_.get_raw_url(),
                             path=path_to,
-                            text_file=file_.istextfile())
+                            text_file=file_.istextfile(
+                                   app.config['TEXT_FILE_MIMES']))
         
             else: # doesn't exist
                 raise Http404Error(None)

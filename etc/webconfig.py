@@ -5,7 +5,7 @@
 # this file is loaded as a Python module from flask/app/__init__.py using a
 # relative path ('../../../etc/appconfig.py')
 
-import os
+import os, re
 
 
 # the domain of the webapp, used in documentation:
@@ -33,6 +33,13 @@ HIGHLIGHT_CLASSES = [
     ("diff", ['patch']),
     ]
 
+# strings which will be searched in the mime type of a file to determine
+# if the file should be displayed or downloaded as a raw file:
+TEXT_FILE_MIMES = [
+    "text",
+    "xml",
+    ]
+    
 
 # the place where the tango icons (or other icons) are :
 ICONS_FOLDER = "foo" # TODO
