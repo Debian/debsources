@@ -325,14 +325,14 @@ def render_source_file_html(**kwargs):
             msg = None
 
         sourcefile = SourceCodeIterator(
-            sources_path, hl=highlight, msg=msg,
-            classes_exts=app.config['HIGHLIGHT_CLASSES'])
+            sources_path, hl=highlight, msg=msg,)
         
         return render_template(
             "source_file.html",
             nlines=sourcefile.get_number_of_lines(),
             pathl=Location.get_path_links("source_html", kwargs['path']),
-            file_language=sourcefile.get_file_language(),
+            file_language=sourcefile.get_file_language(
+                classes_exts=app.config['HIGHLIGHT_CLASSES']),
             msg=sourcefile.get_msgdict(),
             code=sourcefile,
             **kwargs

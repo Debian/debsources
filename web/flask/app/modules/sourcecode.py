@@ -17,8 +17,7 @@
 
 
 class SourceCodeIterator(object):
-    def __init__(self, filename, hl=None, msg=None, encoding="utf8",
-                 classes_exts=None):
+    def __init__(self, filename, hl=None, msg=None, encoding="utf8"):
         """
         creates a new SourceCodeIterator object
         
@@ -39,7 +38,6 @@ class SourceCodeIterator(object):
         self.current_line = 0
         self.number_of_lines = None
         self.msg = msg
-        self.classes_exts = classes_exts
         self.hls = set()
         if hl is not None:
             hlranges = hl.split(',')
@@ -74,18 +72,16 @@ class SourceCodeIterator(object):
             for line in sfile: self.number_of_lines += 1
         return self.number_of_lines
 
-    def get_file_language(self):
+    def get_file_language(self, classes_exts=None):
         """
         Returns a class name, usable by highlight.hs, to help it to guess
         the source language.
         """
-        # cpp_exts = ['h', 'c', 'cpp', 'hpp', 'C', 'cc']
-        # if self.filename.split('.')[-1] in cpp_exts:
-        #     return "cpp"
-        # else:
-        #     return None
+        if not(classes_exts):
+            return None
+
         filename_ext = self.filename.split('.')[-1]
-        for class_, exts in self.classes_exts:
+        for class_, exts in classes_exts:
             if filename_ext in exts:
                 return class_
         return None
