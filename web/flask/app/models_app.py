@@ -23,7 +23,7 @@ from modules.packages_prefixes import packages_prefixes
 
 from flask import url_for
 
-import os, subprocess, re, magic
+import os, subprocess, magic
 
 class Package_app(models.Package, db.Model):
     @staticmethod
@@ -130,7 +130,7 @@ class Directory(object):
 
 class SourceFile(object):
     """ a source file in a package """
-    def __init__(self, location, highlight=None, msg=None):
+    def __init__(self, location):
         self.sources_path = location.sources_path
         self.sources_path_static = location.sources_path_static
         self.mime = self._find_mime()
