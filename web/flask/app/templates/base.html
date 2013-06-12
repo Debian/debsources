@@ -12,6 +12,8 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css"
           href="{{ url_for('static', filename='css/base.css') }}" />
+    <link rel="stylesheet" type="text/css"
+          href="{{ url_for('static', filename='css/debian.css') }}" />
     <link rel="shortcut icon"
           href="{{ url_for('static', filename='favicon.ico') }}" />
     <title>{% block title %}{% endblock %} | Debian sources</title>
@@ -19,17 +21,23 @@
   </head>
   <body>
     <div id="header">
-      <a href="http://www.debian.org">
-        <img src="{{ url_for('static', filename='img/debian-50.png') }}"
-             alt="Debian logo" /></a>
-      <h1>Debian sources</h1>
+      <div id="upperheader">
+        <div id="logo">
+          <a href="http://debian.org" title="Debian Home"><img src="{{ url_for('static', filename='img/debian-50.png') }}" alt="Debian"></a>
+        </div> <!-- end logo -->
+        <p class="section"><a href="/">Debsources</a></p>
+      </div> <!-- end upperheader -->
+      <!--UdmComment-->
       <div id="navbar">
+        <p class="hidecss"><a href="#content">Skip Quicknav</a></p>
         <ul>
           <li><a href="/">Home</a></li>
           <li><a href="{{ url_for('doc') }}">Documentation</a></li>
         </ul>
-      </div>
-    </div>
+      </div> <!-- end navbar -->
+      <p id="breadcrumbs">&nbsp; </p>
+    </div> <!-- end header -->
+    
     <div id="leftmenu">
       <h2>Packages</h2>
       <p><b>Browse</b> by prefix:
