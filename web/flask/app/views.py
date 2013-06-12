@@ -291,7 +291,9 @@ class SourceView(GeneralView):
                 raise Http404Error(e)
             
             if location.is_dir(): # folder, we list its content
-                directory = Directory(location)
+                directory = Directory(location, toplevel=(path == ""))
+                # (if path == "", then the dir is toplevel, and we don't want
+                # the .pc directory)
                 return dict(type="directory",
                             directory=path_dict[-1],
                             content=directory.get_listing(),

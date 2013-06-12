@@ -115,8 +115,10 @@ class Location(object):
 class Directory(object):
     """ a folder in a package """
     
-    def __init__(self, location):
+    def __init__(self, location, toplevel=False):
+        # if the directory is a toplevel one, we remove the .pc folder
         self.sources_path = location.sources_path
+        self.toplevel = toplevel
 
     def get_listing(self):
         def get_type(f):
@@ -124,8 +126,12 @@ class Directory(object):
                 return "directory"
             else: 
                 return "file"
-        return sorted(dict(name=f, type=get_type(f))
-                      for f in os.listdir(self.sources_path))
+        listing = sorted(dict(name=f, type=get_type(f))
+                         for f in os.listdir(self.sources_path))
+        if self.toplevel:
+            listing = filter(lambda x: x['name'] != ".pc", listing)
+        
+        return listing
     
 
 class SourceFile(object):
