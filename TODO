@@ -27,7 +27,4 @@
   need is interpolation, which is supported by ConfigParser. The relative
   import trick used by app.config.from_pyfile can be used for ConfigParser
   instead.
-* TODO CSS uses too much vertical space				    :web:css:
-  section links should be on the same line of the logo, not below it. Also, we
-  lack the service name to identify the proper Debian sub-site. E.g. compare
-  sources.d.n with codesearch.d.n
+* TODO set "path" for files (after '/' in the header of base.html       :web:
