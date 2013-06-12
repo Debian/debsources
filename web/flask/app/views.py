@@ -26,6 +26,12 @@ from models_app import Package_app, Version_app, Location, Directory, \
 from modules.sourcecode import SourceCodeIterator
 from forms import SearchForm
 
+# to generate PTS link (for internal links we use url_for)
+try:
+    from werkzeug.urls import url_quote
+except ImportError:
+    from urlparse import quote as url_quote
+
 #import modules.tasks as tasks
 
 @app.context_processor # variables needed by "base.html" skeleton
@@ -249,6 +255,9 @@ class SourceView(GeneralView):
     def get_objects(self, path_to):
         path_dict = path_to.split('/')
         
+        pts_link = app.config['PTS_PREFIX'] + path_dict[0]
+        pts_link = url_quote(pts_link) # for '+' symbol in Debian package names
+
         if len(path_dict) == 1: # package, we list the versions
             package = path_dict[0]
             try:
@@ -267,7 +276,8 @@ class SourceView(GeneralView):
             return dict(type="package",
                         package=package,
                         versions=versions,
-                        path=path_to)
+                        path=path_to,
+                        pts_link=pts_link)
         else:
             package = path_dict[0]
             version = path_dict[1]
@@ -285,7 +295,8 @@ class SourceView(GeneralView):
                 return dict(type="directory",
                             directory=path_dict[-1],
                             content=directory.get_listing(),
-                            path=path_to)
+                            path=path_to,
+                            pts_link=pts_link)
             
             elif location.is_file(): # file
                 file_ = SourceFile(location)
@@ -295,7 +306,8 @@ class SourceView(GeneralView):
                             raw_url=file_.get_raw_url(),
                             path=path_to,
                             text_file=file_.istextfile(
-                                   app.config['TEXT_FILE_MIMES']))
+                                   app.config['TEXT_FILE_MIMES']),
+                            pts_link=pts_link)
         
             else: # doesn't exist
                 raise Http404Error(None)

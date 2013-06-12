@@ -62,7 +62,9 @@ TEXT_FILE_MIMES = [
 # the place where the tango icons (or other icons) are :
 ICONS_FOLDER = "foo" # TODO
 
-
+# the Package Tracking System prefix to generate external URLs:
+# (the package name will be concatenated)
+PTS_PREFIX = "http://packages.qa.debian.org/"
 
 ### PROD ###
 

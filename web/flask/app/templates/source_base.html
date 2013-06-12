@@ -11,6 +11,7 @@
   {% for (p, link) in pathl[:-1]
     %}<a href="{{ link }}">{{ p }}</a>/{%
   endfor %}{{ pathl[-1][0] }}
+  | <a href="{{ pts_link }}">View package on PTS</a>
 </p>
 
 {% block source_content %}{% endblock %}
