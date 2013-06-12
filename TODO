@@ -27,8 +27,9 @@
   need is interpolation, which is supported by ConfigParser. The relative
   import trick used by app.config.from_pyfile can be used for ConfigParser
   instead.
-* TODO A download link to the original source package         :web:interface:
-  files that the currently shown package is indexed from would be useful.
-* TODO A link to the PTS of the package as well,              :web:interface:
-  just to be able to click from and to Debian services.
-* TODO The .pc/ directory should probably be hidden.          :web:interface:
+* TODO add link to the PTS					     :web:ui:
+* TODO hide top-level .pc/ directory 				     :web:ui:
+* TODO CSS uses too much vertical space				    :web:css:
+  section links should be on the same line of the logo, not below it. Also, we
+  lack the service name to identify the proper Debian sub-site. E.g. compare
+  sources.d.n with codesearch.d.n
