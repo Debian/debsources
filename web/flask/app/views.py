@@ -101,12 +101,16 @@ def server_error(e):
 
 ### PING ###
 
+# this is used to check the health of the service
+# for example by codesearch.debian.net
+# if we want to stop traffic from codesearch.d.n, just return 500 error
+
 @app.route('/api/ping/')
 def ping():
     try:
-        a = Package_app.query.first().id
+        a = Package_app.query.first().id # database check
     except:
-        return jsonify(dict(status="db error", http_status_code=500))
+        return jsonify(dict(status="db error", http_status_code=500)), 500
     return jsonify(dict(status="ok", http_status_code=200))
 
 ### INDEX, DOCUMENTATION ###
