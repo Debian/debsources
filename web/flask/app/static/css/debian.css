@@ -644,6 +644,7 @@ form#pageLang {
 
 input:focus {
 	background-color:#FFFFCB;
+        outline: none; /* modified */
 	
 }
 .hidecss {
