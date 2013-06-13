@@ -9,7 +9,7 @@ License: GNU Affero General Public License, version 3 or above.
 }
 
 #codetable{
-    
+    width: 100%;
 }
 
 #codewrap #codecaption{
@@ -58,6 +58,8 @@ License: GNU Affero General Public License, version 3 or above.
 #codetable #messages .message{
     background-color: #feff6f;
     padding: 10px;
+    margin-right: 10px;
+    margin-left: 10px;
     white-space: pre-wrap;
     /*other browsers */
     white-space: -moz-pre-wrap;

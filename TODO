@@ -18,10 +18,6 @@
 * TODO highlight.js is way slower				   :web:perf:
   since it is retrieved from /javascript/highlight
   
-* TODO bounding box of source code line is too narrow		    :web:css:
-  when using highlight.js styles with a background (e.g. "default"), that gives
-  unpleasant visual results
-
 * TODO replace etc/webconfig.py with a Python ini-like conffile	   :web:conf:
   Rationale: a Python module is dangerous and the only fancy functionality we
   need is interpolation, which is supported by ConfigParser. The relative
