@@ -1,57 +1,93 @@
 import os
-import app
-#from app import db
+import sys
 import unittest
 import tempfile
-#from app.models_app import Package_app
+import json
 
-class FlaskrTestCase(unittest.TestCase):
 
+from app import app
+
+parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0,parentdir)
+from scripts import sources2db
+
+
+class DebsourcesTestCase(unittest.TestCase):
+    ClassIsSetup = False
+    
     def setUp(self):
-        # TODO: database
-        self.db_fd, dbtmp = tempfile.mkstemp()
-        #app.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+dbtmp
-        #app.app.config['TESTING'] = True
-        #app.app.config['SQLALCHEMY_ECHO'] = False
-        #hello = Package_app("hello")
-        #db.session.add(hello)
-        #db.session.commit()
+        # from http://stezz.blogspot.fr
+        # /2011/04/calling-only-once-setup-in-unittest-in.html
         
-        self.app = app.app.test_client()
-        #app.init_db()
-
+        # If it was not setup yet, do it
+        if not self.ClassIsSetup:
+            print "Initializing testing environment"
+            # run the real setup
+            self.setupClass()
+            # remember that it was setup already
+            self.__class__.ClassIsSetup = True
+    
+    def setupClass(self):
+        
+        url = "sqlite:///" + os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "tests/app.db")
+        sources2db.sources2db("tests/sources.txt", url,
+                              drop=True, verbose=False)
+        app.config['TESTING'] = True
+        app.config['SQLALCHEMY_ECHO'] = False
+        
+        app.config['SQLALCHEMY_DATABASE_URI'] = url #"sqlite:///:memory:"
+        self.__class__.app = app.test_client()
+        
+        
     def tearDown(self):
-        #os.close(self.db_fd)
-        #os.unlink(app.app.config['SQLALCHEMY_DATABASE_URI'])
         pass
-
-    def test_index_page(self):
+        
+    def test_search(self):        
+        rv = json.loads(self.app.get('/api/search/vcar/').data)
+        assert rv['query'] == 'vcar'
+        assert rv['results']['exact'] is None
+        assert {'name': "2vcard"} in rv['results']['other']
+        
+    def test_static_pages(self):
         rv = self.app.get('/')
         assert 'Debsources' in rv.data
         
-    def test_left_menu(self):
-        rv = self.app.get('/')
-        assert '<a href="/prefix/libz/">libz</a>' in rv.data
-        assert '<form action="/search/"' in rv.data
-
-    def test_doc_pages(self):
-        rv = self.app.get('/doc/')
-        assert 'Documentation' in rv.data
         rv = self.app.get('/doc/api/')
         assert 'API documentation' in rv.data
+        
         rv = self.app.get('/doc/url/')
         assert 'URL scheme' in rv.data
         
-    def test_footer(self):
-        rv = self.app.get('/')
-        assert 'Copyright' in rv.data
-        assert 'GNU AGPL' in rv.data
+    def test_packages_list(self):
+        rv = json.loads(self.__class__.app.get('/api/list/').data)
+        assert {'name': "2vcard"} in rv['packages']
 
-    def test_search(self):
-        pass
-        #rv = self.app.get('/search/hello/')
-        #assert 'Search: hello' in rv.data
-        # TODO: insert arbitrary values and check their existence in results
+    def test_package(self):
+        rv = json.loads(self.app.get('/api/src/0ad').data)
+        assert rv['path'] == "0ad"
+        assert rv['pts_link'] == "http://packages.qa.debian.org/0ad"
+        assert len(rv['versions']) == 2
+        assert rv['type'] == "package"
+        
+    def test_folder(self):
+        app.config['SOURCES_FOLDER'] = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "tests/sources")
+        rv = json.loads(self.app.get('/api/src/0ad/0.0.13-2').data)
+        assert rv['type'] == "directory"
+        assert {'type': "file", 'name': "hello.c"} in rv['content']
+        
+    def test_source_file(self):
+        app.config['SOURCES_FOLDER'] = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "tests/sources")
+        rv = self.app.get('/src/0ad/0.0.13-2/NetStats.cpp')
+        print rv.data
+        assert '<code id="sourcecode" class="cpp">' in rv.data
+        assert 'size_t CNetStatsTable::GetNumberRows()' in rv.data
 
 if __name__ == '__main__':
+    already_setup = False
     unittest.main()
