@@ -35,7 +35,7 @@
           {%- endfor %}</pre>
       </td>
       <td>
-        <pre><code id="sourcecode"{% if file_language -%}
+        <pre><code id="sourcecode" {% if file_language -%}
                       class="{{ file_language }}"
                    {%- endif %}>{% for (line, highlight) in code -%}
             {% if highlight -%}
