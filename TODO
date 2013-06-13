@@ -34,3 +34,7 @@
   > http://sources.debian.net/src/cairo/1.12.14-4/boilerplate/cairo-boilerplate-xcb.c#L395
   > should highlight that line. And ideally put it in the middle of the
   > screen, instead of the top (this might require some JS fiddling).
+
+* TODO check symlink dereferencing                             :web:security:
+  if it's outside of the pakage -> 403 error
+  inside the package -> redirect appropriately
