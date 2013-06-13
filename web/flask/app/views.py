@@ -312,7 +312,7 @@ class SourceView(GeneralView):
                 package_id = Package_app.query.filter(
                     Package_app.name==package).first().id
             except Exception as e:
-                raise Http500Error(e)
+                raise Http404Error(e)
             try:
                 versions = Version_app.query.filter(
                     Version_app.package_id==package_id).all()
