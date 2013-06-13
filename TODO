@@ -9,10 +9,6 @@
 * TODO search based on the file name				 :web:search:
   should be feasible, if the mlocate database is to be believed. Maybe we
   should simply use it, making the indexing available *in* the VM?
-* TODO [0/1] integration with http://codesearch.debian.net	 :web:search:
-** forward: have a search box on sources.d.n that search there
-** backward: have search results there pointing back to sources.d.n
-** TODO contact: stapelberg@d.o
 * TODO symbolic link for use with tango icons			 :web:apache:
   currently in static/img/
 * TODO highlight.js is way slower				   :web:perf:
