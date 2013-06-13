@@ -335,6 +335,11 @@ class SourceView(GeneralView):
             
             elif location.is_file(): # file
                 file_ = SourceFile(location)
+                
+                # if the file is a symbolic link, we 404 (for security reasons)
+                if file_.issymlink():
+                    raise Http404Error("Symbolic file")
+                
                 return dict(type="file",
                             file=path_dict[-1],
                             mime=file_.get_mime(),
