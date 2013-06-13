@@ -70,13 +70,15 @@ class GeneralView(View):
             return self.err_func(e, http=500)
         except Http404Error as e:
             return self.err_func(e, http=404)
+        except Http403Error as e:
+            return self.err_func(e, http=403)
 
 
 ### EXCEPTIONS ###
 
 class Http500Error(Exception): pass
 class Http404Error(Exception): pass
-
+class Http403Error(Exception): pass
 
 ### ERRORS ###
 
@@ -86,6 +88,8 @@ def deal_error(error, http=404, mode='html'):
         return deal_404_error(error, mode)
     elif http == 500:
         return deal_500_error(error, mode)
+    elif http == 403:
+        return deal_403_error(error, mode)
     else:
         raise Exception("Unimplemented HTTP error: %s" % str(http))
 
@@ -111,6 +115,17 @@ def deal_500_error(error, mode='html'):
 @app.errorhandler(500)
 def server_error(e):
     return deal_500_error(e)
+
+def deal_403_error(error, mode='html'):
+    if mode == 'json':
+        return jsonify(dict(error=403))
+    else:
+        return render_template('403.html'), 403
+
+@app.errorhandler(403)
+def server_error(e):
+    return deal_403_error(e)
+
 
 ### PING ###
 
@@ -338,7 +353,7 @@ class SourceView(GeneralView):
                 
                 # if the file is a symbolic link, we 404 (for security reasons)
                 if file_.issymlink():
-                    raise Http404Error("Symbolic file")
+                    raise Http403Error("Symbolic file")
                 
                 return dict(type="file",
                             file=path_dict[-1],
