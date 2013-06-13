@@ -36,7 +36,7 @@ def get_engine_session(url, verbose=True):
     session = Session()
     return engine, session
 
-def sources2db(sources,  db_url, drop=False, verbose=True):
+def sources2db(sources, url, drop=False, verbose=True):
     engine, session = get_engine_session(url, verbose)
     
     if drop:
@@ -66,6 +66,8 @@ def sources2db(sources,  db_url, drop=False, verbose=True):
     Version.__table__.insert(bind=engine).execute(
         [dict(vnumber=b, package_id=packids[a], area=c) for a, b, c in versions]
         )
+    
+    session.close()
             
 
 if __name__ == "__main__":
