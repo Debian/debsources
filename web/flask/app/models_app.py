@@ -19,7 +19,6 @@
 from app import app, db
 import models
 from modules.packages_prefixes import packages_prefixes
-#from modules.sourcecode import SourceCodeIterator
 
 from flask import url_for
 
@@ -34,16 +33,25 @@ class Package_app(models.Package, db.Model):
         return packages_prefixes
     
     def to_dict(self):
+        """
+        simply serializes a package (because SQLAlchemy query results
+        aren't serializable
+        """
         return dict(name=self.name)
 
     
 class Version_app(models.Version, db.Model):
     def to_dict(self):
+        """
+        simply serializes a package (because SQLAlchemy query results
+        aren't serializable
+        """
         return dict(vnumber=self.vnumber, area=self.area)
 
-class InvalidPackageOrVersionError(ValueError):
-    pass
+# The package or the version doesn't exist in the DB
+class InvalidPackageOrVersionError(ValueError): pass
 
+# The Folder or File doesn't exist in the disk
 class FileOrFolderNotFound(Exception): pass
 
 class Location(object):
@@ -75,6 +83,7 @@ class Location(object):
             
     
     def __init__(self, package, version="", path_to=""):
+        """ initialises useful attributes """
         debian_path = self._get_debian_path(package, version)
         
         self.sources_path = os.path.join(
@@ -121,6 +130,11 @@ class Directory(object):
         self.toplevel = toplevel
 
     def get_listing(self):
+        """
+        returns the list of folders/files in a directory,
+        along with their type (directory/file)
+        in a tuple (name, type)
+        """
         def get_type(f):
             if os.path.isdir(os.path.join(self.sources_path, f)):
                 return "directory"
@@ -142,13 +156,14 @@ class SourceFile(object):
         self.mime = self._find_mime()
     
     def _find_mime(self):
+        """ returns the mime encoding and type of a file """
         mime = magic.open(magic.MIME_TYPE)
         mime.load()
-        type = mime.file(self.sources_path)
+        type_ = mime.file(self.sources_path)
         mime = magic.open(magic.MIME_ENCODING)
         mime.load()
         encoding = mime.file(self.sources_path)
-        return dict(encoding=encoding, type=type)
+        return dict(encoding=encoding, type=type_)
     
     def get_mime(self):
         return self.mime
@@ -163,4 +178,5 @@ class SourceFile(object):
         return False
     
     def get_raw_url(self):
+        """ return the raw url on disk (e.g. data/main/a/azerty/foo.bar) """
         return self.sources_path_static

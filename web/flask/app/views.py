@@ -26,15 +26,17 @@ from models_app import Package_app, Version_app, Location, Directory, \
 from modules.sourcecode import SourceCodeIterator
 from forms import SearchForm
 
-# to generate PTS link (for internal links we use url_for)
+# to generate PTS link safely (for internal links we use url_for)
 try:
     from werkzeug.urls import url_quote
 except ImportError:
     from urlparse import quote as url_quote
 
-#import modules.tasks as tasks
 
-@app.context_processor # variables needed by "base.html" skeleton
+# variables needed by "base.html" skeleton
+# packages_prefixes and search form (for the left menu),
+# last_update (for the footer)
+@app.context_processor
 def skeleton_variables():
     with open(app.config['LAST_UPDATE_FILE']) as f:
         last_update = f.readline()
@@ -45,12 +47,22 @@ def skeleton_variables():
 
 ### GENERAL VIEW HANDLING ###
 
+# subclass this to add a view, linkable with add_url
+# this allows one view to work with several templates (html, json, ...)
 class GeneralView(View):
     def __init__(self, render_func=jsonify, err_func=lambda *x: x):
+        """
+        render_func: the render function, e.g. jsonify or render_template
+        err_func: the function called when an error occurs
+        """
         self.render_func = render_func
         self.err_func = err_func
     
     def dispatch_request(self, **kwargs):
+        """
+        renders the view, or call the error function with the error and
+        the http error code (404 or 500)
+        """
         try:
             context = self.get_objects(**kwargs)
             return self.render_func(**context)
@@ -69,6 +81,7 @@ class Http404Error(Exception): pass
 ### ERRORS ###
 
 def deal_error(error, http=404, mode='html'):
+    """ spreads the error in the right place (404 or 500) """
     if http == 404:
         return deal_404_error(error, mode)
     elif http == 500:
@@ -84,7 +97,7 @@ def deal_404_error(error, mode='html'):
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('404.html'), 404
+    return deal_404_error(e)
 
 def deal_500_error(error, mode='html'):
     """ logs a 500 error and returns the correct template """
@@ -97,13 +110,13 @@ def deal_500_error(error, mode='html'):
 
 @app.errorhandler(500)
 def server_error(e):
-    return render_template('500.html'), 500
+    return deal_500_error(e)
 
 ### PING ###
 
 # this is used to check the health of the service
 # for example by codesearch.debian.net
-# if we want to stop traffic from codesearch.d.n, just return 500 error
+# If we want to stop traffic from codesearch.d.n, just return 500 error
 
 @app.route('/api/ping/')
 def ping():
@@ -132,7 +145,6 @@ def doc_api():
     return render_template('doc_api.html')
 
 
-
 ### SEARCH ###
 
 @app.route('/search/', methods=['GET', 'POST'])
@@ -151,6 +163,7 @@ def receive_search():
 
 class SearchView(GeneralView):
     def get_objects(self, query=None):
+        """ processes the search query and renders the results in a dict """
         query = query.replace('%', '').replace('_', '')
         try:
             exact_matching = Package_app.query.filter_by(name=query).first()
@@ -169,12 +182,14 @@ class SearchView(GeneralView):
                        other=other_results)
         return dict(results=results, query=query)
 
+# SEARCH ROUTE (HTML)
 app.add_url_rule('/search/<query>/', view_func=SearchView.as_view(
         'search_html',
         render_func=lambda **kwargs: render_template('search.html', **kwargs),
         err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
         ))
 
+# SEARCH ROUTE (JSON)
 app.add_url_rule('/api/search/<query>/', view_func=SearchView.as_view(
         'search_json',
         render_func=jsonify,
@@ -185,6 +200,10 @@ app.add_url_rule('/api/search/<query>/', view_func=SearchView.as_view(
 
 class ListpackagesView(GeneralView):
     def __init__(self, render_func=jsonify, err_func=lambda *x: x, all_=False):
+        """
+        the all_ parameter allows to determine if we render all results (json)
+        or if we paginate them (html)
+        """
         self.all_ = all_
         super(ListpackagesView, self).__init__(
             render_func=render_func, err_func=err_func)
@@ -206,14 +225,17 @@ class ListpackagesView(GeneralView):
             except Exception as e:
                 raise Http500Error(e)
 
+# PACKAGE LISTING ROUTE (HTML)
 app.add_url_rule('/list/<int:page>/', view_func=ListpackagesView.as_view(
         'listpackages_html',
         render_func=lambda **kwargs: render_template('list.html', **kwargs),
         err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
         ))
+
+# PACKAGE LISTING ROUTE (JSON)
 app.add_url_rule('/api/list/', view_func=ListpackagesView.as_view(
         'listpackages_json',
-        all_=True,
+        all_=True, # we don't paginate json result
         render_func=jsonify,
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
         ))
@@ -224,6 +246,7 @@ app.add_url_rule('/api/list/', view_func=ListpackagesView.as_view(
 
 class PrefixView(GeneralView):
     def get_objects(self, prefix='a'):
+        """ returns the packages beginning with prefix """
         if prefix in Package_app.get_packages_prefixes():
             try:
                 packages = Package_app.query.filter(
@@ -237,16 +260,14 @@ class PrefixView(GeneralView):
         else:
             raise Http404Error("prefix unknown: %s" % str(prefix))
 
-# app.add_url_rule('/prefix/', view_func=PrefixView.as_view(
-#         'prefix_html',
-#         render_func=lambda **x: render_template('prefix.html', **x),
-#         err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
-#         ))
+# PACKAGES LIST BY PREFIX ROUTING (HTML)
 app.add_url_rule('/prefix/<prefix>/', view_func=PrefixView.as_view(
         'prefix_html',
         render_func=lambda **kwargs: render_template('prefix.html', **kwargs),
         err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
         ))
+
+# PACKAGES LIST BY PREFIX ROUTING (JSON)
 app.add_url_rule('/api/prefix/<prefix>/', view_func=PrefixView.as_view(
         'prefix_json',
         render_func=jsonify,
@@ -257,8 +278,16 @@ app.add_url_rule('/api/prefix/<prefix>/', view_func=PrefixView.as_view(
 
 class SourceView(GeneralView):
     def get_objects(self, path_to):
+        """
+        determines if the dealing object is a package/folder/source file
+        and sets this in 'type'
+        Package: we want the available versions (db request)
+        Directory: we want the subdirs and subfiles (disk listing)
+        File: we want to render the raw url of the file
+        """
         path_dict = path_to.split('/')
         
+        # in all cases, the PTS link is created
         pts_link = app.config['PTS_PREFIX'] + path_dict[0]
         pts_link = url_quote(pts_link) # for '+' symbol in Debian package names
 
@@ -282,7 +311,7 @@ class SourceView(GeneralView):
                         versions=versions,
                         path=path_to,
                         pts_link=pts_link)
-        else:
+        else: # folder or file
             package = path_dict[0]
             version = path_dict[1]
             path = '/'.join(path_dict[2:])
@@ -319,13 +348,16 @@ class SourceView(GeneralView):
                 raise Http404Error(None)
 
 def render_source_file_html(**kwargs):
+    """ preprocess useful variables for the html templates """
     if kwargs['type'] == "package":
+        # we simply add pathl (for use with "You are here:")
         return render_template(
             "source_package.html",
             pathl=Location.get_path_links("source_html", kwargs['path']),
             **kwargs)
     
     elif kwargs['type'] == "directory":
+        # we add pathl and separate files and folders
         return render_template(
             "source_folder.html",
             subdirs=filter(lambda x: x['type']=="directory", kwargs['content']),
@@ -333,6 +365,9 @@ def render_source_file_html(**kwargs):
             pathl=Location.get_path_links("source_html", kwargs['path']),
             **kwargs)
     else: # file
+        # more work to do with files
+        
+        # if the file is not a text file, we redirect to it
         if not(kwargs['text_file']):
             return redirect(kwargs['raw_url'])
         
@@ -342,8 +377,9 @@ def render_source_file_html(**kwargs):
         # ugly, but better than global variable,
         # and better than re-requesting the db
         # TODO: find proper solution for retrieving souces_path
-        # (without putting it in kwargs, we don't want it in json renderinf eg)
+        # (without putting it in kwargs, we don't want it in json rendering eg)
         
+        # we get the variables for highlighting and message (if they exist)
         try:
             highlight = request.args.get('hl')
         except (KeyError, ValueError, TypeError):
@@ -352,7 +388,8 @@ def render_source_file_html(**kwargs):
             msg = request.args.get('msg')
         except (KeyError, ValueError, TypeError):
             msg = None
-
+        
+        # we preprocess the file with SourceCodeIterator
         sourcefile = SourceCodeIterator(
             sources_path, hl=highlight, msg=msg,)
         
@@ -367,12 +404,14 @@ def render_source_file_html(**kwargs):
             **kwargs
             )
 
+# PACKAGE/FOLDER/FILE ROUTING (HTML)
 app.add_url_rule('/src/<path:path_to>', view_func=SourceView.as_view(
         'source_html',
         render_func=render_source_file_html,
         err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
         ))
 
+# PACKAGE/FOLDER/FILE ROUTING (JSON)
 app.add_url_rule('/api/src/<path:path_to>', view_func=SourceView.as_view(
         'source_json',
         render_func=jsonify,
