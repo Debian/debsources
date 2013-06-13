@@ -84,9 +84,12 @@ class DebsourcesTestCase(unittest.TestCase):
             os.path.dirname(os.path.abspath(__file__)),
             "tests/sources")
         rv = self.app.get('/src/0ad/0.0.13-2/NetStats.cpp')
-        print rv.data
         assert '<code id="sourcecode" class="cpp">' in rv.data
         assert 'size_t CNetStatsTable::GetNumberRows()' in rv.data
+        
+    def test_errors(self):
+        rv = json.loads(self.app.get('/api/src/blablabla').data)
+        assert rv['error'] == 404
 
 if __name__ == '__main__':
     already_setup = False
