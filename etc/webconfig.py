@@ -62,7 +62,7 @@ TEXT_FILE_MIMES = [
     
 
 # the place where the tango icons (or other icons) are :
-ICONS_FOLDER = "foo" # TODO
+ICONS_FOLDER = "/icons/Tango/"
 
 # the Package Tracking System prefix to generate external URLs:
 # (the package name will be concatenated)
