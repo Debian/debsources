@@ -18,7 +18,7 @@
 import re
 
 class SourceCodeIterator(object):
-    def __init__(self, filename, hl=None, msg=None, encoding="utf8"):
+    def __init__(self, filepath, hl=None, msg=None, encoding="utf8"):
         """
         creates a new SourceCodeIterator object
         
@@ -33,8 +33,9 @@ class SourceCodeIterator(object):
                       file extensions, eg:
                       [("cpp", ['cpp','hpp']), (...), ...]
         """
-        self.filename = filename
-        self.file = open(filename)
+        self.filepath = filepath
+        self.filename = self.filepath.split('/')[-1]
+        self.file = open(filepath)
         self.encoding = encoding
         self.current_line = 0
         self.number_of_lines = None
@@ -69,7 +70,7 @@ class SourceCodeIterator(object):
         if self.number_of_lines is not None:
             return self.number_of_lines
         self.number_of_lines = 0
-        with open(self.filename) as sfile:
+        with open(self.filepath) as sfile:
             for line in sfile: self.number_of_lines += 1
         return self.number_of_lines
 
