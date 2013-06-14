@@ -9,10 +9,6 @@
 * TODO search based on the file name				 :web:search:
   should be feasible, if the mlocate database is to be believed. Maybe we
   should simply use it, making the indexing available *in* the VM?
-* TODO symbolic link for use with tango icons			 :web:apache:
-  currently in static/img/
-  real icons are in /usr/share/icons/tango/22x22/mimetypes/ascii.png
-                                                /places/folder.png
 * TODO highlight.js is way slower				   :web:perf:
   since it is retrieved from /javascript/highlight
   
