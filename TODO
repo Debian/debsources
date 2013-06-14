@@ -30,5 +30,3 @@
 * TODO check symlink dereferencing                             :web:security:
   if it's outside of the pakage -> 403 error
   inside the package -> redirect appropriately
-* TODO code source horizontal overflow/scrolling                    :web:css:
-  when we disable overflow, superposition with the foxed leftmenu
