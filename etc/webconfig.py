@@ -31,30 +31,31 @@ HIGHLIGHT_JS_FOLDER = "/javascript/highlight"
 HIGHLIGHT_STYLE = "googlecode"
 
 # patterns for language detection
-# each language is associated with a list of regex, matching the filename
+# each language is associated with a list of regex, matching the filepath
 HIGHLIGHT_CLASSES = [
-    ("haskell", [r'.hs$', r'.lhs$']),
-    ("python", [r'.py$']),
-    ("ruby", [r'.rb$']),
-    ("perl", [r'.pl$']),
-    ("php", [r'.php$']),
-    ("scala", [r'.scala$']),
-    ("go", [r'.go$']),
-    ("xml", [r'.xml$']),
+    ("haskell", [r'\.hs$', r'\.lhs$']),
+    ("python", [r'\.py$']),
+    ("ruby", [r'\.rb$']),
+    ("perl", [r'\.pl$']),
+    ("php", [r'\.php$']),
+    ("scala", [r'\.scala$']),
+    ("go", [r'\.go$']),
+    ("xml", [r'\.xml$']),
     # we let hl.js distinguish django and html (both .html)
-    ("markdown", [r'.md$']),
-    ("css", [r'.css$']),
-    ("json", [r'.json$']),
-    ("javascript", [r'.js$']),
-    ("coffeescript", [r'.coffee$']),
-    ("lua", [r'.lua$']),
-    ("java", [r'.java$']),
-    ("cpp", [r'.h$', r'.c$', r'.cpp$', r'.hpp$', r'.C$', r'.cc$']),
-    ("diff", [r'.patch$', r'.diff$']),
-    ("bash", [r'.sh$']),
-    ("tex", [r'.tex$']),
-    ("no-highlight", [r'.txt$', r'^README$', r'^TODO$', r'^BUGS$',
-                      r'Makefile', r'makefile']),
+    ("markdown", [r'\.md$']),
+    ("css", [r'\.css$']),
+    ("json", [r'\.json$']),
+    ("javascript", [r'\.js$']),
+    ("coffeescript", [r'\.coffee$']),
+    ("lua", [r'\.lua$']),
+    ("java", [r'\.java$']),
+    ("cpp", [r'\.h$', r'\.c$', r'\.cpp$', r'\.hpp$', r'\.C$', r'\.cc$']),
+    ("diff", [r'\.patch$', r'\.diff$']),
+    ("bash", [r'\.sh$']),
+    ("tex", [r'\.tex$']),
+    ("no-highlight", [r'\.txt$', r'/README$', r'/TODO$', r'/BUGS$',
+                      r'Makefile', r'makefile',
+                      r'debian/rules$']),
     ]
 
 # strings which will be searched in the mime type of a file to determine

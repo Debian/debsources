@@ -90,7 +90,7 @@ class SourceCodeIterator(object):
 
         for class_, patternlist in classes_patterns:
             for pattern in patternlist:
-                if re.search(pattern, self.filename):
+                if re.search(pattern, self.filepath):
                     return class_
         return None
 
