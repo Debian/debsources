@@ -13,6 +13,9 @@
 {% endblock %}
 
 {% block title %}API documentation{% endblock %}
+
+{% block breadcrumbs %}<a href="{{ url_for('doc') }}">doc</a> / api{% endblock %}
+
 {% block content %}
 {% set url_prefix = "http://" + config.DOMAIN %}
 

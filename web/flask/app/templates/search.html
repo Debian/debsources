@@ -7,6 +7,9 @@
 {% import "macros.inc.html" as macros %}
 
 {% block title %}Search: {{ query }}{% endblock %}
+
+{% block breadcrumbs %}search / {{ query }}{% endblock %}
+
 {% block content %}
 <h2>{{ self.title() }}</h2>
 <h3>Exact matches</h3>
