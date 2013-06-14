@@ -22,11 +22,11 @@ http://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginatio
 {% endmacro %}
 
 
-{% macro searchform(form, display="block") -%}
+{% macro searchform(form, query= "", display="block") -%}
   <form action="{{ url_for('receive_search') }}" name="searchform"
         method="post" style="display: {{ display }};">
     {#{ form.hidden_tag() }#}
-    {{ form.query }}
+    {{ form.query(value=query) }}
     {% for error in form.errors.query %}
       <br /><strong>{{ error }}</strong><br />
     {% endfor %}
