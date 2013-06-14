@@ -28,7 +28,7 @@ http://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginatio
     {#{ form.hidden_tag() }#}
     {{ form.query }}
     {% for error in form.errors.query %}
-      <em>{{ error }}</em><br />
+      <br /><strong>{{ error }}</strong><br />
     {% endfor %}
     <input type="submit" value="Search" />
   </form>

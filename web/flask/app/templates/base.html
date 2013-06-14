@@ -35,7 +35,7 @@
           <li><a href="{{ url_for('doc') }}">Documentation</a></li>
         </ul>
       </div> <!-- end navbar -->
-      <p id="breadcrumbs">&nbsp; </p>
+      <p id="breadcrumbs">{% block breadcrumbs %}{% endblock %}</p>
     </div> <!-- end header -->
     
     <div id="leftmenu">

@@ -5,14 +5,15 @@
 
 {% extends "base.html" %}
 
+{% block breadcrumbs %}source / {% for (p, link) in pathl[:-1]
+    %}<a href="{{ link }}">{{ p }}</a> / {%
+  endfor %}{{ pathl[-1][0] }}{% endblock %}
+
 {% block content %}
 
-<p>You are here:
-  {% for (p, link) in pathl[:-1]
-    %}<a href="{{ link }}">{{ p }}</a>/{%
-  endfor %}{{ pathl[-1][0] }}
-  | <a href="{{ pts_link }}">View package on PTS</a>
-</p>
+<p><small>
+  <a href="{{ pts_link }}">View package {{ pathl[0][0] }} on PTS</a>
+</small></p>
 
 {% block source_content %}{% endblock %}
 
