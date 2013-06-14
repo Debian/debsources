@@ -107,6 +107,13 @@ class Location(object):
     def is_file(self):
         """ True if sels is a file, False if it's not """
         return os.path.isfile(self.sources_path)
+
+    def issymlink(self):
+        """
+        True if a folder/file is a symbolic link file, False if it's not
+        """
+        return os.path.islink(self.sources_path)
+
     
     @staticmethod
     def get_path_links(endpoint, path_to):
@@ -176,13 +183,7 @@ class SourceFile(object):
             if substring in self.mime['type']:
                 return True
         return False
-    
-    def issymlink(self):
-        """
-        True if a file is a symbolic link file, False if it's not
-        """
-        return os.path.islink(self.sources_path)
-    
+        
     def get_raw_url(self):
         """ return the raw url on disk (e.g. data/main/a/azerty/foo.bar) """
         return self.sources_path_static

@@ -337,6 +337,10 @@ class SourceView(GeneralView):
                 raise Http404Error(e)
             except InvalidPackageOrVersionError as e:
                 raise Http404Error(e)
+
+            # if the location is a symbolic link, we 404 (for security reasons)
+            if location.issymlink():
+                raise Http403Error("Symbolic folder or file")
             
             if location.is_dir(): # folder, we list its content
                 directory = Directory(location, toplevel=(path == ""))
@@ -350,10 +354,6 @@ class SourceView(GeneralView):
             
             elif location.is_file(): # file
                 file_ = SourceFile(location)
-                
-                # if the file is a symbolic link, we 404 (for security reasons)
-                if file_.issymlink():
-                    raise Http403Error("Symbolic file")
                 
                 return dict(type="file",
                             file=path_dict[-1],
