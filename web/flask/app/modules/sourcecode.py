@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import re
 
 class SourceCodeIterator(object):
     def __init__(self, filename, hl=None, msg=None, encoding="utf8"):
@@ -72,18 +73,24 @@ class SourceCodeIterator(object):
             for line in sfile: self.number_of_lines += 1
         return self.number_of_lines
 
-    def get_file_language(self, classes_exts=None):
+    def get_file_language(self, classes_patterns=None):
         """
         Returns a class name, usable by highlight.hs, to help it to guess
         the source language.
         """
-        if not(classes_exts):
+        if not(classes_patterns):
             return None
 
-        filename_ext = self.filename.split('.')[-1]
-        for class_, exts in classes_exts:
-            if filename_ext in exts:
-                return class_
+        # filename_ext = self.filename.split('.')[-1]
+        # for class_, exts in classes_exts:
+        #     if filename_ext in exts:
+        #         return class_
+        # return None
+
+        for class_, patternlist in classes_patterns:
+            for pattern in patternlist:
+                if re.search(pattern, self.filename):
+                    return class_
         return None
 
     def get_msgdict(self):

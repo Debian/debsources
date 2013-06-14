@@ -29,28 +29,31 @@ HIGHLIGHT_JS_FOLDER = "/javascript/highlight"
 # see http://softwaremaniacs.org/media/soft/highlight/test.html
 # HIGHLIGHT_STYLE = "default"
 HIGHLIGHT_STYLE = "googlecode"
+
+# patterns for language detection
+# each language is associated with a list of regex, matching the filename
 HIGHLIGHT_CLASSES = [
-    ("haskell", ['hs', 'lhs']),
-    ("python", ['py']),
-    ("ruby", ['rb']),
-    ("perl", ['pl']),
-    ("php", ['php']),
-    ("scala", ['scala']),
-    ("go", ['go']),
-    ("xml", ['xml']),
+    ("haskell", [r'hs$', r'lhs$']),
+    ("python", [r'py$']),
+    ("ruby", [r'rb$']),
+    ("perl", [r'pl$']),
+    ("php", [r'php$']),
+    ("scala", [r'scala$']),
+    ("go", [r'go$']),
+    ("xml", [r'xml$']),
     # we let hl.js distinguish django and html (both .html)
-    ("markdown", ['md']),
-    ("css", ['css']),
-    ("json", ['json']),
-    ("javascript", ['js']),
-    ("coffeescript", ['coffee']),
-    ("lua", ['lua']),
-    ("java", ['java']),
-    ("cpp", ['h', 'c', 'cpp', 'hpp', 'C', 'cc']),
-    ("diff", ['patch']),
-    ("bash", ['sh']),
-    ("tex", ['tex']),
-    ("no-highlight", ['txt']),
+    ("markdown", [r'md$']),
+    ("css", [r'css$']),
+    ("json", [r'json$']),
+    ("javascript", [r'js$']),
+    ("coffeescript", [r'coffee$']),
+    ("lua", [r'lua$']),
+    ("java", [r'java$']),
+    ("cpp", [r'h$', r'c$', r'cpp$', r'hpp$', r'C$', r'cc$']),
+    ("diff", [r'patch$']),
+    ("bash", [r'sh$']),
+    ("tex", [r'tex$']),
+    ("no-highlight", [r'txt$', r'^README$', r'^TODO$', r'^BUGS$']),
     ]
 
 # strings which will be searched in the mime type of a file to determine
