@@ -50,6 +50,7 @@ HIGHLIGHT_CLASSES = [
     ("diff", ['patch']),
     ("bash", ['sh']),
     ("tex", ['tex']),
+    ("no-highlight", ['txt']),
     ]
 
 # strings which will be searched in the mime type of a file to determine
