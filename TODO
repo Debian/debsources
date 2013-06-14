@@ -19,7 +19,6 @@
   need is interpolation, which is supported by ConfigParser. The relative
   import trick used by app.config.from_pyfile can be used for ConfigParser
   instead.
-* TODO set "path" for files (after '/' in the header of base.html       :web:
 * TODO highlight #Lxxx lines					     :web:ui:
   On Thu, Jun 13, 2013 at 12:19:58AM +0200, Joachim Breitner wrote:
   > An URL like
