@@ -30,6 +30,11 @@ lockfile="$root/ONGOING-UPDATE.pid"
 
 logfile="/var/log/debsources/debsources.log"
 
+# Number of days packages are kept around after having disappeared from the
+# mirror. After this delay, they will be removed from the debsources instance
+# as well. Set to 0 not to keep them around at all.
+expire_days=10
+
 # Set to "yes" to avoid doing any distructive operation on the unpacked source
 # tree.  Note: this does not affect the debmirror update pulse, which will be
 # executed anyhow.
