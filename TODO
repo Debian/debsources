@@ -1,12 +1,26 @@
 #    -*- mode: org -*-
 
+* TODO file type auto detection is not reliable			:web:hilight:
+  More often than note, highlight.js auto detection of the appropriate syntax
+  to use doesn't work. Should we rather switch it off (i.e. use "no-highlight"
+  by default everywhere), and set an explicit class only for the regexp based
+  matches? After all:
+  1. to support 99% of the common needs it is enough to have a relatively low
+     number or regexs, and
+  2. we /already have/ most of those regexs in the configuration anyhow, to
+     account for false matches
+  all in all, it seems that the remaining uses of autodetection are more a
+  trouble than what they're useful for
+
 * TODO integrate prefix generation into cron jobs		       :cron:
   - currently it needs ad-hoc runs
   - also: it currently generates a python module outside /cache, which breaks
     the code/data separation
+
 * TODO search based on the file name				 :web:search:
   should be feasible, if the mlocate database is to be believed. Maybe we
   should simply use it, making the indexing available *in* the VM?
+
 * TODO highlight.js is way slower				   :web:perf:
   since it is retrieved from /javascript/highlight
   
@@ -15,6 +29,7 @@
   need is interpolation, which is supported by ConfigParser. The relative
   import trick used by app.config.from_pyfile can be used for ConfigParser
   instead.
+
 * TODO highlight #Lxxx lines					     :web:ui:
   On Thu, Jun 13, 2013 at 12:19:58AM +0200, Joachim Breitner wrote:
   > An URL like
