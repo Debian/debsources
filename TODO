@@ -1,7 +1,5 @@
 #    -*- mode: org -*-
 
-* TODO should the first page be static?				   :web:perf:
-  (or maybe cached?) -> strict to set packages_prefixes static
 * TODO integrate prefix generation into cron jobs		       :cron:
   - currently it needs ad-hoc runs
   - also: it currently generates a python module outside /cache, which breaks
