@@ -45,6 +45,9 @@ extract_sources() {
 	    if [ "$verbose" = "0" ] ; then
 		flags="$flags --quiet"
 	    fi
+	    if [ "$dsc" = "NONE" ] ; then
+		continue
+	    fi
 	    if ! $bindir/extract-source $flags "$package" "$version" "$dsc" "$dest" ; then
 		warn "failed to extract package '$package' '$version'"
 	    fi

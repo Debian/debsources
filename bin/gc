@@ -36,11 +36,6 @@ if [ -z "$srclist" -o ! -f "$srclist" ] ; then
     err "Usage: extract-all SOURCES_LIST" 3
 fi
 
-expire_args=""
-if [ "$expire_days" -gt 0 ] ; then
-    expire_args="-ctime +${expire_days}"
-fi
-
 garbage_collect() {
     stats_init "gc" ""
     # ASSUMPTION: pool structure $root/sources/{main,contrib,non-free,...}/HASH/PACKAGE
@@ -50,17 +45,14 @@ garbage_collect() {
     while read pkgdir ; do
 	stats_tick
 	local pkg=$(basename "$pkgdir")
-	if ! grep -q "^${pkg}[[:blank:]]" "$srclist" ; then	# pkg no longer referenced
-	    local oldish_dir=$(find "$pkgdir" -maxdepth 0 "$expire_args" | head -n1)
-	    if [ -n "$oldish_dir" ] ; then	# pkg older than expiry date
-		# completely remove disappeared package
-		info "gc: rm ${pkg}"
-		if [ "$dry_run" != "yes" ] ; then
-		    rm -rf "$pkgdir"
-		fi
+	if ! grep -q "^${pkg}[[:blank:]]" "$srclist" ; then
+	    # completely remove disappeared package
+	    info "gc: rm ${pkg}"
+	    if [ "$dry_run" != "yes" ] ; then
+		rm -rf "$pkgdir"
 	    fi
 	else
-	    find "$pkgdir" -mindepth 1 -maxdepth 1 -type d $expire_args | \
+	    find "$pkgdir" -mindepth 1 -maxdepth 1 -type d | \
 	    while read versiondir ; do
 		local version=$(basename "$versiondir")
 		if ! grep -q "^${pkg}[[:blank:]]${version}" "$srclist" ; then

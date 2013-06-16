@@ -24,11 +24,11 @@
 # - PACKAGE is the source package name
 # - VERSION is the source version
 # - AREA is the archive area of origin, i.e. one of main, contrib, non-free
-# - DSC is the absolute path to the package .dsc in the source mirror
+# - DSC is the absolute path to the package .dsc in the source mirror.  DSC can
+#   have the special value "NONE" for source packages that exist in the local
+#   debsources instance, but are no longer part of the local source mirror
+#   (i.e. disappeared packages not yet expired).
 # - DEST is the absolute path to the package unpacking directory
-#
-# By default, only list the tuples corresponding to the most recent packages,
-# according to the version. Pass --all to list all entries.
 
 # Depends: dctrl-tools
 
@@ -36,11 +36,9 @@ root="/srv/debsources"
 source "$root/etc/config.sh"
 source "$root/bin/lib.sh"
 
-list_all="no"
-
-if [ "$1" = "-a" -o "$1" = "--all" ] ; then
-    shift
-    list_all="yes"
+expire_args=""
+if [ "$expire_days" -gt 0 ] ; then
+    expire_args="-ctime -${expire_days}"
 fi
 
 parse_dsc() {
@@ -60,33 +58,61 @@ emit() {
     echo -e "$package\\t$version\\t$area\\t$dsc\\t$dest"
 }
 
-# find "$mirror_dir/dists/unstable/contrib" -type f -name Sources.gz |
+# list source packages available from the local mirror. Some of it might have
+# already been extracted in debsources dir, some might still need to
+list_mirror() {
+    # find "$mirror_dir/dists/unstable/contrib" -type f -name Sources.gz |
+    src_indexes=$(find "$mirror_dir/dists/" -type f -name Sources.gz)
 
-src_indexes=$(find "$mirror_dir/dists/" -type f -name Sources.gz)
+    zcat $src_indexes | \
+    grep-dctrl -s Package,Version,Directory,Files '' - | \
+    {
+	while read _key package ; do   # line "Package: foo\n"
+            read _key version          # line "Version: 1.2-3\n"
+            read _key directory        # line "Directory: pool/main/h/hello\n"
+            read _key                  # line "Files:\n"
+            parse_dsc
 
-zcat $src_indexes | \
-sort-dctrl -k Package,Version:vr | \
-grep-dctrl -s Package,Version,Directory,Files '' - | \
-{
-    prev_package=""
-    prev_version=""
-    while read _key package ; do   # line "Package: foo\n"
-        read _key version          # line "Version: 1.2-3\n"
-        read _key directory        # line "Directory: pool/main/h/hello\n"
-        read _key                  # line "Files:\n"
-        parse_dsc
-        dest="$sources_dir/${directory#*/}/$version"
-	area="${directory#*/}"
-	area="${area%%/*}"
-	if [ "$package" != "$prev_package" ]; then
-	    # first of his name, i.e. most recent
+            dest="$sources_dir/${directory#*/}/$version"
+	    area="${directory#*/}"
+	    area="${area%%/*}"
+
 	    emit
-        elif [ "$list_all" = "yes" -a "$version" != "$prev_version" ] ; then
-	    # emit all versions, as requested, but suppress duplicates
-	    emit
-        fi
-        prev_package="$package"
-        prev_version="$version"
+	done
+    }
+}
+
+# list source packages available in the local debsources dir, via extractions
+# done in the past, excluding expired entries
+list_debsources() {
+    local mirror_list="$1"
+    find "$sources_dir" -mindepth 4 -maxdepth 4 -type d $expire_args | \
+    while read path ; do	# line "/srv/debsources/sources/contrib/s/sauerbraten/0.0.20100728.dfsg+repack-3"
+	if grep -q "[[:blank:]]${path}\$" "$mirror_list" ; then
+	    # source package already listed as part of the local mirror, skip
+	    continue
+	fi
+
+	# ASSUMPTION: $sources_dir comes with no trailing slash
+	local_dir=${path#$sources_dir/}	# "contrib/s/sauerbraten/0.0.20100728.dfsg+repack-3"
+
+	package=$(echo $local_dir | cut -f 3 -d/)
+	version=$(echo $local_dir | cut -f 4 -d/)
+	area=$(echo $local_dir | cut -f 1 -d/)
+	dsc="NONE"
+	dest="$path"
+
+	emit
     done
 }
 
+list() {
+    list_m=$(mktemp --tmpdir debsources.XXXXXXXXXX)
+    list_d=$(mktemp --tmpdir debsources.XXXXXXXXXX)
+    trap "rm -f $list_m $list_d" EXIT
+    list_mirror > $list_m
+    list_debsources $list_m > $list_d
+    cat $list_m $list_d | sort -u
+}
+
+list

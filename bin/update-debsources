@@ -37,7 +37,7 @@ list_sources() {
 
     # note: no risk of race here, thanks to $lockfile
     sources_list_new="${sources_list}.new"
-    if ! $bindir/list-sources --all > "${sources_list_new}" ; then
+    if ! $bindir/list-sources > "${sources_list_new}" ; then
 	err "cannot list available source packages. Abort." 2
     fi
     chmod 664 "${sources_list_new}"

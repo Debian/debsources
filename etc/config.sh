@@ -17,6 +17,7 @@ mirror_sections="main,contrib,non-free"
 mirror_dir="/srv/debian-mirror"
 
 # Directories where extracted Debian source packages will be put.
+# No trailing slash.
 sources_dir="$root/sources"
 
 # Local cache of available source packages
