@@ -1,17 +1,5 @@
 #    -*- mode: org -*-
 
-* TODO file type auto detection is not reliable			:web:hilight:
-  More often than note, highlight.js auto detection of the appropriate syntax
-  to use doesn't work. Should we rather switch it off (i.e. use "no-highlight"
-  by default everywhere), and set an explicit class only for the regexp based
-  matches? After all:
-  1. to support 99% of the common needs it is enough to have a relatively low
-     number or regexs, and
-  2. we /already have/ most of those regexs in the configuration anyhow, to
-     account for false matches
-  all in all, it seems that the remaining uses of autodetection are more a
-  trouble than what they're useful for
-
 * TODO integrate prefix generation into cron jobs		       :cron:
   - currently it needs ad-hoc runs
   - also: it currently generates a python module outside /cache, which breaks

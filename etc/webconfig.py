@@ -53,9 +53,6 @@ HIGHLIGHT_CLASSES = [
     ("diff", [r'\.patch$', r'\.diff$']),
     ("bash", [r'\.sh$']),
     ("tex", [r'\.tex$']),
-    ("no-highlight", [r'\.txt$', r'/README$', r'/TODO$', r'/BUGS$',
-                      r'Makefile', r'makefile',
-                      r'debian/rules$']),
     ]
 
 # strings which will be searched in the mime type of a file to determine
