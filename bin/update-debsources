@@ -51,7 +51,7 @@ extract_sources() {
 }
 
 garbage_collect() {
-    # extract all source packages
+    # get rid of disappeared and expired packages
     local srclist="$1"
     info "update-debsources: garbage collection..."
     ${root}/bin/gc "$srclist"
