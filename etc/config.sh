@@ -12,7 +12,7 @@ gid="debsources"
 bindir="${root}/bin"
 
 # Source mirror configuration
-mirror_host="ftp.fr.debian.org"
+mirror_host="ftp.de.debian.org"
 mirror_suites="stable,testing,unstable,experimental"
 mirror_sections="main,contrib,non-free"
 
