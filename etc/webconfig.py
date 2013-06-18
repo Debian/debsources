@@ -10,7 +10,7 @@ import os, re
 
 # the domain of the webapp, used in documentation:
 DOMAIN = "sources.debian.net"
-GITWEB_URL = "http://git.upsilon.cc/?p=debsources.git"
+GITWEB_URL = "http://anonscm.debian.org/gitweb/?p=qa/debsources.git"
 
 # the secret key for session signing:
 # SECRET_KEY = 'some_hash' # not in use
