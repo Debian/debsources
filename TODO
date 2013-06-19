@@ -46,3 +46,13 @@
   ..in a more general configuration variable in etc/webconfig.py. Similar to
   HIGHLIGHT_CLASSES, although we probably don't need regex for exclusions. See
   http://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=web/flask/app/models_app.py;hb=HEAD#l166
+
+* TODO link to package VCS					  :web:links:
+  On Wed, Jun 19, 2013 at 05:13:18PM +0200, Martin Quinson wrote:
+  > It would be good to have a link to the VCS somewhere on the interface. I
+  > know I can find it through the PTS, but that could be more straightforward,
+  > maybe.
+  Issue here: good balance between functionalities and redoing stuff already
+  done elsewhere, and in particular in the PTS.
+  Idea: maybe we can exploit the forthcoming PTS REST interface and load this
+  kind of info AJAX-ly?
