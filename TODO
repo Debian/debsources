@@ -1,5 +1,18 @@
 #    -*- mode: org -*-
 
+* TODO push update						      :infra:
+  - best option in terms of bandwidth is ftp.de.d.o
+  - need to figure out how to ssh into the machine (via the jumphost) w/o
+    having a dedicated INRIA account
+
+* TODO add other suites/archives				      :infra:
+  #debian-qa 18:05 < pabs> zack: [...] what about oldstable, experimental,
+  -backports, -updates and the security archive?
+
+* TODO more friendly about/contribute page			    :web:doc:
+  the footer is fine, but information in there deserve to be more prominent
+
+* TODO Git commit notifications to #debian-qa			    :dev:irc:
 * TODO integrate prefix generation into cron jobs		       :cron:
   - currently it needs ad-hoc runs
   - also: it currently generates a python module outside /cache, which breaks
