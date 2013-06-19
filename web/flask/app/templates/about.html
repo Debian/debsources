@@ -35,13 +35,15 @@
 <h3>Acknowledgements</h3>
 
 <ul>
-  <li>all debsources
-    <a href="http://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD"><b>contributors</b></a>,
+  <li>all Debsources
+    <a href="http://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD"><b>contributors</b></a>
     for their work</li>
-  <li><img src="{{ url_for('static', filename='img/irill.png') }}" alt="IRILL" />,
+  <li><a href="http://www.irill.org"><img style="vertical-align: middle;"
+         src="{{ url_for('static', filename='img/irill.png') }}" alt="IRILL" /></a>
     for offering both the server and the hosting facilities that power
-    {{ config.DOMAIN }}</a></li>
+    <a href="http://{{config.DOMAIN}}">{{ config.DOMAIN }}</a></li>
 </ul>
+<em>Thank you!</em>
 
 
 {% endblock %}
