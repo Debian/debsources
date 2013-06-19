@@ -40,7 +40,7 @@ HIGHLIGHT_CLASSES = [
     ("scala", [r'\.scala$']),
     ("go", [r'\.go$']),
     ("xml", [r'\.xml$']),
-    # we let hl.js distinguish django and html (both .html)
+    ("django", [r'\.htm$', r'\.html$']),
     ("markdown", [r'\.md$']),
     ("css", [r'\.css$']),
     ("json", [r'\.json$']),
