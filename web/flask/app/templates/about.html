@@ -13,6 +13,35 @@
 
 <h2>{{ self.title() }}</h2>
 
-Coming soon.
+
+<h3>Development</h3>
+
+<ul>
+  <li>source code is available via <a href="http://git-scm.com/"><b>Git</b></a>:
+    <kbd>git clone git://anonscm.debian.org/qa/debsources.git</kbd></li>
+  <li>the Git repository is also available via
+    <a href="{{ config.GITWEB_URL }}"><b>Gitweb</b></a></li>
+  <li>please report <b>bugs</b> via mail at
+    <a href="mailto:info@{{ config.DOMAIN }}">info@{{ config.DOMAIN }}</a>,
+    after checking that your issue isn't already listed in the
+    <a href="{{ config.GITWEB_URL }};a=blob;f=TODO;hb=HEAD">TODO file</a></li>
+  <li>for Debsources discussions please use the
+    <a href="https://lists.debian.org/debian-qa/">debian-qa <b>mailing
+	list</b></a> and the <kbd>#debian-qa</kbd> <b>IRC channel</b> on
+    <a href="http://www.oftc.net/">OFTC</a></li>
+</ul>
+
+
+<h3>Acknowledgements</h3>
+
+<ul>
+  <li>all debsources
+    <a href="http://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD"><b>contributors</b></a>,
+    for their work</li>
+  <li><img src="{{ url_for('static', filename='img/irill.png') }}" alt="IRILL" />,
+    for offering both the server and the hosting facilities that power
+    {{ config.DOMAIN }}</a></li>
+</ul>
+
 
 {% endblock %}
