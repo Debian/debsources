@@ -23,59 +23,83 @@
 
 <h3>Search</h3>
 
-You can simply point a search query with the following URL:
-<span class="url">{{ url_prefix
-  }}/search/<strong>query</strong></span>
-<a href="{{ url_prefix }}/search/hello">See example</a>
+<p>
+  You can simply point a search query with the following URL:
+  <span class="url">{{ url_prefix
+    }}/search/<strong>query</strong></span>
+  <a href="{{ url_prefix }}/search/hello">See example</a>
+</p>
 
 <h3>Package list</h3>
 
 <h4>Alphabetically</h4>
 
-<span class="url">{{ url_prefix }}/list/<strong>INT</strong></span>
-<a href="{{ url_prefix }}/list/8">See example</a>
+<p>
+  <span class="url">{{ url_prefix }}/list/<strong>INT</strong></span>
+  <a href="{{ url_prefix }}/list/8">See example</a>
+</p>
 
 <h4>By prefix</h4>
 
-<span class="url">{{ url_prefix
-  }}/prefix/<strong>prefix</strong></span>
-<a href="{{ url_prefix }}/prefix/libz">See example</a>
+<p>
+  <span class="url">{{ url_prefix
+    }}/prefix/<strong>prefix</strong></span>
+  <a href="{{ url_prefix }}/prefix/libz">See example</a>
+</p>
 
 <h3>Package versions</h3>
 
-You can list the different versions of a package, accessing this URL:
-<span class="url">{{ url_prefix
-  }}/src/<strong>packagename</strong>/</span>
-<a href="{{ url_prefix }}/src/ocaml">See example</a>
+<p>
+  You can list the different versions of a package, accessing this URL:
+  <span class="url">{{ url_prefix
+    }}/src/<strong>packagename</strong></span>
+  <a href="{{ url_prefix }}/src/ocaml">See example</a>
+</p>
+
 
 <h3>Navigation within a package</h3>
 
-You can list the files in a package or in a particular folder of a
-package, accessing one of these URLs:
-<span class="url">{{ url_prefix
-  }}/src/<strong>packagename</strong>/<strong>version</strong>/</span>
-<a href="{{ url_prefix }}/src/cowsay/3.03%2Bdfsg1-4">See example</a>
+<p>
+  You can list the files in a package or in a particular folder of a
+  package, accessing one of these URLs:
+  <span class="url">{{ url_prefix
+    }}/src/<strong>packagename</strong>/<strong>version</strong></span>
+  or:
+  <span class="url">{{ url_prefix
+    }}/api/src/<strong>packagename</strong>/latest</span>
+  to use automatically the latest available version of the package.
+  <br />
+  <a href="{{ url_prefix }}/src/cowsay/3.03%2Bdfsg1-4">See example</a>
+</p>
 
-<span class="url">{{ url_prefix
-  }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/dir</strong></span>
-<a href="{{ url_prefix }}/src/cowsay/3.03%2Bdfsg1-4/cows">See example</a>
+<p>
+  <span class="url">{{ url_prefix
+    }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/dir</strong></span>
+  <a href="{{ url_prefix }}/src/cowsay/3.03%2Bdfsg1-4/cows">See
+  example</a>
+</p>
 
 <h3>Source code displaying</h3>
 
-To simply display a source file:
-<span class="url">{{ url_prefix
-  }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong></span>
-<a href="{{ url_prefix }}/src/cowsay/3.03%2Bdfsg1-4/cowsay">See example</a>
-<br />
+<p>
+  To simply display a source file:
+  <span class="url">{{ url_prefix
+    }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong></span>
+  <a href="{{ url_prefix }}/src/cowsay/3.03%2Bdfsg1-4/cowsay">See example</a>
+</p>
 
-To point a specific line in a source file:
-<span class="url">{{ url_prefix
-  }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong>#L<strong>INT</strong></span>
-<a href="{{ url_prefix }}/src/cowsay/3.03%2Bdfsg1-4/cowsay#L37">See example</a>
-<br />
+<p>
+  To point a specific line in a source file:
+  <span class="url">{{ url_prefix
+    }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong>#L<strong>INT</strong></span>
+  <a href="{{ url_prefix }}/src/cowsay/3.03%2Bdfsg1-4/cowsay#L37">See example</a>
+</p>
 
-To use with options:
-<span class="url">{{ url_prefix }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong>?<strong>opt1</strong>=<strong>val1</strong>&<strong>opt2</strong>=<strong>val2</strong>[...]#L<strong>INT</strong></span>
+<p>
+  To use with options:
+  <span class="url">{{ url_prefix
+  }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong>?<strong>opt1</strong>=<strong>val1</strong>&<strong>opt2</strong>=<strong>val2</strong>[...]#L<strong>INT</strong></span>
+</p>
 
 <h4>Available options</h4>
 <ul>
@@ -83,6 +107,7 @@ To use with options:
   <li><strong>msg=5:title:message</strong> -- adds a popup message near line 5 (the title cannot contain the ':' symbol)</li>
 </ul>
 
-<a href="{{ url_prefix }}/src/cowsay/3.03%2Bdfsg1-4/cowsay?hl=22:28&msg=22:Cowsay:See?%20Cowsay%20variables%20are%20declared%20here.#L22">See complete example</a>
-
+<p>
+  <a href="{{ url_prefix }}/src/cowsay/3.03%2Bdfsg1-4/cowsay?hl=22:28&msg=22:Cowsay:See?%20Cowsay%20variables%20are%20declared%20here.#L22">See complete example</a>
+</p>
 {% endblock %}
