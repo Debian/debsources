@@ -23,9 +23,8 @@
 # Options:
 #     -q/--quiet    suppress all (non-error) output
 
-root="/srv/debsources"
-source "$root/etc/config.sh"
-source "$root/bin/lib.sh"
+source "/srv/debsources/etc/config.sh"
+source "${root}/bin/lib.sh"
 
 if [ "$1" = "-q" -o "$1" = "--quiet" ] ; then
     shift

@@ -19,9 +19,8 @@
 
 # Depends: apache2-utils (for httxt2dbm)
 
-root="/srv/debsources"
-source "$root/etc/config.sh"
-source "$root/bin/lib.sh"
+source "/srv/debsources/etc/config.sh"
+source "${root}/bin/lib.sh"
 
 export PATH="$PATH:/usr/sbin"	# httxt2dbm (currently) lives in sbin
 
@@ -52,7 +51,7 @@ extract_sources() {
 }
 
 garbage_collect() {
-    # extract all source packages
+    # get rid of disappeared and expired packages
     local srclist="$1"
     info "update-debsources: garbage collection..."
     ${root}/bin/gc "$srclist"
