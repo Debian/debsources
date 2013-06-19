@@ -90,7 +90,11 @@ class DebsourcesTestCase(unittest.TestCase):
     def test_errors(self):
         rv = json.loads(self.app.get('/api/src/blablabla').data)
         assert rv['error'] == 404
+        
+    def test_latest(self):
+        rv = json.loads(self.app.get('/api/src/0ad/latest',
+                                     follow_redirects=True).data)
+        assert "0.0.13-2" in rv['path']
 
 if __name__ == '__main__':
-    already_setup = False
     unittest.main()

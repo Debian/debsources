@@ -338,6 +338,15 @@ class SourceView(GeneralView):
                 # sorted list (by debian_support.version_compare)
                 version = sorted([v.vnumber for v in versions],
                                  cmp=version_compare)[-1]
+                
+                # avoids extra '/' at the end
+                if path == "":
+                    redirect = '/'.join([package, version])
+                else:
+                    redirect = '/'.join([package, version, path])
+                # finally we tell the render function to redirect
+                return dict(redirect=redirect)
+            
             
             try:
                 location = Location(package, version, path)
@@ -377,6 +386,12 @@ class SourceView(GeneralView):
 
 def render_source_file_html(**kwargs):
     """ preprocess useful variables for the html templates """
+    
+    # if it's a redirection (e.g. triggered by /src/latest/*)
+    if 'redirect' in kwargs.keys():
+        return redirect(url_for('source_html',
+                                path_to=kwargs['redirect']))
+                        
     if kwargs['type'] == "package":
         # we simply add pathl (for use with "You are here:")
         return render_template(
@@ -432,6 +447,14 @@ def render_source_file_html(**kwargs):
             **kwargs
             )
 
+def render_source_file_json(**kwargs):
+    # if it's a redirection (e.g. triggered by /src/latest/*)
+    if 'redirect' in kwargs.keys():
+        return redirect(url_for('source_json',
+                                path_to=kwargs['redirect']))
+    else:
+        return jsonify(**kwargs)
+
 # PACKAGE/FOLDER/FILE ROUTING (HTML)
 app.add_url_rule('/src/<path:path_to>', view_func=SourceView.as_view(
         'source_html',
@@ -442,6 +465,6 @@ app.add_url_rule('/src/<path:path_to>', view_func=SourceView.as_view(
 # PACKAGE/FOLDER/FILE ROUTING (JSON)
 app.add_url_rule('/api/src/<path:path_to>', view_func=SourceView.as_view(
         'source_json',
-        render_func=jsonify,
+        render_func=render_source_file_json,
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
         ))
