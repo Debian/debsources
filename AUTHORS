@@ -28,3 +28,11 @@ making Debsources feel part of the broader Debian ecosystem:
 * Paul Wise
 
 Thank you!
+
+
+sources.debian.net
+------------------
+
+The instance of Debsources available at http://sources.debian.net (indexing the
+main Debian archive) is currently hosted at [IRILL](http://www.irill.org/) who
+has kindly offered server, bandwidth, and physical space for it. Thanks!
