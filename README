@@ -9,6 +9,7 @@ libapache2-mod-wsgi
 tango-icon-theme
 libjs-highlight
 python-magic
+python-debian
 
 * Pip packages:
 

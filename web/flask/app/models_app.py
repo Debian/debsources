@@ -32,6 +32,20 @@ class Package_app(models.Package, db.Model):
         """
         return packages_prefixes
     
+    @staticmethod
+    def list_versions_from_name(packagename):
+         try:
+             package_id = Package_app.query.filter(
+                 Package_app.name==packagename).first().id
+         except Exception as e:
+             raise InvalidPackageOrVersionError(packagename)
+         try:
+             versions = Version_app.query.filter(
+                 Version_app.package_id==package_id).all()
+         except Exception as e:
+             raise InvalidPackageOrVersionError(packagename)
+         return versions
+    
     def to_dict(self):
         """
         simply serializes a package (because SQLAlchemy query results

@@ -20,6 +20,9 @@ from flask import render_template, redirect, url_for, request, safe_join, \
     jsonify
 from flask.views import View
 
+from debian.debian_support import version_compare
+
+
 from app import app
 from models_app import Package_app, Version_app, Location, Directory, \
     SourceFile, InvalidPackageOrVersionError, FileOrFolderNotFound
@@ -309,16 +312,10 @@ class SourceView(GeneralView):
         if len(path_dict) == 1: # package, we list the versions
             package = path_dict[0]
             try:
-                package_id = Package_app.query.filter(
-                    Package_app.name==package).first().id
-            except Exception as e:
-                raise Http404Error(e)
-            try:
-                versions = Version_app.query.filter(
-                    Version_app.package_id==package_id).all()
-            except Exception as e:
-                raise Http404Error(e)
-        
+                versions = Package_app.list_versions_from_name(package)
+            except InvalidPackageOrVersionError:
+                raise Http404Error("%s not found" % package)
+            
             versions = [v.to_dict() for v in versions]
         
             return dict(type="package",
@@ -326,10 +323,21 @@ class SourceView(GeneralView):
                         versions=versions,
                         path=path_to,
                         pts_link=pts_link)
+        
         else: # folder or file
             package = path_dict[0]
             version = path_dict[1]
             path = '/'.join(path_dict[2:])
+            
+            if version == "latest": # we search the latest available version
+                try:
+                    versions = Package_app.list_versions_from_name(package)
+                except InvalidPackageOrVersionError:
+                    raise Http404Error("%s not found" % package)
+                # the latest version is the latest item in the
+                # sorted list (by debian_support.version_compare)
+                version = sorted([v.vnumber for v in versions],
+                                 cmp=version_compare)[-1]
             
             try:
                 location = Location(package, version, path)
