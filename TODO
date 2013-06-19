@@ -41,3 +41,8 @@
 * TODO check symlink dereferencing                             :web:security:
   if it's outside of the pakage -> 403 error
   inside the package -> redirect appropriately
+
+* TODO .pc/ exclusion should become a configuration entry      :web:browsing:
+  ..in a more general configuration variable in etc/webconfig.py. Similar to
+  HIGHLIGHT_CLASSES, although we probably don't need regex for exclusions. See
+  http://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=web/flask/app/models_app.py;hb=HEAD#l166
