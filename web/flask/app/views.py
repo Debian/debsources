@@ -299,6 +299,107 @@ app.add_url_rule('/api/prefix/<prefix>/', view_func=PrefixView.as_view(
 ### SOURCE (packages, versions, folders, files) ###
 
 class SourceView(GeneralView):
+    def _get_pts_link(self, packagename):
+        """
+        returns an URL for packagename in the Debian Package Tracking System
+        """
+        pts_link = app.config['PTS_PREFIX'] + packagename
+        pts_link = url_quote(pts_link) # for '+' symbol in Debian package names
+        return pts_link
+    
+    def _render_package(self, packagename, path_to):
+        """
+        renders the package page (which lists available versions)
+        """
+        # we list the versions
+        try:
+            versions = Package_app.list_versions_from_name(packagename)
+        except InvalidPackageOrVersionError:
+            raise Http404Error("%s not found" % packagename)
+            
+        versions = [v.to_dict() for v in versions]
+        
+        return dict(type="package",
+                    package=packagename,
+                    versions=versions,
+                    path=path_to,
+                    pts_link=self._get_pts_link(packagename))
+    
+    def _render_location(self, package, version, path):
+        """
+        renders a location page, can be a folder or a file
+        """
+        try:
+            location = Location(package, version, path)
+        except FileOrFolderNotFound as e:
+            raise Http404Error(e)
+        except InvalidPackageOrVersionError as e:
+            raise Http404Error(e)
+        
+        # if the location is a symbolic link, we 403 (for security reasons)
+        if location.issymlink():
+            raise Http403Error("Symbolic folder or file")
+        
+        if location.is_dir(): # folder, we list its content
+            return self._render_directory(location)
+            
+        elif location.is_file(): # file
+            return self._render_file(location)
+        
+        else: # doesn't exist
+            raise Http404Error(None)
+        
+    def _render_directory(self, location):
+        """
+        renders a directory, lists subdirs and subfiles
+        """
+        directory = Directory(location, toplevel=(location.get_path() == ""))
+        
+        # (if path == "", then the dir is toplevel, and we don't want
+        # the .pc directory)
+        return dict(type="directory",
+                    directory=location.get_deepest_element(),
+                    content=directory.get_listing(),
+                    path=location.get_path_to(),
+                    pts_link=self._get_pts_link(location.get_package()))
+    
+    def _render_file(self, location):
+        """
+        renders a file
+        """
+        file_ = SourceFile(location)
+            
+        return dict(type="file",
+                    file=location.get_deepest_element(),
+                    mime=file_.get_mime(),
+                    raw_url=file_.get_raw_url(),
+                    path=location.get_path_to(),
+                    text_file=file_.istextfile(app.config['TEXT_FILE_MIMES']),
+                    pts_link=self._get_pts_link(location.get_package()))
+    
+    def _handle_latest_version(self, package, path):
+        """
+        redirects to the latest version for the requested page,
+        when 'latest' is provided instead of a version number
+        """
+        try:
+            versions = Package_app.list_versions_from_name(package)
+        except InvalidPackageOrVersionError:
+            raise Http404Error("%s not found" % package)
+        # the latest version is the latest item in the
+        # sorted list (by debian_support.version_compare)
+        version = sorted([v.vnumber for v in versions],
+                         cmp=version_compare)[-1]
+        
+        # avoids extra '/' at the end
+        if path == "":
+            redirect = '/'.join([package, version])
+        else:
+            redirect = '/'.join([package, version, path])
+        
+        # finally we tell the render function to redirect
+        return dict(redirect=redirect)
+    
     def get_objects(self, path_to):
         """
         determines if the dealing object is a package/folder/source file
@@ -309,24 +410,8 @@ class SourceView(GeneralView):
         """
         path_dict = path_to.split('/')
         
-        # in all cases, the PTS link is created
-        pts_link = app.config['PTS_PREFIX'] + path_dict[0]
-        pts_link = url_quote(pts_link) # for '+' symbol in Debian package names
-
-        if len(path_dict) == 1: # package, we list the versions
-            package = path_dict[0]
-            try:
-                versions = Package_app.list_versions_from_name(package)
-            except InvalidPackageOrVersionError:
-                raise Http404Error("%s not found" % package)
-            
-            versions = [v.to_dict() for v in versions]
-        
-            return dict(type="package",
-                        package=package,
-                        versions=versions,
-                        path=path_to,
-                        pts_link=pts_link)
+        if len(path_dict) == 1: # package
+            return self._render_package(path_dict[0], path_to)
         
         else: # folder or file
             package = path_dict[0]
@@ -334,59 +419,9 @@ class SourceView(GeneralView):
             path = '/'.join(path_dict[2:])
             
             if version == "latest": # we search the latest available version
-                try:
-                    versions = Package_app.list_versions_from_name(package)
-                except InvalidPackageOrVersionError:
-                    raise Http404Error("%s not found" % package)
-                # the latest version is the latest item in the
-                # sorted list (by debian_support.version_compare)
-                version = sorted([v.vnumber for v in versions],
-                                 cmp=version_compare)[-1]
-                
-                # avoids extra '/' at the end
-                if path == "":
-                    redirect = '/'.join([package, version])
-                else:
-                    redirect = '/'.join([package, version, path])
-                # finally we tell the render function to redirect
-                return dict(redirect=redirect)
-            
-            
-            try:
-                location = Location(package, version, path)
-            except FileOrFolderNotFound as e:
-                raise Http404Error(e)
-            except InvalidPackageOrVersionError as e:
-                raise Http404Error(e)
-
-            # if the location is a symbolic link, we 404 (for security reasons)
-            if location.issymlink():
-                raise Http403Error("Symbolic folder or file")
-            
-            if location.is_dir(): # folder, we list its content
-                directory = Directory(location, toplevel=(path == ""))
-                # (if path == "", then the dir is toplevel, and we don't want
-                # the .pc directory)
-                return dict(type="directory",
-                            directory=path_dict[-1],
-                            content=directory.get_listing(),
-                            path=path_to,
-                            pts_link=pts_link)
-            
-            elif location.is_file(): # file
-                file_ = SourceFile(location)
-                
-                return dict(type="file",
-                            file=path_dict[-1],
-                            mime=file_.get_mime(),
-                            raw_url=file_.get_raw_url(),
-                            path=path_to,
-                            text_file=file_.istextfile(
-                                   app.config['TEXT_FILE_MIMES']),
-                            pts_link=pts_link)
-        
-            else: # doesn't exist
-                raise Http404Error(None)
+                return self._handle_latest_version(package, path)
+            else:
+                return self._render_location(package, version, path)
 
 def render_source_file_html(**kwargs):
     """ preprocess useful variables for the html templates """

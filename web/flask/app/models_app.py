@@ -96,23 +96,26 @@ class Location(object):
         return os.path.join(varea, prefix)
             
     
-    def __init__(self, package, version="", path_to=""):
+    def __init__(self, package, version="", path=""):
         """ initialises useful attributes """
         debian_path = self._get_debian_path(package, version)
+        self.package = package
+        self.version = version
+        self.path = path
+        self.path_to = os.path.join(package, version, path)
         
         self.sources_path = os.path.join(
             app.config['SOURCES_FOLDER'],
             debian_path,
-            package, version,
-            path_to)
+            self.path_to)
+
         if not(os.path.exists(self.sources_path)):
-            raise FileOrFolderNotFound("%s %s %s" % (package, version, path_to))
+            raise FileOrFolderNotFound("%s" % (self.path_to))
         
         self.sources_path_static = os.path.join(
             app.config['SOURCES_STATIC'],
             debian_path,
-            package, version,
-            path_to)
+            self.path_to)
     
     def is_dir(self):
         """ True if self is a directory, False if it's not """
@@ -127,6 +130,29 @@ class Location(object):
         True if a folder/file is a symbolic link file, False if it's not
         """
         return os.path.islink(self.sources_path)
+    
+    def get_package(self):
+        return self.package
+    
+    def get_version(self):
+        return self.version
+    
+    def get_path(self):
+        return self.path
+    
+    def get_deepest_element(self):
+        if self.version == "":
+            return self.package
+        elif self.path == "":
+            return self.version
+        else:
+            return self.path.split("/")[-1]
+        
+    def get_path_to(self):
+        if self.path_to[-1] == "/":
+            return self.path_to[:-1]
+        else:
+            return self.path_to
 
     
     @staticmethod
