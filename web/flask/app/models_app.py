@@ -149,11 +149,7 @@ class Location(object):
             return self.path.split("/")[-1]
         
     def get_path_to(self):
-        if self.path_to[-1] == "/":
-            return self.path_to[:-1]
-        else:
-            return self.path_to
-
+        return self.path_to.rstrip("/")
     
     @staticmethod
     def get_path_links(endpoint, path_to):
