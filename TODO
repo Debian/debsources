@@ -1,5 +1,13 @@
 #    -*- mode: org -*-
 
+* TODO mime type handling					 :web:apache:
+  13:03 < jwilk> zack:
+  http://sources.debian.net/data/main/g/gcc-4.4/4.4.7-2/gcc-4.4.7-dfsg.tar.xz
+  is served with content-type text/plain, making my browser [iceweasel] sad.
+** it works with chromium, thought
+   although maybe it's just chromium trying to be smart, the mime type should
+   be fixed indeed
+
 * TODO push update						      :infra:
   - best option in terms of bandwidth is ftp.de.d.o
   - need to figure out how to ssh into the machine (via the jumphost) w/o
