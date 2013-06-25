@@ -78,6 +78,11 @@ update_db() {
     date --utc --rfc-2822 > "$timestamp_file"
 }
 
+update_stats() {
+    info "update-debsources: updating statistics..."
+    ${root}/bin/update-stats
+}
+
 main() {
     info "update-debsources: starting at $(date)"
 
@@ -107,6 +112,7 @@ main() {
     # do GC no matter what: even in case of no changes, we might need to expire
     # some (now) old content
     garbage_collect "$sources_list"
+    update_stats
 
     rm -f "$lockfile"
     info "update-debsources: all done at $(date)"

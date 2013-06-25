@@ -38,7 +38,7 @@ compute_size() {
     echo -e "size\t${size}" > "$raw_stats"
 }
 
-update_rrd () {
+update_rrd() {
     size=$(grep ^size $raw_stats | cut -f 2)
 
     if ! which $rrd > /dev/null ; then
@@ -60,12 +60,8 @@ update_rrd () {
 }
 
 main() {
-    info "update-stats: starting at $(date)"
-
     compute_size
     update_rrd
-
-    info "update-stats: all done at $(date)"
 }
 
-main >> $logfile 2>&1 || echo "update-stats returned non 0 exit code"
+main
