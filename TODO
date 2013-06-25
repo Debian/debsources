@@ -1,13 +1,5 @@
 #    -*- mode: org -*-
 
-* TODO mime type handling					 :web:apache:
-  13:03 < jwilk> zack:
-  http://sources.debian.net/data/main/g/gcc-4.4/4.4.7-2/gcc-4.4.7-dfsg.tar.xz
-  is served with content-type text/plain, making my browser [iceweasel] sad.
-** it works with chromium, thought
-   although maybe it's just chromium trying to be smart, the mime type should
-   be fixed indeed
-
 * TODO tarball-in-tarball 					  :infra:web:
   Explode nested tarballs, partly for some packaging habits still present in
   the archive (although they should die a horrible death), more importantly due
