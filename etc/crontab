@@ -10,3 +10,6 @@ DEBSRC=/srv/debsources
 # Extra run on Friday, for synchronization with codesearch.d.n, just in case
 # they grabbed versions we don't have yet.
 1   8          *   *   5   debian-mirror  $DEBSRC/bin/update-debsources
+
+# update stats, most notably: occupied disk space
+17  5          *   *   *   debian-mirror  $DEBSRC/bin/update-stats

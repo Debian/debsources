@@ -30,6 +30,11 @@ sources_dbm="${root}/cache/webredir.dbm"
 sources_sql="${root}/cache/sources.sqlite"
 timestamp_file="${root}/cache/last-update"
 
+# Statistics data
+raw_stats="${root}/cache/stats.data"
+rrd_data="${root}/cache/size.rrd"
+rrd_size_graph="${root}/cache/size.png"
+
 lockfile="${root}/ONGOING-UPDATE.pid"
 
 logfile="/var/log/debsources/debsources.log"

@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Copyright (C) 2011-2013  Stefano Zacchiroli <zack@upsilon.cc>
+#
+# This file is part of Debsources.
+#
+# Debsources is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+set -e
+
+source "/srv/debsources/etc/config.sh"
+source "${root}/bin/lib.sh"
+
+rrd="rrdtool"
+
+update_rrd () {
+    local $size="$1"
+
+    if ! which $rrd > /dev/null ; then
+	return
+    fi
+    if ! [ -f "$rrd_data" ] ; then
+	# take samples daily starting from now, then keep:
+	# - daily samples for 10 years
+        # - weekly samples for 20 years
+	$rrd create "$rrd_data" \
+	    --start $(date +%s) \
+	    --step 86400 \
+	    DS:size:GAUGE:86400:0:U \
+	    RRA:AVERAGE:0.5:1:3650 \
+	    RRA:AVERAGE:0.5:7:1040
+    fi
+    $rrd update "$rrd_data" $(date +%s):"$size"
+}
+
+main() {
+    info "update-stats: starting at $(date)"
+
+    size=$(du -s "$sources_dir" | cut -f 1)
+    echo -e "size\t${size}" > "$raw_stats"
+
+    update_rrd "$size"
+
+    info "update-stats: all done at $(date)"
+}
+
+main >> $logfile 2>&1 || echo "update-stats returned non 0 exit code"
