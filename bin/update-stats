@@ -25,17 +25,18 @@ source "${root}/bin/lib.sh"
 rrd="rrdtool"
 
 update_rrd () {
-    local $size="$1"
+    size=$(grep ^size $raw_stats | cut -f 2)
 
     if ! which $rrd > /dev/null ; then
 	return
     fi
     if ! [ -f "$rrd_data" ] ; then
-	# take samples daily starting from now, then keep:
+	# take samples daily starting from 1 second ago (to allow immediately
+	# injecting a data point), then keep:
 	# - daily samples for 10 years
         # - weekly samples for 20 years
 	$rrd create "$rrd_data" \
-	    --start $(date +%s) \
+	    --start $(( $(date +%s) - 1 )) \
 	    --step 86400 \
 	    DS:size:GAUGE:86400:0:U \
 	    RRA:AVERAGE:0.5:1:3650 \
