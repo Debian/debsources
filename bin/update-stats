@@ -45,16 +45,18 @@ update_rrd() {
 	return
     fi
     if ! [ -f "$rrd_data" ] ; then
-	# take samples daily starting from 1 second ago (to allow immediately
-	# injecting a data point), then keep:
+	# take samples 4 times a day starting from 1 second ago (to allow
+	# immediately injecting a data point), then keep:
+	# - 4 times a day for 1 year
 	# - daily samples for 10 years
         # - weekly samples for 20 years
 	$rrd create "$rrd_data" \
 	    --start $(( $(date +%s) - 1 )) \
-	    --step 86400 \
-	    DS:size:GAUGE:86400:0:U \
-	    RRA:AVERAGE:0.5:1:3650 \
-	    RRA:AVERAGE:0.5:7:1040
+	    --step 21600 \
+	    DS:size:GAUGE:21600:0:U \
+	    RRA:AVERAGE:0.5:1:1460 \
+	    RRA:AVERAGE:0.5:4:3650 \
+	    RRA:AVERAGE:0.5:28:1040
     fi
     $rrd update "$rrd_data" $(date +%s):"$size"
 }
