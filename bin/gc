@@ -54,7 +54,7 @@ garbage_collect() {
 	    find "$pkgdir" -mindepth 1 -maxdepth 1 -type d | \
 	    while read versiondir ; do
 		local version=$(basename "$versiondir")
-		if ! grep -q "^${pkg}[[:blank:]]${version}" "$srclist" ; then
+		if ! grep -q "^${pkg}[[:blank:]]${version}[[:blank:]]" "$srclist" ; then
 		    info "gc: rm ${pkg} ${version}"
 		    if [ "$dry_run" != "yes" ] ; then
 			rm -rf "$versiondir" "${versiondir}.log" "${versiondir}.done"
