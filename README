@@ -1,16 +1,32 @@
-Webapp dependencies:
+Dependencies
+============
 
-* Debian packages:
+Webapp
+------
 
-python-flask
-python-flaskext.wtf
-apache2
-libapache2-mod-wsgi
-tango-icon-theme
-libjs-highlight
-python-magic
-python-debian
+Debian packages:
 
-* Pip packages:
+- python-flask
+- python-flaskext.wtf
+- apache2
+- libapache2-mod-wsgi
+- tango-icon-theme
+- libjs-highlight
+- python-magic
+- python-debian
 
-flask-sqlalchemy
+Pip packages:
+
+- flask-sqlalchemy
+
+
+Infrastructure
+--------------
+
+(work in progress, likely incomplete)
+
+Debian packages:
+
+- apache2-utils
+- debmirror
+- rrdtool

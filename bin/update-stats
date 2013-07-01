@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# Copyright (C) 2011-2013  Stefano Zacchiroli <zack@upsilon.cc>
+#
+# This file is part of Debsources.
+#
+# Debsources is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+set -e
+
+source "/srv/debsources/etc/config.sh"
+source "${root}/bin/lib.sh"
+
+rrd="rrdtool"
+
+compute_size() {
+    # size=$(du -s "$sources_dir" | cut -f 1)
+
+    statfiles=$(mktemp --tmpdir debsources.XXXXXXXXXX)
+    trap "rm -f $statfiles" EXIT
+    find "$sources_dir" -mindepth 4 -maxdepth 4 -type f -name '*.stats' > $statfiles
+    size=0
+    while read f ; do
+	s=$(grep ^size "$f" | cut -f 2)
+	size=$(( $size + $s ))
+    done < $statfiles
+    echo -e "size\t${size}" > "$raw_stats"
+}
+
+update_rrd() {
+    size=$(grep ^size $raw_stats | cut -f 2)
+
+    if ! which $rrd > /dev/null ; then
+	return
+    fi
+    if ! [ -f "$rrd_data" ] ; then
+	# take samples 4 times a day starting from 1 second ago (to allow
+	# immediately injecting a data point), then keep:
+	# - 4 times a day for 1 year
+	# - daily samples for 10 years
+        # - weekly samples for 20 years
+	$rrd create "$rrd_data" \
+	    --start $(( $(date +%s) - 1 )) \
+	    --step 21600 \
+	    DS:size:GAUGE:21600:0:U \
+	    RRA:AVERAGE:0.5:1:1460 \
+	    RRA:AVERAGE:0.5:4:3650 \
+	    RRA:AVERAGE:0.5:28:1040
+    fi
+    $rrd update "$rrd_data" $(date +%s):"$size"
+}
+
+main() {
+    compute_size
+    update_rrd
+}
+
+main

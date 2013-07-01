@@ -11,6 +11,9 @@ gid="debsources"
 # Directories where debsources binaries can be found.
 bindir="${root}/bin"
 
+# Directories where (cached) debsources data can be found.
+cachedir="${root}/cache"
+
 # Source mirror configuration
 mirror_host="ftp.de.debian.org"
 mirror_suites="stable,testing,unstable,experimental"
@@ -24,11 +27,16 @@ mirror_dir="/srv/debian-mirror"
 sources_dir="${root}/sources"
 
 # Local cache of available source packages
-sources_list="${root}/cache/sources.txt"
-sources_map="${root}/cache/webredir.map"
-sources_dbm="${root}/cache/webredir.dbm"
-sources_sql="${root}/cache/sources.sqlite"
-timestamp_file="${root}/cache/last-update"
+sources_list="${cachedir}/sources.txt"
+sources_map="${cachedir}/webredir.map"
+sources_dbm="${cachedir}/webredir.dbm"
+sources_sql="${cachedir}/sources.sqlite"
+timestamp_file="${cachedir}/last-update"
+
+# Statistics data
+raw_stats="${cachedir}/stats.data"
+rrd_data="${cachedir}/size.rrd"
+rrd_size_graph="${cachedir}/size.png"
 
 lockfile="${root}/ONGOING-UPDATE.pid"
 
