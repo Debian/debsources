@@ -14,6 +14,7 @@ License: GNU Affero General Public License, version 3 or above.
 
 #codetable tr {
     width: 100%;
+    display: block;
 }
 
 #codetable, #codetable tbody {
