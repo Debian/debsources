@@ -29,12 +29,12 @@
   </div>
   <table id="codetable">
     <tr>
-      <td>
+      <td id="column1">
         <pre id="sourceslinenumbers">{% for i in range(1, nlines+1) -%}
           <a id="L{{ i }}" href="#L{{ i }}">{{ i }}</a><br />
           {%- endfor %}</pre>
       </td>
-      <td>
+      <td id="column2">
         <pre><code id="sourcecode" class="{% if file_language -%}
                       {{ file_language }}{% else %}no-highlight
                    {%- endif %}">{% for (line, highlight) in code -%}
@@ -44,7 +44,7 @@
             {%- endif %}
         {%- endfor %}</code></pre>
       </td>
-      <td>
+      <td id="column3">
         <pre id="messages">{% if msg -%}
           {% for i in range(1, msg.position) -%}
             <br />
