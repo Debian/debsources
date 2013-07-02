@@ -82,3 +82,5 @@
 * TODO add security archive (?)					      :infra:
   to do so, we need to do a separate debmirror run, as the security archive is
   not hosted on the regular mirror network
+* TODO package debsources with python distribute 	      :web:packaging:
+  it will simple things like imports and the deployment would be easier
