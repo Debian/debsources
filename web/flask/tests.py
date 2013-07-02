@@ -7,7 +7,8 @@ import json
 
 from app import app
 
-parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+thisdir = os.path.dirname(os.path.abspath(__file__))
+parentdir = os.path.dirname(thisdir)
 sys.path.insert(0,parentdir)
 from scripts import sources2db
 
@@ -32,7 +33,9 @@ class DebsourcesTestCase(unittest.TestCase):
         url = "sqlite:///" + os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             "tests/app.db")
-        sources2db.sources2db("tests/sources.txt", url,
+        sources2db.sources2db(os.path.join(thisdir,
+                                           "tests/sources.txt"),
+                              url,
                               drop=True, verbose=False)
         app.config['TESTING'] = True
         app.config['SQLALCHEMY_ECHO'] = False
