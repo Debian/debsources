@@ -16,7 +16,7 @@ cachedir="${root}/cache"
 
 # Source mirror configuration
 mirror_host="ftp.de.debian.org"
-mirror_suites="stable,testing,unstable,experimental"
+mirror_suites="oldstable,stable,testing,unstable,experimental"
 mirror_sections="main,contrib,non-free"
 
 # Directory where the Debian source mirror will be found.
