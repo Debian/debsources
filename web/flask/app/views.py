@@ -423,7 +423,7 @@ class SourceView(GeneralView):
             else:
                 return self._render_location(package, version, path)
 
-def render_source_file_html(**kwargs):
+def render_source_file_html(templatename, **kwargs):
     """ preprocess useful variables for the html templates """
     
     # if it's a redirection (e.g. triggered by /src/latest/*)
@@ -476,7 +476,7 @@ def render_source_file_html(**kwargs):
             sources_path, hl=highlight, msg=msg,)
         
         return render_template(
-            "source_file.html",
+            templatename,
             nlines=sourcefile.get_number_of_lines(),
             pathl=Location.get_path_links("source_html", kwargs['path']),
             file_language=sourcefile.get_file_language(
@@ -497,7 +497,8 @@ def render_source_file_json(**kwargs):
 # PACKAGE/FOLDER/FILE ROUTING (HTML)
 app.add_url_rule('/src/<path:path_to>', view_func=SourceView.as_view(
         'source_html',
-        render_func=render_source_file_html,
+        render_func=lambda **kwargs:
+                        render_source_file_html("source_file.html", **kwargs),
         err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
         ))
 
@@ -506,4 +507,12 @@ app.add_url_rule('/api/src/<path:path_to>', view_func=SourceView.as_view(
         'source_json',
         render_func=render_source_file_json,
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
+        ))
+
+# SOURCE FILE EMBEDDED ROUTING (HTML)
+app.add_url_rule('/embedded/<path:path_to>', view_func=SourceView.as_view(
+        'embedded_source_html',
+        render_func=lambda **kwargs:
+                render_source_file_html("source_file_embedded.html", **kwargs),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
         ))

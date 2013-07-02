@@ -90,6 +90,14 @@ class DebsourcesTestCase(unittest.TestCase):
         assert '<code id="sourcecode" class="cpp">' in rv.data
         assert 'size_t CNetStatsTable::GetNumberRows()' in rv.data
         
+    def test_source_file_embedded(self):
+        app.config['SOURCES_FOLDER'] = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "tests/sources")
+        rv = self.app.get('/embedded/0ad/0.0.13-2/NetStats.cpp')
+        assert '<code id="sourcecode" class="cpp">' in rv.data
+        assert 'size_t CNetStatsTable::GetNumberRows()' in rv.data
+        
     def test_errors(self):
         rv = json.loads(self.app.get('/api/src/blablabla').data)
         assert rv['error'] == 404
