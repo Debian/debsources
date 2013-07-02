@@ -21,16 +21,18 @@
             {%- endif %}
         {%- endfor %}</code></pre>
       </td>
+      {% if msg -%}
       <td id="column3">
-        <pre id="messages">{% if msg -%}
+        <pre id="messages">
           {% for i in range(1, msg.position) -%}
             <br />
             {%- endfor %}<div class="message">{% if msg.title -%}
               <strong>{{ msg.title }}</strong><br />
             {%- endif %}{% if msg.message -%}
               {{ msg.message }}
-            {%- endif %}</div>{%- endif %}</pre>
+            {%- endif %}</div></pre>
       </td>
+      {%- endif %}
     </tr>
   </table>
 </div>
