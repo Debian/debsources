@@ -87,8 +87,6 @@ ICONS_FOLDER = "/icons/Tango/"
 # (the package name will be concatenated)
 PTS_PREFIX = "http://packages.qa.debian.org/"
 
-### PROD ###
-
 # the root folder of the application, normally the "debsources" location:
 ROOT_FOLDER = "/srv/debsources/"
 
@@ -113,9 +111,3 @@ MODELS_FOLDER = os.path.join(ROOT_FOLDER, "web")
 
 # where the last-update is stored, to be displayed in the footer:
 LAST_UPDATE_FILE = os.path.join(ROOT_FOLDER, "cache/last-update")
-
-
-### DEV ###
-
-# DEBUG = True
-# SQLALCHEMY_ECHO = True
