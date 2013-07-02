@@ -468,6 +468,8 @@ def render_source_file_html(templatename, **kwargs):
             highlight = None
         try:
             msg = request.args.get('msg')
+            if msg == "":
+                msg = None # we don't want empty messages
         except (KeyError, ValueError, TypeError):
             msg = None
         
