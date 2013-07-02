@@ -30,9 +30,15 @@ class DebsourcesTestCase(unittest.TestCase):
     
     def setupClass(self):
         
-        url = "sqlite:///" + os.path.join(
+        global sqlite_file
+        sqlite_file = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             "tests/app.db")
+        
+        # for deleting it afterwards
+        #globals["sqlite_file"] = sqlite_file
+        
+        url = "sqlite:///" + sqlite_file
         sources2db.sources2db(os.path.join(thisdir,
                                            "tests/sources.txt"),
                               url,
@@ -108,4 +114,5 @@ class DebsourcesTestCase(unittest.TestCase):
         assert "0.0.13-2" in rv['path']
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(exit=False)
+    os.remove(sqlite_file)
