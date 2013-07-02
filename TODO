@@ -48,9 +48,6 @@
   should be feasible, if the mlocate database is to be believed. Maybe we
   should simply use it, making the indexing available *in* the VM?
 
-* TODO highlight.js is way slower				   :web:perf:
-  since it is retrieved from /javascript/highlight
-  
 * TODO replace etc/webconfig.py with a Python ini-like conffile	   :web:conf:
   Rationale: a Python module is dangerous and the only fancy functionality we
   need is interpolation, which is supported by ConfigParser. The relative
