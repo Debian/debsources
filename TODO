@@ -42,6 +42,7 @@
   as suggested in the LWN thread at https://lwn.net/Articles/557371/
 
 * TODO Git commit notifications to #debian-qa			    :dev:irc:
+
 * TODO integrate prefix generation into cron jobs		       :cron:
   - currently it needs ad-hoc runs
   - also: it currently generates a python module outside /cache, which breaks
@@ -85,5 +86,26 @@
 * TODO add security archive (?)					      :infra:
   to do so, we need to do a separate debmirror run, as the security archive is
   not hosted on the regular mirror network
+
 * TODO package debsources with python distribute 	      :web:packaging:
   it will simple things like imports and the deployment would be easier
+
+* TODO shutter effect					    :web:hilight:css:
+  When we highlight a line, we have to use a display:inline tag (whose
+  rendering isn't cool, because an highlighted block doesn't have the
+  same width verywhere). With a display:blog tag, newlines are added
+  by the browser/highlight.js (?), because tags conflicts with
+  highlight.js tags (when a hl.js lexem is multiline).
+  Try to highlight lines 3-4 of this to see the bug:
+
+  def hello():
+     """aaa
+     aaa
+     """ zzz = 3
+
+  Edit: the browser close tags automatically, and since our tags
+  aren't correct (ie
+  <span class="string"><div class="highlight">foo</span></div>
+  ), closing display:block tags are inserted.
+
+ Debugging: maybe with inline-block and other css tricks
