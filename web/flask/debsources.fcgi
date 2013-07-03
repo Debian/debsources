@@ -2,7 +2,7 @@
 
 # Debsources FastCGI entry point
 # for Apache, just use:
-# ScriptAlias / /path/to/debsources.fcgi
+# ScriptAlias / /path/to/debsources.fcgi/
 # in your conf
 
 from flup.server.fcgi import WSGIServer

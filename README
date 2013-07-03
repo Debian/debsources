@@ -6,15 +6,16 @@ Webapp
 
 Debian packages:
 
+- apache2
+- libapache2-mod-fcgid (for FastCGI deployment)
+- libapache2-mod-wsgi (for WSGI deployment)
+- libjs-highlight
+- python-debian
 - python-flask
 - python-flaskext.wtf
-- apache2
-- libapache2-mod-wsgi
-- tango-icon-theme
-- libjs-highlight
+- python-flup (for FastCGI deployment)
 - python-magic
-- python-debian
-- python-flusk, libapache2-mod-fcgid (only for FastCGI deployment)
+- tango-icon-theme
 
 Pip packages:
 
