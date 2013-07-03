@@ -53,7 +53,7 @@ update_rrd() {
 	$rrd create "$rrd_data" \
 	    --start $(( $(date +%s) - 1 )) \
 	    --step 21600 \
-	    DS:size:GAUGE:21600:0:U \
+	    DS:size:GAUGE:43200:0:U \
 	    RRA:AVERAGE:0.5:1:1460 \
 	    RRA:AVERAGE:0.5:4:3650 \
 	    RRA:AVERAGE:0.5:28:1040
