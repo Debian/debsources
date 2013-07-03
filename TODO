@@ -109,3 +109,6 @@
   ), closing display:block tags are inserted.
 
  Debugging: maybe with inline-block and other css tricks
+
+* TODO consider alternative syntax highlighting toolkits	:web:hilight:
+  - http://codemirror.net/ (suggestion by Paul Tagliamonte)
