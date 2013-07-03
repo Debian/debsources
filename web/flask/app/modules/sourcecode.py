@@ -36,6 +36,8 @@ class SourceCodeIterator(object):
         self.filepath = filepath
         self.filename = self.filepath.split('/')[-1]
         self.file = open(filepath)
+        # TODO: proper generator (but 'with' is not available in jinja2)
+        
         self.encoding = encoding
         self.current_line = 0
         self.number_of_lines = None
@@ -53,7 +55,7 @@ class SourceCodeIterator(object):
                 else: # it's a single line
                     try: self.hls.add(int(r))
                     except: pass
-        
+    
     def __iter__(self):
         return self
     
@@ -63,8 +65,14 @@ class SourceCodeIterator(object):
             class_ = True
         else:
             class_ = False
-        return (unicode(self.file.next(), self.encoding, errors='replace'),
-                class_)
+        try:
+            line = unicode(self.file.next(), self.encoding, errors='replace')
+        except StopIteration:
+            # end of file, we close it
+            self.file.close()
+            raise StopIteration
+        
+        return (line, class_)
     
     def get_number_of_lines(self):
         if self.number_of_lines is not None:
