@@ -14,6 +14,7 @@ Debian packages:
 - libjs-highlight
 - python-magic
 - python-debian
+- python-flusk, libapache2-mod-fcgid (only for FastCGI deployment)
 
 Pip packages:
 
