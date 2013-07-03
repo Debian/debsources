@@ -203,6 +203,7 @@ class SourceFile(object):
         mime = magic.open(magic.MIME_TYPE)
         mime.load()
         type_ = mime.file(self.sources_path)
+        mime.close()
         mime = magic.open(magic.MIME_ENCODING)
         mime.load()
         encoding = mime.file(self.sources_path)
