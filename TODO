@@ -43,11 +43,6 @@
 
 * TODO Git commit notifications to #debian-qa			    :dev:irc:
 
-* TODO integrate prefix generation into cron jobs		       :cron:
-  - currently it needs ad-hoc runs
-  - also: it currently generates a python module outside /cache, which breaks
-    the code/data separation
-
 * TODO search based on the file name				 :web:search:
   should be feasible, if the mlocate database is to be believed. Maybe we
   should simply use it, making the indexing available *in* the VM?

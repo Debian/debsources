@@ -109,5 +109,8 @@ SOURCES_STATIC = "/data"
 # where the models.py file is stored:
 MODELS_FOLDER = os.path.join(ROOT_FOLDER, "web")
 
-# where the last-update is stored, to be displayed in the footer:
+# where the last-update is stored, to be displayed in the footer
 LAST_UPDATE_FILE = os.path.join(ROOT_FOLDER, "cache/last-update")
+
+# where package prefixes to be used for navigation can be found
+PKG_PREFIXES_FILE = os.path.join(ROOT_FOLDER, "cache/pkg-prefixes")

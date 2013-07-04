@@ -1,9 +1,9 @@
 <table id="codetable">
   <caption>
     <span>
-    File {{ file }} ({{ nlines }} line{% if nlines > 1 %}s{% endif %})
-    | <a href="{{ url_for('source_html', path_to='/'.join(path.split('/')[:-1])) }}">Return to parent folder</a>
-    | <a href="{{ raw_url }}">Download raw file</a>
+    {{ file }} content ({{ nlines }} line{% if nlines > 1 %}s{% endif %})
+    | <a href="{{ url_for('source_html', path_to='/'.join(path.split('/')[:-1])) }}">parent folder</a>
+    | <a href="{{ raw_url }}">download</a>
     </span>
   </caption>
   <tr>

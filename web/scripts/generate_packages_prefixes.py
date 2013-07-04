@@ -1,4 +1,5 @@
 # Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
+#               2013  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -46,13 +47,16 @@ def generate_prefixes(db_url):
             prefixes.add(p.name[0:4])
     return sorted(prefixes)
 
-def output_python(prefixes):
+def dump_as_python(prefixes):
     sys.stdout.write("packages_prefixes = [")
     for p in prefixes:
         sys.stdout.write("'%s', " % (p))
     sys.stdout.write("]\n")
-    
-            
+
+def dump_as_text(prefixes):
+    for p in prefixes:
+        sys.stdout.write("%s\n" % p)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generates packages prefixes \
@@ -73,4 +77,5 @@ if __name__ == "__main__":
     #os.environ['PYTHONINSPECT'] = 'True'
 
     prefixes = generate_prefixes(url)
-    output_python(prefixes)
+    # dump_as_python(prefixes)
+    dump_as_text(prefixes)
