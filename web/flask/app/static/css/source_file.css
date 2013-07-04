@@ -15,7 +15,6 @@ License: GNU Affero General Public License, version 3 or above.
     vertical-align: top;
     margin: 0px;
     padding: 0px;
-    display: inline-block;
 }
 
 /* CAPTION */
@@ -26,7 +25,6 @@ License: GNU Affero General Public License, version 3 or above.
     text-align: left;
     padding: 0px;
     margin: 0px;
-    display: block;
 }
 
 #codetable caption span {
