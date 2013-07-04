@@ -35,6 +35,8 @@
 
 * TODO better language detection using shebang lines		:web:hilight:
   as suggested in the LWN thread at https://lwn.net/Articles/557371/
+** see Geany approach and code
+   http://sources.debian.net/src/geany/1.22%2Bdfsg-2/src/filetypes.c#L887
 
 * TODO Git commit notifications to #debian-qa			    :dev:irc:
 
