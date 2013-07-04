@@ -19,3 +19,8 @@ License: GNU Affero General Public License, version 3 or above.
     border-width: 1;
 }
 
+#pkglinks {
+    font-size: small;
+    float: right;
+    padding: 3px;
+}

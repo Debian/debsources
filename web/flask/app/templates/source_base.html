@@ -11,9 +11,10 @@
 
 {% block content %}
 
-<p><small>
-  <a href="{{ pts_link }}">package {{ pathl[0][0] }} on the PTS</a>
-</small></p>
+<div id="pkglinks">
+  package {{ pathl[0][0] }} links:
+  <a href="{{ pts_link }}"><acronym title="Debian Package Tracking System">PTS</acronym></a>
+</div>
 
 {% block source_content %}{% endblock %}
 
