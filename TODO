@@ -30,12 +30,7 @@
   https://sources.debian.net should do the right thing, instead of redirecting
   to (a broken version of) irill.org
 
-* TODO [0/2] stats about disk usage over time 		    :web:infra:stats:
-** TODO fix RRD update periods
-   there is some basic RRD support at
-   http://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=bin/update-stats;hb=HEAD#l41
-   , but according to "rrdtool dump" samples are kept once per day instead of 4
-   times a day
+* TODO [0/1] stats about disk usage over time 		    :web:infra:stats:
 ** TODO publish size graphs on the web
 
 * TODO better language detection using shebang lines		:web:hilight:
@@ -105,5 +100,7 @@
 
  Debugging: maybe with inline-block and other css tricks
 
-* TODO consider alternative syntax highlighting toolkits	:web:hilight:
-  - http://codemirror.net/ (suggestion by Paul Tagliamonte)
+* TODO [1/1] alternative syntax highlighting toolkits		:web:hilight:
+** DONE http://codemirror.net/ (suggestion by Paul Tagliamonte)
+   not really suitable, in standalone mode it doesn't offer line numbering nor
+   auto detection, so there isn't much to gain wrt highlight.js
