@@ -35,7 +35,7 @@ HIGHLIGHT_STYLE = "googlecode"
 HIGHLIGHT_CLASSES = [
     ("python", [r'\.py$']),
     ("ruby", [r'\.rb$']),
-    ("perl", [r'\.pl$']),
+    ("perl", [r'\.pl$', r'\.PL', r'\.pm$', r'\.PM']),
     ("php", [r'\.php$']),
     ("scala", [r'\.scala$']),
     ("go", [r'\.go$']),
