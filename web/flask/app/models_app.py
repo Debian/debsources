@@ -18,11 +18,19 @@
 
 from app import app, db
 import models
-from modules.packages_prefixes import packages_prefixes
 
 from flask import url_for
 
 import os, subprocess, magic
+
+# sane (?) default if the package prefix file is not available
+PREFIXES_DEFAULT = ['0', '2', '3', '4', '6', '7', '9', 'a', 'b', 'c', 'd', 'e',
+                    'f', 'g', 'h', 'i', 'j', 'k', 'l', 'lib3', 'liba', 'libb',
+                    'libc', 'libd', 'libe', 'libf', 'libg', 'libh', 'libi',
+                    'libj', 'libk', 'libl', 'libm', 'libn', 'libo', 'libp',
+                    'libq', 'libr', 'libs', 'libt', 'libu', 'libv', 'libw',
+                    'libx', 'liby', 'libz', 'm', 'n', 'o', 'p', 'q', 'r', 's',
+                    't', 'u', 'v', 'w', 'x', 'y', 'z']
 
 class Package_app(models.Package, db.Model):
     @staticmethod
@@ -30,7 +38,13 @@ class Package_app(models.Package, db.Model):
         """
         returns the packages prefixes (a, b, ..., liba, libb, ..., y, z)
         """
-        return packages_prefixes
+        try:
+            with open(app.config['PKG_PREFIXES_FILE']) as f:
+                prefixes = [ l.rstrip() for l in f ]
+        except IOError:
+            prefixes = PREFIXES_DEFAULT
+        return prefixes
+
     
     @staticmethod
     def list_versions_from_name(packagename):

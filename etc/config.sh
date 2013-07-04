@@ -35,6 +35,7 @@ sources_list="${cachedir}/sources.txt"
 sources_map="${cachedir}/webredir.map"
 sources_dbm="${cachedir}/webredir.dbm"
 sources_sql="${cachedir}/sources.sqlite"
+prefixes_file="${cachedir}/pkg-prefixes"
 timestamp_file="${cachedir}/last-update"
 
 # Statistics data
