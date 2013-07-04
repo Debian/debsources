@@ -3,72 +3,56 @@ Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
 License: GNU Affero General Public License, version 3 or above.
 */
 
-#codewrap{
-    border: 1px solid #c70036;
-    width: 100%;
-}
+/* TABLE LAYOUT */
 
 #codetable{
-    width: 100%;
-}
-
-#codetable tr {
-    width: 100%;
-    display: block;
-}
-
-#codetable, #codetable tbody {
-    max-width: 100%;
-    display: block;
-}
-
-#codetable tr td {
-    display: inline-block;
-}
-
-#codewrap #codecaption{
-    background-color: #c70036;
-    color: white;
-    text-align: left;
-    padding: 3px;
-}
-
-#codewrap #codecaption a{
-    color: white;
+    min-width: 100%;
+    padding: 0px;
+    border: 1px solid #c70036;
 }
 
 #codetable td{
     vertical-align: top;
     margin: 0px;
     padding: 0px;
+    display: inline-block;
 }
 
-#codetable #column1 {
-    max-width: 5%;
+/* CAPTION */
+
+#codetable caption{
+    background-color: #c70036;
+    color: white;
+    text-align: left;
+    padding: 0px;
+    margin: 0px;
+    display: block;
 }
 
-#codetable #column2 {
-    max-width: 79%;
-    overflow: auto;
+#codetable caption span {
+    padding: 3px;
+    display: inline-block;
 }
 
-#codetable #column3 {
-    max-width: 15%;
+#codetable caption a{
+    color: white;
 }
 
+/* LINE NUMBERS */
 
 #codetable #sourceslinenumbers{
     text-align: right;
     border-right: 1px solid black;
     padding-right: 5px;
     margin-right: 10px;
-
 }
 
 #codetable #sourceslinenumbers a{
     text-decoration: none;
     color: black
 }
+
+/* CODE DISPLAY */
 
 #codetable #sourcecode{
     margin: 0px;
@@ -83,6 +67,8 @@ License: GNU Affero General Public License, version 3 or above.
 #codetable #sourcecode .highlight{
     background-color: #dddddd;
 }
+
+/* MESSAGES */
 
 #codetable #messages .message{
     background-color: #feff6f;
