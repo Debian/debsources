@@ -22,6 +22,7 @@ import models
 from flask import url_for
 
 import os, subprocess, magic
+from debian.debian_support import version_compare
 
 # sane (?) default if the package prefix file is not available
 PREFIXES_DEFAULT = ['0', '2', '3', '4', '6', '7', '9', 'a', 'b', 'c', 'd', 'e',
@@ -58,6 +59,8 @@ class Package_app(models.Package, db.Model):
                  Version_app.package_id==package_id).all()
          except Exception as e:
              raise InvalidPackageOrVersionError(packagename)
+         # we sort the versions according to debian versions rules
+         versions = sorted(versions, cmp=version_compare)
          return versions
     
     def to_dict(self):
