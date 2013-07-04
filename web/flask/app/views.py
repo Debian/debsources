@@ -41,8 +41,11 @@ except ImportError:
 # last_update (for the footer)
 @app.context_processor
 def skeleton_variables():
-    with open(app.config['LAST_UPDATE_FILE']) as f:
-        last_update = f.readline()
+    try:
+        with open(app.config['LAST_UPDATE_FILE']) as f:
+            last_update = f.readline()
+    except IOError:
+        last_update = "unknown"
     
     return dict(packages_prefixes = Package_app.get_packages_prefixes(),
                 searchform = SearchForm(),
