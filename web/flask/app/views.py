@@ -211,6 +211,9 @@ class SearchView(GeneralView):
             exact_matching = exact_matching.to_dict()
         if other_results != None:
             other_results = [o.to_dict() for o in other_results]
+            # we exclude the 'exact' matching from other_results:
+            other_results = filter(lambda x: x != exact_matching, other_results)
+        
         results = dict(exact=exact_matching,
                        other=other_results)
         return dict(results=results, query=query)

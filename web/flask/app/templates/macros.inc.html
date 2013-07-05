@@ -40,13 +40,11 @@ http://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginatio
   {%- endfor %}
 {% endmacro %}
 
-{% macro listpackages(packages, exclude=None) -%}
+{% macro listpackages(packages) -%}
   <ul>
     {% for package in packages %}
-      {% if package != exclude %}
         <li><a href="{{ url_for('source_html', path_to=package.name) }}">
             {{ package.name }}</a></li>
-      {% endif %}
     {% endfor %}
   </ul>
 {%- endmacro %}
