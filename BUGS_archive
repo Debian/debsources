@@ -1,0 +1,15 @@
+#    -*- mode: org -*-
+
+
+Archived entries from file /srv/debian/debsources.bugs/BUGS
+
+
+* DONE [1/1] stats about disk usage over time 		    :web:infra:stats:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2013-07-05 Fri 17:08
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: DONE
+  :END:
+** DONE publish size graphs on the web
+
