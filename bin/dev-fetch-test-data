@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# developer script to fetch test data from the live instance at sources.d.n to
+# run tests locally
+
+REMOTE="tytso.inria.fr:/srv/debsources"
+LOCAL="/srv/debsources"
+DATA_DIRS="main/6 main/h/hello contrib/a/afbinit"
+
+RSYNC="rsync -avuz --delete"
+
+$RSYNC ${REMOTE}/cache/ ${LOCAL}/cache/
+for d in $DATA_DIRS ; do
+    path=${LOCAL}/sources/${d}
+    test -d $path || mkdir -p $path
+    $RSYNC ${REMOTE}/sources/${d}/ $path
+done
