@@ -20,7 +20,7 @@
 {% endif %}
 <h3>Other results</h3>
 {% if results.other[1] or (not results.exact and results.other[0]) %}
-  {{ macros.listpackages(results.other, results.exact) }}
+  {{ macros.listpackages(results.other, exclude=results.exact) }}
 {% else %}
   None.
 {% endif %}
