@@ -1,3 +1,25 @@
+Development
+===========
+
+* source code is available using [Git][1]:
+
+    $ git clone git://anonscm.debian.org/qa/debsources.git
+
+* the Git repository is also available [via Gitweb][2]
+
+* please report bugs via mail at `info@sources.debian.net`, after checking that
+  your issue isn't already listed in the [BUGS file][3]
+
+* for Debsources discussions please use the [debian-qa mailing list][4] and the
+  `#debian-qa` IRC channel on [OFTC][5]
+
+[1]: http://git-scm.com/
+[2]: http://anonscm.debian.org/gitweb/?p=qa/debsources.git
+[3]: http://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=BUGS;hb=refs/heads/bugs
+[4]: http://lists.debian.org/debian-qa/
+[5]: http://www.oftc.net/
+
+
 Dependencies
 ============
 
