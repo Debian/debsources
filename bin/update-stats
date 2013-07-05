@@ -61,9 +61,23 @@ update_rrd() {
     $rrd update "$rrd_data" $(date +%s):"$size"
 }
 
+update_graphs() {
+    rrdgraph_flags="--end now DEF:mysize=${rrd_data}:size:AVERAGE LINE2:mysize#FF0000"
+    $rrd graph ${cachedir}/size-1m.png \
+	--start end-1m --step 21600 \
+	${rrdgraph_flags}
+    $rrd graph ${cachedir}/size-1y.png \
+	--start end-1y --step 86400 \
+	${rrdgraph_flags}
+    $rrd graph ${cachedir}/size-5y.png \
+	--start end-5y --step 432000 \
+	${rrdgraph_flags}
+}
+
 main() {
     compute_size
     update_rrd
+    update_graphs > /dev/null
 }
 
 main
