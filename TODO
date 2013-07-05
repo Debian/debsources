@@ -38,6 +38,11 @@
 ** see Geany approach and code
    http://sources.debian.net/src/geany/1.22%2Bdfsg-2/src/filetypes.c#L887
 
+* TODO improve extension<->language mapping			:web:hilight:
+  reusing the one of Geany as suggested in https://lwn.net/Articles/557712/ .
+  See
+  http://sources.debian.net/src/geany/1.22%2Bdfsg-2/data/filetype_extensions.conf
+
 * TODO Git commit notifications to #debian-qa			    :dev:irc:
 
 * TODO search based on the file name				 :web:search:
