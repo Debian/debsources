@@ -1,0 +1,28 @@
+{#
+  Copyright (C) 2013  Matthieu Caneill, Stefano Zacchiroli
+  License: GNU Affero General Public License, version 3 or above.
+#}
+
+{% extends "base.html" %}
+
+{% block title %}Statistics{% endblock %}
+
+{% block breadcrumbs %}<a href="{{ url_for('about') }}">about</a> / statistics{% endblock %}
+
+{% block content %}
+
+<h2>{{ self.title() }}</h2>
+
+
+<h3>Disk usage</h3>
+
+<ul style="list-style-type: none">
+  <li><img src="{{ url_for('static', filename='stats/size-1m.png') }}"
+	   alt="disk usage graph - last month" /></li>
+  <li><img src="{{ url_for('static', filename='stats/size-1y.png') }}"
+	   alt="disk usage graph - last year" /></li>
+  <li><img src="{{ url_for('static', filename='stats/size-5y.png') }}"
+	   alt="disk usage graph - last 5 years" /></li>
+</ul>
+
+{% endblock %}
