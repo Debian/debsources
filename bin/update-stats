@@ -68,15 +68,18 @@ update_graphs() {
     flags="$flags CDEF:bytes=kbytes,1000,*"
     flags="$flags LINE2:bytes#FF0000"
 
-    $rrd graph ${cachedir}/size-1m.png \
+    local statsdir="${cachedir}/stats"
+    test -d "$statsdir" || mkdir -p "$statsdir"
+
+    $rrd graph ${statsdir}/size-1m.png \
 	--title "disk usage for the last month" \
 	--start end-1m --step 21600 \
 	${flags}
-    $rrd graph ${cachedir}/size-1y.png \
+    $rrd graph ${statsdir}/size-1y.png \
 	--title "disk usage for the last year" \
 	--start end-1y --step 86400 \
 	${flags}
-    $rrd graph ${cachedir}/size-5y.png \
+    $rrd graph ${statsdir}/size-5y.png \
 	--title "disk usage for the last 5 years" \
 	--start end-5y --step 432000 \
 	${flags}
