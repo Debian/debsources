@@ -6,21 +6,25 @@ License: GNU Affero General Public License, version 3 or above.
 
 /* Base (templates/base.html styles */
 
-#leftmenu{
-    border: 1px solid #dddddd;
-    background-color: #f5f5f5;
-    float:left;
-    width: 250px;
-    padding: 10px;
-    margin: 5px;
-}
-
-#leftmenu hr{
-    border-width: 1;
-}
-
 #pkglinks {
     font-size: small;
     float: right;
     padding: 3px;
+}
+
+/* displayed on index.html */
+
+#indexmenu {
+    text-align: center;
+}
+
+#indexmenu table {
+    width: 600px;
+    margin: auto;
+}
+
+#indexmenu table td {
+    border: 0;
+    padding: 20px;
+    width: 50%;
 }

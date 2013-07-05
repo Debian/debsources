@@ -82,7 +82,7 @@ body {
 	*/
 }
 #content {
-	margin: 0 10px 30px 300px; /* modified */
+	margin: 0 10px 0 52px;
 }
 #inner {
 	position: relative;
@@ -207,6 +207,9 @@ ul.subnav li {
 #searchbox p {
 	margin: 0;
 	padding: 0;
+}
+#searchbox form {        /* modified */
+    display: inline;
 }
 #upperheader {
 	margin:0;

@@ -21,18 +21,24 @@ http://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginatio
   </div>
 {% endmacro %}
 
-
-{% macro searchform(form, query= "", display="block") -%}
+{% macro searchform(form, display="block") -%}
   <form action="{{ url_for('receive_search') }}" name="searchform"
         method="post" style="display: {{ display }};">
-    {#{ form.hidden_tag() }#}
-    {{ form.query(value=query) }}
+      {{ form.query(**kwargs) }}
     {% for error in form.errors.query %}
-      <br /><strong>{{ error }}</strong><br />
+      {% if display == "block" %}<br />{% endif %}
+      <strong>{{ error }}</strong>
     {% endfor %}
-    <input type="submit" value="Search" />
+    <input type="submit" value="Search package" />
   </form>
 {%- endmacro %}
+
+
+{% macro render_packages_prefixes(prefixes) %}
+  {%- for prefix in prefixes %}
+    <a href="{{ url_for('prefix_html', prefix=prefix) }}">{{ prefix }}</a>
+  {%- endfor %}
+{% endmacro %}
 
 {% macro listpackages(packages, exclude=None) -%}
   <ul>

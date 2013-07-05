@@ -1,3 +1,12 @@
+{% import "macros.inc.html" as macros %}
+
+<p>
+  Browse by prefix: {{
+  macros.render_packages_prefixes(packages_prefixes) }}
+  <br />
+  <a href="{{ url_for('listpackages_html', page=1) }}">Browse paginated list</a>
+</p>
+  <hr />
 <p>
   Debsources &mdash; Copyright (C) 2011&ndash;2013 Matthieu Caneill, Stefano
   Zacchiroli, and

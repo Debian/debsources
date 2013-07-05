@@ -26,12 +26,24 @@
           <a href="http://debian.org" title="Debian Home"><img src="{{ url_for('static', filename='img/debian-50.png') }}" alt="Debian"></a>
         </div> <!-- end logo -->
         <p class="section"><a href="/">Debsources</a></p>
+	<div id="searchbox">
+	  <p>
+	    {{ macros.searchform(searchform, display="inline",
+	                         value=query, placeholder="package name") }}
+	    <form name="codesearch" method="get"
+		  action="http://codesearch.debian.net/search">
+	      <input name="q" placeholder="code regex" type="text" />
+	      <input type="submit" value="Search code" />
+	    </form>
+	  </p>
+	</div>   <!-- end sitetools -->
       </div> <!-- end upperheader -->
       <!--UdmComment-->
       <div id="navbar">
         <p class="hidecss"><a href="#content">Skip Quicknav</a></p>
         <ul>
           <li><a href="/">Home</a></li>
+	  <li><a href="{{ url_for('description') }}">Description</a></li>
           <li><a href="{{ url_for('doc') }}">Documentation</a></li>
           <li><a href="{{ url_for('about') }}">About</a></li>
         </ul>
@@ -39,29 +51,6 @@
       <p id="breadcrumbs">{% block breadcrumbs %}{% endblock %}</p>
     </div> <!-- end header -->
     
-    <div id="leftmenu">
-      <h2>Packages</h2>
-      <p><strong>Browse</strong> by prefix:
-      {% for prefix in packages_prefixes %}
-      <a href="{{ url_for('prefix_html', prefix=prefix) }}">{{ prefix }}</a>
-      {% endfor %}</p>
-      <p><strong>Paginate</strong> through the
-	<a href="{{ url_for('listpackages_html', page=1) }}">entire list</a></p>
-      <p><strong>Search</strong></p>
-      <ul>
-	<li>by <em>package name</em>:
-          {{ macros.searchform(searchform, query=query, display="inline") }}
-	</li>
-	<li>the <em>source code</em>
-	  <small>(via <a href="http://codesearch.debian.net">codesearch</a>)</small>:
-          <form name="codesearch" method="get"
-		action="http://codesearch.debian.net/search">
-            <input type="text" name="q" />
-            <input type="submit" value="Search" />
-          </form>
-	</li>
-      </ul>
-    </div>
     <div id="content">
       {% block content %}
       {% endblock %}

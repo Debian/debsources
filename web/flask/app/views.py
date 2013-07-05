@@ -147,7 +147,7 @@ def ping():
         return jsonify(dict(status="db error", http_status_code=500)), 500
     return jsonify(dict(status="ok", http_status_code=200))
 
-### INDEX, DOCUMENTATION, ABOUT ###
+### INDEX, DESCRIPTION, DOCUMENTATION, ABOUT ###
 
 @app.route('/')
 def index():
@@ -172,6 +172,10 @@ def about():
 @app.route('/about/stats/')
 def about_stats():
     return render_template('stats.html')
+
+@app.route('/description/')
+def description():
+    return render_template('description.html')
 
 ### SEARCH ###
 
