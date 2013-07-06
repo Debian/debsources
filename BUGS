@@ -35,6 +35,15 @@
 ** see Geany approach and code
    http://sources.debian.net/src/geany/1.22%2Bdfsg-2/src/filetypes.c#L887
 
+* TODO popup messages between lines instead of on the right	  :web:popup:
+  - rationale #1: popups are invisible for very long source code lines
+    e.g.: http://sources.debian.net/src/vim/2:7.3.547-7/runtime/syntax/sicad.vim?hl=133&msg=133%3Atest%3Atest#L133
+  - rationale #2: it is the only sane way to show multiple pop-ups avoding
+    they clash with one another
+
+* TODO multiple popup messages					  :web:popup:
+  to be able to show multiple error( location)s on the same source file
+
 * TODO improve extension<->language mapping			:web:hilight:
   reusing the one of Geany as suggested in https://lwn.net/Articles/557712/ .
   See
