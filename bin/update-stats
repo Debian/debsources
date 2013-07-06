@@ -55,7 +55,9 @@ update_rrd() {
 	    RRA:AVERAGE:0.5:4:3650 \
 	    RRA:AVERAGE:0.5:28:1040
     fi
-    $rrd update "$rrd_data" $(date +%s):"$size"
+    if [ "$dry_run" != "yes" ] ; then
+	$rrd update "$rrd_data" $(date +%s):"$size"
+    fi
 }
 
 update_graphs() {
@@ -68,18 +70,20 @@ update_graphs() {
     local statsdir="${cachedir}/stats"
     test -d "$statsdir" || mkdir -p "$statsdir"
 
-    $rrd graph ${statsdir}/size-1m.png \
-	--title "disk usage for the last month" \
-	--start end-1m --step 21600 \
-	${flags}
-    $rrd graph ${statsdir}/size-1y.png \
-	--title "disk usage for the last year" \
-	--start end-1y --step 86400 \
-	${flags}
-    $rrd graph ${statsdir}/size-5y.png \
-	--title "disk usage for the last 5 years" \
-	--start end-5y --step 432000 \
-	${flags}
+    if [ "$dry_run" != "yes" ] ; then
+	$rrd graph ${statsdir}/size-1m.png \
+	    --title "disk usage for the last month" \
+	    --start end-1m --step 21600 \
+	    ${flags}
+	$rrd graph ${statsdir}/size-1y.png \
+	    --title "disk usage for the last year" \
+	    --start end-1y --step 86400 \
+	    ${flags}
+	$rrd graph ${statsdir}/size-5y.png \
+	    --title "disk usage for the last 5 years" \
+	    --start end-5y --step 432000 \
+	    ${flags}
+    fi
 }
 
 main() {
