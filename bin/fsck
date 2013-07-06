@@ -1,0 +1,84 @@
+#!/bin/bash
+
+# Copyright (C) 2013  Stefano Zacchiroli <zack@upsilon.cc>
+#
+# This file is part of Debsources.
+#
+# Debsources is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Check for DB inconsistencies
+
+source "/srv/debsources/etc/config.sh"
+source "${root}/bin/lib.sh"
+
+db_extensions="done log stats"
+
+check_missing() {
+    info "fsck: check for missing data..."
+
+    while read package version _area _dsc dest ; do
+	if ! [ -d "$dest" ] ; then
+	    warn "missing package dir: ${dest}"
+	fi
+	for ext in $db_extensions ; do
+	    db_file="${dest}.${ext}"
+	    if ! [ -f "$db_file" ] ; then
+		warn "missing db file: ${db_file}"
+	    fi
+	    done
+    done < "$sources_list"
+}
+
+check_stale() {
+    info "fsck: check for stale data..."
+
+    list_tmp=$(mktemp --tmpdir debsources.XXXXXXXXXX)
+    trap "rm -f $list_tmp" EXIT
+    find "$sources_dir" -mindepth 4 -maxdepth 4 > $list_tmp
+    local list_len=$(wc -l $list_tmp | cut -f 1 -d' ')
+
+    stats_init "orphans" "$list_len"
+    cat $list_tmp | \
+    while read entry ; do
+	stats_tick
+	if [ -d "$entry" ] ; then	# should be a package dir
+	    pkg=$(basename $(dirname $entry))
+	    version=$(basename $entry)
+	    if ! grep -q "^${pkg}[[:blank:]]${version}[[:blank:]]" "$sources_list" ; then
+		warn "orphan package dir: ${entry}"
+	    fi
+	else
+	    case "$entry" in
+		*.done|*.log|*.stats)
+		    pkgdir="${entry%.*}"
+		    if ! [ -d "$pkgdir" ] ; then
+			warn "orphan db file: ${entry}"
+		    fi
+		    ;;
+		*)
+		    warn "unknown db file type: ${entry}"
+		    ;;
+	    esac
+	fi
+    done
+}
+
+main() {
+    info "fsck: starting at $(date)"
+    check_missing
+    check_stale
+    info "fsck: all done at $(date)"
+}
+
+main
