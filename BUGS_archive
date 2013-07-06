@@ -13,3 +13,15 @@ Archived entries from file /srv/debian/debsources.bugs/BUGS
   :END:
 ** DONE publish size graphs on the web
 
+
+* DONE http://codemirror.net/ (suggestion by Paul Tagliamonte)
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2013-07-06 sab 11:59
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_OLPATH: [1/1] alternative syntax highlighting toolkits
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: DONE
+  :ARCHIVE_ITAGS: web hilight
+  :END:
+  not really suitable, in standalone mode it doesn't offer line numbering nor
+  auto detection, so there isn't much to gain wrt highlight.js

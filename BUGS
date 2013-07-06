@@ -113,7 +113,4 @@
 
  Debugging: maybe with inline-block and other css tricks
 
-* TODO [1/1] alternative syntax highlighting toolkits		:web:hilight:
-** DONE http://codemirror.net/ (suggestion by Paul Tagliamonte)
-   not really suitable, in standalone mode it doesn't offer line numbering nor
-   auto detection, so there isn't much to gain wrt highlight.js
+* TODO [0/0] alternative syntax highlighting toolkits		:web:hilight:
