@@ -20,7 +20,7 @@
 # require debian package "debmirror"
 
 source "/srv/debsources/etc/config.sh"
-source "${root}/bin/lib.sh"
+source "${bindir}/lib.sh"
 
 debmirror \
   --source \

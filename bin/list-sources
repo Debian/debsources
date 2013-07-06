@@ -33,7 +33,7 @@
 # Depends: dctrl-tools
 
 source "/srv/debsources/etc/config.sh"
-source "${root}/bin/lib.sh"
+source "${bindir}/lib.sh"
 
 expire_args=""
 if [ "$expire_days" -gt 0 ] ; then

@@ -22,7 +22,7 @@
 # Usage: foreach COMMAND...
 
 source "/srv/debsources/etc/config.sh"
-source "${root}/bin/lib.sh"
+source "${bindir}/lib.sh"
 
 srclist="$sources_list"
 

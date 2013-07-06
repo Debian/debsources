@@ -20,7 +20,7 @@
 # Depends: apache2-utils (for httxt2dbm)
 
 source "/srv/debsources/etc/config.sh"
-source "${root}/bin/lib.sh"
+source "${bindir}/lib.sh"
 
 export PATH="$PATH:/usr/sbin"	# httxt2dbm (currently) lives in sbin
 export LANG=C
@@ -28,7 +28,7 @@ export LANG=C
 update_mirror() {
     # update source mirror
     info "update-debsources: updating source mirror..."
-    ${root}/bin/debian-source-mirror
+    ${bindir}/debian-source-mirror
 }
 
 # result: fill $sources_list_new with a path to new source packages list
@@ -48,14 +48,14 @@ extract_sources() {
     # extract all source packages
     local srclist="$1"
     info "update-debsources: extracting source packages..."
-    ${root}/bin/extract-all "$srclist"
+    ${bindir}/extract-all "$srclist"
 }
 
 garbage_collect() {
     # get rid of disappeared and expired packages
     local srclist="$1"
     info "update-debsources: garbage collection..."
-    ${root}/bin/gc "$srclist"
+    ${bindir}/gc "$srclist"
 }
 
 update_db() {
@@ -64,7 +64,7 @@ update_db() {
     info "update-debsources: updating indexes..."
 
     # http redirection maps
-    ${root}/bin/srclist2redirmap < "$srclist" > "${sources_map}.new"
+    ${bindir}/srclist2redirmap < "$srclist" > "${sources_map}.new"
     mv "${sources_map}.new" "$sources_map"
     httxt2dbm -i "$sources_map" -o "${sources_dbm}.new"
     chmod 664 "${sources_dbm}.new"
@@ -84,7 +84,7 @@ update_db() {
 
 update_stats() {
     info "update-debsources: updating statistics..."
-    ${root}/bin/update-stats
+    ${bindir}/update-stats
 }
 
 main() {
