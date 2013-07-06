@@ -119,6 +119,7 @@ main() {
 
     rm -f "$lockfile"
     info "update-debsources: all done at $(date)"
+    echo
 }
 
 main >> $logfile 2>&1 || echo "update-debsources returned non 0 exit code"
