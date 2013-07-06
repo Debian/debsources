@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2011-2013  Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2013  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -17,20 +17,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Depends: debmirror
-
-set -e
-
 source "/srv/debsources/etc/config.sh"
 source "${bindir}/lib.sh"
 
-debmirror \
-  --source \
-  --host=${mirror_host} \
-  --method=rsync \
-  --dist=${mirror_suites} \
-  --section=${mirror_sections} \
-  --arch=none \
-  --ignore-release-gpg \
-  $* \
-  "$mirror_dir"
+echo >> $logfile	# log session separator
+${bindir}/update-debsources >> $logfile 2>&1
+rc=$?
+if [ "$rc" -ne 0 ] ; then
+    info "update-debsources: abnormal termination (exit code: ${rc}) at $(date)" >> $logfile
+    echo "update-debsources returned non 0 exit code: ${rc}"	# for mail delivery by cron
+fi

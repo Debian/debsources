@@ -19,6 +19,8 @@
 
 # Depends: apache2-utils (for httxt2dbm)
 
+set -e
+
 source "/srv/debsources/etc/config.sh"
 source "${bindir}/lib.sh"
 
@@ -37,9 +39,7 @@ list_sources() {
 
     # note: no risk of race here, thanks to $lockfile
     sources_list_new="${sources_list}.new"
-    if ! $bindir/list-sources > "${sources_list_new}" ; then
-	err "cannot list available source packages. Abort." 2
-    fi
+    ${bindir}/list-sources > "${sources_list_new}"
     chmod 664 "${sources_list_new}"
     chgrp $gid "${sources_list_new}"
 }
@@ -120,7 +120,6 @@ main() {
 
     rm -f "$lockfile"
     info "update-debsources: all done at $(date)"
-    echo
 }
 
-main >> $logfile 2>&1 || echo "update-debsources returned non 0 exit code"
+main

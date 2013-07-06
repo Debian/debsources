@@ -22,6 +22,8 @@
 # Options:
 #     -q/--quiet    suppress all (non-error) output
 
+set -e
+
 source "/srv/debsources/etc/config.sh"
 source "${bindir}/lib.sh"
 
