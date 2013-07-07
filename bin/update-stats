@@ -25,13 +25,9 @@ source "${bindir}/lib.sh"
 rrd="rrdtool"
 
 compute_size() {
-    # size=$(du -s "$sources_dir" | cut -f 1)
-
-    size=0
-    while read _package _version _area _dsc dest ; do
-	s=$(grep ^size "${dest}.stats" | cut -f 2)
-	size=$(( $size + $s ))
-    done < "$sources_list"
+    size=$(while read _package _version _area _dsc dest ; do
+	       cat "${dest}.stats"
+	   done < "$sources_list" | grep ^size | cut -f 2 | paste -sd+ | bc)
     echo -e "size\t${size}" > "$raw_stats"
 }
 
