@@ -256,7 +256,7 @@ class ListpackagesView(GeneralView):
             # WARNING: not serializable (TODO: serialize Pagination obj)
             try:
                 packages = Package_app.query.order_by(
-                    Package_app.name).paginate(page, 20, False)
+                    Package_app.name).paginate(page, 60, False)
                 return dict(packages=packages, page=page)
             except Exception as e:
                 raise Http500Error(e)
