@@ -32,6 +32,13 @@ License: GNU Affero General Public License, version 3 or above.
     width: 60%;
 }
 
+#browse p {
+    text-align: center;
+}
+#search p {
+    text-align: center;
+}
+
 /* lists made in multiple columns (e.g. in macros.listpackages() */
 
 .listcolumn li {
