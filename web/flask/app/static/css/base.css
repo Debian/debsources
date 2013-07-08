@@ -33,14 +33,9 @@ License: GNU Affero General Public License, version 3 or above.
 }
 
 /* lists made in multiple columns (e.g. in macros.listpackages() */
-.listcolumn {
-    vertical-align: top;
-    margin-left: 50px;
-}
 
 .listcolumn li {
-    display: inline;
-    list-style-type: disc;
+    margin-left: 30px;
     width: 300px;
     float: left;
 }
