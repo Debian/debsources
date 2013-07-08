@@ -25,3 +25,15 @@ Archived entries from file /srv/debian/debsources.bugs/BUGS
   :END:
   not really suitable, in standalone mode it doesn't offer line numbering nor
   auto detection, so there isn't much to gain wrt highlight.js
+
+* DONE get rid of left menu					 :web:layout:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2013-07-08 lun 15:32
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: DONE
+  :END:
+  it consumes too much horizontal space on small screens
+
+  reported by: Helmut Grohne on #debian-qa
+

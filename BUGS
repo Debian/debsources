@@ -113,9 +113,4 @@
 
  Debugging: maybe with inline-block and other css tricks
 
-* TODO get rid of left menu 					 :web:layout:
-  it consumes too much horizontal space on small screens
-
-  reported by: Helmut Grohne on #debian-qa
-
 * TODO [0/0] alternative syntax highlighting toolkits		:web:hilight:
