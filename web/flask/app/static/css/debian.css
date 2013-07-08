@@ -511,7 +511,7 @@ acronym, abbr {
 	border: 1px solid #dfdfe0;
 	padding:1em;
 	background-color: #f5f6f7;
-	margin: 0 10px 0 52px;
+	margin: 30px 10px 0 52px; /* modified wrt Debian version */
 	line-height: 1.5em;
 	border-left: 0;
 	border-right: 0;
