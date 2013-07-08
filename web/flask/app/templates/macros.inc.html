@@ -41,20 +41,12 @@ http://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginatio
   {%- endfor %}
 {% endmacro %}
 
-{% macro listpackages(packages, columns=1) -%}
-  {% if packages|length % columns == 0 %}
-    {% set per_column = packages|length // columns %}
-  {% else %}
-    {% set per_column = packages|length // columns + 1 %}
-  {% endif %}
-  {% for i in range(columns) %}
+{% macro listpackages(packages) -%}
     <ul class="listcolumn">
-      {% set skip = i * per_column %}
-      {% for package in packages[skip:skip + per_column] %}
+      {% for package in packages %}
         <li><a href="{{ url_for('source_html', path_to=package.name) }}">
             {{ package.name }}</a></li>
       {% endfor %}
     </ul>
-  {% endfor %}
   <br style="clear: left" />
 {%- endmacro %}
