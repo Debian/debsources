@@ -26,5 +26,8 @@ License: GNU Affero General Public License, version 3 or above.
 #indexmenu table td {
     border: 0;
     padding: 20px;
-    width: 50%;
+}
+
+#indexmenu table #search {
+    width: 60%;
 }
