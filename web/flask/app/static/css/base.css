@@ -38,10 +38,6 @@ License: GNU Affero General Public License, version 3 or above.
     margin-left: 50px;
 }
 
-.pkglist {
-    margin-bottom: 50px;
-}
-
 .listcolumn li {
     display: inline;
     list-style-type: disc;
