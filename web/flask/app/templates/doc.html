@@ -15,8 +15,9 @@
 <h2>{{ self.title() }}</h2>
 
 <ul>
-<li><a href="{{ url_for('doc_api') }}">API documentation</a></li>
+<li><a href="{{ url_for('doc_overview') }}">Overview</a></li>
 <li><a href="{{ url_for('doc_url') }}">URL scheme</a></li>
+<li><a href="{{ url_for('doc_api') }}">API documentation</a></li>
 </ul>
 
 {% endblock %}

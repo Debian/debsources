@@ -7,7 +7,7 @@
 
 {% import "macros.inc.html" as macros %}
 
-{% block title %}Debian sources{% endblock %}
+{% block title %}Debian Sources{% endblock %}
 
 {% block breadcrumbs %}{% endblock %}
 
@@ -16,9 +16,13 @@
 <div id="indexmenu">
 
 <h1>{{ self.title() }}</h1>
-<p>
-  <em>Browse the syntax-highlighted sources of all Debian packages.</em>
-</p>
+<h3><em>All Debian source are belong to us</em> &emsp;
+  <small>&mdash; Anonymous</small>
+  <sup><a href="https://en.wikipedia.org/wiki/All_your_base_are_belong_to_us"><tt>[^]</tt></a></sup>
+</h3>
+<p>Browse through the source code of the
+  <a href="http://www.debian.org">Debian</a> operating system.
+  <a href="{{ url_for('doc_overview') }}">Read more…</a></p>
 <p style="display: none;">
   [ insert short description here ]
 </p>

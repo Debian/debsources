@@ -165,7 +165,11 @@ def doc_url():
 def doc_api():
     return render_template('doc_api.html')
 
-@app.route('/about')
+@app.route('/doc/overview/')
+def doc_overview():
+    return render_template('doc_overview.html')
+
+@app.route('/about/')
 def about():
     return render_template('about.html')
 
@@ -173,9 +177,6 @@ def about():
 def about_stats():
     return render_template('stats.html')
 
-@app.route('/description/')
-def description():
-    return render_template('description.html')
 
 ### SEARCH ###
 
