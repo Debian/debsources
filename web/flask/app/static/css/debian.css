@@ -73,7 +73,7 @@ body {
 	line-height: 1.5;
 	color: #222;
 	background-color: white;
-	background-image:url('/static/img/gradient.png');/* modified */
+	background-image:url('/static/img/gradient.png'); /* modified wrt Debian version */
 	background-position: 0 0;
 	background-repeat: repeat-x;
 	/* Uncomment to show baseline grid 
@@ -208,7 +208,7 @@ ul.subnav li {
 	margin: 0;
 	padding: 0;
 }
-#searchbox form {        /* modified */
+#searchbox form { /* modified wrt Debian version */
     display: inline;
 }
 #upperheader {
@@ -647,7 +647,7 @@ form#pageLang {
 
 input:focus {
 	background-color:#FFFFCB;
-        outline: none; /* modified */
+        outline: none; /* modified wrt Debian version */
 	
 }
 .hidecss {
