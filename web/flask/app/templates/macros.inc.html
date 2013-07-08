@@ -7,6 +7,7 @@
 http://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Pagination.iter_pages #}
 {% macro render_pagination(pagination, endpoint) %}
   <div class="pagination">
+  Page:
   {%- for page in pagination.iter_pages(left_edge=5, left_current=5, right_current=5, right_edge=5) %}
     {% if page %}
       {% if page != pagination.page %}
