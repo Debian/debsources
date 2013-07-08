@@ -13,20 +13,16 @@
 {% block content %}
 <h2>{{ self.title() }}</h2>
 <h3>Exact matches</h3>
-<p>
-  {% if results.exact %}
-    {{ macros.listpackages([results.exact]) }}
-  {% else %}
-    None.
-  {% endif %}
-</p>
+{% if results.exact %}
+  {{ macros.listpackages([results.exact]) }}
+{% else %}
+  None.
+{% endif %}
 
 <h3>Other results</h3>
-<p>
-  {% if results.other[1] or (not results.exact and results.other[0]) %}
-    {{ macros.listpackages(results.other) }}
-  {% else %}
-    None.
-  {% endif %}
-</p>
+{% if results.other[1] or (not results.exact and results.other[0]) %}
+  {{ macros.listpackages(results.other, columns=3) }}
+{% else %}
+  None.
+{% endif %}
 {% endblock %}

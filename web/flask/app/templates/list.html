@@ -13,7 +13,7 @@
 {% block content %}
 
 <h2>{{ self.title() }}</h2>
-{{ macros.listpackages(packages.items) }}
+{{ macros.listpackages(packages.items, columns=3) }}
 
 {{ macros.render_pagination(packages, "listpackages_html") }}
 
