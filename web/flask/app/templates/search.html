@@ -21,7 +21,7 @@
 
 <h3>Other results</h3>
 {% if results.other[1] or (not results.exact and results.other[0]) %}
-  {{ macros.listpackages(results.other, columns=3) }}
+  {{ macros.listpackages(results.other, columns=1) }}
 {% else %}
   None.
 {% endif %}
