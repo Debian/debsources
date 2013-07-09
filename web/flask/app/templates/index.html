@@ -18,7 +18,7 @@
 <h1>{{ self.title() }}</h1>
 <h3><em>All Debian source are belong to us</em> &emsp;
   <small>&mdash; Anonymous</small>
-  <sup><a href="https://en.wikipedia.org/wiki/All_your_base_are_belong_to_us"><tt>[^]</tt></a></sup>
+  <sup><a href="https://en.wikipedia.org/wiki/All_your_base_are_belong_to_us"><span style="font-family: monospace; color: black;">[^]</span></a></sup>
 </h3>
 <p>Browse through the source code of the
   <a href="http://www.debian.org">Debian</a> operating system.
@@ -34,7 +34,7 @@
       <ul style="list-style-type: none">
 	<li>by <em>package name</em>:<br />
 	  {{ macros.searchform(searchform, value=query,
-	  display="inline", size="20", autofocus=True) }}
+	  display="inline", size="20", autofocus=True, id="query-2") }}
 	</li>
 	<li>the <em>source code</em>
 	  <small>(via <a href="http://codesearch.debian.net">codesearch</a>)</small>:<br />

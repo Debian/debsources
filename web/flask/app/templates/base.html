@@ -27,15 +27,14 @@
         </div> <!-- end logo -->
         <p class="section"><a href="/">Debsources</a></p>
 	<div id="searchbox">
-	  <p>
 	    {{ macros.searchform(searchform, display="inline",
-	                         value=query, placeholder="package name") }}
+	                         value=query, placeholder="package name",
+	                         id="query-1") }}
 	    <form name="codesearch" method="get"
 		  action="http://codesearch.debian.net/search">
 	      <input name="q" placeholder="code regex" type="text" />
 	      <input type="submit" value="Search code" />
 	    </form>
-	  </p>
 	</div>   <!-- end sitetools -->
       </div> <!-- end upperheader -->
       <!--UdmComment-->
