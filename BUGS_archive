@@ -37,3 +37,14 @@ Archived entries from file /srv/debian/debsources.bugs/BUGS
 
   reported by: Helmut Grohne on #debian-qa
 
+
+* DONE https							 :infra:conf:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2013-07-10 Wed 11:07
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: DONE
+  :END:
+  https://sources.debian.net should do the right thing, instead of redirecting
+  to (a broken version of) irill.org
+

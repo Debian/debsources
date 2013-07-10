@@ -26,10 +26,6 @@
   - need to figure out how to ssh into the machine (via the jumphost) w/o
     having a dedicated INRIA account
 
-* TODO https							 :infra:conf:
-  https://sources.debian.net should do the right thing, instead of redirecting
-  to (a broken version of) irill.org
-
 * TODO better language detection using shebang lines		:web:hilight:
   as suggested in the LWN thread at https://lwn.net/Articles/557371/
 ** see Geany approach and code
