@@ -1,0 +1,80 @@
+# Apache: common configuration directives for http/https deployment
+
+	ServerAdmin webmaster@localhost
+	ServerName sources.debian.net
+	ServerAlias sources sources.upsilon.cc
+
+	DocumentRoot /srv/www/debsources/public_html
+	<Directory />
+		Options FollowSymLinks
+		AllowOverride None
+	</Directory>
+	<Directory /srv/www/debsources/public_html>
+		Options Indexes FollowSymLinks MultiViews
+		AllowOverride None
+		Order allow,deny
+		allow from all
+	</Directory>
+
+	<Directory /srv/debsources/sources>
+		Options Indexes
+		AllowOverride None
+		DirectoryIndex disabled
+		IndexOptions +ShowForbidden -FancyIndexing -HTMLTable +SuppressHTMLPreamble +XHTML
+		# Note: mods-enabled/autoindex.conf has IndexIgnore set to
+		# ignore all hidden files by default. For +ShowForbidden to be
+		# practically useful, that entry should be commented out (or
+		# reset'd with IndexOptionsReset, but only starting from Apache
+		# 2.3).
+
+		<Files ~ "^\.ht">
+		       # override default (Debian) setting in /etc/apache2/apache2.conf
+		       Allow from all
+		</Files>
+
+		SetHandler None
+		# ForceType text/plain
+	</Directory>
+
+	# to access statistics and the like
+	<Directory /srv/www/debsources/public_html/private/>
+		   AuthName "sources.debian.net"
+		   AuthType Basic
+		   AuthUserFile /srv/www/debsources/etc/htpasswd
+		   Require valid-user
+	</Directory>
+
+	Alias /javascript /usr/share/javascript/
+
+	# # begin: WSGI deployment
+	# WSGIScriptAlias / /srv/debsources/web/flask/debsources.wsgi
+	# WSGIDaemonProcess debsources user=www-data group=www-data threads=8
+	# WSGIProcessGroup debsources
+	# WSGIApplicationGroup debsources
+	# # end: WSGI deployment
+
+	Alias /robots.txt /srv/www/debsources/public_html/robots.txt
+	Alias /data/ /srv/debsources/sources/
+	Alias /static/stats/ /srv/debsources/cache/stats/
+	Alias /static/ /srv/debsources/web/flask/app/static/
+	Alias /icons/ /usr/share/icons/
+	Alias /private/ /srv/www/debsources/public_html/private/
+
+	# begin: FastCGI deployment
+	# note: ScriptAlias should come *after* other Alias directives, to
+	# avoid shadowing them
+	ScriptAlias / /srv/debsources/web/flask/debsources.fcgi/
+	FcgidProcessLifeTime 3600
+	FcgidMaxRequestsPerProcess 1000
+	# end: FastCGI deployment
+
+	<Directory /var/www/debsources>
+        	   Order deny,allow
+        	   Allow from all
+    	</Directory>
+
+	ErrorLog ${APACHE_LOG_DIR}/debsources-error.log
+	LogLevel warn
+	CustomLog ${APACHE_LOG_DIR}/debsources-access.log combined
+
+# vim:set ft=apache:                                                                                                                                           
