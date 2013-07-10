@@ -19,24 +19,34 @@ License: GNU Affero General Public License, version 3 or above.
 }
 
 #indexmenu table {
-    width: 600px;
+    width: 700px;
     margin: auto;
+    border-spacing: 20px;
+    border-spacing: collapse;
 }
 
 #indexmenu table td {
     border: 0;
-    padding: 20px;
+    padding: 5px;
+    pading-top: 0px;
+    pading-bottom: 0px;
+    background-color: transparent;
+    background-color: #f5f6f7;
+    border-radius: 15px;
+}
+
+#indexmenu table td p {
+    text-align: center;
+    margin-bottom: 1em;
+    margin-top: 0.5em;
+}
+#indexmenu table td ul {
+    margin-bottom: 1em;
+    margin-top: 0.5em;
 }
 
 #indexmenu table #search {
     width: 60%;
-}
-
-#browse p {
-    text-align: center;
-}
-#search p {
-    text-align: center;
 }
 
 /* lists made in multiple columns (e.g. in macros.listpackages() */
