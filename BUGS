@@ -45,8 +45,6 @@
   See
   http://sources.debian.net/src/geany/1.22%2Bdfsg-2/data/filetype_extensions.conf
 
-* TODO Git commit notifications to #debian-qa			    :dev:irc:
-
 * TODO search based on the file name				 :web:search:
   should be feasible, if the mlocate database is to be believed. Maybe we
   should simply use it, making the indexing available *in* the VM?

@@ -61,3 +61,12 @@ Archived entries from file /srv/debian/debsources.bugs/BUGS
   import trick used by app.config.from_pyfile can be used for ConfigParser
   instead.
 
+
+* DONE Git commit notifications to #debian-qa			    :dev:irc:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2013-07-11 Thu 16:28
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: DONE
+  :END:
+
