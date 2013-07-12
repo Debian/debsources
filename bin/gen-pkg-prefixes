@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
 #               2013  Stefano Zacchiroli <zack@upsilon.cc>
 #
@@ -26,8 +28,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
 
 
-parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0,parentdir) 
+webdir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'web')
+sys.path.insert(0, webdir)
 
 from models import Base, Package, Version
 
@@ -67,13 +69,13 @@ if __name__ == "__main__":
                         help="absolute or relative path to the sqlite file")
 
     args = parser.parse_args()
-    
+
     if args.sqlite_file[0] != '/': # relative path
         url = os.path.abspath(args.sqlite_file)
     else:
         url = args.sqlite_file
     url = "sqlite:///" + url
-    
+
     #os.environ['PYTHONINSPECT'] = 'True'
 
     prefixes = generate_prefixes(url)

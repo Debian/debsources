@@ -1,4 +1,7 @@
+#!/usr/bin/python
+
 # Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
+#               2013  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -25,8 +28,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
 
 
-parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0,parentdir) 
+webdir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'web')
+sys.path.insert(0, webdir)
 
 from models import Base, Package, Version
 
@@ -38,11 +41,11 @@ def get_engine_session(url, verbose=True):
 
 def sources2db(sources, url, drop=False, verbose=True):
     engine, session = get_engine_session(url, verbose)
-    
+
     if drop:
         Base.metadata.drop_all(engine)
         Base.metadata.create_all(engine)
-    
+
     # v2
     # first we create the set of all packages and the list of (pack, vers)
     packages = set()
@@ -66,30 +69,30 @@ def sources2db(sources, url, drop=False, verbose=True):
     Version.__table__.insert(bind=engine).execute(
         [dict(vnumber=b, package_id=packids[a], area=c) for a, b, c in versions]
         )
-    
+
     session.close()
-            
+
 
 if __name__ == "__main__":
     start_time = time.time()
     parser = argparse.ArgumentParser(description="Updates a SQLite base from \
     a sources.txt file")
-    parser.add_argument("sqlite_file",
-                        help="absolute or relative path to the sqlite file")
     parser.add_argument("sources",
                         help="absolute or relative path to the sources.txt file")
+    parser.add_argument("sqlite_file",
+                        help="absolute or relative path to the sqlite file")
     #parser.add_argument("--drop",
     #                    help="drops the database before", action="store_true")
     parser.add_argument("--verbose", action="store_true",
                         help="verbose logging (default: be quiet)")
     args = parser.parse_args()
-    
+
     if args.sqlite_file[0] != '/': # relatve path
         url = os.path.abspath(args.sqlite_file)
     else:
         url = args.sqlite_file
     url = "sqlite:///" + url
-    
+
     #os.environ['PYTHONINSPECT'] = 'True'
 
     sources2db(args.sources, url, drop=True, verbose=args.verbose)
