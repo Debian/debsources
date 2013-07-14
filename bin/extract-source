@@ -44,21 +44,17 @@ if [ -z "$package" -o -z "$version" -o -z "$dsc" -o -z "$dest" -o ! -f "$dsc" ] 
 fi
 
 base="$(basename $dsc)"
-donefile="${dest}.done"		# e.g.: "/srv/debsources/sources/main/z/zodb/1:3.9.7-2.done"
 logfile="${dest}.log"		# e.g.: "/srv/debsources/sources/main/z/zodb/1:3.9.7-2.log"
 statsfile="${dest}.stats"
 parentdir="$(dirname $dest)"	# e.g.: "/srv/debsources/sources/main/z/zodb"
 
-if [ -f "$donefile" ] ; then    # already extracted, avoid re-extraction
-    exit 0
-else
-    info "extracting ${base} ..."
-    if [ "$dry_run" != "yes" ] ; then
-	mkdir -p "$parentdir"
-        dpkg-source --no-copy --no-check -x "$dsc" "$dest" &> "$logfile"
-        chgrp -R "$gid" "$dest"
-	size=$(du -s "$dest")
-	echo -e "size\t${size}" > "$statsfile"
-	touch "$donefile"
-    fi
+info "extracting ${base} ..."
+if [ "$dry_run" != "yes" ] ; then
+    mkdir -p "$parentdir"
+    dpkg-source --no-copy --no-check -x "$dsc" "$dest" &> "$logfile"
+    chgrp -R "$gid" "$dest"
+
+    # TODO: move this to bin/add-package.d/
+    size=$(du -s "$dest")
+    echo -e "size\t${size}" > "$statsfile"
 fi

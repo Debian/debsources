@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Copyright (C) 2011-2013  Stefano Zacchiroli <zack@upsilon.cc>
+#
+# This file is part of Debsources.
+#
+# Debsources is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Depends: debianutils
+
+source "/srv/debsources/etc/config.sh"
+source "${bindir}/lib.sh"
+
+event="$1"
+if [ -z "$event" ] ; then
+    err "Usage: visit-package EVENT [ARG...]" 3
+fi
+shift
+
+hooks_dir="${bindir}/${event}.d"
+if ! [ -d "$hooks_dir" ] ; then
+    known_events=$(ls $bindir | grep '\.d$' | sed 's/.d$//')
+    err "Unknown event '$event'.\nKnown events: $(echo $known_events)" 2
+fi
+
+args=""
+for arg in "$@" ; do
+    args="${args} --arg ${arg}"
+done
+
+run-parts --exit-on-error $args $hooks_dir

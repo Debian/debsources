@@ -40,18 +40,27 @@ extract_sources() {
     local sources_count=$(wc -l $srclist | cut -f 1 -d' ')
     stats_init "extract" "$sources_count"
     cat $srclist | \
-	while read package version _area dsc dest ; do
-	    stats_tick
-	    flags=""
-	    if [ "$verbose" = "0" ] ; then
-		flags="$flags --quiet"
-	    fi
-	    if [ "$dsc" = "NONE" ] ; then
+    while read package version _area dsc dest ; do
+	stats_tick
+	flags=""
+	if [ "$verbose" = "0" ] ; then
+	    flags="$flags --quiet"
+	fi
+	if [ "$dsc" = "NONE" ] ; then
+	    continue
+	fi
+	donefile="${dest}.done"	# e.g.: "/srv/debsources/sources/main/z/zodb/1:3.9.7-2.done"
+	if ! [ -f "$donefile" ] ; then
+	    if ! ${bindir}/extract-source $flags "$package" "$version" "$dsc" "$dest" ; then
+		warn "failed to extract ${package}/${version}"
 		continue
 	    fi
-	    if ! $bindir/extract-source $flags "$package" "$version" "$dsc" "$dest" ; then
-		warn "failed to extract package '$package' '$version'"
+	    if ! ${bindir}/visit-package add-package "$dest" "$package" "$version" ; then
+		warn "failed to visit ${package}/${version}"
+		continue
 	    fi
+	    touch "$donefile"
+	fi
     done
 }
 
