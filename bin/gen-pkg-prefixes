@@ -28,8 +28,9 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
 
 
-webdir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'web')
-sys.path.insert(0, webdir)
+pydir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                     'python')
+sys.path.insert(0, pydir)
 
 from models import Base, Package, Version
 
