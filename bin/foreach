@@ -30,8 +30,12 @@ if [ -z "$1" ] ; then
     err "Usage: foreach COMMAND..." 2
 fi
 
+sources_count=$(wc -l $srclist | cut -f 1 -d' ')
+stats_init "foreach" "$sources_count"
+
 cat $srclist | \
 while read package version area dsc dest ; do
+    stats_tick
     if ! [ -d "$dest" ] ; then
 	warn "directory for ${package}/${version} does not exist, skipping."
     else
