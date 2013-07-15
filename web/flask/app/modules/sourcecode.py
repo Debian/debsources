@@ -86,7 +86,7 @@ class SourceCodeIterator(object):
             for line in sfile: self.number_of_lines += 1
         return self.number_of_lines
 
-    def get_file_language(self, classes_patterns=None):
+    def get_file_language(self):
         """
         Returns a class name, usable by highlight.hs, to help it to guess
         the source language.

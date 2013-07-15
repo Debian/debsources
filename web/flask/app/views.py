@@ -495,8 +495,7 @@ def render_source_file_html(templatename, **kwargs):
             templatename,
             nlines=sourcefile.get_number_of_lines(),
             pathl=Location.get_path_links("source_html", kwargs['path']),
-            file_language=sourcefile.get_file_language(
-                classes_patterns=app.config['HIGHLIGHT_CLASSES']),
+            file_language=sourcefile.get_file_language(),
             msg=sourcefile.get_msgdict(),
             code=sourcefile,
             **kwargs
