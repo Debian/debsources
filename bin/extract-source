@@ -55,6 +55,6 @@ if [ "$dry_run" != "yes" ] ; then
     chgrp -R "$gid" "$dest"
 
     # TODO: move this to bin/add-package.d/
-    size=$(du -s "$dest")
+    size=$(du -s "$dest" | cut -f 1)
     echo -e "size\t${size}" > "$statsfile"
 fi
