@@ -26,7 +26,7 @@ from debian.debian_support import version_compare
 from app import app
 from models_app import Package_app, Version_app, Location, Directory, \
     SourceFile, InvalidPackageOrVersionError, FileOrFolderNotFound
-from modules.sourcecode import SourceCodeIterator
+from sourcecode import SourceCodeIterator
 from forms import SearchForm
 
 # to generate PTS link safely (for internal links we use url_for)
