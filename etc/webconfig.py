@@ -30,48 +30,6 @@ HIGHLIGHT_JS_FOLDER = "/javascript/highlight"
 # HIGHLIGHT_STYLE = "default"
 HIGHLIGHT_STYLE = "googlecode"
 
-# patterns for language detection
-# each language is associated with a list of regex, matching the filepath
-HIGHLIGHT_CLASSES = [
-    ("python", [r'\.py$']),
-    ("ruby", [r'\.rb$']),
-    ("perl", [r'\.pl$', r'\.PL', r'\.pm$', r'\.PM']),
-    ("php", [r'\.php$']),
-    ("scala", [r'\.scala$']),
-    ("go", [r'\.go$']),
-    ("xml", [r'\.xml$']),
-    ("django", [r'\.htm$', r'\.html$']),
-    ("markdown", [r'\.md$']),
-    ("css", [r'\.css$']),
-    ("json", [r'\.json$']),
-    ("javascript", [r'\.js$']),
-    ("coffeescript", [r'\.coffee$']),
-    ("actionscript", [r'\.as$']),
-    ("vbscript", [r'\.vbs$']),
-    ("lua", [r'\.lua$']),
-    ("java", [r'\.java$']),
-    ("cpp", [r'\.h$', r'\.c$', r'\.cpp$', r'\.hpp$', r'\.C$', r'\.cc$']),
-    ("objectivec", [r'\.m$']),
-    ("vala", [r'\.vala$', r'\.api$']),
-    ("cs", [r'\.cs$']),
-    ("d", [r'\.d$']),
-    ("sql", [r'\.sql$']),
-    ("lisp", [r'\.lisp$', r'\.el$']),
-    ("clojure", [r'\.clj$']),
-    ("ini", [r'\.ini$']),
-    ("apache", [r'apache.conf$']),
-    ("cmake", [r'CMakeLists\.txt$']),
-    ("vhdl", [r'\.vhd$', r'\.vhdl$']),
-    ("diff", [r'\.patch$', r'\.diff$']),
-    ("bash", [r'\.sh$']),
-    ("tex", [r'\.tex$']),
-    ("brainfuck", [r'\.bf$']),
-    ("haskell", [r'\.hs$', r'\.lhs$']),
-    ("erlang", [r'\.erl$']),
-    ("rust", [r'\.rs$']),
-    ("r", ['\.r$']),
-    ]
-
 # strings which will be searched in the mime type of a file to determine
 # if the file should be displayed or downloaded as a raw file:
 TEXT_FILE_MIMES = [

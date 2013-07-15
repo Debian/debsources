@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
+from filetype import get_highlightjs_language
 
 class SourceCodeIterator(object):
     def __init__(self, filepath, hl=None, msg=None, encoding="utf8"):
@@ -36,6 +37,9 @@ class SourceCodeIterator(object):
         self.filepath = filepath
         self.filename = self.filepath.split('/')[-1]
         self.file = open(filepath)
+        # we store the firstline (used to determine file language)
+        self.firstline = self.file.next()
+        self.file.seek(0)
         # TODO: proper generator (but 'with' is not available in jinja2)
         
         self.encoding = encoding
@@ -87,20 +91,7 @@ class SourceCodeIterator(object):
         Returns a class name, usable by highlight.hs, to help it to guess
         the source language.
         """
-        if not(classes_patterns):
-            return None
-
-        # filename_ext = self.filename.split('.')[-1]
-        # for class_, exts in classes_exts:
-        #     if filename_ext in exts:
-        #         return class_
-        # return None
-
-        for class_, patternlist in classes_patterns:
-            for pattern in patternlist:
-                if re.search(pattern, self.filepath):
-                    return class_
-        return None
+        return get_highlightjs_language(self.filename, self.firstline)
 
     def get_msgdict(self):
         """
