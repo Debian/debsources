@@ -26,11 +26,6 @@
   - need to figure out how to ssh into the machine (via the jumphost) w/o
     having a dedicated INRIA account
 
-* TODO better language detection using shebang lines		:web:hilight:
-  as suggested in the LWN thread at https://lwn.net/Articles/557371/
-** see Geany approach and code
-   http://sources.debian.net/src/geany/1.22%2Bdfsg-2/src/filetypes.c#L887
-
 * TODO popup messages between lines instead of on the right	  :web:popup:
   - rationale #1: popups are invisible for very long source code lines
     e.g.: http://sources.debian.net/src/vim/2:7.3.547-7/runtime/syntax/sicad.vim?hl=133&msg=133%3Atest%3Atest#L133

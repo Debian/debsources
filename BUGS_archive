@@ -70,3 +70,15 @@ Archived entries from file /srv/debian/debsources.bugs/BUGS
   :ARCHIVE_TODO: DONE
   :END:
 
+* TODO better language detection using shebang lines		:web:hilight:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2013-07-15 Mon 11:05
+  :ARCHIVE_FILE: ~/work/debian/debsources_bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  as suggested in the LWN thread at https://lwn.net/Articles/557371/
+** see Geany approach and code
+   http://sources.debian.net/src/geany/1.22%2Bdfsg-2/src/filetypes.c#L887
+
+
