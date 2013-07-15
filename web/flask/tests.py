@@ -10,7 +10,8 @@ from app import app
 thisdir = os.path.dirname(os.path.abspath(__file__))
 parentdir = os.path.dirname(thisdir)
 sys.path.insert(0,parentdir)
-from scripts import sources2db
+
+from dbutils import sources2db
 
 
 class DebsourcesTestCase(unittest.TestCase):
@@ -39,10 +40,10 @@ class DebsourcesTestCase(unittest.TestCase):
         #globals["sqlite_file"] = sqlite_file
         
         url = "sqlite:///" + sqlite_file
-        sources2db.sources2db(os.path.join(thisdir,
-                                           "tests/sources.txt"),
-                              url,
-                              drop=True, verbose=False)
+        sources2db(os.path.join(thisdir,
+                                "tests/sources.txt"),
+                   url,
+                   drop=True, verbose=False)
         app.config['TESTING'] = True
         app.config['SQLALCHEMY_ECHO'] = False
         
