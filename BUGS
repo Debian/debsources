@@ -97,3 +97,16 @@
  Debugging: maybe with inline-block and other css tricks
 
 * TODO [0/0] alternative syntax highlighting toolkits		:web:hilight:
+* TODO evaluate with DSA the possibility of sources.d.o		  :infra:dsa:
+* TODO add binary->source redirection map			  :infra:web:
+  Idea: http://sources.d.n/src/FOO -> http://sources.d.n/src/MAP[FOO], as long
+  as FOO _does not exists_ as a source package.  Feature suggested in response
+  to Selim T. Erdogan, Message-ID: <20130712112459.GA3156@cs.utexas.edu>
+
+* TODO "search code" should search in current package 			:web:
+  when applicable, i.e. for all URLs below http://sources.d.n/src/FOO , once
+  the source package context has been determined. To avoid UI confusion, the
+  code search box should likely be pre-populated with "package:FOO", so that
+  users are informed that the search is different there and can override it to
+  search all sources. Feature suggested by Michael Stapelberg on #debian-qa. As
+  a reference, see PTS search box.
