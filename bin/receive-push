@@ -1,0 +1,10 @@
+#!/bin/bash
+
+source "/srv/debsources/etc/config.sh"
+source "${bindir}/lib.sh"
+
+main () {
+    info "received push update request at $(date)"
+}
+
+main >> $logfile 2>&1
