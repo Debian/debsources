@@ -81,7 +81,7 @@ class SuitesMapping(Base):
     
 
 class Checksums(Base):
-    __tablename__ = 'shasums'
+    __tablename__ = 'checksums'
 
     id = Column(Integer, primary_key=True)
     version_id = Column(Integer, ForeignKey('versions.id'))
