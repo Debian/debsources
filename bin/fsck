@@ -22,7 +22,7 @@
 source "/srv/debsources/etc/config.sh"
 source "${bindir}/lib.sh"
 
-db_extensions="done log stats"
+db_extensions="done log stats sloccount"
 
 check_missing() {
     info "fsck: check for missing data..."
@@ -60,7 +60,7 @@ check_stale() {
 	    fi
 	else
 	    case "$entry" in
-		*.done|*.log|*.stats)
+		*.done|*.log|*.stats|*.sloccount)
 		    pkgdir="${entry%.*}"
 		    if ! [ -d "$pkgdir" ] ; then
 			warn "orphan db file: ${entry}"

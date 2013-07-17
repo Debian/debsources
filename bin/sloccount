@@ -1,0 +1,70 @@
+#!/usr/bin/perl
+use strict;
+
+# Copyright (C) 2013  Stefano Zacchiroli <zack@upsilon.cc>
+#
+# This file is part of Debsources.
+#
+# Debsources is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+my %locs;	# global mapping: lang -> lines of code
+
+# parse sloccount output and increment %locs accordingly
+sub extract_locs($) {
+    my ($fname) = @_;
+    open SLOC, "< $fname" or die "Can't open file '$fname'\n";
+    while (my $slocline = <SLOC>) {
+	chomp $slocline;
+	if ($slocline =~ /^Totals grouped by language/) {
+	    while (my $langline = <SLOC>) {
+		last if ($langline =~ /^\s*$/);
+		if ($langline =~ /(\w+):\s*([0-9]+).*/) {
+		    $locs{$1} = 0 unless defined $locs{$1};
+		    $locs{$1} += $2;
+		}
+	    }
+	    last;
+	}
+    }
+    close SLOC;
+}
+
+# dump %locs content to stdout, sorted in descending order
+sub print_locs_summary() {
+    my $total = 0;
+    foreach my $lang (sort { $locs{$b} <=> $locs{$a} } keys %locs) {
+	print $lang, "\t", $locs{$lang}, "\n";
+	$total += $locs{$lang};
+    }
+    print "TOTAL\t$total\n";
+}
+
+my $summary_mode = 0;
+if ($ARGV[0] eq "--summary" or $ARGV[0] eq "-s") {
+    shift @ARGV;
+    $summary_mode = 1;
+}
+die "Usage: sloccount [--summary] { SOURCES-LIST | SLOC-FILE }\n" unless $ARGV[0];
+
+if ($summary_mode) {
+    while (my $srcline = <>) {
+	chomp $srcline;
+	my @parts = split /\t/, $srcline;
+	my $slocfile = $parts[4] . '.sloccount';
+	extract_locs($slocfile) unless ! -f $slocfile;
+    }
+} else {
+    extract_locs($ARGV[0]);
+}
+print_locs_summary();

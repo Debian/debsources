@@ -54,3 +54,4 @@ Debian packages:
 - apache2-utils
 - debmirror
 - rrdtool
+- sloccount
