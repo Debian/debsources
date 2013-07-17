@@ -35,11 +35,6 @@
 * TODO multiple popup messages					  :web:popup:
   to be able to show multiple error( location)s on the same source file
 
-* TODO improve extension<->language mapping			:web:hilight:
-  reusing the one of Geany as suggested in https://lwn.net/Articles/557712/ .
-  See
-  http://sources.debian.net/src/geany/1.22%2Bdfsg-2/data/filetype_extensions.conf
-
 * TODO search based on the file name				 :web:search:
   should be feasible, if the mlocate database is to be believed. Maybe we
   should simply use it, making the indexing available *in* the VM?

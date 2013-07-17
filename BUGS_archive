@@ -95,5 +95,17 @@ Archived entries from file /srv/debian/debsources.bugs/BUGS
   search all sources. Feature suggested by Michael Stapelberg on #debian-qa. As
   a reference, see PTS search box.
 
+* DONE improve extension<->language mapping			:web:hilight:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2013-07-17 Wed 18:52
+  :ARCHIVE_FILE: ~/work/debian/debsources_bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: DONE
+  :END:
+  reusing the one of Geany as suggested in https://lwn.net/Articles/557712/ .
+  See
+  http://sources.debian.net/src/geany/1.22%2Bdfsg-2/data/filetype_extensions.conf
+
+
 
 
