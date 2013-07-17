@@ -81,4 +81,19 @@ Archived entries from file /srv/debian/debsources.bugs/BUGS
 ** see Geany approach and code
    http://sources.debian.net/src/geany/1.22%2Bdfsg-2/src/filetypes.c#L887
 
+* DONE "search code" should search in current package			:web:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2013-07-17 Wed 16:22
+  :ARCHIVE_FILE: ~/work/debian/debsources_bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: DONE
+  :END:
+  when applicable, i.e. for all URLs below http://sources.d.n/src/FOO , once
+  the source package context has been determined. To avoid UI confusion, the
+  code search box should likely be pre-populated with "package:FOO", so that
+  users are informed that the search is different there and can override it to
+  search all sources. Feature suggested by Michael Stapelberg on #debian-qa. As
+  a reference, see PTS search box.
+
+
 
