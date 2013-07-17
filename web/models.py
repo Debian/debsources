@@ -54,37 +54,26 @@ class Version(Base):
     def __repr__(self):
         return self.vnumber
 
+Index('ix_versions_package_id_vnumber', Version.package_id, Version.vnumber)
 
-class Sha1sum(Base):
-    __tablename__ = 'sha1sums'
+
+class Shasum(Base):
+    __tablename__ = 'shasums'
 
     id = Column(Integer, primary_key=True)
     version_id = Column(Integer, ForeignKey('versions.id'))
     path = Column(String)
     sha1 = Column(String(40), index=True)
+    sha256 = Column(String(64), index=True)
 
-    def __init__(self, version, path, sha1=None):
+    def __init__(self, version, path, sha1=None, sha256=None):
         self.version = version
         self.path = path
+        
         if not sha1:
             sha1 = sha1sum(path)
         self.sha1 = sha1
-
-
-class Sha256sum(Base):
-    __tablename__ = 'sha256sums'
-
-    id = Column(Integer, primary_key=True)
-    version_id = Column(Integer, ForeignKey('versions.id'))
-    path = Column(String)
-    sha256 = Column(String(64), index=True)
-
-    def __init__(self, version, path, sha256=None):
-        self.version = version
-        self.path = path
+        
         if not sha256:
             sha256 = sha256sum(path)
         self.sha256 = sha256
-
-
-Index('ix_versions_package_id_vnumber', Version.package_id, Version.vnumber)
