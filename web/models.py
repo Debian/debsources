@@ -121,7 +121,6 @@ class BinaryVersion(Base):
     vnumber = Column(String)
     binarypackage_id = Column(Integer, ForeignKey('binarypackages.id'))
     sourceversion_id = Column(Integer, ForeignKey('versions.id'))
-    area = Column(String(8)) # main, contrib, nonfree
     
     def __init__(self, vnumber, area="main"):
         self.vnumber = vnumber
