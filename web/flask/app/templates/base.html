@@ -32,7 +32,11 @@
 	                         id="query-1") }}
 	    <form name="codesearch" method="get"
 		  action="http://codesearch.debian.net/search">
-	      <input name="q" placeholder="code regex" type="text" />
+	      <input name="q" 
+		     {%- if package %}value="package:{{ package }} "
+		     {%- else %}placeholder="code regex"
+		     {%- endif %}
+		     type="text" />
 	      <input type="submit" value="Search code" />
 	    </form>
 	</div>   <!-- end sitetools -->
