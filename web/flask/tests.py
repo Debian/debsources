@@ -58,10 +58,13 @@ class DebsourcesTestCase(unittest.TestCase):
         #globals["sqlite_file"] = sqlite_file
         
         url = "sqlite:///" + sqlite_file
-        sources2db(os.path.join(thisdir,
-                                "tests/sources.txt"),
-                   url,
-                   drop=True, verbose=False)
+        try:
+            sources2db(os.path.join(thisdir, "tests/sources.txt"),
+                       url, drop=True, verbose=False)
+        except Exception as e:
+            import logging
+            logging.exception(e)
+        
         app.config['TESTING'] = True
         app.config['SQLALCHEMY_ECHO'] = False
         
