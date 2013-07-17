@@ -22,6 +22,12 @@
 source "/srv/debsources/etc/config.sh"
 source "${bindir}/lib.sh"
 
+fix="no"
+if [ "$1" = "-f" -o "$1" = "--fix" ] ; then
+    fix="yes"
+    shift
+fi
+
 db_extensions="done log stats sloccount"
 
 check_missing() {
@@ -57,6 +63,10 @@ check_stale() {
 	    version=$(basename $entry)
 	    if ! grep -q "^${pkg}[[:blank:]]${version}[[:blank:]]" "$sources_list" ; then
 		warn "orphan package dir: ${entry}"
+		if [ "$fix" = "yes" ] ; then
+		    info "removing orphan package dir: ${entry}"
+		    rm -rf "$entry"
+		fi
 	    fi
 	else
 	    case "$entry" in
@@ -64,10 +74,18 @@ check_stale() {
 		    pkgdir="${entry%.*}"
 		    if ! [ -d "$pkgdir" ] ; then
 			warn "orphan db file: ${entry}"
+			if [ "$fix" = "yes" ] ; then
+			    info "removing orphan db file: ${entry}"
+			    rm -f "$entry"
+			fi
 		    fi
 		    ;;
 		*)
 		    warn "unknown db file type: ${entry}"
+		    if [ "$fix" = "yes" ] ; then
+			info "removing unknown db file type: ${entry}"
+			rm -f "$entry"
+		    fi
 		    ;;
 	    esac
 	fi
