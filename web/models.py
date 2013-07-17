@@ -57,7 +57,7 @@ class Version(Base):
 Index('ix_versions_package_id_vnumber', Version.package_id, Version.vnumber)
 
 
-class Shasum(Base):
+class Checksums(Base):
     __tablename__ = 'shasums'
 
     id = Column(Integer, primary_key=True)
