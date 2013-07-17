@@ -131,6 +131,13 @@ class DebsourcesTestCase(unittest.TestCase):
         rv = json.loads(self.app.get('/api/src/0ad/latest',
                                      follow_redirects=True).data)
         assert "0.0.13-2" in rv['path']
+    
+    def test_codesearch_box(self):
+        app.config['SOURCES_FOLDER'] = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "tests/sources")
+        rv = self.app.get('/src/0ad/0.0.13-2/NetStats.cpp')
+        assert 'value="package:0ad "' in rv.data
 
 if __name__ == '__main__':
     unittest.main(exit=False)

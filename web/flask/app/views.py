@@ -373,6 +373,7 @@ class SourceView(GeneralView):
         # the .pc directory)
         return dict(type="directory",
                     directory=location.get_deepest_element(),
+                    package=location.get_package(),
                     content=directory.get_listing(),
                     path=location.get_path_to(),
                     pts_link=self._get_pts_link(location.get_package()))
@@ -385,6 +386,7 @@ class SourceView(GeneralView):
             
         return dict(type="file",
                     file=location.get_deepest_element(),
+                    package=location.get_package(),
                     mime=file_.get_mime(),
                     raw_url=file_.get_raw_url(),
                     path=location.get_path_to(),
