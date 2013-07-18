@@ -88,8 +88,8 @@ filename_regexes = [
     (LUA, [r'\.lua$']),
     (JAVA, [r'\.java$', r'\.jsp$']),
     (C, [r'\.h$', r'\.c$']),
-    (CPP, [ r'\.cpp$', r'\.hpp$', r'\.c++$', r'\.cc$', r'\.cxx$', r'\.hxx$',
-            r'\.hh$', r'\.h++$', r'\.C$', r'\.H$']),
+    (CPP, [r'\.cpp$', r'\.hpp$', r'\.c\+\+$', r'\.cc$', r'\.cxx$', r'\.hxx$',
+           r'\.hh$', r'\.h\+\+$', r'\.C$', r'\.H$']),
     (OBJECTIVEC, [r'\.m$', r'\.mm$']),
     (VALA, [r'\.vala$', r'\.vapi$']),
     (CSHARP, [r'\.cs$']),
@@ -102,14 +102,14 @@ filename_regexes = [
     (CMAKE, [r'CMakeLists\.txt$', r'\.cmake$', r'\.ctest$']),
     (VHDL, [r'\.vhd$', r'\.vhdl$']),
     (DIFF, [r'\.patch$', r'\.diff$', r'\.rej$', r'\.debdiff$', r'\.dpatch$']),
-    (BASH, [r'\.sh$', r'\.[kza]sh$'r'^configure(\.in){0,2}$',
-            '^configure\.ac$', r'\.bash$', r'\.m4$']),
+    (BASH, [r'\.sh$', r'\.[kza]sh$', r'^configure(\.in){0,2}$',
+            r'^configure\.ac$', r'\.bash$', r'\.m4$']),
     (TEX, [r'\.tex$', r'\.sty$', r'\.idx$', r'\.ltx$', r'\.latex$']),
     (BRAINFUCK, [r'\.bf$']),
     (HASKELL, [r'\.hs$', r'\.lhs$']),
     (ERLANG, [r'\.erl$']),
     (RUST, [r'\.rs$']),
-    (R, ['\.r$', r'\.R$']),
+    (R, [r'\.r$', r'\.R$']),
     ]
 
 # Shebang map:
@@ -184,8 +184,12 @@ def get_filetype_from_filename(filename):
     """
     for language, patternslist in filename_regexes:
         for pattern in patternslist:
-            if re.search(pattern, filename):
-                return language
+            try:
+                if re.search(pattern, filename):
+                    return language
+            except Exception as e:
+                raise Exception("Regex error: " + str(language)
+                                + " " + str(pattern))
     return None
 
 def get_highlightjs_language(filename, firstline):
