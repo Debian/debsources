@@ -7,14 +7,14 @@ destdir="$1"
 package="$2"
 version="$3"
 if [ -z "$destdir" -o -z "$package" -o -z "$version" ] ; then
-    err "Usage: sloccount DESTDIR PACKAGE VERSION" 3
+    err "Usage: $0 DESTDIR PACKAGE VERSION" 3
 fi
 
 sloccount "$destdir" &> "${destdir}.sloccount"
 
 rc=$?
 if [ "$rc" -ne 0 ] && ! grep -q '^SLOC total is zero,' "${destdir}.sloccount" ; then
-    warn "sloccount returned exit code ${rc} on ${package}/${version}"
+    warn "$0 returned exit code ${rc} on ${package}/${version}"
 fi
 
 exit 0

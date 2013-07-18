@@ -53,8 +53,4 @@ if [ "$dry_run" != "yes" ] ; then
     mkdir -p "$parentdir"
     dpkg-source --no-copy --no-check -x "$dsc" "$dest" &> "$logfile"
     chgrp -R "$gid" "$dest"
-
-    # TODO: move this to bin/add-package.d/
-    size=$(du -s "$dest" | cut -f 1)
-    echo -e "size\t${size}" > "$statsfile"
 fi

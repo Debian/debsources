@@ -7,7 +7,7 @@ destdir="$1"
 package="$2"
 version="$3"
 if [ -z "$destdir" -o -z "$package" -o -z "$version" ] ; then
-    err "Usage: sloccount DESTDIR PACKAGE VERSION" 3
+    err "Usage: $0 DESTDIR PACKAGE VERSION" 3
 fi
 
 rm -f "${destdir}.sloccount"

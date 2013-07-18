@@ -59,7 +59,7 @@ garbage_collect() {
 		    warn "failed to visit ${package}/${version}"
 		    continue
 		fi
-		if ! rm -rf "$versiondir" "${versiondir}.log" "${versiondir}.stats" ; then
+		if ! rm -rf "$versiondir" "${versiondir}.log" ; then
 		    warn "failed to remove ${package}/${version}"
 		    continue
 		fi

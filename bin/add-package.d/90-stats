@@ -1,0 +1,21 @@
+#!/bin/bash
+
+source "/srv/debsources/etc/config.sh"
+source "${bindir}/lib.sh"
+
+destdir="$1"
+package="$2"
+version="$3"
+if [ -z "$destdir" -o -z "$package" -o -z "$version" ] ; then
+    err "Usage: $0 DESTDIR PACKAGE VERSION" 3
+fi
+
+size=$(du -s "$destdir" | cut -f 1)
+echo -e "size\t${size}" > "${destdir}.stats"
+
+rc=$?
+if [ "$rc" -ne 0 ] ; then
+    warn "$0 returned exit code ${rc} on ${package}/${version}"
+fi
+
+exit 0
