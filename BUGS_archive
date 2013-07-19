@@ -109,3 +109,15 @@ Archived entries from file /srv/debian/debsources.bugs/BUGS
 
 
 
+
+* DONE push update						      :infra:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2013-07-19 Fri 08:55
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: DONE
+  :END:
+  - best option in terms of bandwidth is ftp.de.d.o
+  - need to figure out how to ssh into the machine (via the jumphost) w/o
+    having a dedicated INRIA account
+

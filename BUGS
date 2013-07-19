@@ -21,11 +21,6 @@
     then it will need to be excluded via apache navigation from /data/). Or
     some metadata via xattr. Or a separate hierarchy for extracted tarballs.
 
-* TODO push update						      :infra:
-  - best option in terms of bandwidth is ftp.de.d.o
-  - need to figure out how to ssh into the machine (via the jumphost) w/o
-    having a dedicated INRIA account
-
 * TODO popup messages between lines instead of on the right	  :web:popup:
   - rationale #1: popups are invisible for very long source code lines
     e.g.: http://sources.debian.net/src/vim/2:7.3.547-7/runtime/syntax/sicad.vim?hl=133&msg=133%3Atest%3Atest#L133
