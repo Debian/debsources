@@ -17,9 +17,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# List information about source package found in a given debsources instance
+# List information about source package found in a given debsources
+# instance. Will output two files ($1 and $2, respectively): a SOURCES_LIST
+# file and a METADATA_LIST file.
 #
-# Output format: "PACKAGE\tVERSION\tAREA\tDSC\tDEST\n"
+# SOURCES_LIST format: "PACKAGE\tVERSION\tAREA\tDSC\tDEST\n"
 #
 # - PACKAGE is the source package name
 # - VERSION is the source version
@@ -29,13 +31,30 @@
 #   debsources instance, but are no longer part of the local source mirror
 #   (i.e. disappeared packages not yet expired).
 # - DEST is the absolute path to the package unpacking directory
+#
+# METADATA_LIST format: "PACKAGE\tVERSION\tMETADATA_KEY\tMETADATA_VALUE\n"
+#
+# - METADATA_KEY is the kind of metadata being described. Currently supported:
+#   - "suite" to describe the suite the package is in, e.g. squeeze, wheezy,
+#     sid. The special suite value "cruft" is used to denote packages that no
+#     longer show up in any of the indexed suite, but have not yet been garbage
+#     collected by debsources (see $expire_days in config.sh).
+# - METADATA_VALUE is the actual metadata value. Its format depends on the kind
+#   of metadata. Metadata with list values will have multiple entries for the
+#   same <PACKAGE, VERSION, METADATA_KEY> triplets.
 
-# Depends: dctrl-tools
+# Depends: dctrl-tools, moreutils
 
 set -e
 
 source "/srv/debsources/etc/config.sh"
 source "${bindir}/lib.sh"
+
+srclist="$1"
+metalist="$2"
+if [ -z "$srclist" -o -z "$metalist" ] ; then
+    err "Usage: list-sources SOURCES_LIST_DEST META_LIST_DEST" 3
+fi
 
 expire_args=""
 if [ "$expire_days" -gt 0 ] ; then
@@ -56,40 +75,48 @@ parse_dsc() {
 }
 
 emit() {
-    echo -e "$package\\t$version\\t$area\\t$dsc\\t$dest"
+    echo -e "$package\\t$version\\t$area\\t$dsc\\t$dest" >> "$srclist"
+    echo -e "$package\\t$version\\tsuite\\t$suite" >> "$metalist"
 }
 
 # list source packages available from the local mirror. Some of it might have
 # already been extracted in debsources dir, some might still need to
 list_mirror() {
-    # find "$mirror_dir/dists/unstable/contrib" -type f -name Sources.gz |
-    src_indexes=$(find "$mirror_dir/dists/" -type f -name Sources.gz)
+    distdir="$mirror_dir/dists/"
+    src_indexes=$(find "$distdir" -type f -name Sources.gz)
 
-    zcat $src_indexes | \
-    grep-dctrl -s Package,Version,Directory,Files '' - | \
-    {
-	while read _key package ; do   # line "Package: foo\n"
-            read _key version          # line "Version: 1.2-3\n"
-            read _key directory        # line "Directory: pool/main/h/hello\n"
-            read _key                  # line "Files:\n"
-            parse_dsc
+    for sources in $src_indexes ; do
+	suite="${sources#$distdir}"
+	suite="${suite%%/*}"
+	zcat $sources | \
+	grep-dctrl -s Package,Version,Directory,Files '' - | \
+	{
+	    while read _key package ; do   # line "Package: foo\n"
+		read _key version          # line "Version: 1.2-3\n"
+		read _key directory        # line "Directory: pool/main/h/hello\n"
+		read _key                  # line "Files:\n"
+		parse_dsc
 
-            dest="$sources_dir/${directory#*/}/$version"
-	    area="${directory#*/}"
-	    area="${area%%/*}"
+		dest="$sources_dir/${directory#*/}/$version"
+		area="${directory#*/}"
+		area="${area%%/*}"
 
-	    emit
-	done
-    }
+		emit
+	    done
+	}
+    done
 }
 
 # list source packages available in the local debsources dir, via extractions
 # done in the past, excluding expired entries
+#
+# ASSUMPTION: list_mirror() has already been called and, as a result, $srclist
+# has already been filled with the list of packages available from the mirror
 list_debsources() {
-    local mirror_list="$1"
+    suite="cruft"
     find "$sources_dir" -mindepth 4 -maxdepth 4 -type d $expire_args | \
     while read path ; do	# line "/srv/debsources/sources/contrib/s/sauerbraten/0.0.20100728.dfsg+repack-3"
-	if grep -q "[[:blank:]]${path}\$" "$mirror_list" ; then
+	if grep -q "[[:blank:]]${path}\$" "$srclist" ; then
 	    # source package already listed as part of the local mirror, skip
 	    continue
 	fi
@@ -107,13 +134,12 @@ list_debsources() {
     done
 }
 
-list() {
-    list_m=$(mktemp --tmpdir debsources.XXXXXXXXXX)
-    list_d=$(mktemp --tmpdir debsources.XXXXXXXXXX)
-    trap "rm -f $list_m $list_d" EXIT
-    list_mirror > $list_m
-    list_debsources $list_m > $list_d
-    cat $list_m $list_d | sort -u
+main() {
+    list_mirror
+    list_debsources
+    for list in "$srclist" "$metalist" ; do
+	cat "$list" | sort -u | sponge "$list"
+    done
 }
 
-list
+main

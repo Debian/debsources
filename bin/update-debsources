@@ -28,34 +28,38 @@ update_mirror() {
     ${bindir}/debian-source-mirror
 }
 
-# result: fill $sources_list_new with a path to new source packages list
+# result: fill ${sources,meta}_list_new with a path to new source packages list
 list_sources() {
     info "update-debsources: listing available source packages..."
 
     # note: no risk of race here, thanks to $lockfile
     sources_list_new="${sources_list}.new"
-    ${bindir}/list-sources > "${sources_list_new}"
-    chmod 664 "${sources_list_new}"
-    chgrp $gid "${sources_list_new}"
+    meta_list_new="${meta_list}.new"
+    ${bindir}/list-sources "$sources_list_new" "$meta_list_new"
+    chmod 664 "$sources_list_new" "$meta_list_new"
+    chgrp $gid "$sources_list_new" "$meta_list_new"
 }
 
 extract_sources() {
     # extract all source packages
     local srclist="$1"
+    local metalist="$2"
     info "update-debsources: extracting source packages..."
-    ${bindir}/extract-all "$srclist"
+    ${bindir}/extract-all "$srclist" "$metalist"
 }
 
 garbage_collect() {
     # get rid of disappeared and expired packages
     local srclist="$1"
+    local metalist="$2"
     info "update-debsources: garbage collection..."
-    ${bindir}/gc "$srclist"
+    ${bindir}/gc "$srclist" "$metalist"
 }
 
 update_db() {
     # update maps, indexes, and co.
     local srclist="$1"
+    local metalist="$2"
     info "update-debsources: updating indexes..."
 
     # sqlite db and prefixes
@@ -90,20 +94,12 @@ main() {
     echo $$ > "$lockfile"
 
     update_mirror
-    list_sources	# fill $sources_list_new
-    if ! [ -f "$sources_list" ] \
-	|| ! (diff "$sources_list" "$sources_list_new" > /dev/null)
-    then
-	extract_sources "$sources_list_new"
-	mv "$sources_list_new" "$sources_list"
-	update_db "$sources_list"
-    else
-	info "update-debsources: no changes"
-	rm "$sources_list_new"
-    fi
-    # do GC no matter what: even in case of no changes, we might need to expire
-    # some (now) old content
-    garbage_collect "$sources_list"
+    list_sources	# fill ${sources,meta}_list_new
+    extract_sources "$sources_list_new" "$meta_list_new"
+    mv "$sources_list_new" "$sources_list"
+    mv "$meta_list_new" "$meta_list"
+    update_db "$sources_list" "$meta_list"
+    garbage_collect "$sources_list" "$meta_list"
     update_stats
 
     rm -f "$lockfile"

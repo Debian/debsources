@@ -31,9 +31,10 @@ mirror_dir="/srv/debian-mirror"
 # No trailing slash.
 sources_dir="${root}/sources"
 
-# Local cache of available source packages
+# Local cache of available source packages and related info
 sources_list="${cachedir}/sources.txt"
 sources_sql="${cachedir}/sources.sqlite"
+meta_list="${cachedir}/sources-meta.txt"
 prefixes_file="${cachedir}/pkg-prefixes"
 
 # Statistics data

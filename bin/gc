@@ -33,8 +33,9 @@ if [ "$1" = "-q" -o "$1" = "--quiet" ] ; then
     verbose="0"
 fi
 srclist="$1"
-if [ -z "$srclist" -o ! -f "$srclist" ] ; then
-    err "Usage: extract-all SOURCES_LIST" 3
+metalist="$2"
+if [ -z "$srclist" -o -z "$metalist" ] ; then
+    err "Usage: extract-all SOURCES_LIST META_LIST" 3
 fi
 
 garbage_collect() {
