@@ -17,14 +17,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Depends: apache2-utils (for httxt2dbm)
-
 set -e
 
 source "/srv/debsources/etc/config.sh"
 source "${bindir}/lib.sh"
-
-export PATH="$PATH:/usr/sbin"	# httxt2dbm (currently) lives in sbin
 
 update_mirror() {
     # update source mirror
@@ -61,13 +57,6 @@ update_db() {
     # update maps, indexes, and co.
     local srclist="$1"
     info "update-debsources: updating indexes..."
-
-    # http redirection maps
-    ${bindir}/srclist2redirmap < "$srclist" > "${sources_map}.new"
-    mv "${sources_map}.new" "$sources_map"
-    httxt2dbm -i "$sources_map" -o "${sources_dbm}.new"
-    chmod 664 "${sources_dbm}.new"
-    mv "${sources_dbm}.new" "$sources_dbm"
 
     # sqlite db and prefixes
     ${bindir}/sources2sqlite "$srclist" "${sources_sql}.new"

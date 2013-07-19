@@ -19,7 +19,8 @@ mirror_host="ftp.de.debian.org"
 mirror_suites="oldstable,stable,testing,unstable,experimental"
 mirror_suites="${mirror_suites},proposed-updates,testing-proposed-updates"
 mirror_suites="${mirror_suites},oldstable-updates,stable-updates"
-#  "wheezy" name hard-coded here, instead of "stable", due to #714726
+# "wheezy" name hard-coded here, instead of "stable", due to
+# http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=714726
 mirror_suites="${mirror_suites},wheezy-backports"
 mirror_sections="main,contrib,non-free"
 
@@ -32,20 +33,18 @@ sources_dir="${root}/sources"
 
 # Local cache of available source packages
 sources_list="${cachedir}/sources.txt"
-sources_map="${cachedir}/webredir.map"
-sources_dbm="${cachedir}/webredir.dbm"
 sources_sql="${cachedir}/sources.sqlite"
 prefixes_file="${cachedir}/pkg-prefixes"
-timestamp_file="${cachedir}/last-update"
 
 # Statistics data
 raw_stats="${cachedir}/stats.data"
 rrd_data="${cachedir}/size.rrd"
 rrd_size_graph="${cachedir}/size.png"
 
+# Metadata files
 lockfile="${root}/ONGOING-UPDATE.pid"
-
 logfile="/var/log/debsources/debsources.log"
+timestamp_file="${cachedir}/last-update"
 
 # Number of days packages are kept around after having disappeared from the
 # mirror. After this delay, they will be removed from the debsources instance
