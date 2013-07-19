@@ -2,9 +2,12 @@ DEBSRC=/srv/debsources
 
 # m h          dom mon dow user           command
 
-# 4 runs a day, ideally after the mirror network has stabilized.
-# See http://ftp-master.debian.org/#dinstall for the big bang reference.
-1   4,10,16,22 *   *   *   debian-mirror  $DEBSRC/bin/main
+# Periodic runs disabled in favor of push updates. Keep the extra weekly
+# one for codesearch.d.n, just in case.
+
+# # 4 runs a day, ideally after the mirror network has stabilized.
+# # See http://ftp-master.debian.org/#dinstall for the big bang reference.
+# 1   4,10,16,22 *   *   *   debian-mirror  $DEBSRC/bin/main
 
 # Extra run on Friday, for synchronization with codesearch.d.n, just in case
 # they grabbed versions we don't have yet.
