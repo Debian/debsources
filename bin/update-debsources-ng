@@ -17,22 +17,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-config = {	# TODO: move to a proper configuration file
-    'root_dir':    '/srv/debsources',
-    'bin_dir':     '/srv/debsources/bin',
-    'mirror_dir':  '/srv/debian-mirror',
-    'sources_dir': '/srv/debsources/sources',
-    'db_uri':      'postgresql:///debsources',
-    'expire_days': 0,
-    'dry_run':     False,
-    'hooks':       ['sloccount', 'checksums'],
-}
-
-KNOWN_EVENTS = [ 'add-package', 'rm-package' ]
-actions_d = dict( [ (e, []) for e in KNOWN_EVENTS ] )
-
 import atexit
+import ConfigParser as configparser
 import importlib
 import logging
 import os
@@ -44,11 +30,13 @@ from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-pydir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                     'python')
-plugindir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'plugins')
-sys.path.insert(0, pydir)
-sys.path.insert(1, plugindir)
+BINDIR = os.path.dirname(os.path.abspath(__file__))
+ROOTDIR = os.path.dirname(BINDIR)
+PLUGINDIR = os.path.join(BINDIR, 'plugins')
+PYDIR = os.path.join(ROOTDIR, 'python')
+ETCDIR = os.path.join(ROOTDIR, 'etc')
+sys.path.insert(0, PYDIR)
+sys.path.insert(1, PLUGINDIR)
 
 import dbutils
 
@@ -57,6 +45,29 @@ from models import Package, Version, BinaryPackage, BinaryVersion, SuitesMapping
 
 # TODO fill BinaryPackage, BinaryVersion, SuitesMapping
 
+DEFAULT_CONFIG = {
+    'dry_run':     'false',
+    'log_level':   'info',
+    'expire_days': '0',
+}
+
+LOG_FORMAT = '%(asctime)s %(filename)s:%(levelname)s %(message)s'
+
+LOG_LEVELS = {	# XXX module logging has no built-in way to do this conversion
+                # unless one uses the logging.config cannon. Really?!?
+    'debug':    logging.DEBUG,
+    'info':     logging.INFO,
+    'warning':  logging.WARNING,
+    'error':    logging.ERROR,
+    'critical': logging.CRITICAL,
+}
+
+KNOWN_EVENTS = [ 'add-package', 'rm-package' ]
+
+# list of per-action observers. Global variable
+actions_d = dict( [ (e, []) for e in KNOWN_EVENTS ] )
+
+# DB session maker. Singleton instance
 Session = sessionmaker()
 
 
@@ -145,6 +156,27 @@ def notify(event, session, pkg, pkgdir):
         except:
             logging.error('plugin hooks for %s on %s failed' % (event, pkg))
             raise
+
+
+def load_conffile(conffile):
+    """load configuration from file and return it as a (typed) dictionary
+    """
+    config = configparser.SafeConfigParser(DEFAULT_CONFIG)
+    config.read(conffile)
+
+    typed_config = {}
+    for (key, value) in config.items('debsources'):
+        if key == 'expire_days':
+            value = int(value)
+        elif key == 'dry_run':
+            assert value in ['true', 'false']
+            value = (value == 'true')
+        elif key == 'hooks':
+            value = value.split()
+        elif key == 'log_level':
+            value = LOG_LEVELS[value]
+        typed_config[key] = value
+    return typed_config
 
 
 def load_hooks(conf):
@@ -253,8 +285,8 @@ def main(conf, session):
 
 
 if __name__ == '__main__':
-    log_format = '%(asctime)s %(filename)s:%(levelname)s %(message)s'
-    logging.basicConfig(level=logging.DEBUG, format=log_format)
+    config = load_conffile(os.path.join(ETCDIR, 'config.ini'))
+    logging.basicConfig(level=config['log_level'], format=LOG_FORMAT)
     try:
         db = create_engine(config['db_uri'])
         session = Session(bind=db)
