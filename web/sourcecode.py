@@ -38,7 +38,11 @@ class SourceCodeIterator(object):
         self.filename = self.filepath.split('/')[-1]
         self.file = open(filepath)
         # we store the firstline (used to determine file language)
-        self.firstline = self.file.next()
+        try:
+            self.firstline = self.file.next()
+        except: # empty file
+            self.firstline = ""
+        
         self.file.seek(0)
         # TODO: proper generator (but 'with' is not available in jinja2)
         
