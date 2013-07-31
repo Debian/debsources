@@ -75,8 +75,9 @@ class Version(Base):
     vcs_url = Column(String)
     vcs_browser = Column(String)
     
-    def __init__(self, vnumber, area="main"):
-        self.vnumber = vnumber
+    def __init__(self, version, package):
+        self.vnumber = version
+        self.package_id = package.id
 
     def __repr__(self):
         return self.vnumber
@@ -156,3 +157,8 @@ class SlocCount(Base):
                               nullable=False)
     language = Column(Enum(*LANGUAGES, name="language_names"), nullable=False)
     count = Column(Integer, nullable=False)
+
+    def __init__(self, version, lang, locs):
+        self.sourceversion_id = version.id
+        self.language = lang
+        self.count = locs
