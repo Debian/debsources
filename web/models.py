@@ -23,13 +23,24 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from hashutil import sha1sum, sha256sum
 
+# this list should be kept in sync with
+# http://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-VCS-fields
+VCS_TYPES = ("arch", "bzr", "cvs", "darcs", "git", "hg", "mtn", "svn")
 
-vcs_types = ("arch", "bzr", "cvs", "darcs", "git", "hg", "mtn", "svn")
+# this list should be kept in sync with languages supported by sloccount. A
+# good start is http://www.dwheeler.com/sloccount/sloccount.html (section
+# "Basic concepts"). Others have been added to the Debian package via patches.
+LANGUAGES = (
 
-languages = ("ansic", "cpp", "sh", "xml", "java", "python", "perl", "lisp",
-             "fortran", "asm", "php", "cs", "pascal", "ruby", "ml", "erlang",
-             "tcl", "objc", "haskell", "ada", "yacc", "f90", "exp", "lex",
-             "awk", "jsp", "vhdl", "csh", "sed", "modula3", "cobol")
+    # sloccount 2.26 languages
+    "ada", "asm", "awk", "sh", "ansic", "cpp", "cs", "csh", "cobol", "exp",
+    "fortran", "f90", "haskell", "java", "lex", "lisp", "makefile", "ml",
+    "modula3", "objc", "pascal", "perl", "php", "python",
+    "ruby", "sed", "sql", "tcl", "yacc",
+
+    # enhancements from Debian patches, version 2.26-5
+    "erlang", "jsp", "vhdl", "xml",
+)
 
 
 Base = declarative_base()
