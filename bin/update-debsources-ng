@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import argparse
 import atexit
 import ConfigParser as configparser
 import importlib
@@ -285,8 +286,21 @@ def main(conf, session):
 
 
 if __name__ == '__main__':
-    config = load_conffile(os.path.join(ETCDIR, 'config.ini'))
+    cmdline = argparse.ArgumentParser(description='Debsources updater')
+    cmdline.add_argument('--config', dest='conffile',
+                         help='alternate configuration file')
+    args = cmdline.parse_args()
+
+    conffile = os.path.join(ETCDIR, 'config.ini')
+    alt_conffile = os.path.join(ETCDIR, 'config.local.ini')
+    if os.path.exists(alt_conffile):
+        conffile = alt_conffile
+    if args.conffile:
+        conffile = args.conffile
+    config = load_conffile(conffile)
+
     logging.basicConfig(level=config['log_level'], format=LOG_FORMAT)
+    logging.debug('loaded configuration from %s' % conffile)
     try:
         db = create_engine(config['db_uri'])
         session = Session(bind=db)
