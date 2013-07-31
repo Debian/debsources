@@ -45,13 +45,16 @@ LANGUAGES = (
 
 Base = declarative_base()
 
+
 class Package(Base):
     """ a source package """
     __tablename__ = 'packages'
     
     id = Column(Integer, primary_key=True)
     name = Column(String, index=True, unique=True)
-    versions = relationship("Version", backref="package")#, lazy="joined")
+    versions = relationship("Version", backref="package",
+                            cascade="all, delete-orphan",
+                            passive_deletes=True)
     
     def __init__(self, name):
         self.name = name
@@ -59,15 +62,17 @@ class Package(Base):
     def __repr__(self):
         return self.name
 
+
 class Version(Base):
     """ a version of a source package """
     __tablename__ = 'versions'
     
     id = Column(Integer, primary_key=True)
     vnumber = Column(String)
-    package_id = Column(Integer, ForeignKey('packages.id'))
-    area = Column(String(8)) # main, contrib, nonfree
-    vcs_type = Column(Enum(*vcs_types, name="vcs_types"))
+    package_id = Column(Integer, ForeignKey('packages.id', ondelete="CASCADE"),
+                        nullable=False)
+    area = Column(String(8), index=True)	# main, contrib, non-free
+    vcs_type = Column(Enum(*VCS_TYPES, name="vcs_types"))
     vcs_url = Column(String)
     vcs_browser = Column(String)
     
@@ -87,18 +92,20 @@ class SuitesMapping(Base):
     __tablename__ = 'suitesmapping'
     
     id = Column(Integer, primary_key=True)
-    sourceversion_id = Column(Integer, ForeignKey('versions.id'))
-    suite = Column(String)
+    sourceversion_id = Column(Integer,
+                              ForeignKey('versions.id', ondelete="CASCADE"),
+                              nullable=False)
+    suite = Column(String, index=True)
     
 
 class Checksums(Base):
     __tablename__ = 'checksums'
 
     id = Column(Integer, primary_key=True)
-    version_id = Column(Integer, ForeignKey('versions.id'))
-    path = Column(String)
-    sha1 = Column(String(40), index=True)
-    sha256 = Column(String(64), index=True)
+    version_id = Column(Integer, ForeignKey('versions.id', ondelete="CASCADE"),
+                        nullable=False)
+    path = Column(String, nullable=False)	# path/whitin/source/pkg
+    sha256 = Column(String(64), nullable=False, index=True)
 
     def __init__(self, version, path, sha1=None, sha256=None):
         self.version = version
@@ -112,12 +119,15 @@ class Checksums(Base):
             sha256 = sha256sum(path)
         self.sha256 = sha256
 
+
 class BinaryPackage(Base):
     __tablename__ = 'binarypackages'
     
     id = Column(Integer, primary_key=True)
     name = Column(String, index=True, unique=True)
-    versions = relationship("BinaryVersion", backref="binarypackage")
+    versions = relationship("BinaryVersion", backref="binarypackage",
+                            cascade="all, delete-orphan",
+                            passive_deletes=True)
     
     def __init__(self, name):
         self.name = name
@@ -125,13 +135,18 @@ class BinaryPackage(Base):
     def __repr__(self):
         return self.name
 
+
 class BinaryVersion(Base):
     __tablename__ = 'binaryversions'
     
     id = Column(Integer, primary_key=True)
     vnumber = Column(String)
-    binarypackage_id = Column(Integer, ForeignKey('binarypackages.id'))
-    sourceversion_id = Column(Integer, ForeignKey('versions.id'))
+    binarypackage_id = Column(Integer, ForeignKey('binarypackages.id',
+                                                  ondelete="CASCADE"),
+                              nullable=False)
+    sourceversion_id = Column(Integer, ForeignKey('versions.id',
+                                                  ondelete="CASCADE"),
+                              nullable=False)
     
     def __init__(self, vnumber, area="main"):
         self.vnumber = vnumber
@@ -139,10 +154,13 @@ class BinaryVersion(Base):
     def __repr__(self):
         return self.vnumber
 
+
 class SlocCount(Base):
     __tablename__ = 'sloccounts'
     
     id = Column(Integer, primary_key=True)
-    sourceversion_id = Column(Integer, ForeignKey('versions.id'))
-    language = Column(Enum(*languages, name="language_names"))
-    count = Column(Integer)
+    sourceversion_id = Column(Integer,
+                              ForeignKey('versions.id', ondelete="CASCADE"),
+                              nullable=False)
+    language = Column(Enum(*LANGUAGES, name="language_names"), nullable=False)
+    count = Column(Integer, nullable=False)
