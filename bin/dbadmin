@@ -1,0 +1,60 @@
+#!/usr/bin/python
+
+# Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
+#               2013  Stefano Zacchiroli <zack@upsilon.cc>
+#
+# This file is part of Debsources.
+#
+# Debsources is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import sys, os
+import time
+
+from sqlalchemy import create_engine
+from sqlalchemy.sql import exists
+
+pydir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                     'python')
+sys.path.insert(0, pydir)
+
+from models import Base
+
+
+if __name__ == "__main__":
+    start_time = time.time()
+
+    parser = argparse.ArgumentParser(description="Manage Debsources DB")
+    parser.add_argument("dburi",
+                        help="SQLAlchemy URI to the DB, e.g. postgres://username:password@localhost:5432/debsources")
+    parser.add_argument("--createdb",
+                        help="create DB schema",
+                        action="store_true")
+    parser.add_argument("--dropdb",
+                        help="destroy existing DB schema (WARNING: you will lose all data)",
+                        action="store_true")
+    parser.add_argument("--verbose",
+                        help="verbose logging (default: be quiet)",
+                        action="store_true")
+    args = parser.parse_args()
+
+    #os.environ['PYTHONINSPECT'] = 'True'
+    db = create_engine(args.dburi, echo=args.verbose)
+
+    if args.dropdb:
+        Base.metadata.drop_all(db)
+    if args.createdb:
+        Base.metadata.create_all(db)
+    if args.verbose:
+        print("\nexecution time: %f s" % (time.time() - start_time))
