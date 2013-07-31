@@ -60,13 +60,9 @@ from models import Package, Version, BinaryPackage, BinaryVersion, SuitesMapping
 Session = sessionmaker()
 
 
-def extract_package(pkg, destdir, dry=False):
+def extract_package(pkg, destdir):
     """extract a package to the Debsources file system storage
     """
-    logging.info("extract %s..." % pkg)
-    if dry:
-        return
-
     parentdir = os.path.dirname(destdir)
     if not os.path.isdir(parentdir):
         os.makedirs(parentdir)
@@ -82,13 +78,9 @@ def extract_package(pkg, destdir, dry=False):
     open(donefile, 'w').close()
 
 
-def remove_package(pkg, destdir, dry=False):
+def remove_package(pkg, destdir):
     """dispose of a package from the Debsources file system storage
     """
-    logging.info("remove %s..." % pkg)
-    if dry:
-        return
-
     if os.path.exists(destdir):
         shutil.rmtree(destdir)
     for meta in ['log', 'done']:
@@ -216,14 +208,16 @@ def main(conf, session):
         pkgdir = pkg.extraction_dir(conf['sources_dir'])
         if not dbutils.lookup_version(session, pkg['package'], pkg['version']):
             try:
-                extract_package(pkg, pkgdir, dry)
-                if not dry:
-                    with session.begin_nested():
-                        # single db session for package addition and hook
-                        # execution: if the hooks fail, the package won't be
-                        # added to the db (it will be tried again at next run)
-                        dbutils.add_package(session, pkg)
-                        notify('add-package', session, pkg, pkgdir)
+                logging.info("extract %s..." % pkg)
+                if dry:
+                    continue
+                extract_package(pkg, pkgdir)
+                with session.begin_nested():
+                    # single db session for package addition and hook
+                    # execution: if the hooks fail, the package won't be added
+                    # to the db (it will be tried again at next run)
+                    dbutils.add_package(session, pkg)
+                    notify('add-package', session, pkg, pkgdir)
             except:
                 logging.exception('failed to extract %s' % pkg)
 
@@ -237,18 +231,19 @@ def main(conf, session):
             # package is in in Debsources db, but gone from mirror: we might
             # have to garbage collect it (depending on expiry)
             try:
-                if not dry:
-                    notify('rm-package', session, pkg, pkgdir)
                 expire_days = config['expire_days']
                 age = None
                 if os.path.exists(pkgdir):
                     age = datetime.now() \
                           - datetime.fromtimestamp(os.path.getctime(pkgdir))
                     if not age or age.days >= expire_days:
-                        remove_package(pkg, pkgdir, dry)
-                        if not dry:
-                            with session.begin_nested():
-                                dbutils.rm_package(session, version)
+                        logging.info("remove %s..." % pkg)
+                        if dry:
+                            continue
+                        notify('rm-package', session, pkg, pkgdir)
+                        remove_package(pkg, pkgdir)
+                        with session.begin_nested():
+                            dbutils.rm_package(session, version)
                     else:
                         logging.debug('not removing %s as it is too young' % pkg)
             except:
