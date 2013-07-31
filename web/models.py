@@ -21,7 +21,6 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Index, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-from hashutil import sha1sum, sha256sum
 
 # this list should be kept in sync with
 # http://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-VCS-fields
@@ -107,16 +106,9 @@ class Checksum(Base):
     path = Column(String, nullable=False)	# path/whitin/source/pkg
     sha256 = Column(String(64), nullable=False, index=True)
 
-    def __init__(self, version, path, sha1=None, sha256=None):
-        self.version = version
+    def __init__(self, version, path, sha256):
+        self.version_id = version.id
         self.path = path
-        
-        if not sha1:
-            sha1 = sha1sum(path)
-        self.sha1 = sha1
-        
-        if not sha256:
-            sha256 = sha256sum(path)
         self.sha256 = sha256
 
 
