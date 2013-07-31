@@ -1,0 +1,272 @@
+#!/usr/bin/python
+
+# Copyright (C) 2013  Stefano Zacchiroli <zack@upsilon.cc>
+#
+# This file is part of Debsources.
+#
+# Debsources is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+config = {	# TODO: move to a proper configuration file
+    'root_dir':    '/srv/debsources',
+    'bin_dir':     '/srv/debsources/bin',
+    'mirror_dir':  '/srv/debian-mirror',
+    'sources_dir': '/srv/debsources/sources',
+    'db_uri':      'postgresql:///debsources',
+    'expire_days': 0,
+    'dry_run':     False,
+    'hooks':       ['sloccount', 'checksums'],
+}
+
+KNOWN_EVENTS = [ 'add-package', 'rm-package' ]
+actions_d = dict( [ (e, []) for e in KNOWN_EVENTS ] )
+
+import atexit
+import importlib
+import logging
+import os
+import shutil
+import subprocess
+import sys
+
+from datetime import datetime
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+pydir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                     'python')
+plugindir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'plugins')
+sys.path.insert(0, pydir)
+sys.path.insert(1, plugindir)
+
+import dbutils
+
+from debmirror import SourcePackage, ls_mirror
+from models import Package, Version, BinaryPackage, BinaryVersion, SuitesMapping
+
+# TODO fill BinaryPackage, BinaryVersion, SuitesMapping
+
+Session = sessionmaker()
+
+
+def extract_package(pkg, destdir, dry=False):
+    """extract a package to the Debsources file system storage
+    """
+    logging.info("extract %s..." % pkg)
+    if dry:
+        return
+
+    parentdir = os.path.dirname(destdir)
+    if not os.path.isdir(parentdir):
+        os.makedirs(parentdir)
+    if os.path.isdir(destdir):	# remove stale dir, dpkg-source doesn't clobber
+        shutil.rmtree(destdir)
+    dsc = os.path.join(config['mirror_dir'], pkg.dsc_path())
+    cmd = ['dpkg-source', '--no-copy', '--no-check',
+           '-x', dsc, destdir ]
+    logfile = destdir + '.log'
+    donefile = destdir + '.done'
+    with open(logfile, 'w') as log:
+        subprocess.check_call(cmd, stdout=log, stderr=subprocess.STDOUT)
+    open(donefile, 'w').close()
+
+
+def remove_package(pkg, destdir, dry=False):
+    """dispose of a package from the Debsources file system storage
+    """
+    logging.info("remove %s..." % pkg)
+    if dry:
+        return
+
+    if os.path.exists(destdir):
+        shutil.rmtree(destdir)
+    for meta in ['log', 'done']:
+        fname = destdir + '.' + meta
+        if os.path.exists(fname):
+            os.unlink(fname)
+    try:
+        os.removedirs(os.path.dirname(destdir))
+    except OSError:
+        pass	# parent dir is likely non empty, due to other package versions
+
+
+def notify(event, session, pkg, pkgdir):
+    """notify (Python and shell) hooks of occurred events
+
+    currently supported events:
+
+    * add-package: a package is being added to Debsources; its source files
+      have already been unpacked to the file storage and its metadata have
+      already been added to the database
+
+    * rm-package: a package is being removed from Debsources; its source files
+      are still part of the file storage and its metadata are still part of the
+      database
+
+    Python hooks are passed the following arguments, in this order:
+
+    * session: ongoing database session; failures in hook execution will cause
+      the session to be rolled back, udoing pending database modifications
+      (e.g. the addition/removal of package metadata)
+
+    * pkg: a debmirror.SourcePackage representation of the package being acted
+      upon
+
+    * pkgdir: path pointing to the package location in the file storage
+
+    Shell hoks re invoked with the following arguments: pkgdir, package name,
+    package version
+
+    """
+    package, version = pkg['package'], pkg['version']
+    cmd = ['run-parts', '--exit-on-error',
+           '--arg', pkgdir,
+           '--arg', package,
+           '--arg', version,
+           os.path.join(config['bin_dir'], event + '.d')
+       ]
+    logging.info('trigger %s on %s' % (event, pkg))
+
+    # trigger shell hooks
+    try:
+        subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError, e:
+        logging.error('shell hooks for %s on %s returned exit code %d. Output: %s'
+                      % (event, pkg, e.returncode, e.output))
+        raise e
+
+    # trigger plugin hooks
+    for (title, action) in actions_d[event]:
+        try:
+            action(session, pkg, pkgdir)
+        except:
+            logging.error('plugin hooks for %s on %s failed' % (event, pkg))
+            raise
+
+
+def load_hooks(conf):
+    """load and initialize hooks from the corresponding Python modules
+    """
+    def subscribe_callback(event, action, title=""):
+        if not event in KNOWN_EVENTS:
+            raise ValueError('unknown event type "%s"' % event)
+        actions_d[event].append((title, action))
+
+    debsources = { 'subscribe': subscribe_callback,
+                   'config':    conf }
+
+    for hook in conf['hooks']:
+        plugin = importlib.import_module('hook_' + hook)
+        plugin.debsources_main(debsources)
+
+
+def init(dry=False):
+    """startup actions: initialize logging and take mutex lock
+    """
+    start_msg = 'start'
+    if dry:
+        start_msg += ' (in DRY RUN mode)'
+    logging.info(start_msg)
+
+    lockfile = os.path.join(config['root_dir'], 'ONGOING-UPDATE.pid')
+    if os.path.exists(lockfile):
+        with open(lockfile) as lock,\
+             open(os.devnull, 'w') as null:
+            pid = lock.readline().rstrip()
+            if subprocess.call(['ps', pid], stdout=null, stderr=null) != 0:
+                logging.warn('remove stale lockfile for gone pid %s' % pid)
+                os.unlink(lockfile)
+            else:
+                logging.error('lockfile found. Abort')
+                sys.exit(1)
+    with open(lockfile, 'w') as lock:
+        lock.write('%d\n' % os.getpid())
+        atexit.register(lambda: os.unlink(lockfile))
+
+
+def finish():
+    """clean up actions
+    """
+    # note: lockfile is removed via atexit, no need to do that explicitly here
+    logging.info('finish')
+
+
+def main(conf, session):
+    """main: do a full update run
+    """
+    dry = conf['dry_run']
+    load_hooks(conf)
+
+    # step 1: list mirror and extract new packages
+    logging.info('list mirror packages...')
+    mirror_pkgs = ls_mirror(os.path.join(conf['mirror_dir'], 'dists'))
+    logging.info('extract new packages...')
+    for pkg in mirror_pkgs.itervalues():
+        pkgdir = pkg.extraction_dir(conf['sources_dir'])
+        if not dbutils.lookup_version(session, pkg['package'], pkg['version']):
+            try:
+                extract_package(pkg, pkgdir, dry)
+                if not dry:
+                    with session.begin_nested():
+                        # single db session for package addition and hook
+                        # execution: if the hooks fail, the package won't be
+                        # added to the db (it will be tried again at next run)
+                        dbutils.add_package(session, pkg)
+                        notify('add-package', session, pkg, pkgdir)
+            except:
+                logging.exception('failed to extract %s' % pkg)
+
+    # step 2: list db and remove disappeared and expired packages
+    logging.info('garbage collection...')
+    for version in session.query(Version).all():
+        pkg = SourcePackage.from_db_model(version)
+        pkg_id = (pkg['package'], pkg['version'])
+        pkgdir = pkg.extraction_dir(conf['sources_dir'])
+        if not mirror_pkgs.has_key(pkg_id):
+            # package is in in Debsources db, but gone from mirror: we might
+            # have to garbage collect it (depending on expiry)
+            try:
+                if not dry:
+                    notify('rm-package', session, pkg, pkgdir)
+                expire_days = config['expire_days']
+                age = None
+                if os.path.exists(pkgdir):
+                    age = datetime.now() \
+                          - datetime.fromtimestamp(os.path.getctime(pkgdir))
+                    if not age or age.days >= expire_days:
+                        remove_package(pkg, pkgdir, dry)
+                        if not dry:
+                            with session.begin_nested():
+                                dbutils.rm_package(session, version)
+                    else:
+                        logging.debug('not removing %s as it is too young' % pkg)
+            except:
+                logging.exception('failed to remove %s' % pkg)
+
+    finish()
+
+
+if __name__ == '__main__':
+    log_format = '%(asctime)s %(filename)s:%(levelname)s %(message)s'
+    logging.basicConfig(level=logging.DEBUG, format=log_format)
+    try:
+        db = create_engine(config['db_uri'])
+        session = Session(bind=db)
+        main(config, session)
+        session.commit()
+    except SystemExit:	# exit as requested
+        raise
+    except:	# store trace in log, then exit
+        logging.exception('unhandled exception. Abort')
+        sys.exit(2)
