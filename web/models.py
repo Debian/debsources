@@ -98,7 +98,7 @@ class SuitesMapping(Base):
     suite = Column(String, index=True)
     
 
-class Checksums(Base):
+class Checksum(Base):
     __tablename__ = 'checksums'
 
     id = Column(Integer, primary_key=True)
