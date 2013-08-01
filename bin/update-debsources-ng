@@ -58,10 +58,10 @@ LOG_DATE_FMT = '%Y-%m-%d %H:%M:%S'
 
 LOG_LEVELS = {	# XXX module logging has no built-in way to do this conversion
                 # unless one uses the logging.config cannon. Really?!?
-    'debug':    logging.DEBUG,
-    'info':     logging.INFO,
-    'warning':  logging.WARNING,
-    'error':    logging.ERROR,
+    'debug':    logging.DEBUG,		# verbosity >= 3
+    'info':     logging.INFO,		# verbosity >= 2
+    'warning':  logging.WARNING,	# verbosity >= 1
+    'error':    logging.ERROR,		# verbosity >= 0
     'critical': logging.CRITICAL,
 }
 
@@ -229,6 +229,17 @@ def finish():
     logging.info('finish')
 
 
+def _log_level_of_verbosity(n):
+    if n >= 3:
+        return logging.DEBUG
+    elif n >= 2:
+        return logging.INFO
+    elif n >= 1:
+        return logging.WARNING
+    else:
+        return logging.ERROR
+
+
 def main(conf, session):
     """main: do a full update run
     """
@@ -292,6 +303,9 @@ if __name__ == '__main__':
     cmdline = argparse.ArgumentParser(description='Debsources updater')
     cmdline.add_argument('--config', dest='conffile',
                          help='alternate configuration file')
+    cmdline.add_argument('--verbose', '-v',
+                         action='count',
+                         help='increase console verbosity')
     args = cmdline.parse_args()
 
     conffile = os.path.join(ETCDIR, 'config.ini')
@@ -309,7 +323,7 @@ if __name__ == '__main__':
                         datefmt=LOG_DATE_FMT,
                         filename=config['log_file'])
     stderr_log = logging.StreamHandler()
-    stderr_log.setLevel(logging.ERROR)
+    stderr_log.setLevel(_log_level_of_verbosity(args.verbose))
     stderr_log.setFormatter(logging.Formatter(LOG_FMT_STDERR))
     logging.getLogger().addHandler(stderr_log)
 
