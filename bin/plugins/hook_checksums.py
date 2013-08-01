@@ -49,7 +49,16 @@ def add_package(session, pkg, pkgdir):
         checksum = Checksum(version, relpath, sha256)
         session.add(checksum)
 
+
+def rm_package(session, pkg, pkgdir):
+    logging.debug('rm-package %s' % pkg)
+
+    version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
+    session.query(Checksum) \
+           .filter_by(version_id=version.id) \
+           .delete()
+
+
 def debsources_main(debsources):
     debsources['subscribe']('add-package', add_package, title='checksums')
-    # note: nothing to do in rm-package to counter the addition, as all
-    # checksums will be removed by ON DELETE CASCADE
+    debsources['subscribe']('rm-package',  rm_package,  title='checksums')

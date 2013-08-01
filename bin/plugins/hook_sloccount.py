@@ -97,10 +97,14 @@ def add_package(session, pkg, pkgdir):
 def rm_package(session, pkg, pkgdir):
     logging.debug('rm-package %s' % pkg)
 
-    # note: sloccount data in db will be removed by ON DELETE CASCADE
     slocfile = slocfile_path(pkgdir)
     if os.path.exists(slocfile):
         os.unlink(slocfile)
+
+    version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
+    session.query(SlocCount) \
+           .filter_by(sourceversion_id=version.id) \
+           .delete()
 
 
 def debsources_main(debsources):
