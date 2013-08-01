@@ -1,0 +1,15 @@
+Add/remove hooks
+================
+
+To add a hook:
+
+1. add the hook as a Python plugin under `bin/plugins/hook_NAME.py`
+
+2. trigger the `add-package` event for the new hook:
+
+    $ bin/update-debsources(-ng) -vvv --pass none --trigger add-package/NAME
+
+3. add the hook to the `hooks` configuration entry in config(.local).ini
+
+To remove a hook follow the reverse process, but trigger the `rm-package` event
+instead.
