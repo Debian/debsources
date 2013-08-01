@@ -23,6 +23,7 @@ import ConfigParser as configparser
 import importlib
 import logging
 import os
+import string
 import shutil
 import subprocess
 import sys
@@ -48,6 +49,7 @@ from models import Package, Version, BinaryPackage, BinaryVersion, SuitesMapping
 
 DEFAULT_CONFIG = {
     'dry_run':     'false',
+    'passes':      'db fs hooks',
     'log_level':   'info',
     'expire_days': '0',
 }
@@ -179,6 +181,8 @@ def load_conffile(conffile):
             value = value.split()
         elif key == 'log_level':
             value = LOG_LEVELS[value]
+        elif key == 'passes':
+            value = set(value.split())
         typed_config[key] = value
     return typed_config
 
@@ -202,10 +206,12 @@ def load_hooks(conf):
 def init(conf):
     """startup actions: initialize logging and take mutex lock
     """
-    start_msg = 'start'
+    logging.info('start')
     if conf['dry_run']:
-        start_msg += ' (in DRY RUN mode)'
-    logging.info(start_msg)
+        logging.warn('note: DRY RUN mode is enabled')
+    if conf['passes'] != set(DEFAULT_CONFIG['passes'].split()):
+        logging.warn('note: only doing passes: %s',
+                     string.join(conf['passes'], ', '))
 
     lockfile = os.path.join(config['root_dir'], 'ONGOING-UPDATE.pid')
     if os.path.exists(lockfile):
@@ -259,13 +265,16 @@ def update(conf, session):
                 logging.info('add %s...' % pkg)
                 if dry:
                     continue
-                extract_package(pkg, pkgdir)
+                if 'fs' in conf['passes']:
+                    extract_package(pkg, pkgdir)
                 with session.begin_nested():
                     # single db session for package addition and hook
                     # execution: if the hooks fail, the package won't be added
                     # to the db (it will be tried again at next run)
-                    dbutils.add_package(session, pkg)
-                    notify('add-package', session, pkg, pkgdir)
+                    if 'db' in conf['passes']:
+                        dbutils.add_package(session, pkg)
+                    if 'hooks' in conf['passes']:
+                        notify('add-package', session, pkg, pkgdir)
             except:
                 logging.exception('failed to extract %s' % pkg)
 
@@ -288,10 +297,13 @@ def update(conf, session):
                         logging.info("gc %s..." % pkg)
                         if dry:
                             continue
-                        notify('rm-package', session, pkg, pkgdir)
-                        remove_package(pkg, pkgdir)
+                        if 'hooks' in conf['passes']:
+                            notify('rm-package', session, pkg, pkgdir)
+                        if 'fs' in conf['passes']:
+                            remove_package(pkg, pkgdir)
                         with session.begin_nested():
-                            dbutils.rm_package(session, version)
+                            if 'db' in conf['passes']:
+                                dbutils.rm_package(session, version)
                     else:
                         logging.debug('not removing %s as it is too young' % pkg)
             except:
@@ -304,6 +316,11 @@ if __name__ == '__main__':
     cmdline = argparse.ArgumentParser(description='Debsources updater')
     cmdline.add_argument('--config', '-c', dest='conffile',
                          help='alternate configuration file')
+    cmdline.add_argument('--pass', '-p',
+                         metavar='PASS',
+                         action='append',
+                         help='only perform a specific update pass (one of: db, fs, hooks). By default all passes are enabled. Can be specified multiple times. Warning: you will mess up update logic, use at your own risk.',
+                         dest='passes')
     cmdline.add_argument('--verbose', '-v',
                          action='count',
                          help='increase console verbosity')
@@ -316,6 +333,10 @@ if __name__ == '__main__':
     if args.conffile:
         conffile = args.conffile
     config = load_conffile(conffile)
+
+    # override configuration from cmdline args
+    if args.passes:
+        config['passes'] = set(args.passes)
 
     # Set up logging: log everythong to logfile, log errors to stderr. stderr
     # will be shown on console for interactive use, or mailed by cron.
