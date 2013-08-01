@@ -293,19 +293,19 @@ def update(conf, session):
                 if os.path.exists(pkgdir):
                     age = datetime.now() \
                           - datetime.fromtimestamp(os.path.getctime(pkgdir))
-                    if not age or age.days >= expire_days:
-                        logging.info("gc %s..." % pkg)
-                        if dry:
-                            continue
-                        if 'hooks' in conf['passes']:
-                            notify('rm-package', session, pkg, pkgdir)
-                        if 'fs' in conf['passes']:
-                            remove_package(pkg, pkgdir)
+                if not age or age.days >= expire_days:
+                    logging.info("gc %s..." % pkg)
+                    if dry:
+                        continue
+                    if 'hooks' in conf['passes']:
+                        notify('rm-package', session, pkg, pkgdir)
+                    if 'fs' in conf['passes']:
+                        remove_package(pkg, pkgdir)
+                    if 'db' in conf['passes']:
                         with session.begin_nested():
-                            if 'db' in conf['passes']:
-                                dbutils.rm_package(session, version)
-                    else:
-                        logging.debug('not removing %s as it is too young' % pkg)
+                            dbutils.rm_package(session, pkg, version)
+                else:
+                    logging.debug('not removing %s as it is too young' % pkg)
             except:
                 logging.exception('failed to remove %s' % pkg)
 

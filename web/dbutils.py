@@ -52,7 +52,7 @@ def add_package(session, pkg):
         session.add(version)
 
 
-def rm_package(session, db_version):
+def rm_package(session, pkg, db_version):
     """Remove a package (= debmirror.SourcePackage) from the Debsources db
     """
     logging.debug('remove from db %s...' % pkg)
