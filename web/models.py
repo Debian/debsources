@@ -17,7 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Index, Enum
+from sqlalchemy import Column, ForeignKey, UniqueConstraint
+from sqlalchemy import Integer, String, Index, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -100,6 +101,7 @@ class SuitesMapping(Base):
 
 class Checksum(Base):
     __tablename__ = 'checksums'
+    __table_args__ = (UniqueConstraint('version_id', 'path'),)
 
     id = Column(Integer, primary_key=True)
     version_id = Column(Integer, ForeignKey('versions.id', ondelete="CASCADE"),
@@ -150,6 +152,7 @@ class BinaryVersion(Base):
 
 class SlocCount(Base):
     __tablename__ = 'sloccounts'
+    __table_args__ = (UniqueConstraint('sourceversion_id', 'language'),)
     
     id = Column(Integer, primary_key=True)
     sourceversion_id = Column(Integer,
