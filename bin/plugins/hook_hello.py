@@ -18,12 +18,11 @@
 import logging
 
 def add_package(session, pkg, pkgdir):
-    logging.info('add-package %s %s' % (pkg, pkgdir))
+    logging.debug('add-package %s %s' % (pkg, pkgdir))
 
 def rm_package(session, pkg, pkgdir):
-    logging.info('rm-package %s %s' % (pkg, pkgdir))
+    logging.debug('rm-package %s %s' % (pkg, pkgdir))
 
 def debsources_main(debsources):
-    logging.info('subscribe to: add-package, rm_package')
     debsources['subscribe']('add-package', add_package, title='hello')
     debsources['subscribe']('rm-package', rm_package, title='hello')
