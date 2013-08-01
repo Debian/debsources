@@ -52,7 +52,9 @@ DEFAULT_CONFIG = {
     'expire_days': '0',
 }
 
-LOG_FORMAT = '%(asctime)s %(filename)s:%(levelname)s %(message)s'
+LOG_FMT_FILE = '%(asctime)s %(module)s:%(levelname)s %(message)s'
+LOG_FMT_STDERR = '%(module)s:%(levelname)s %(message)s'
+LOG_DATE_FMT = '%Y-%m-%d %H:%M:%S'
 
 LOG_LEVELS = {	# XXX module logging has no built-in way to do this conversion
                 # unless one uses the logging.config cannon. Really?!?
@@ -300,8 +302,19 @@ if __name__ == '__main__':
         conffile = args.conffile
     config = load_conffile(conffile)
 
-    logging.basicConfig(level=config['log_level'], format=LOG_FORMAT)
+    # Set up logging: log everythong to logfile, log errors to stderr. stderr
+    # will be shown on console for interactive use, or mailed by cron.
+    logging.basicConfig(level=config['log_level'],
+                        format=LOG_FMT_FILE,
+                        datefmt=LOG_DATE_FMT,
+                        filename=config['log_file'])
+    stderr_log = logging.StreamHandler()
+    stderr_log.setLevel(logging.ERROR)
+    stderr_log.setFormatter(logging.Formatter(LOG_FMT_STDERR))
+    logging.getLogger().addHandler(stderr_log)
+
     logging.debug('loaded configuration from %s' % conffile)
+
     try:
         db = create_engine(config['db_uri'])
         session = Session(bind=db)
