@@ -301,7 +301,7 @@ def main(conf, session):
 
 if __name__ == '__main__':
     cmdline = argparse.ArgumentParser(description='Debsources updater')
-    cmdline.add_argument('--config', dest='conffile',
+    cmdline.add_argument('--config', '-c', dest='conffile',
                          help='alternate configuration file')
     cmdline.add_argument('--verbose', '-v',
                          action='count',
