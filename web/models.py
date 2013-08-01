@@ -42,6 +42,8 @@ LANGUAGES = (
     "erlang", "jsp", "vhdl", "xml",
 )
 
+METRIC_TYPES = ("size",)
+
 
 Base = declarative_base()
 
@@ -165,3 +167,20 @@ class SlocCount(Base):
         self.sourceversion_id = version.id
         self.language = lang
         self.count = locs
+
+
+class Metric(Base):
+    __tablename__ = 'metrics'
+    __table_args__ = (UniqueConstraint('sourceversion_id', 'metric'),)
+
+    id = Column(Integer, primary_key=True)
+    sourceversion_id = Column(Integer,
+                              ForeignKey('versions.id', ondelete="CASCADE"),
+                              nullable=False)
+    metric = Column(Enum(*METRIC_TYPES, name="metric_types"), nullable=False)
+    value = Column("value_", Integer, nullable=False)
+
+    def __init__(self, version, metric, value):
+        self.sourceversion_id = version.id
+        self.metric = metric
+        self.value = value

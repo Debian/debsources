@@ -112,7 +112,6 @@ def remove_package(pkg, destdir):
 
 
 # TODO get rid of shell hooks; they shall die a horrible death
-# TODO port 90-stats to Python
 
 def notify(event, session, pkg, pkgdir):
     """notify (Python and shell) hooks of occurred events
