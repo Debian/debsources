@@ -77,6 +77,7 @@ Session = sessionmaker()
 def extract_package(pkg, destdir):
     """extract a package to the Debsources file system storage
     """
+    logging.debug('extract %s...' % pkg)
     parentdir = os.path.dirname(destdir)
     if not os.path.isdir(parentdir):
         os.makedirs(parentdir)
@@ -135,6 +136,7 @@ def notify(event, session, pkg, pkgdir):
     package version
 
     """
+    logging.debug('notify %s for %s' % (event, pkg))
     package, version = pkg['package'], pkg['version']
     cmd = ['run-parts', '--exit-on-error',
            '--arg', pkgdir,
@@ -142,7 +144,6 @@ def notify(event, session, pkg, pkgdir):
            '--arg', version,
            os.path.join(config['bin_dir'], event + '.d')
        ]
-    logging.info('trigger %s on %s' % (event, pkg))
 
     # trigger shell hooks
     try:
@@ -250,12 +251,12 @@ def update(conf, session):
     # step 1: list mirror and extract new packages
     logging.info('list mirror packages...')
     mirror_pkgs = ls_mirror(os.path.join(conf['mirror_dir'], 'dists'))
-    logging.info('extract new packages...')
+    logging.info('add new packages...')
     for pkg in mirror_pkgs.itervalues():
         pkgdir = pkg.extraction_dir(conf['sources_dir'])
         if not dbutils.lookup_version(session, pkg['package'], pkg['version']):
             try:
-                logging.info("extract %s..." % pkg)
+                logging.info('add %s...' % pkg)
                 if dry:
                     continue
                 extract_package(pkg, pkgdir)
@@ -284,7 +285,7 @@ def update(conf, session):
                     age = datetime.now() \
                           - datetime.fromtimestamp(os.path.getctime(pkgdir))
                     if not age or age.days >= expire_days:
-                        logging.info("remove %s..." % pkg)
+                        logging.info("gc %s..." % pkg)
                         if dry:
                             continue
                         notify('rm-package', session, pkg, pkgdir)
@@ -318,14 +319,16 @@ if __name__ == '__main__':
 
     # Set up logging: log everythong to logfile, log errors to stderr. stderr
     # will be shown on console for interactive use, or mailed by cron.
-    logging.basicConfig(level=config['log_level'],
+    logging.basicConfig(level=logging.DEBUG, # log everything by default
                         format=LOG_FMT_FILE,
                         datefmt=LOG_DATE_FMT,
                         filename=config['log_file'])
+    logger = logging.getLogger()
+    logger.handlers[0].setLevel(config['log_level']) # logfile verbosity
     stderr_log = logging.StreamHandler()
-    stderr_log.setLevel(_log_level_of_verbosity(args.verbose))
+    stderr_log.setLevel(_log_level_of_verbosity(args.verbose)) # console verb.
     stderr_log.setFormatter(logging.Formatter(LOG_FMT_STDERR))
-    logging.getLogger().addHandler(stderr_log)
+    logger.addHandler(stderr_log)
 
     logging.debug('loaded configuration from %s' % conffile)
 
