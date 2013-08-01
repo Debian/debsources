@@ -174,7 +174,7 @@ def notify_plugins(event, session, pkg, pkgdir, triggers=None, dry=False):
             if triggers is None:
                 action(session, pkg, pkgdir)
             elif (event, title) in triggers:
-                logging.debug('notify (forced) %s for %s' % (event, pkg))
+                logging.debug('notify (forced) %s/%s for %s' % (event, title, pkg))
                 if not dry:
                     action(session, pkg, pkgdir)
         except:
