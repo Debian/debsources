@@ -196,11 +196,11 @@ def load_hooks(conf):
         plugin.debsources_main(debsources)
 
 
-def init(dry=False):
+def init(conf):
     """startup actions: initialize logging and take mutex lock
     """
     start_msg = 'start'
-    if dry:
+    if conf['dry_run']:
         start_msg += ' (in DRY RUN mode)'
     logging.info(start_msg)
 
@@ -230,8 +230,9 @@ def finish():
 def main(conf, session):
     """main: do a full update run
     """
-    dry = conf['dry_run']
     load_hooks(conf)
+    init(conf)
+    dry = conf['dry_run']
 
     # step 1: list mirror and extract new packages
     logging.info('list mirror packages...')
