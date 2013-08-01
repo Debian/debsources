@@ -240,8 +240,8 @@ def _log_level_of_verbosity(n):
         return logging.ERROR
 
 
-def main(conf, session):
-    """main: do a full update run
+def update(conf, session):
+    """do a full update run
     """
     load_hooks(conf)
     init(conf)
@@ -332,7 +332,7 @@ if __name__ == '__main__':
     try:
         db = create_engine(config['db_uri'])
         session = Session(bind=db)
-        main(config, session)
+        update(config, session)
         session.commit()
     except SystemExit:	# exit as requested
         raise
