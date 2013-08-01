@@ -20,6 +20,7 @@ import os
 
 import dbutils
 import hashutil
+
 from models import Checksum
 
 
@@ -28,12 +29,24 @@ def walk_pkg_files(pkgdir):
         for file in files:
             yield os.path.join(root, file)
 
+
 def add_package(session, pkg, pkgdir):
     logging.debug('add-package %s' % pkg)
+
     version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
     for path in walk_pkg_files(pkgdir):
+        sha256 = hashutil.sha256sum(path)
         relpath = os.path.relpath(path, pkgdir)
-        checksum = Checksum(version, relpath, hashutil.sha256sum(path))
+        checksum = session.query(Checksum) \
+                          .filter_by(version_id=version.id,
+                                     path=relpath,
+                                     sha256=sha256) \
+                          .first()
+        if checksum:
+            break # ASSUMPTION: if *a* checksum of this package has already
+                  # been added to the db in the past, then *all* of them have,
+                  # as additions are part of the same transaction
+        checksum = Checksum(version, relpath, sha256)
         session.add(checksum)
 
 def debsources_main(debsources):
