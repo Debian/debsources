@@ -319,7 +319,7 @@ if __name__ == '__main__':
     cmdline.add_argument('--pass', '-p',
                          metavar='PASS',
                          action='append',
-                         help='only perform a specific update pass (one of: db, fs, hooks). By default all passes are enabled. Can be specified multiple times. Warning: you will mess up update logic, use at your own risk.',
+                         help='only perform a specific update pass (one of: db, fs, hooks). By default all passes are enabled; the special value "none" disables all passes. Can be specified multiple times. Warning: you will mess up update logic, use at your own risk.',
                          dest='passes')
     cmdline.add_argument('--verbose', '-v',
                          action='count',
@@ -336,7 +336,10 @@ if __name__ == '__main__':
 
     # override configuration from cmdline args
     if args.passes:
-        config['passes'] = set(args.passes)
+        if 'none' in args.passes:
+            config['passes'] = set()
+        else:
+            config['passes'] = set(args.passes)
 
     # Set up logging: log everythong to logfile, log errors to stderr. stderr
     # will be shown on console for interactive use, or mailed by cron.
