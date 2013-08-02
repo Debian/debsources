@@ -42,7 +42,7 @@ sys.path.insert(1, PLUGINDIR)
 
 import dbutils
 
-from debmirror import SourcePackage, ls_mirror
+from debmirror import SourceMirror, SourcePackage
 from models import Package, Version, BinaryPackage, BinaryVersion, SuitesMapping
 
 # TODO fill BinaryPackage, BinaryVersion, SuitesMapping
@@ -274,9 +274,9 @@ def update(conf, session):
 
     # step 1: list mirror and extract new packages
     logging.info('list mirror packages...')
-    mirror_pkgs = ls_mirror(os.path.join(conf['mirror_dir'], 'dists'))
+    mirror = SourceMirror(os.path.join(conf['mirror_dir'], 'dists'))
     logging.info('add new packages...')
-    for pkg in mirror_pkgs.itervalues():
+    for pkg in mirror.ls():
         pkgdir = pkg.extraction_dir(conf['sources_dir'])
         if not dbutils.lookup_version(session, pkg['package'], pkg['version']):
             try:
@@ -304,7 +304,7 @@ def update(conf, session):
         pkg = SourcePackage.from_db_model(version)
         pkg_id = (pkg['package'], pkg['version'])
         pkgdir = pkg.extraction_dir(conf['sources_dir'])
-        if not mirror_pkgs.has_key(pkg_id):
+        if not pkg_id in mirror.packages:
             # package is in in Debsources db, but gone from mirror: we might
             # have to garbage collect it (depending on expiry)
             try:

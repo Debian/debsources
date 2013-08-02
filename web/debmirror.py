@@ -118,32 +118,78 @@ class SourcePackage(deb822.Sources):
         return os.path.join(*steps)
 
 
-def _find_Sources(path):
-    """Find Sources.gz entries and return them as <suite, path> pairs
+class SourceMirror(object):
+    """Handle for a local Debian source mirror
     """
-    for root, dirs, files in os.walk(path):
-        src_indexes = [ os.path.join(root, file)
-                        for file in files
-                        if file == "Sources.gz" ]
-        for f in src_indexes:
-            steps = f.split('/')
-            suite = steps[-4]	# wheezy, jessie, sid, ...
-            yield suite, f
+
+    def __init__(self, path):
+        """create a handle to a local source mirror rooted at path
+        """
+        self.path = path
+        self._suites = None	# dict: suite name -> [<package, version>]
+        self._packages = None	# set(<package, version>)
 
 
-def ls_mirror(path):
-    """List source packages available in a local source mirror
+    @property
+    def suites(self):
+        """return a mapping from suite names to <package, version> pairs
 
-    Return a dictionary mapping (name, version) to SourcePackage instances
-    """
-    pkgs = {}
-    for suite, src_index in _find_Sources(path):
-        with open(src_index) as i:
-            for pkg in SourcePackage.iter_paragraphs(i):
-                pkg_id = (pkg['package'], pkg['version'])
-                if pkgs.has_key(pkg_id):
-                    pkgs[pkg_id]['x-debsrc-suites'] += ',' + suite
-                else:
-                    pkg['x-debsrc-suites'] = suite
-                    pkgs[pkg_id] = pkg
-    return pkgs
+        Note: for efficient use, this property is best accessed after having
+        used the ls() method
+        """
+        if self._suites is None:
+            for pkg in self.ls():
+                pass	# hack: rely on ls' side-effects to populate suites
+        assert self._suites is not None
+        return self._suites
+
+
+    @property
+    def packages(self):
+        """return the mirror packages as a set of <package, version> paris
+
+        Note: for efficient use, this property is best accessed after having
+        used the ls() method
+        """
+        if self._packages is None:
+            for pkg in self.ls():
+                pass	# hack: rely on ls' side-effects to populate _packages
+        assert self._packages is not None
+        return self._packages
+
+
+    def __find_Sources_gz(self):
+        """Find Sources.gz entries contained in the mirror
+
+        return them as <suite, path> pairs
+        """
+        for root, dirs, files in os.walk(self.path):
+            src_indexes = [ os.path.join(root, file)
+                            for file in files
+                            if file == "Sources.gz" ]
+            for f in src_indexes:
+                steps = f.split('/')
+                suite = steps[-4]	# wheezy, jessie, sid, ...
+                yield suite, f
+
+
+    def ls(self):
+        """List SourcePackages instances of packages available in the mirror
+
+        Side effect: populate the properties suites and packages
+        """
+        self._suites = {}
+        self._packages = set()
+
+        for suite, src_index in self.__find_Sources_gz():
+            with open(src_index) as i:
+                for pkg in SourcePackage.iter_paragraphs(i):
+                    pkg_id = (pkg['package'], pkg['version'])
+
+                    if not self._suites.has_key(suite):
+                        self._suites[suite] = []
+                    self._suites[suite].append(pkg_id)
+
+                    if not pkg_id in self._packages:
+                        self._packages.add(pkg_id)
+                        yield pkg
