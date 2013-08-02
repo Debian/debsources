@@ -92,3 +92,8 @@
   Idea: http://sources.d.n/src/FOO -> http://sources.d.n/src/MAP[FOO], as long
   as FOO _does not exists_ as a source package.  Feature suggested in response
   to Selim T. Erdogan, Message-ID: <20130712112459.GA3156@cs.utexas.edu>
+* TODO adapt the tests to the new infrastructure 		  :tests:web:
+  use update-debsources-ng with a small Sources.gz
+  add test for /api/checksum/foo/
+* TODO get rid of Flask-SQLAlchemy plugin 		     :web:sqlalchemy:
+  "raw" SQLAlchemy is better
