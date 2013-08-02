@@ -25,7 +25,8 @@ from debian.debian_support import version_compare
 
 from app import app
 from models_app import Package_app, Version_app, Location, Directory, \
-    SourceFile, InvalidPackageOrVersionError, FileOrFolderNotFound
+    SourceFile, InvalidPackageOrVersionError, FileOrFolderNotFound, \
+    Checksum_app
 from sourcecode import SourceCodeIterator
 from forms import SearchForm
 
@@ -532,4 +533,24 @@ app.add_url_rule('/embedded/<path:path_to>', view_func=SourceView.as_view(
         render_func=lambda **kwargs:
                 render_source_file_html("source_file_embedded.html", **kwargs),
         err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+
+
+### SHASUM REQUEST ###
+
+class ChecksumView(GeneralView):
+    def get_objects(self, checksum):
+        """ returns the files whose checksum corresponds to the one given """
+        results = Checksum_app.files_with_sum(checksum)
+        
+        return dict(results=results,
+                    sha256=checksum,
+                    count=len(results))
+
+
+# CHECKSUM REQUEST (JSON)
+app.add_url_rule('/api/checksum/<checksum>/', view_func=ChecksumView.as_view(
+        'checksum_json',
+        render_func=jsonify,
+        err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
         ))

@@ -242,3 +242,27 @@ class SourceFile(object):
     def get_raw_url(self):
         """ return the raw url on disk (e.g. data/main/a/azerty/foo.bar) """
         return self.sources_path_static
+
+class Checksum_app(models.Checksum, db.Model):
+    @staticmethod
+    def files_with_sum(checksum):
+        """
+        Returns a list of files whose hexdigest is checksum.
+        """
+        # here we use db.session.query() instead of Class.query,
+        # because after all "pure" SQLAlchemy is better than the
+        # Flask-SQLAlchemy plugin.
+        results = (db.session.query(Package_app.name.label("package"),
+                                    Version_app.vnumber.label("version"),
+                                    Checksum_app.path.label("path"))
+                   .filter(Checksum_app.sha256 == checksum)
+                   .filter(Checksum_app.version_id == Version_app.id)
+                   .filter(Version_app.package_id == Package_app.id)
+                   .all()
+                   )
+        app.logger.error(results)
+        
+        return [dict(path=res.path,
+                     package=res.package,
+                     version=res.version)
+                for res in results]
