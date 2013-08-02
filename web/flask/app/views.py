@@ -536,7 +536,7 @@ app.add_url_rule('/embedded/<path:path_to>', view_func=SourceView.as_view(
         ))
 
 
-### SHASUM REQUEST ###
+### CHECKSUM REQUEST ###
 
 class ChecksumView(GeneralView):
     def get_objects(self, checksum):
