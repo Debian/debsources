@@ -260,7 +260,6 @@ class Checksum_app(models.Checksum, db.Model):
                    .filter(Version_app.package_id == Package_app.id)
                    .all()
                    )
-        app.logger.error(results)
         
         return [dict(path=res.path,
                      package=res.package,
