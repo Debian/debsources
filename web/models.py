@@ -18,7 +18,7 @@
 
 
 from sqlalchemy import Column, ForeignKey, UniqueConstraint
-from sqlalchemy import Integer, String, Index, Enum
+from sqlalchemy import Integer, String, Index, Enum, LargeBinary
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -108,7 +108,7 @@ class Checksum(Base):
     id = Column(Integer, primary_key=True)
     version_id = Column(Integer, ForeignKey('versions.id', ondelete="CASCADE"),
                         nullable=False)
-    path = Column(String, nullable=False)	# path/whitin/source/pkg
+    path = Column(LargeBinary, nullable=False)	# path/whitin/source/pkg
     sha256 = Column(String(64), nullable=False, index=True)
 
     def __init__(self, version, path, sha256):
