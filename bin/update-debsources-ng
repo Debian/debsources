@@ -77,7 +77,7 @@ actions_d = dict( [ (e, []) for e in KNOWN_EVENTS ] )
 Session = sessionmaker()
 
 
-def extract_package(pkg, destdir):
+def extract_package(conf, pkg, destdir):
     """extract a package to the Debsources file system storage
     """
     logging.debug('extract %s...' % pkg)
@@ -86,7 +86,7 @@ def extract_package(pkg, destdir):
         os.makedirs(parentdir)
     if os.path.isdir(destdir):	# remove stale dir, dpkg-source doesn't clobber
         shutil.rmtree(destdir)
-    dsc = os.path.join(config['mirror_dir'], pkg.dsc_path())
+    dsc = os.path.join(conf['mirror_dir'], pkg.dsc_path())
     cmd = ['dpkg-source', '--no-copy', '--no-check',
            '-x', dsc, destdir ]
     logfile = destdir + '.log'
@@ -113,7 +113,7 @@ def remove_package(pkg, destdir):
 
 # TODO get rid of shell hooks; they shall die a horrible death
 
-def notify(event, session, pkg, pkgdir):
+def notify(conf, event, session, pkg, pkgdir):
     """notify (Python and shell) hooks of occurred events
 
     Currently supported events:
@@ -147,7 +147,7 @@ def notify(event, session, pkg, pkgdir):
            '--arg', pkgdir,
            '--arg', package,
            '--arg', version,
-           os.path.join(config['bin_dir'], event + '.d')
+           os.path.join(conf['bin_dir'], event + '.d')
        ]
 
     # fire shell hooks
@@ -181,14 +181,14 @@ def notify_plugins(event, session, pkg, pkgdir, triggers=None, dry=False):
             raise
 
 
-def load_conffile(conffile):
+def load_conffile(fname):
     """load configuration from file and return it as a (typed) dictionary
     """
-    config = configparser.SafeConfigParser(DEFAULT_CONFIG)
-    config.read(conffile)
+    conffile = configparser.SafeConfigParser(DEFAULT_CONFIG)
+    conffile.read(fname)
 
-    typed_config = {}
-    for (key, value) in config.items('debsources'):
+    typed_conf = {}
+    for (key, value) in conffile.items('debsources'):
         if key == 'expire_days':
             value = int(value)
         elif key == 'dry_run':
@@ -200,8 +200,8 @@ def load_conffile(conffile):
             value = LOG_LEVELS[value]
         elif key == 'passes':
             value = set(value.split())
-        typed_config[key] = value
-    return typed_config
+        typed_conf[key] = value
+    return typed_conf
 
 
 def load_hooks(conf):
@@ -231,7 +231,7 @@ def init(conf):
     if conf['force_triggers']:
         logging.warn('forcing triggers: %s' % conf['force_triggers'])
 
-    lockfile = os.path.join(config['root_dir'], 'ONGOING-UPDATE.pid')
+    lockfile = os.path.join(conf['root_dir'], 'ONGOING-UPDATE.pid')
     if os.path.exists(lockfile):
         with open(lockfile) as lock,\
              open(os.devnull, 'w') as null:
@@ -282,7 +282,7 @@ def update(conf, session):
             try:
                 logging.info('add %s...' % pkg)
                 if not dry and 'fs' in conf['passes']:
-                    extract_package(pkg, pkgdir)
+                    extract_package(conf, pkg, pkgdir)
                 with session.begin_nested():
                     # single db session for package addition and hook
                     # execution: if the hooks fail, the package won't be added
@@ -290,7 +290,7 @@ def update(conf, session):
                     if not dry and 'db' in conf['passes']:
                         dbutils.add_package(session, pkg)
                     if not dry and 'hooks' in conf['passes']:
-                        notify('add-package', session, pkg, pkgdir)
+                        notify(conf, 'add-package', session, pkg, pkgdir)
             except:
                 logging.exception('failed to extract %s' % pkg)
         if conf['force_triggers']:
@@ -308,7 +308,7 @@ def update(conf, session):
             # package is in in Debsources db, but gone from mirror: we might
             # have to garbage collect it (depending on expiry)
             try:
-                expire_days = config['expire_days']
+                expire_days = conf['expire_days']
                 age = None
                 if os.path.exists(pkgdir):
                     age = datetime.now() \
@@ -316,7 +316,7 @@ def update(conf, session):
                 if not age or age.days >= expire_days:
                     logging.info("gc %s..." % pkg)
                     if not dry and 'hooks' in conf['passes']:
-                        notify('rm-package', session, pkg, pkgdir)
+                        notify(conf, 'rm-package', session, pkg, pkgdir)
                     if not dry and 'fs' in conf['passes']:
                         remove_package(pkg, pkgdir)
                     if not dry and 'db' in conf['passes']:
@@ -359,28 +359,28 @@ if __name__ == '__main__':
         conffile = alt_conffile
     if args.conffile:
         conffile = args.conffile
-    config = load_conffile(conffile)
+    conf = load_conffile(conffile)
 
     # override configuration from cmdline args
     if args.passes:
         if 'none' in args.passes:
-            config['passes'] = set()
+            conf['passes'] = set()
         else:
-            config['passes'] = set(args.passes)
+            conf['passes'] = set(args.passes)
     if args.force_triggers:
-        config['force_triggers'] = []
+        conf['force_triggers'] = []
         for trigger in args.force_triggers:
             (event, hook) = trigger.split('/')
-            config['force_triggers'].append((event, hook))
+            conf['force_triggers'].append((event, hook))
 
     # Set up logging: log everythong to logfile, log errors to stderr. stderr
     # will be shown on console for interactive use, or mailed by cron.
     logging.basicConfig(level=logging.DEBUG, # log everything by default
                         format=LOG_FMT_FILE,
                         datefmt=LOG_DATE_FMT,
-                        filename=config['log_file'])
+                        filename=conf['log_file'])
     logger = logging.getLogger()
-    logger.handlers[0].setLevel(config['log_level']) # logfile verbosity
+    logger.handlers[0].setLevel(conf['log_level']) # logfile verbosity
     stderr_log = logging.StreamHandler()
     stderr_log.setLevel(_log_level_of_verbosity(args.verbose)) # console verb.
     stderr_log.setFormatter(logging.Formatter(LOG_FMT_STDERR))
@@ -389,9 +389,9 @@ if __name__ == '__main__':
     logging.debug('loaded configuration from %s' % conffile)
 
     try:
-        db = create_engine(config['db_uri'])
+        db = create_engine(conf['db_uri'])
         session = Session(bind=db)
-        update(config, session)
+        update(conf, session)
         session.commit()
     except SystemExit:	# exit as requested
         raise
