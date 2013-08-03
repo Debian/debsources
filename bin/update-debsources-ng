@@ -294,9 +294,12 @@ def update(conf, session):
             except:
                 logging.exception('failed to extract %s' % pkg)
         if conf['force_triggers']:
-            notify_plugins('add-package', session, pkg, pkgdir,
-                           triggers=conf['force_triggers'],
-                           dry=dry)
+            try:
+                notify_plugins('add-package', session, pkg, pkgdir,
+                               triggers=conf['force_triggers'],
+                               dry=dry)
+            except:
+                logging.exception('trigger failure on %s' % pkg)
 
     # step 2: list db and remove disappeared and expired packages
     logging.info('garbage collection...')
@@ -327,9 +330,12 @@ def update(conf, session):
             except:
                 logging.exception('failed to remove %s' % pkg)
         if conf['force_triggers']:
-            notify_plugins('rm-package', session, pkg, pkgdir,
-                           triggers=conf['force_triggers'],
-                           dry=dry)
+            try:
+                notify_plugins('rm-package', session, pkg, pkgdir,
+                               triggers=conf['force_triggers'],
+                               dry=dry)
+            except:
+                logging.exception('trigger failure on %s' % pkg)
 
     finish()
 
