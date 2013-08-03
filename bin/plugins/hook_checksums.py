@@ -42,6 +42,10 @@ def add_package(session, pkg, pkgdir):
 
     version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
     for path in walk_pkg_files(pkgdir):
+        if os.path.islink(path):
+            # do not checksum symlinks, if they are not dangling/external we
+            # will checksum their target anyhow
+            continue
         sha256 = hashutil.sha256sum(path)
         relpath = os.path.relpath(path, pkgdir)
         checksum = session.query(Checksum) \
