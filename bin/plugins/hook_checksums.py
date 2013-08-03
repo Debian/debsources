@@ -24,6 +24,9 @@ import hashutil
 from models import Checksum
 
 
+conf = None
+
+
 def walk_pkg_files(pkgdir):
     for root, dirs, files in os.walk(pkgdir):
         for file in files:
@@ -31,7 +34,11 @@ def walk_pkg_files(pkgdir):
 
 
 def add_package(session, pkg, pkgdir):
+    global conf
     logging.debug('add-package %s' % pkg)
+
+    if not 'hooks.db' in conf['passes']:
+        return
 
     version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
     for path in walk_pkg_files(pkgdir):
@@ -51,7 +58,11 @@ def add_package(session, pkg, pkgdir):
 
 
 def rm_package(session, pkg, pkgdir):
+    global conf
     logging.debug('rm-package %s' % pkg)
+
+    if not 'hooks.db' in conf['passes']:
+        return
 
     version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
     session.query(Checksum) \
@@ -60,5 +71,7 @@ def rm_package(session, pkg, pkgdir):
 
 
 def debsources_main(debsources):
+    global conf
+    conf = debsources['config']
     debsources['subscribe']('add-package', add_package, title='checksums')
     debsources['subscribe']('rm-package',  rm_package,  title='checksums')

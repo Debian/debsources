@@ -24,43 +24,70 @@ import dbutils
 from models import Metric
 
 
+conf = None
+
 metricsfile_path = lambda pkgdir: pkgdir + '.stats'
 
 
+def parse_metrics(path):
+    metrics = {}
+    with open(path) as metricsfile:
+        for line in metricsfile:
+            metric, value = line.split()
+            metrics[metric] = int(value)
+    return metrics
+
+
 def add_package(session, pkg, pkgdir):
+    global conf
     logging.debug('add-package %s' % pkg)
 
-    metricsfile = metricsfile_path(pkgdir)
-    cmd = [ 'du', '--summarize', pkgdir ]
     metric_type = 'size'
-    metric_value = int(subprocess.check_output(cmd).split()[0])
-    with open(metricsfile, 'w') as out:
-        out.write('%s\t%d\n' % (metric_type, metric_value))
+    metric_value = None
+    metricsfile = metricsfile_path(pkgdir)
 
-    version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
-    metric = session.query(Metric) \
-                    .filter_by(sourceversion_id=version.id,
-                               metric=metric_type,
-                               value=metric_value) \
-                    .first()
-    if not metric:
-        metric = Metric(version, metric_type, metric_value)
-        session.add(metric)
+    if 'hooks.fs' in conf['passes']:
+        cmd = [ 'du', '--summarize', pkgdir ]
+        metric_value = int(subprocess.check_output(cmd).split()[0])
+        with open(metricsfile, 'w') as out:
+            out.write('%s\t%d\n' % (metric_type, metric_value))
+
+    if 'hooks.db' in conf['passes']:
+        if metric_value is None:
+            # hooks.db is enabled but hooks.fs is not, so we don't have a
+            # metric_value handy. Parse it from metrics file, hoping it exists
+            # from previous runs...
+            metric_value = parse_metrics(metricsfile)[metric_type]
+
+        version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
+        metric = session.query(Metric) \
+                        .filter_by(sourceversion_id=version.id,
+                                   metric=metric_type,
+                                   value=metric_value) \
+                        .first()
+        if not metric:
+            metric = Metric(version, metric_type, metric_value)
+            session.add(metric)
 
 
 def rm_package(session, pkg, pkgdir):
+    global conf
     logging.debug('rm-package %s' % pkg)
 
-    metricsfile = metricsfile_path(pkgdir)
-    if os.path.exists(metricsfile):
-        os.unlink(metricsfile)
+    if 'hooks.fs' in conf['passes']:
+        metricsfile = metricsfile_path(pkgdir)
+        if os.path.exists(metricsfile):
+            os.unlink(metricsfile)
 
-    version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
-    session.query(Metric) \
-           .filter_by(sourceversion_id=version.id) \
-           .delete()
+    if 'hooks.db' in conf['passes']:
+        version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
+        session.query(Metric) \
+               .filter_by(sourceversion_id=version.id) \
+               .delete()
 
 
 def debsources_main(debsources):
+    global conf
+    conf = debsources['config']
     debsources['subscribe']('add-package', add_package, title='metrics')
     debsources['subscribe']('rm-package',  rm_package,  title='metrics')

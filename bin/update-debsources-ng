@@ -49,7 +49,7 @@ from models import Package, Version, BinaryPackage, BinaryVersion, SuitesMapping
 
 DEFAULT_CONFIG = {
     'dry_run':     'false',
-    'passes':      'db fs hooks',
+    'passes':      'db fs hooks hooks.db hooks.fs',
     'log_level':   'info',
     'expire_days': '0',
     'force_triggers': [],
@@ -341,7 +341,7 @@ if __name__ == '__main__':
     cmdline.add_argument('--pass', '-p',
                          metavar='PASS',
                          action='append',
-                         help='only perform a specific update pass (one of: db, fs, hooks). By default all passes are enabled; the special value "none" disables all passes. Can be specified multiple times. Warning: you will mess up update logic, use at your own risk.',
+                         help='only perform a specific update pass (one of: db, fs, hooks, hooks.db, hooks.fs). By default all passes are enabled; the special value "none" disables all passes. Can be specified multiple times. Warning: you will mess up update logic, use at your own risk.',
                          dest='passes')
     cmdline.add_argument('--trigger', '-t',
                          metavar='EVENT/HOOK',

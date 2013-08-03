@@ -25,6 +25,8 @@ import dbutils
 from models import SlocCount
 
 
+conf = None
+
 slocfile_path = lambda pkgdir: pkgdir + '.sloccount'
 
 
@@ -65,48 +67,57 @@ def parse_sloccount(path):
 
 
 def add_package(session, pkg, pkgdir):
+    global conf
     logging.debug('add-package %s' % pkg)
 
     slocfile = slocfile_path(pkgdir)
-    try:
-        cmd = [ 'sloccount', pkgdir ]
-        with open(slocfile, 'w') as out:
-            subprocess.check_call(cmd, stdout=out, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError:
-        if not grep(['^SLOC total is zero,', slocfile]):
-            # rationale: sloccount fails when it can't find source code
-            raise
 
-    slocs = parse_sloccount(slocfile)
-    version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
-    assert version is not None
-    for (lang, locs) in slocs.iteritems():
-        sloccount = session.query(SlocCount) \
-                           .filter_by(sourceversion_id=version.id,
-                                     language=lang,
-                                     count=locs) \
-                          .first()
-        if sloccount:
-            break # ASSUMPTION: if *a* loc count of this package has already
-                  # been added to the db in the past, then *all* of them have,
-                  # as additions are part of the same transaction
-        sloccount = SlocCount(version, lang, locs)
-        session.add(sloccount)
+    if 'hooks.fs' in conf['passes']:
+        try:
+            cmd = [ 'sloccount', pkgdir ]
+            with open(slocfile, 'w') as out:
+                subprocess.check_call(cmd, stdout=out, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError:
+            if not grep(['^SLOC total is zero,', slocfile]):
+                # rationale: sloccount fails when it can't find source code
+                raise
+
+    if 'hooks.db' in conf['passes']:
+        slocs = parse_sloccount(slocfile)
+        version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
+        assert version is not None
+        for (lang, locs) in slocs.iteritems():
+            sloccount = session.query(SlocCount) \
+                               .filter_by(sourceversion_id=version.id,
+                                         language=lang,
+                                         count=locs) \
+                              .first()
+            if sloccount:
+                break # ASSUMPTION: if *a* loc count of this package has already
+                      # been added to the db in the past, then *all* of them have,
+                      # as additions are part of the same transaction
+            sloccount = SlocCount(version, lang, locs)
+            session.add(sloccount)
 
 
 def rm_package(session, pkg, pkgdir):
+    global conf
     logging.debug('rm-package %s' % pkg)
 
-    slocfile = slocfile_path(pkgdir)
-    if os.path.exists(slocfile):
-        os.unlink(slocfile)
+    if 'hooks.fs' in conf['passes']:
+        slocfile = slocfile_path(pkgdir)
+        if os.path.exists(slocfile):
+            os.unlink(slocfile)
 
-    version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
-    session.query(SlocCount) \
-           .filter_by(sourceversion_id=version.id) \
-           .delete()
+    if 'hooks.db' in conf['passes']:
+        version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
+        session.query(SlocCount) \
+               .filter_by(sourceversion_id=version.id) \
+               .delete()
 
 
 def debsources_main(debsources):
+    global conf
+    conf = debsources['config']
     debsources['subscribe']('add-package', add_package, title='sloccount')
     debsources['subscribe']('rm-package',  rm_package,  title='sloccount')
