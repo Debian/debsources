@@ -163,7 +163,8 @@ class SourceMirror(object):
 
         return them as <suite, path> pairs
         """
-        for root, dirs, files in os.walk(self.path):
+        dists_dir = os.path.join(self.path, 'dists')
+        for root, dirs, files in os.walk(dists_dir):
             src_indexes = [ os.path.join(root, file)
                             for file in files
                             if file == "Sources.gz" ]

@@ -274,7 +274,7 @@ def update(conf, session):
 
     # step 1: list mirror and extract new packages
     logging.info('list mirror packages...')
-    mirror = SourceMirror(os.path.join(conf['mirror_dir'], 'dists'))
+    mirror = SourceMirror(os.path.join(conf['mirror_dir']))
     logging.info('add new packages...')
     for pkg in mirror.ls():
         pkgdir = pkg.extraction_dir(conf['sources_dir'])
