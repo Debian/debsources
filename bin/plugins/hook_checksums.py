@@ -38,6 +38,7 @@ def parse_checksums(path):
     """
     with open(path) as checksums:
         for line in checksums:
+            line = line.rstrip()
             sha256 = line[0:64]
             path = line[66:]
             yield (sha256, path)
