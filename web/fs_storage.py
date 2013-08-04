@@ -15,7 +15,44 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import os
+import shutil
+import subprocess
+
+
+def extract_package(pkg, destdir):
+    """extract a package to the FS storage
+    """
+    logging.debug('extract %s...' % pkg)
+    parentdir = os.path.dirname(destdir)
+    if not os.path.isdir(parentdir):
+        os.makedirs(parentdir)
+    if os.path.isdir(destdir):	# remove stale dir, dpkg-source doesn't clobber
+        shutil.rmtree(destdir)
+    dsc = pkg.dsc_path()
+    cmd = ['dpkg-source', '--no-copy', '--no-check',
+           '-x', dsc, destdir ]
+    logfile = destdir + '.log'
+    donefile = destdir + '.done'
+    with open(logfile, 'w') as log:
+        subprocess.check_call(cmd, stdout=log, stderr=subprocess.STDOUT)
+    open(donefile, 'w').close()
+
+
+def remove_package(pkg, destdir):
+    """dispose of a package from the Debsources file system storage
+    """
+    if os.path.exists(destdir):
+        shutil.rmtree(destdir)
+    for meta in ['log', 'done']:
+        fname = destdir + '.' + meta
+        if os.path.exists(fname):
+            os.unlink(fname)
+    try:
+        os.removedirs(os.path.dirname(destdir))
+    except OSError:
+        pass	# parent dir is likely non empty, due to other package versions
 
 
 def walk(sources_dir, test=None):

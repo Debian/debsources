@@ -98,11 +98,12 @@ class SourcePackage(deb822.Sources):
             return name[:1]
 
     def dsc_path(self):
-        """return path to .dsc file for this package, relative to mirror root
+        """return (absolute) path to .dsc file for this package
         """
         dsc = filter(lambda f: f['name'].endswith('.dsc'),
                      self['files'])[0]['name']
-        return os.path.join(self['directory'], dsc)
+        return os.path.join(self['x-debsources-mirror-root'],
+                            self['directory'], dsc)
 
     def extraction_dir(self, basedir=None):
         """return package extraction dir, relative to debsources sources_dir
@@ -125,7 +126,7 @@ class SourceMirror(object):
     def __init__(self, path):
         """create a handle to a local source mirror rooted at path
         """
-        self.path = path
+        self.mirror_root = path
         self._suites = None	# dict: suite name -> [<package, version>]
         self._packages = None	# set(<package, version>)
 
@@ -163,7 +164,7 @@ class SourceMirror(object):
 
         return them as <suite, path> pairs
         """
-        dists_dir = os.path.join(self.path, 'dists')
+        dists_dir = os.path.join(self.mirror_root, 'dists')
         for root, dirs, files in os.walk(dists_dir):
             src_indexes = [ os.path.join(root, file)
                             for file in files
@@ -193,4 +194,5 @@ class SourceMirror(object):
 
                     if not pkg_id in self._packages:
                         self._packages.add(pkg_id)
+                        pkg['x-debsources-mirror-root'] = self.mirror_root
                         yield pkg
