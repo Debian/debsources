@@ -26,7 +26,9 @@ from models import Checksum
 
 conf = None
 
-sums_path = lambda pkgdir: pkgdir + '.checksums'
+MY_NAME = 'checksums'
+MY_EXT = '.' + MY_NAME
+sums_path = lambda pkgdir: pkgdir + MY_EXT
 
 
 def parse_checksums(path):
@@ -111,5 +113,6 @@ def rm_package(session, pkg, pkgdir):
 def debsources_main(debsources):
     global conf
     conf = debsources['config']
-    debsources['subscribe']('add-package', add_package, title='checksums')
-    debsources['subscribe']('rm-package',  rm_package,  title='checksums')
+    debsources['subscribe']('add-package', add_package, title=MY_NAME)
+    debsources['subscribe']('rm-package',  rm_package,  title=MY_NAME)
+    debsources['declare_ext'](MY_EXT, MY_NAME)

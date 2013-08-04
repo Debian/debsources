@@ -26,7 +26,9 @@ from models import Metric
 
 conf = None
 
-metricsfile_path = lambda pkgdir: pkgdir + '.stats'
+MY_NAME = 'metrics'
+MY_EXT = '.stats'
+metricsfile_path = lambda pkgdir: pkgdir + MY_EXT
 
 
 def parse_metrics(path):
@@ -89,5 +91,6 @@ def rm_package(session, pkg, pkgdir):
 def debsources_main(debsources):
     global conf
     conf = debsources['config']
-    debsources['subscribe']('add-package', add_package, title='metrics')
-    debsources['subscribe']('rm-package',  rm_package,  title='metrics')
+    debsources['subscribe']('add-package', add_package, title=MY_NAME)
+    debsources['subscribe']('rm-package',  rm_package,  title=MY_NAME)
+    debsources['declare_ext'](MY_EXT, MY_NAME)

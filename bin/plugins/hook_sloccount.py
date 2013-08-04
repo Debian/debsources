@@ -27,7 +27,9 @@ from models import SlocCount
 
 conf = None
 
-slocfile_path = lambda pkgdir: pkgdir + '.sloccount'
+MY_NAME = 'sloccount'
+MY_EXT = '.' + MY_NAME
+slocfile_path = lambda pkgdir: pkgdir + MY_EXT
 
 
 def grep(args):
@@ -121,3 +123,4 @@ def debsources_main(debsources):
     conf = debsources['config']
     debsources['subscribe']('add-package', add_package, title='sloccount')
     debsources['subscribe']('rm-package',  rm_package,  title='sloccount')
+    debsources['declare_ext'](MY_EXT, MY_NAME)

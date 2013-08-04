@@ -87,22 +87,32 @@ def load_configuration(conffile=None):
 def load_hooks(conf):
     """load and initialize hooks from the corresponding Python modules
 
-    return a dictionary mapping events to list of subscribed callable
+    return a pair (observers, extensions), where observers is a dictionary
+    mapping events to list of subscribed callable, and extensions is a
+    dictionary mapping per-package file extensions (to be found in the
+    filesystem storage) to the owner plugin
     """
     observers = dict( [ (e, []) for e in KNOWN_EVENTS ] )
+    file_exts = {}
 
     def subscribe_callback(event, action, title=""):
         if not event in KNOWN_EVENTS:
             raise ValueError('unknown event type "%s"' % event)
         observers[event].append((title, action))
 
+    def declare_ext_callback(ext, title=""):
+        assert ext.startswith('.')
+        assert not file_exts.has_key(ext)
+        file_exts[ext] = title
+
     debsources = { 'subscribe': subscribe_callback,
+                   'declare_ext': declare_ext_callback,
                    'config':    conf }
     for hook in conf['hooks']:
         plugin = importlib.import_module('hook_' + hook)
         plugin.debsources_main(debsources)
 
-    return observers
+    return (observers, file_exts)
 
 
 def log_level_of_verbosity(n):

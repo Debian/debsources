@@ -189,7 +189,7 @@ def update(conf, session):
     """
     global observers
 
-    observers = mainlib.load_hooks(conf)
+    (observers, _file_exts)  = mainlib.load_hooks(conf)
     init(conf)
     dry = conf['dry_run']
 
