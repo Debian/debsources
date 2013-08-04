@@ -19,8 +19,6 @@
 
 import argparse
 import atexit
-import ConfigParser as configparser
-import importlib
 import logging
 import os
 import string
@@ -32,14 +30,7 @@ from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-BINDIR = os.path.dirname(os.path.abspath(__file__))
-ROOTDIR = os.path.dirname(BINDIR)
-PLUGINDIR = os.path.join(BINDIR, 'plugins')
-PYDIR = os.path.join(ROOTDIR, 'python')
-ETCDIR = os.path.join(ROOTDIR, 'etc')
-sys.path.insert(0, PYDIR)
-sys.path.insert(1, PLUGINDIR)
-
+import mainlib
 import dbutils
 
 from debmirror import SourceMirror, SourcePackage
@@ -47,31 +38,8 @@ from models import Package, Version, BinaryPackage, BinaryVersion, SuitesMapping
 
 # TODO fill BinaryPackage, BinaryVersion, SuitesMapping
 
-DEFAULT_CONFIG = {
-    'dry_run':     'false',
-    'passes':      'db fs hooks hooks.db hooks.fs',
-    'log_level':   'info',
-    'expire_days': '0',
-    'force_triggers': [],
-}
-
-LOG_FMT_FILE = '%(asctime)s %(module)s:%(levelname)s %(message)s'
-LOG_FMT_STDERR = '%(module)s:%(levelname)s %(message)s'
-LOG_DATE_FMT = '%Y-%m-%d %H:%M:%S'
-
-LOG_LEVELS = {	# XXX module logging has no built-in way to do this conversion
-                # unless one uses the logging.config cannon. Really?!?
-    'debug':    logging.DEBUG,		# verbosity >= 3
-    'info':     logging.INFO,		# verbosity >= 2
-    'warning':  logging.WARNING,	# verbosity >= 1
-    'error':    logging.ERROR,		# verbosity >= 0
-    'critical': logging.CRITICAL,
-}
-
-KNOWN_EVENTS = [ 'add-package', 'rm-package' ]
-
 # list of per-action observers. Global variable
-actions_d = dict( [ (e, []) for e in KNOWN_EVENTS ] )
+observers = None
 
 # DB session maker. Singleton instance
 Session = sessionmaker()
@@ -167,8 +135,9 @@ def notify_plugins(event, session, pkg, pkgdir, triggers=None, dry=False):
     If triggers is not None, only Python hooks whose names are listed in them
     will be triggered. Note: shell hooks will not be triggered in that case.
     """
-    # fire plugin hooks
-    for (title, action) in actions_d[event]:
+    global observers
+
+    for (title, action) in observers[event]:
         try:
             if triggers is None:
                 action(session, pkg, pkgdir)
@@ -181,52 +150,13 @@ def notify_plugins(event, session, pkg, pkgdir, triggers=None, dry=False):
             raise
 
 
-def load_conffile(fname):
-    """load configuration from file and return it as a (typed) dictionary
-    """
-    conffile = configparser.SafeConfigParser(DEFAULT_CONFIG)
-    conffile.read(fname)
-
-    typed_conf = {}
-    for (key, value) in conffile.items('debsources'):
-        if key == 'expire_days':
-            value = int(value)
-        elif key == 'dry_run':
-            assert value in ['true', 'false']
-            value = (value == 'true')
-        elif key == 'hooks':
-            value = value.split()
-        elif key == 'log_level':
-            value = LOG_LEVELS[value]
-        elif key == 'passes':
-            value = set(value.split())
-        typed_conf[key] = value
-    return typed_conf
-
-
-def load_hooks(conf):
-    """load and initialize hooks from the corresponding Python modules
-    """
-    def subscribe_callback(event, action, title=""):
-        if not event in KNOWN_EVENTS:
-            raise ValueError('unknown event type "%s"' % event)
-        actions_d[event].append((title, action))
-
-    debsources = { 'subscribe': subscribe_callback,
-                   'config':    conf }
-
-    for hook in conf['hooks']:
-        plugin = importlib.import_module('hook_' + hook)
-        plugin.debsources_main(debsources)
-
-
 def init(conf):
     """startup actions: initialize logging and take mutex lock
     """
     logging.info('start')
     if conf['dry_run']:
         logging.warn('note: DRY RUN mode is enabled')
-    if conf['passes'] != set(DEFAULT_CONFIG['passes'].split()):
+    if conf['passes'] != set(mainlib.DEFAULT_CONFIG['passes'].split()):
         logging.warn('only doing passes: %s' % list(conf['passes']))
     if conf['force_triggers']:
         logging.warn('forcing triggers: %s' % conf['force_triggers'])
@@ -254,21 +184,12 @@ def finish():
     logging.info('finish')
 
 
-def _log_level_of_verbosity(n):
-    if n >= 3:
-        return logging.DEBUG
-    elif n >= 2:
-        return logging.INFO
-    elif n >= 1:
-        return logging.WARNING
-    else:
-        return logging.ERROR
-
-
 def update(conf, session):
     """do a full update run
     """
-    load_hooks(conf)
+    global observers
+
+    observers = mainlib.load_hooks(conf)
     init(conf)
     dry = conf['dry_run']
 
@@ -352,21 +273,14 @@ if __name__ == '__main__':
     cmdline.add_argument('--trigger', '-t',
                          metavar='EVENT/HOOK',
                          action='append',
-                         help='force trigger of (Python) HOOK for EVENT. By default all registered hooks are triggered for all changed packages. Event is one of: %s. Hook is one of the available hooks. Can be specified multiple times. Warning: if not used with "--pass none" it might lead to multiple execution of the same hook. E.g.: -t add-package/checksums' % string.join(KNOWN_EVENTS, ', '),
+                         help='force trigger of (Python) HOOK for EVENT. By default all registered hooks are triggered for all changed packages. Event is one of: %s. Hook is one of the available hooks. Can be specified multiple times. Warning: if not used with "--pass none" it might lead to multiple execution of the same hook. E.g.: -t add-package/checksums' % string.join(mainlib.KNOWN_EVENTS, ', '),
                          dest='force_triggers')
     cmdline.add_argument('--verbose', '-v',
                          action='count',
                          help='increase console verbosity')
     args = cmdline.parse_args()
 
-    conffile = os.path.join(ETCDIR, 'config.ini')
-    alt_conffile = os.path.join(ETCDIR, 'config.local.ini')
-    if os.path.exists(alt_conffile):
-        conffile = alt_conffile
-    if args.conffile:
-        conffile = args.conffile
-    conf = load_conffile(conffile)
-
+    conf = mainlib.load_configuration(args.conffile)
     # override configuration from cmdline args
     if args.passes:
         if 'none' in args.passes:
@@ -379,21 +293,8 @@ if __name__ == '__main__':
             (event, hook) = trigger.split('/')
             conf['force_triggers'].append((event, hook))
 
-    # Set up logging: log everythong to logfile, log errors to stderr. stderr
-    # will be shown on console for interactive use, or mailed by cron.
-    logging.basicConfig(level=logging.DEBUG, # log everything by default
-                        format=LOG_FMT_FILE,
-                        datefmt=LOG_DATE_FMT,
-                        filename=conf['log_file'])
-    logger = logging.getLogger()
-    logger.handlers[0].setLevel(conf['log_level']) # logfile verbosity
-    stderr_log = logging.StreamHandler()
-    stderr_log.setLevel(_log_level_of_verbosity(args.verbose)) # console verb.
-    stderr_log.setFormatter(logging.Formatter(LOG_FMT_STDERR))
-    logger.addHandler(stderr_log)
-
-    logging.debug('loaded configuration from %s' % conffile)
-
+    mainlib.init_logging(conf, mainlib.log_level_of_verbosity(args.verbose))
+    logging.debug('loaded configuration from %s' % conf['conffile'])
     try:
         db = create_engine(conf['db_uri'])
         session = Session(bind=db)
