@@ -153,9 +153,6 @@ def finish():
 def update(conf, session):
     """do a full update run
     """
-    global observers
-
-    (observers, _file_exts)  = mainlib.load_hooks(conf)
     init(conf)
     dry = conf['dry_run']
 
@@ -261,6 +258,7 @@ if __name__ == '__main__':
 
     mainlib.init_logging(conf, mainlib.log_level_of_verbosity(args.verbose))
     logging.debug('loaded configuration from %s' % conf['conffile'])
+    (observers, _file_exts)  = mainlib.load_hooks(conf)
     try:
         db = create_engine(conf['db_uri'])
         session = Session(bind=db)
