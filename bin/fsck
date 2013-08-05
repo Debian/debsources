@@ -28,7 +28,7 @@ if [ "$1" = "-f" -o "$1" = "--fix" ] ; then
     shift
 fi
 
-db_extensions="done log stats sloccount"
+db_extensions="done log stats sloccount checksums"
 
 check_missing() {
     info "fsck: check for missing data..."
@@ -70,7 +70,7 @@ check_stale() {
 	    fi
 	else
 	    case "$entry" in
-		*.done|*.log|*.stats|*.sloccount)
+		*.done|*.log|*.stats|*.sloccount|*.checksums)
 		    pkgdir="${entry%.*}"
 		    if ! [ -d "$pkgdir" ] ; then
 			warn "orphan db file: ${entry}"
