@@ -228,6 +228,9 @@ if __name__ == '__main__':
     cmdline = argparse.ArgumentParser(description='Debsources updater')
     cmdline.add_argument('--config', '-c', dest='conffile',
                          help='alternate configuration file')
+    cmdline.add_argument('--dry-run', '-d', dest='dry',
+                         action='store_true',
+                         help='enable dry run mode')
     cmdline.add_argument('--pass', '-p',
                          metavar='PASS',
                          action='append',
@@ -255,6 +258,8 @@ if __name__ == '__main__':
         for trigger in args.force_triggers:
             (event, hook) = trigger.split('/')
             conf['force_triggers'].append((event, hook))
+    if args.dry:
+        conf['dry_run'] = True
 
     mainlib.init_logging(conf, mainlib.log_level_of_verbosity(args.verbose))
     logging.debug('loaded configuration from %s' % conf['conffile'])
