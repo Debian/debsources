@@ -47,12 +47,15 @@ def add_package(session, pkg, pkgdir):
     metric_type = 'size'
     metric_value = None
     metricsfile = metricsfile_path(pkgdir)
+    metricsfile_tmp = metricsfile + '.new'
 
     if 'hooks.fs' in conf['passes']:
-        cmd = [ 'du', '--summarize', pkgdir ]
-        metric_value = int(subprocess.check_output(cmd).split()[0])
-        with open(metricsfile, 'w') as out:
-            out.write('%s\t%d\n' % (metric_type, metric_value))
+        if not os.path.exists(metricsfile):	# run du only if needed
+            cmd = [ 'du', '--summarize', pkgdir ]
+            metric_value = int(subprocess.check_output(cmd).split()[0])
+            with open(metricsfile_tmp, 'w') as out:
+                out.write('%s\t%d\n' % (metric_type, metric_value))
+            os.rename(metricsfile_tmp, metricsfile)
 
     if 'hooks.db' in conf['passes']:
         if metric_value is None:

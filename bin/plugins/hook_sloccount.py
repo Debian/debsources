@@ -73,16 +73,20 @@ def add_package(session, pkg, pkgdir):
     logging.debug('add-package %s' % pkg)
 
     slocfile = slocfile_path(pkgdir)
+    slocfile_tmp = slocfile + '.new'
 
     if 'hooks.fs' in conf['passes']:
-        try:
-            cmd = [ 'sloccount', pkgdir ]
-            with open(slocfile, 'w') as out:
-                subprocess.check_call(cmd, stdout=out, stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError:
-            if not grep(['^SLOC total is zero,', slocfile]):
-                # rationale: sloccount fails when it can't find source code
-                raise
+        if not os.path.exists(slocfile):	# run sloccount only if needed
+            try:
+                cmd = [ 'sloccount', pkgdir ]
+                with open(slocfile_tmp, 'w') as out:
+                    subprocess.check_call(cmd, stdout=out, stderr=subprocess.STDOUT)
+            except subprocess.CalledProcessError:
+                if not grep(['^SLOC total is zero,', slocfile_tmp]):
+                    # rationale: sloccount fails when it can't find source code
+                    raise
+            finally:
+                os.rename(slocfile_tmp, slocfile)
 
     if 'hooks.db' in conf['passes']:
         slocs = parse_sloccount(slocfile)
