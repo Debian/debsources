@@ -9,14 +9,10 @@ from sqlalchemy import create_engine, bindparam, Integer, LargeBinary, String
 from sqlalchemy.sql import text as sql_query
 
 import fs_storage
-from hook_checksums import parse_checksums
+from plugins.hook_checksums import parse_checksums
 
-
-TYPEMAP = {
-    'version_id': Integer,
-    'path':       LargeBinary,
-    'sha256':     String,
-}
+METADATA_SUFFIX = '.checksums'
+METADATA_SUFFIX_LEN = len(METADATA_SUFFIX)
 
 BINDPARAMS = [
     bindparam('path', type_=LargeBinary),
@@ -28,23 +24,21 @@ VERSION_ID_Q = sql_query("""
     WHERE versions.package_id = packages.id
     AND versions.vnumber = :v
     AND packages.name = :p
-    """,
-    typemap = TYPEMAP)
+    """)
 
 INSERT_SHA_Q = sql_query("""
     INSERT INTO checksums (version_id, path, sha256)
     VALUES (:version_id, :path, :sha256)
     """,
-    typemap = TYPEMAP,
     bindparams = BINDPARAMS)
 
 def insert_checksums(conn, sumsfile):
     steps = sumsfile.split('/')
     package = steps[-2]
-    version = steps[-1][:-10]
+    version = steps[-1][:-METADATA_SUFFIX_LEN]
 
     logging.debug('package %s/%s' % (package, version))
-    logging.debug('INSERT INTO checksums...')
+    logging.debug('INSERT INTO checksums %s/%s...' % (package, version))
 
     version_id = conn.execute(VERSION_ID_Q, v=version, p=package).first()[0]
     checksums = []
@@ -55,7 +49,7 @@ def insert_checksums(conn, sumsfile):
     conn.execute(INSERT_SHA_Q, checksums)
 
 
-is_checksum = lambda p: p.endswith('.checksums')
+is_checksum = lambda p: p.endswith(METADATA_SUFFIX)
 
 def main(conf, sumsfile=None):
     conn = create_engine(conf['db_uri'])

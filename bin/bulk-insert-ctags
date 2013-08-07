@@ -1,0 +1,73 @@
+#!/usr/bin/python
+
+import logging
+import mainlib
+import os
+import sys
+
+from sqlalchemy import create_engine, bindparam, Integer, LargeBinary, String
+from sqlalchemy.sql import text as sql_query
+
+import fs_storage
+from plugins.hook_ctags import parse_ctags
+
+METADATA_SUFFIX = '.ctags'
+METADATA_SUFFIX_LEN = len(METADATA_SUFFIX)
+
+BINDPARAMS = [
+    bindparam('path', type_=LargeBinary),
+]
+
+VERSION_ID_Q = sql_query("""
+    SELECT versions.id
+    FROM versions, packages
+    WHERE versions.package_id = packages.id
+    AND versions.vnumber = :v
+    AND packages.name = :p
+    """)
+
+INSERT_CTAGS_Q = sql_query("""
+    INSERT INTO ctags (version_id, tag, path, line, kind, language)
+    VALUES (:version_id, :tag, :path, :line, :kind, :language)
+    """,
+    bindparams = BINDPARAMS)
+
+def insert_ctags(conn, ctagsfile):
+    steps = ctagsfile.split('/')
+    package = steps[-2]
+    version = steps[-1][:-METADATA_SUFFIX_LEN]
+
+    logging.debug('package %s/%s' % (package, version))
+    logging.debug('INSERT INTO ctags %s/%s...' % (package, version))
+
+    version_id = conn.execute(VERSION_ID_Q, v=version, p=package).first()[0]
+    ctags = []
+    for tag in parse_ctags(ctagsfile):
+        tag['version_id'] = version_id
+        ctags.append(tag)
+    conn.execute(INSERT_CTAGS_Q, ctags)
+
+
+is_ctags = lambda p: p.endswith(METADATA_SUFFIX)
+
+def main(conf, ctagsfile=None):
+    conn = create_engine(conf['db_uri']).connect()
+    if ctagsfile:
+        insert_ctags(conn, ctagsfile)
+    else:
+        for f in fs_storage.walk(conf['sources_dir'], test=is_ctags):
+            with conn.begin() as trans:
+                try:
+                    insert_ctags(conn, f)
+                except:
+                    logging.exception('cannot inject %s' % f)
+                    trans.rollback()
+
+
+if __name__ == '__main__':
+    conf = mainlib.load_configuration()
+    mainlib.init_logging(conf, logging.DEBUG)
+    ctagsfile = None
+    if len(sys.argv) >= 2:
+        ctagsfile = sys.argv[1]
+    main(conf, ctagsfile)
