@@ -15,7 +15,18 @@ License: GNU Affero General Public License, version 3 or above.
 /* displayed on index.html */
 
 #indexmenu {
+    /* background-image is set up in index.html, to use jinja2 url_for() */
     text-align: center;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: auto 160%;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.h1mainpage {
+    margin-top: 0;
+    padding-top: 0;
 }
 
 #indexmenu table {
@@ -32,6 +43,7 @@ License: GNU Affero General Public License, version 3 or above.
     padding-bottom: 0px;
     background-color: transparent;
     background-color: #f5f6f7;
+    opacity: 0.8;
     border-radius: 15px;
 }
 
