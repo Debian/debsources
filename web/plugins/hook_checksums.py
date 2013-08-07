@@ -80,18 +80,13 @@ def add_package(session, pkg, pkgdir):
 
     if 'hooks.db' in conf['passes']:
         version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
-        for (sha256, relpath) in parse_checksums(sumsfile):
-            checksum = session.query(Checksum) \
-                              .filter_by(version_id=version.id,
-                                         path=relpath,
-                                         sha256=sha256) \
-                              .first()
-            if checksum:
-                break # ASSUMPTION: if *a* checksum of this package has already
-                      # been added to the db in the past, then *all* of them have,
-                      # as additions are part of the same transaction
-            checksum = Checksum(version, relpath, sha256)
-            session.add(checksum)
+        if not session.query(Checksum).filter_by(version_id=version.id).first():
+            # ASSUMPTION: if *a* checksum of this package has already
+            # been added to the db in the past, then *all* of them have,
+            # as additions are part of the same transaction
+            for (sha256, relpath) in parse_checksums(sumsfile):
+                checksum = Checksum(version, relpath, sha256)
+                session.add(checksum)
 
 
 def rm_package(session, pkg, pkgdir):

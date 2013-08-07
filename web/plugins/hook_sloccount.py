@@ -91,19 +91,14 @@ def add_package(session, pkg, pkgdir):
     if 'hooks.db' in conf['passes']:
         slocs = parse_sloccount(slocfile)
         version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
-        assert version is not None
-        for (lang, locs) in slocs.iteritems():
-            sloccount = session.query(SlocCount) \
-                               .filter_by(sourceversion_id=version.id,
-                                         language=lang,
-                                         count=locs) \
-                              .first()
-            if sloccount:
-                break # ASSUMPTION: if *a* loc count of this package has already
-                      # been added to the db in the past, then *all* of them have,
-                      # as additions are part of the same transaction
-            sloccount = SlocCount(version, lang, locs)
-            session.add(sloccount)
+        if not session.query(SlocCount).filter_by(sourceversion_id=version.id)\
+                                       .first():
+            # ASSUMPTION: if *a* loc count of this package has already been
+            # added to the db in the past, then *all* of them have, as
+            # additions are part of the same transaction
+            for (lang, locs) in slocs.iteritems():
+                sloccount = SlocCount(version, lang, locs)
+                session.add(sloccount)
 
 
 def rm_package(session, pkg, pkgdir):
