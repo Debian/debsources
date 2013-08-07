@@ -74,7 +74,12 @@ class DebsourcesTestCase(unittest.TestCase):
         
     def tearDown(self):
         pass
-        
+    
+    def test_ping(self):
+        rv = json.loads(self.app.get('/api/ping/').data)
+        assert rv["status"] == "ok"
+        assert rv["http_status_code"] == 200
+    
     def test_search(self):        
         rv = json.loads(self.app.get('/api/search/vcar/').data)
         assert rv['query'] == 'vcar'
