@@ -30,8 +30,8 @@ try:
     app.config.from_pyfile(os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             '../../../etc/webconfig_local.py'))
-except:
-    pass
+except Exception as e:
+    print(e)
 
 db = SQLAlchemy(app)
 
