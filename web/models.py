@@ -30,7 +30,7 @@ VCS_TYPES = ("arch", "bzr", "cvs", "darcs", "git", "hg", "mtn", "svn")
 # this list should be kept in sync with languages supported by sloccount. A
 # good start is http://www.dwheeler.com/sloccount/sloccount.html (section
 # "Basic concepts"). Others have been added to the Debian package via patches.
-LANGUAGES = (
+SLOCCOUNT_LANGUAGES = (
 
     # sloccount 2.26 languages
     "ada", "asm", "awk", "sh", "ansic", "cpp", "cs", "csh", "cobol", "exp",
@@ -41,6 +41,21 @@ LANGUAGES = (
     # enhancements from Debian patches, version 2.26-5
     "erlang", "jsp", "vhdl", "xml",
 )
+
+# this list should be kept in sync with languages supported by (exuberant)
+# ctags. See: http://ctags.sourceforge.net/languages.html and the output of
+# `ctags --list-languages`
+CTAGS_LANGUAGES = (
+    'ant', 'asm', 'asp', 'awk', 'basic', 'beta', 'c', 'c++',
+    'c#', 'cobol', 'dosbatch', 'eiffel', 'erlang', 'flex', 'fortran', 'go',
+    'html', 'java', 'javascript', 'lisp', 'lua', 'make', 'matlab',
+    'objectivec', 'ocaml', 'pascal', 'perl', 'php', 'python', 'rexx', 'ruby',
+    'scheme', 'sh', 'slang', 'sml', 'sql', 'tcl', 'tex', 'vera', 'verilog',
+    'vhdl', 'vim', 'yacc',
+)
+
+# TODO uniform CTAGS_* language naming (possibly without blessing any of the
+# two, but using a 3rd, Debsources specific, canonical form)
 
 METRIC_TYPES = ("size",)
 
@@ -160,13 +175,38 @@ class SlocCount(Base):
     sourceversion_id = Column(Integer,
                               ForeignKey('versions.id', ondelete="CASCADE"),
                               nullable=False)
-    language = Column(Enum(*LANGUAGES, name="language_names"), nullable=False)
+    language = Column(Enum(*SLOCCOUNT_LANGUAGES, name="language_names"),
+                      # TODO rename enum s/language_names/sloccount/languages
+                      nullable=False)
     count = Column(Integer, nullable=False)
 
     def __init__(self, version, lang, locs):
         self.sourceversion_id = version.id
         self.language = lang
         self.count = locs
+
+
+class Ctag(Base):
+    __tablename__ = 'ctags'
+
+    id = Column(Integer, primary_key=True)
+    version_id = Column(Integer, ForeignKey('versions.id', ondelete="CASCADE"),
+                        nullable=False)
+    tag = Column(String, nullable=False, index=True)
+    path = Column(LargeBinary, nullable=False)	# path/whitin/source/pkg
+    line = Column(Integer, nullable=False)
+    kind = Column(String)	# see `ctags --list-kinds`; unfortunately ctags
+        # gives no guarantee of uniformity in kinds, they might be one-lettered
+        # or full names, sigh
+    language = Column(Enum(*CTAGS_LANGUAGES, name="ctags_languages"))
+
+    def __init__(self, version, tag, path, line, kind, language):
+        self.version_id = version.id
+        self.tag = tag
+        self.path = path
+        self.line = line
+        self.kind = kind
+        self.language = language
 
 
 class Metric(Base):
