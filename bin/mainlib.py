@@ -24,11 +24,9 @@ import sys
 
 BINDIR = os.path.dirname(os.path.abspath(__file__))
 ROOTDIR = os.path.dirname(BINDIR)
-PLUGINDIR = os.path.join(BINDIR, 'plugins')
 PYDIR = os.path.join(ROOTDIR, 'python')
 ETCDIR = os.path.join(ROOTDIR, 'etc')
 sys.path.insert(0, PYDIR)
-sys.path.insert(1, PLUGINDIR)
 
 
 DEFAULT_CONFIG = {
@@ -109,8 +107,8 @@ def load_hooks(conf):
                    'declare_ext': declare_ext_callback,
                    'config':    conf }
     for hook in conf['hooks']:
-        plugin = importlib.import_module('hook_' + hook)
-        plugin.debsources_main(debsources)
+        plugin = importlib.import_module('plugins.hook_' + hook)
+        plugin.init_plugin(debsources)
 
     return (observers, file_exts)
 

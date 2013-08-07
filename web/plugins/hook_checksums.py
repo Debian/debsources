@@ -110,7 +110,7 @@ def rm_package(session, pkg, pkgdir):
                .delete()
 
 
-def debsources_main(debsources):
+def init_plugin(debsources):
     global conf
     conf = debsources['config']
     debsources['subscribe']('add-package', add_package, title=MY_NAME)
