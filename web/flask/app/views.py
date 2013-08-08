@@ -23,7 +23,7 @@ from flask.views import View
 from debian.debian_support import version_compare
 
 
-from app import app
+from app import app, db
 from models_app import Package_app, Version_app, Location, Directory, \
     SourceFile, InvalidPackageOrVersionError, FileOrFolderNotFound
 from sourcecode import SourceCodeIterator
@@ -142,7 +142,7 @@ def server_error(e):
 @app.route('/api/ping/')
 def ping():
     try:
-        a = Package_app.query.first().id # database check
+        a = db.session.query(Package_app).first().id # database check
     except:
         return jsonify(dict(status="db error", http_status_code=500)), 500
     return jsonify(dict(status="ok", http_status_code=200))
@@ -199,11 +199,14 @@ class SearchView(GeneralView):
         """ processes the search query and renders the results in a dict """
         query = query.replace('%', '').replace('_', '')
         try:
-            exact_matching = Package_app.query.filter_by(name=query).first()
+            exact_matching = (db.session.query(Package_app)
+                              .filter_by(name=query)
+                              .first())
         
-            other_results = Package_app.query.filter(
-                Package_app.name.contains(
-                    query)).order_by(Package_app.name)
+            other_results = (db.session.query(Package_app)
+                             .filter(Package_app.name.contains(query))
+                             .order_by(Package_app.name)
+                             )
         except Exception as e:
             raise Http500Error(e) # db problem, ...
         
@@ -247,7 +250,10 @@ class ListpackagesView(GeneralView):
     def get_objects(self, page=1):
         if self.all_: # we retrieve all packages
             try:
-                packages = Package_app.query.order_by(Package_app.name).all()
+                packages = (db.session.query(Package_app)
+                            .order_by(Package_app.name)
+                            .all()
+                            )
                 packages = [p.to_dict() for p in packages]
                 return dict(packages=packages)
             except Exception as e:
@@ -255,8 +261,13 @@ class ListpackagesView(GeneralView):
         else: # we paginate
             # WARNING: not serializable (TODO: serialize Pagination obj)
             try:
-                packages = Package_app.query.order_by(
-                    Package_app.name).paginate(page, 60, False)
+                packages = (db.session.query(Package_app)
+                            .order_by(Package_app.name)
+                            .paginate(page, 60, False)
+                            )
+                #########################################
+                # TODOOOO Pagination without Flask-plugin
+                #########################################
                 return dict(packages=packages, page=page)
             except Exception as e:
                 raise Http500Error(e)
@@ -285,9 +296,11 @@ class PrefixView(GeneralView):
         """ returns the packages beginning with prefix """
         if prefix in Package_app.get_packages_prefixes():
             try:
-                packages = Package_app.query.filter(
-                    Package_app.name.startswith(prefix)).order_by(
-                    Package_app.name)
+                packages = (db.session.query(Package_app)
+                            .filter(Package_app.name.startswith(prefix))
+                            .order_by(Package_app.name)
+                            .all()
+                            )
                 packages = [p.to_dict() for p in packages]
             except Exception as e:
                 raise Http500Error(e)

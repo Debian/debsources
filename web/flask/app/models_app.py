@@ -50,12 +50,12 @@ class Package_app(models.Package, db.Model):
     @staticmethod
     def list_versions_from_name(packagename):
          try:
-             package_id = Package_app.query.filter(
+             package_id = db.session.query(Package_app).filter(
                  Package_app.name==packagename).first().id
          except Exception as e:
              raise InvalidPackageOrVersionError(packagename)
          try:
-             versions = Version_app.query.filter(
+             versions = db.session.query(Version_app).filter(
                  Version_app.package_id==package_id).all()
          except Exception as e:
              raise InvalidPackageOrVersionError(packagename)
@@ -97,9 +97,9 @@ class Location(object):
         versions in multiple areas (ie main/contrib/nonfree).
         """
         try:
-            p_id = Package_app.query.filter(
+            p_id = db.session.query(Package_app).filter(
                 Package_app.name==package).first().id
-            varea = Version_app.query.filter(db.and_(
+            varea = db.session.query(Version_app).filter(db.and_(
                         Version_app.package_id==p_id,
                         Version_app.vnumber==version)).first().area
         except:
