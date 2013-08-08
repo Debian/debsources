@@ -18,17 +18,18 @@
 
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql import exists
 
 from models import Base, Package, Version
 
 def get_engine_session(url, verbose=True):
     engine = create_engine(url, echo=verbose)
-    Session = sessionmaker(bind=engine)
-    session = Session()
+    session = scoped_session(sessionmaker(bind=engine))
     return engine, session
 
+def close_session(session):
+    session.remove()
 
 def sources2db(sources, url, drop=False, verbose=True):
     engine, session = get_engine_session(url, verbose)
@@ -61,4 +62,4 @@ def sources2db(sources, url, drop=False, verbose=True):
         [dict(vnumber=b, package_id=packids[a], area=c) for a, b, c in versions]
         )
 
-    session.close()
+    close_session(session)

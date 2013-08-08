@@ -23,7 +23,7 @@ from flask.views import View
 from debian.debian_support import version_compare
 
 
-from app import app
+from app import app, session
 from models_app import Package_app, Version_app, Location, Directory, \
     SourceFile, InvalidPackageOrVersionError, FileOrFolderNotFound
 from sourcecode import SourceCodeIterator
@@ -50,6 +50,20 @@ def skeleton_variables():
     return dict(packages_prefixes = Package_app.get_packages_prefixes(),
                 searchform = SearchForm(),
                 last_update=last_update)
+
+
+### PAGINATION ###
+
+from pagination import Pagination
+
+def url_for_other_page(page):
+    args = request.args.copy()
+    args['page'] = page
+    # args is a werkzeug.datastructures.MultiDict, we have to convert it
+    # into a regular dict in order to flat lists:
+    return url_for(request.endpoint, **args.to_dict())
+app.jinja_env.globals['url_for_other_page'] = url_for_other_page
+
 
 ### GENERAL VIEW HANDLING ###
 
@@ -142,7 +156,7 @@ def server_error(e):
 @app.route('/api/ping/')
 def ping():
     try:
-        a = Package_app.query.first().id # database check
+        a = session.query(Package_app).first().id # database check
     except:
         return jsonify(dict(status="db error", http_status_code=500)), 500
     return jsonify(dict(status="ok", http_status_code=200))
@@ -199,11 +213,14 @@ class SearchView(GeneralView):
         """ processes the search query and renders the results in a dict """
         query = query.replace('%', '').replace('_', '')
         try:
-            exact_matching = Package_app.query.filter_by(name=query).first()
+            exact_matching = (session.query(Package_app)
+                              .filter_by(name=query)
+                              .first())
         
-            other_results = Package_app.query.filter(
-                Package_app.name.contains(
-                    query)).order_by(Package_app.name)
+            other_results = (session.query(Package_app)
+                             .filter(Package_app.name.contains(query))
+                             .order_by(Package_app.name)
+                             )
         except Exception as e:
             raise Http500Error(e) # db problem, ...
         
@@ -247,7 +264,10 @@ class ListpackagesView(GeneralView):
     def get_objects(self, page=1):
         if self.all_: # we retrieve all packages
             try:
-                packages = Package_app.query.order_by(Package_app.name).all()
+                packages = (session.query(Package_app)
+                            .order_by(Package_app.name)
+                            .all()
+                            )
                 packages = [p.to_dict() for p in packages]
                 return dict(packages=packages)
             except Exception as e:
@@ -255,9 +275,24 @@ class ListpackagesView(GeneralView):
         else: # we paginate
             # WARNING: not serializable (TODO: serialize Pagination obj)
             try:
-                packages = Package_app.query.order_by(
-                    Package_app.name).paginate(page, 60, False)
-                return dict(packages=packages, page=page)
+                offset = app.config.get("LIST_OFFSET") or 60
+                # we calculate the range of results
+                start = (page - 1) * offset
+                end = start + offset
+
+                count_packages = (session.query(Package_app)
+                                  .count()
+                                  )
+                packages = (session.query(Package_app)
+                            .order_by(Package_app.name)
+                            .slice(start, end)
+                            )
+                pagination = Pagination(page, offset, count_packages)
+                
+                return dict(packages=packages,
+                            page=page,
+                            pagination=pagination)
+            
             except Exception as e:
                 raise Http500Error(e)
 
@@ -285,9 +320,11 @@ class PrefixView(GeneralView):
         """ returns the packages beginning with prefix """
         if prefix in Package_app.get_packages_prefixes():
             try:
-                packages = Package_app.query.filter(
-                    Package_app.name.startswith(prefix)).order_by(
-                    Package_app.name)
+                packages = (session.query(Package_app)
+                            .filter(Package_app.name.startswith(prefix))
+                            .order_by(Package_app.name)
+                            .all()
+                            )
                 packages = [p.to_dict() for p in packages]
             except Exception as e:
                 raise Http500Error(e)
