@@ -16,13 +16,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from app import app, db
+from app import app, session
 import models
 
 from flask import url_for
 
 import os, subprocess, magic
 from debian.debian_support import version_compare
+
+from sqlalchemy import and_
 
 # sane (?) default if the package prefix file is not available
 PREFIXES_DEFAULT = ['0', '2', '3', '4', '6', '7', '9', 'a', 'b', 'c', 'd', 'e',
@@ -33,7 +35,7 @@ PREFIXES_DEFAULT = ['0', '2', '3', '4', '6', '7', '9', 'a', 'b', 'c', 'd', 'e',
                     'libx', 'liby', 'libz', 'm', 'n', 'o', 'p', 'q', 'r', 's',
                     't', 'u', 'v', 'w', 'x', 'y', 'z']
 
-class Package_app(models.Package, db.Model):
+class Package_app(models.Package):
     @staticmethod
     def get_packages_prefixes():
         """
@@ -50,12 +52,12 @@ class Package_app(models.Package, db.Model):
     @staticmethod
     def list_versions_from_name(packagename):
          try:
-             package_id = db.session.query(Package_app).filter(
+             package_id = session.query(Package_app).filter(
                  Package_app.name==packagename).first().id
          except Exception as e:
              raise InvalidPackageOrVersionError(packagename)
          try:
-             versions = db.session.query(Version_app).filter(
+             versions = session.query(Version_app).filter(
                  Version_app.package_id==package_id).all()
          except Exception as e:
              raise InvalidPackageOrVersionError(packagename)
@@ -71,7 +73,7 @@ class Package_app(models.Package, db.Model):
         return dict(name=self.name)
 
     
-class Version_app(models.Version, db.Model):
+class Version_app(models.Version):
     def to_dict(self):
         """
         simply serializes a package (because SQLAlchemy query results
@@ -97,9 +99,9 @@ class Location(object):
         versions in multiple areas (ie main/contrib/nonfree).
         """
         try:
-            p_id = db.session.query(Package_app).filter(
+            p_id = session.query(Package_app).filter(
                 Package_app.name==package).first().id
-            varea = db.session.query(Version_app).filter(db.and_(
+            varea = session.query(Version_app).filter(and_(
                         Version_app.package_id==p_id,
                         Version_app.vnumber==version)).first().area
         except:
