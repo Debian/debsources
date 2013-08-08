@@ -42,22 +42,6 @@ Pip packages:
 
 - flask-sqlalchemy
 
-Running the web app:
-You need to modify the file in etc/webconfig_local.py
-and then export it:
-$ export DEBSOURCES_CONFIG=path/to/webconfig_local.py
-You can now run:
-$ python web/flask/run.py
-NOT FOR PRODUCTION!
-
-or you can use a webserver and the web/flask/debsources.[wsfi/fcgi] files
-
-Running the tests:
-Modify the file in etc/webconfig_testing.py
-and then export it:
-$ export DEBSOURCES_CONFIG=path/to/webconfig_testing.py
-You can now run:
-$ python web/flask/tests.py
 
 Infrastructure
 --------------
