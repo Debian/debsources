@@ -38,7 +38,6 @@ sys.path.append(app.config['MODELS_FOLDER'])
 from dbutils import get_engine_session
 
 # SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////home/matthieu/work/debian/debsources/web/flask/tests/app.db"
 engine, session = get_engine_session(app.config["SQLALCHEMY_DATABASE_URI"],
                                      verbose = app.config["SQLALCHEMY_ECHO"])
 
