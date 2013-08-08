@@ -19,7 +19,7 @@
 {% for v in versions %}
   <li><a href="{{ url_for('source_html', path_to=path+'/'+v.vnumber) }}">
       <img src="{{ config['ICONS_FOLDER'] }}22x22/places/folder.png"
-           alt="package" />{{ v.vnumber }}</a>
+           alt="version " />{{ v.vnumber }}</a>
     ({{ v.area }})
   </li>
 {% endfor %}

@@ -18,20 +18,20 @@
 <ul id="ls">
   <li><a href="{{ url_for('source_html', path_to='/'.join(path.split('/')[:-1])) }}">
       <img src="{{ config['ICONS_FOLDER'] }}22x22/places/folder.png"
-           alt="folder" />.. (parent)</a>
+           alt="d " />.. (parent)</a>
   </li>
 
 {% for dir in subdirs %}
   <li><a href="{{ url_for('source_html', path_to=path+'/'+dir.name) }}">
       <img src="{{ config['ICONS_FOLDER'] }}22x22/places/folder.png"
-           alt="folder" />{{ dir.name }}</a>
+           alt="d " />{{ dir.name }}</a>
   </li>
 {% endfor %}
 
 {% for file_ in subfiles %}
   <li><a href="{{ url_for('source_html', path_to=path+'/'+file_.name) }}">
       <img src="{{ config['ICONS_FOLDER'] }}22x22/mimetypes/ascii.png"
-           alt="file" />{{ file_.name }}</a>
+           alt="- " />{{ file_.name }}</a>
   </li>
 {% endfor %}
 </ul>
