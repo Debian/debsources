@@ -146,6 +146,16 @@ class DebsourcesTestCase(unittest.TestCase):
             "tests/sources")
         rv = self.app.get('/src/0ad/0.0.13-2/NetStats.cpp')
         assert 'value="package:0ad "' in rv.data
+    
+    def test_pagination(self):
+        app.config['SOURCES_FOLDER'] = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "tests/sources")
+        app.config['LIST_OFFSET'] = 5
+        rv = self.app.get('/list/2/')
+        assert '<a href="/list/1/">&laquo; Previous</a>' in rv.data
+        assert '<a href="/list/3/">Next &raquo;</a>' in rv.data
+        assert '<strong>2</strong>' in rv.data
 
 if __name__ == '__main__':
     unittest.main(exit=False)

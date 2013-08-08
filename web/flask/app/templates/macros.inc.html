@@ -5,13 +5,16 @@
 
 {# from
 http://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Pagination.iter_pages #}
-{% macro render_pagination(pagination, endpoint) %}
-  <div class="pagination">
-  Page:
-  {%- for page in pagination.iter_pages(left_edge=5, left_current=5, right_current=5, right_edge=5) %}
+{% macro render_pagination(pagination) -%}
+  <div class=pagination>
+  {% if pagination.has_prev %}
+  <a href="{{ url_for_other_page(pagination.page - 1)
+    }}">&laquo; Previous</a>
+  {% endif %}
+  {%- for page in pagination.iter_pages() %}
     {% if page %}
       {% if page != pagination.page %}
-        <a href="{{ url_for(endpoint, page=page) }}">{{ page }}</a>
+        <a href="{{ url_for_other_page(page) }}">{{ page }}</a>
       {% else %}
         <strong>{{ page }}</strong>
       {% endif %}
@@ -19,8 +22,12 @@ http://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginatio
       <span class="ellipsis">…</span>
     {% endif %}
   {%- endfor %}
+  {% if pagination.has_next %}
+    <a href="{{ url_for_other_page(pagination.page + 1)
+      }}">Next &raquo;</a>
+  {% endif %}
   </div>
-{% endmacro %}
+{%- endmacro %}
 
 {% macro searchform(form, display="block") -%}
   <form action="{{ url_for('receive_search') }}" name="searchform"

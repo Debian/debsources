@@ -72,3 +72,6 @@ LAST_UPDATE_FILE = os.path.join(ROOT_FOLDER, "cache/last-update")
 
 # where package prefixes to be used for navigation can be found
 PKG_PREFIXES_FILE = os.path.join(ROOT_FOLDER, "cache/pkg-prefixes")
+
+# the number of results appearing on a page with pagination (eg /list/)
+LIST_OFFSET = 60

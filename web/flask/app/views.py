@@ -51,6 +51,20 @@ def skeleton_variables():
                 searchform = SearchForm(),
                 last_update=last_update)
 
+
+### PAGINATION ###
+
+from pagination import Pagination
+
+def url_for_other_page(page):
+    args = request.args.copy()
+    args['page'] = page
+    # args is a werkzeug.datastructures.MultiDict, we have to convert it
+    # into a regular dict in order to flat lists:
+    return url_for(request.endpoint, **args.to_dict())
+app.jinja_env.globals['url_for_other_page'] = url_for_other_page
+
+
 ### GENERAL VIEW HANDLING ###
 
 # subclass this to add a view, linkable with add_url
@@ -261,14 +275,24 @@ class ListpackagesView(GeneralView):
         else: # we paginate
             # WARNING: not serializable (TODO: serialize Pagination obj)
             try:
+                offset = app.config.get("LIST_OFFSET") or 60
+                # we calculate the range of results
+                start = (page - 1) * offset
+                end = start + offset
+
+                count_packages = (db.session.query(Package_app)
+                                  .count()
+                                  )
                 packages = (db.session.query(Package_app)
                             .order_by(Package_app.name)
-                            .paginate(page, 60, False)
+                            .slice(start, end)
                             )
-                #########################################
-                # TODOOOO Pagination without Flask-plugin
-                #########################################
-                return dict(packages=packages, page=page)
+                pagination = Pagination(page, offset, count_packages)
+                
+                return dict(packages=packages,
+                            page=page,
+                            pagination=pagination)
+            
             except Exception as e:
                 raise Http500Error(e)
 
