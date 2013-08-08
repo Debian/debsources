@@ -39,7 +39,7 @@ else:
 import sys
 sys.path.append(app.config['MODELS_FOLDER'])
 
-from dbutils import get_engine_session
+from dbutils import get_engine_session, close_session
 
 # SQLAlchemy
 engine, session = get_engine_session(app.config["SQLALCHEMY_DATABASE_URI"],
@@ -47,7 +47,7 @@ engine, session = get_engine_session(app.config["SQLALCHEMY_DATABASE_URI"],
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
-    pass#session.remove()
+    close_session(session)
 
 
 from app import views
