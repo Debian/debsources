@@ -27,13 +27,6 @@ app.config.from_pyfile(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                     '../../../etc/webconfig.py'))
 if "DEBSOURCES_CONFIG" in os.environ:
     app.config.from_envvar('DEBSOURCES_CONFIG')
-else:
-    try:
-        app.config.from_pyfile(os.path.join(
-                os.path.dirname(os.path.abspath(__file__)),
-                '../../../etc/webconfig_local.py'))
-    except Exception as e:
-        print(e)
 
 import sys
 sys.path.append(app.config['MODELS_FOLDER'])
