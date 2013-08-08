@@ -120,4 +120,13 @@ Archived entries from file /srv/debian/debsources.bugs/BUGS
   - best option in terms of bandwidth is ftp.de.d.o
   - need to figure out how to ssh into the machine (via the jumphost) w/o
     having a dedicated INRIA account
+* TODO get rid of Flask-SQLAlchemy plugin 		     :web:sqlalchemy:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2013-08-08 Thu 17:29
+  :ARCHIVE_FILE: ~/work/debian/debsources_bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  "raw" SQLAlchemy is better
+
 

@@ -95,5 +95,3 @@
 * TODO adapt the tests to the new infrastructure 		  :tests:web:
   use update-debsources-ng with a small Sources.gz
   add test for /api/checksum/foo/
-* TODO get rid of Flask-SQLAlchemy plugin 		     :web:sqlalchemy:
-  "raw" SQLAlchemy is better
