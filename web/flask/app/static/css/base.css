@@ -15,13 +15,16 @@ License: GNU Affero General Public License, version 3 or above.
 /* displayed on index.html */
 
 #indexmenu {
-    /* background-image is set up in index.html, to use jinja2 url_for() */
     text-align: center;
-    background-position: left center;
-    background-repeat: no-repeat;
-    background-size: auto 160%;
     padding-top: 20px;
     padding-bottom: 20px;
+}
+
+#bg-wrapper {
+    /* background-image is set up in base.html, to use jinja2 url_for() */
+    background-position: left center;
+    background-repeat: no-repeat;
+    background-size: auto 140%;
 }
 
 .h1mainpage {
@@ -73,8 +76,4 @@ License: GNU Affero General Public License, version 3 or above.
     margin-top: 30px;
     margin-bottom: 10px;
     text-align: center;
-}
-
-#footer {
-    /*opacity: 0.5;*/
 }

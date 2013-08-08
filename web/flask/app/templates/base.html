@@ -52,7 +52,10 @@
       </nav> <!-- end navbar -->
       <p id="breadcrumbs">{% block breadcrumbs %}{% endblock %}</p>
     </header> <!-- end header -->
-    
+    {% if request.endpoint == "index" %}
+      <div id="bg-wrapper" style="background-image: url('{{ url_for('static',
+       filename='img/debsources.png') }}');">
+    {% endif %}
     <div id="content">
       {% block content %}
       {% endblock %}
@@ -60,5 +63,8 @@
     <footer id="footer">
       {% include "footer.inc.html" %}
     </footer>
+    {% if request.endpoint == "index" %}
+      </div>
+    {% endif %}
   </body>
 </html>
