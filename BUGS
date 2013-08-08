@@ -1,5 +1,17 @@
 #    -*- mode: org -*-
 
+* TODO de-duplicate configuration web/infra			  :infra:web:
+  requirement: feature/db-ng branch
+
+  Starting from that feature the infrastructure should use etc/config.ini
+  (INI-style file, parsed by ConfigParser) as its main configuration entry.
+  The web app should use that file for all configuration information that is
+  storable in a INI-style file, and rely to webconfig.py only for all *other*
+  information, e.g. the stuff that should be native Python (and which also
+  changes way less often) such as the language regexes. Among the stuff that is
+  representable in INI-like files, it would make sense to have the Web-only
+  stuff under a separate [web] seciton in the INI file.
+
 * TODO tarball-in-tarball 					  :infra:web:
   Explode nested tarballs, partly for some packaging habits still present in
   the archive (although they should die a horrible death), more importantly due
