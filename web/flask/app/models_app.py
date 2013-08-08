@@ -74,7 +74,7 @@ class Package_app(models.Package, db.Model):
 class Version_app(models.Version, db.Model):
     def to_dict(self):
         """
-        simply serializes a package (because SQLAlchemy query results
+        simply serializes a version (because SQLAlchemy query results
         aren't serializable
         """
         return dict(vnumber=self.vnumber, area=self.area)
