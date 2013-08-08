@@ -17,7 +17,7 @@ License: GNU Affero General Public License, version 3 or above.
 #indexmenu {
     /* background-image is set up in index.html, to use jinja2 url_for() */
     text-align: center;
-    background-position: center center;
+    background-position: left center;
     background-repeat: no-repeat;
     background-size: auto 160%;
     padding-top: 20px;
@@ -43,7 +43,7 @@ License: GNU Affero General Public License, version 3 or above.
     padding-bottom: 0px;
     background-color: transparent;
     background-color: #f5f6f7;
-    opacity: 0.8;
+    opacity: 0.9;
     border-radius: 15px;
 }
 
@@ -73,4 +73,8 @@ License: GNU Affero General Public License, version 3 or above.
     margin-top: 30px;
     margin-bottom: 10px;
     text-align: center;
+}
+
+#footer {
+    /*opacity: 0.5;*/
 }
