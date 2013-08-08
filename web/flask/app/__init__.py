@@ -20,7 +20,6 @@ import logging
 from logging import Formatter, StreamHandler
 
 from flask import Flask
-from flask.ext.sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
