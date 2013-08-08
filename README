@@ -34,7 +34,6 @@ Debian packages:
 - libjs-highlight
 - python-debian
 - python-flask
-- python-flaskext.wtf
 - python-flup (for FastCGI deployment)
 - python-magic
 - tango-icon-theme
