@@ -48,30 +48,16 @@ class DebsourcesTestCase(unittest.TestCase):
             self.__class__.ClassIsSetup = True
     
     def setupClass(self):
-        
-        global sqlite_file
-        sqlite_file = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "tests/app.db")
-        
-        # for deleting it afterwards
-        #globals["sqlite_file"] = sqlite_file
-        
-        url = "sqlite:///" + sqlite_file
         try:
             sources2db(os.path.join(thisdir, "tests/sources.txt"),
-                       url, drop=True, verbose=False)
+                       app.config["SQLALCHEMY_DATABASE_URI"],
+                       drop=True, verbose=False)
         except Exception as e:
             import logging
             logging.exception(e)
         
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_ECHO'] = False
-        
-        app.config['SQLALCHEMY_DATABASE_URI'] = url #"sqlite:///:memory:"
         self.__class__.app = app.test_client()
-        
-        
+    
     def tearDown(self):
         pass
     
@@ -108,25 +94,16 @@ class DebsourcesTestCase(unittest.TestCase):
         assert rv['type'] == "package"
         
     def test_folder(self):
-        app.config['SOURCES_FOLDER'] = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "tests/sources")
         rv = json.loads(self.app.get('/api/src/0ad/0.0.13-2').data)
         assert rv['type'] == "directory"
         assert {'type': "file", 'name': "hello.c"} in rv['content']
         
     def test_source_file(self):
-        app.config['SOURCES_FOLDER'] = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "tests/sources")
         rv = self.app.get('/src/0ad/0.0.13-2/NetStats.cpp')
         assert '<code id="sourcecode" class="cpp">' in rv.data
         assert 'size_t CNetStatsTable::GetNumberRows()' in rv.data
         
     def test_source_file_embedded(self):
-        app.config['SOURCES_FOLDER'] = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "tests/sources")
         rv = self.app.get('/embedded/0ad/0.0.13-2/NetStats.cpp')
         assert '<code id="sourcecode" class="cpp">' in rv.data
         assert 'size_t CNetStatsTable::GetNumberRows()' in rv.data
@@ -141,16 +118,10 @@ class DebsourcesTestCase(unittest.TestCase):
         assert "0.0.13-2" in rv['path']
     
     def test_codesearch_box(self):
-        app.config['SOURCES_FOLDER'] = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "tests/sources")
         rv = self.app.get('/src/0ad/0.0.13-2/NetStats.cpp')
         assert 'value="package:0ad "' in rv.data
     
     def test_pagination(self):
-        app.config['SOURCES_FOLDER'] = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "tests/sources")
         app.config['LIST_OFFSET'] = 5
         rv = self.app.get('/list/2/')
         assert '<a href="/list/1/">&laquo; Previous</a>' in rv.data
@@ -159,4 +130,3 @@ class DebsourcesTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main(exit=False)
-    os.remove(sqlite_file)

@@ -25,12 +25,16 @@ app = Flask(__name__)
 
 app.config.from_pyfile(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                     '../../../etc/webconfig.py'))
-try:
-    app.config.from_pyfile(os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            '../../../etc/webconfig_local.py'))
-except:
-    pass
+
+if "DEBSOURCES_CONFIG" in os.environ:
+    app.config.from_envvar('DEBSOURCES_CONFIG')
+else:
+    try:
+        app.config.from_pyfile(os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                '../../../etc/webconfig_local.py'))
+    except:
+        pass
 
 import sys
 sys.path.append(app.config['MODELS_FOLDER'])
@@ -40,6 +44,11 @@ from dbutils import get_engine_session
 # SQLAlchemy
 engine, session = get_engine_session(app.config["SQLALCHEMY_DATABASE_URI"],
                                      verbose = app.config["SQLALCHEMY_ECHO"])
+
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    pass#session.remove()
+
 
 from app import views
 
