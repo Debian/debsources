@@ -18,6 +18,7 @@
 
 from app import app, db
 import models
+import filetype
 
 from flask import url_for
 
@@ -234,10 +235,11 @@ class SourceFile(object):
         """ 
         True if self is a text file, False if it's not.
         """
-        for substring in text_file_mimes:
-            if substring in self.mime['type']:
-                return True
-        return False
+        return filetype.is_text_file(self.mime['type'])
+        # for substring in text_file_mimes:
+        #     if substring in self.mime['type']:
+        #         return True
+        # return False
         
     def get_raw_url(self):
         """ return the raw url on disk (e.g. data/main/a/azerty/foo.bar) """

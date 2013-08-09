@@ -30,14 +30,6 @@ HIGHLIGHT_JS_FOLDER = "/javascript/highlight"
 # HIGHLIGHT_STYLE = "default"
 HIGHLIGHT_STYLE = "googlecode"
 
-# strings which will be searched in the mime type of a file to determine
-# if the file should be displayed or downloaded as a raw file:
-TEXT_FILE_MIMES = [
-    "text",
-    "xml",
-    ]
-    
-
 # the place where the tango icons (or other icons) are :
 ICONS_FOLDER = "/icons/Tango/"
 
