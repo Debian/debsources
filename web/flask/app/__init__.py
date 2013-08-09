@@ -18,20 +18,29 @@
 import os
 import logging
 from logging import Formatter, StreamHandler
+from ConfigParser import SafeConfigParser
 
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-app.config.from_pyfile(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                    '../../../etc/webconfig.py'))
-try:
-    app.config.from_pyfile(os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            '../../../etc/webconfig_local.py'))
-except:
-    pass
+# Configuration
+parser = SafeConfigParser()
+conf_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          '../../../etc/config.local.ini')
+if not(os.path.exists(conf_file)):
+    conf_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             '../../../etc/config.ini')
+
+parser.read(conf_file)
+
+for (key, value) in parser.items("debsources"):
+    if value == "false":
+        value = False
+    elif value == "true":
+        value = True
+    app.config[key.upper()] = value
 
 db = SQLAlchemy(app)
 
