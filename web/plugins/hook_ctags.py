@@ -123,11 +123,11 @@ def rm_package(session, pkg, pkgdir):
         if os.path.exists(ctagsfile):
             os.unlink(ctagsfile)
 
-    # if 'hooks.db' in conf['passes']:
-    #     version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
-    #     session.query(Checksum) \
-    #            .filter_by(version_id=version.id) \
-    #            .delete()
+    if 'hooks.db' in conf['passes']:
+        version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
+        session.query(Ctag) \
+               .filter_by(version_id=version.id) \
+               .delete()
 
 
 def init_plugin(debsources):
