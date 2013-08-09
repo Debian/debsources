@@ -231,7 +231,7 @@ class SourceFile(object):
     def get_mime(self):
         return self.mime
 
-    def istextfile(self, text_file_mimes):
+    def istextfile(self):
         """ 
         True if self is a text file, False if it's not.
         """

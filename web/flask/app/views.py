@@ -391,7 +391,7 @@ class SourceView(GeneralView):
                     mime=file_.get_mime(),
                     raw_url=file_.get_raw_url(),
                     path=location.get_path_to(),
-                    text_file=file_.istextfile(app.config['TEXT_FILE_MIMES']),
+                    text_file=file_.istextfile(),
                     pts_link=self._get_pts_link(location.get_package()))
     
     def _handle_latest_version(self, package, path):
