@@ -35,17 +35,17 @@ if not(os.path.exists(conf_file)):
 
 parser.read(conf_file)
 
-for (key, value) in parser.items("debsources"):
-    if value == "false":
+for (key, value) in parser.items("webapp"):
+    if value.lower() == "false":
         value = False
-    elif value == "true":
+    elif value.lower() == "true":
         value = True
     app.config[key.upper()] = value
 
 db = SQLAlchemy(app)
 
 import sys
-sys.path.append(app.config['MODELS_FOLDER'])
+sys.path.append(app.config['PYTHON_DIR'])
 
 from app import views
 

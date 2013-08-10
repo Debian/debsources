@@ -175,6 +175,25 @@ class SourceMirror(object):
                 yield suite, f
 
 
+    def pkg_prefixes(self):
+        """Return the list of relevant package prefixes
+
+        takes into account Debian convention, e.g. most packages prefix to
+        their first letter, except libraries that prefix to libX
+
+        """
+        pool_dir = os.path.join(self.mirror_root, 'pool')
+        prefixes = set()
+        for pool_subdir in os.listdir(pool_dir):
+            # make it absolute
+            pool_subdir = os.path.join(pool_dir, pool_subdir)
+            for entry in os.listdir(pool_subdir):
+                entry = os.path.join(pool_subdir, entry)
+                if os.path.isdir(entry):
+                    prefixes.add(os.path.relpath(entry, pool_subdir))
+        return list(prefixes)
+
+
     def ls(self):
         """List SourcePackages instances of packages available in the mirror
 

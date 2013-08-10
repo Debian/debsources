@@ -16,6 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import os
+
 from flask import render_template, redirect, url_for, request, safe_join, \
     jsonify
 from flask.views import View
@@ -43,7 +45,7 @@ except ImportError:
 @app.context_processor
 def skeleton_variables():
     try:
-        with open(app.config['LAST_UPDATE_FILE']) as f:
+        with open(os.path.join(app.config['CACHE_DIR'], 'last-update')) as f:
             last_update = f.readline()
     except IOError:
         last_update = "unknown"
@@ -471,7 +473,7 @@ def render_source_file_html(templatename, **kwargs):
             return redirect(kwargs['raw_url'])
         
         sources_path = kwargs['raw_url'].replace(app.config['SOURCES_STATIC'],
-                                                 app.config['SOURCES_FOLDER'],
+                                                 app.config['POOL_DIR'],
                                                  1)
         # ugly, but better than global variable,
         # and better than re-requesting the db

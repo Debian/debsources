@@ -66,7 +66,7 @@ def load_configuration(conffile=None):
     conf.read(conffile)
 
     typed_conf = { 'conffile': conffile }
-    for (key, value) in conf.items('debsources'):
+    for (key, value) in conf.items('infra'):
         if key == 'expire_days':
             value = int(value)
         elif key == 'dry_run':

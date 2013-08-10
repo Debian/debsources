@@ -17,19 +17,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-set -e
-
-source "/srv/debsources/etc/config.sh"
-source "${bindir}/lib.sh"
-
 rrd="rrdtool"
 
-compute_size() {
-    size=$(while read _package _version _area _dsc dest ; do
-	       cat "${dest}.stats"
-	   done < "$sources_list" | grep ^size | cut -f 2 | paste -sd+ | bc)
-    echo -e "size\t${size}" > "$raw_stats"
-}
+cache_dir="$1"
+if [ -z "$cache_dir" ] ; then
+    echo "Usage: update-stats CACHE_DIR"
+    exit 2
+fi
+
+raw_stats="${cache_dir}/stats.data"
+rrd_data="${cache_dir}/size.rrd"
+rrd_size_graph="${cache_dir}/size.png"
 
 update_rrd() {
     size=$(grep ^size $raw_stats | cut -f 2)
@@ -83,7 +81,6 @@ update_graphs() {
 }
 
 main() {
-    compute_size
     update_rrd
     update_graphs > /dev/null
 }

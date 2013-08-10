@@ -47,8 +47,7 @@ DEBUG = False
 SQLALCHEMY_ECHO = False
 
 # the uri of the database
-SQLALCHEMY_DATABASE_URI = "sqlite:///" + \
-    os.path.join(ROOT_FOLDER, "cache/sources.sqlite")
+SQLALCHEMY_DATABASE_URI = "postgresql:///debsources"
 
 # where the sources are on the disk, for listing folders and files:
 SOURCES_FOLDER = os.path.join(ROOT_FOLDER, "sources")

@@ -30,12 +30,7 @@ main () {
     if [ -f "$disabler" ] ; then
 	info "push disabled by ${disabler}: skipping update"
     else
-	${bindir}/update-debsources
-	rc=$?
-	if [ "$rc" -ne 0 ] ; then
-	    info "update-debsources: abnormal termination (exit code: ${rc}) at $(date)"
-	    echo "exit code: ${rc}" | mail -s "update-debsources returned non 0 exit code" $USER
-	fi
+	${bindir}/update-debsources-ng
     fi
 }
 

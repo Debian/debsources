@@ -41,7 +41,7 @@ class Package_app(models.Package, db.Model):
         returns the packages prefixes (a, b, ..., liba, libb, ..., y, z)
         """
         try:
-            with open(app.config['PKG_PREFIXES_FILE']) as f:
+            with open(os.path.join(app.config['CACHE_DIR'], 'pkg-prefixes')) as f:
                 prefixes = [ l.rstrip() for l in f ]
         except IOError:
             prefixes = PREFIXES_DEFAULT
@@ -123,7 +123,7 @@ class Location(object):
         self.path_to = os.path.join(package, version, path)
         
         self.sources_path = os.path.join(
-            app.config['SOURCES_FOLDER'],
+            app.config['POOL_DIR'],
             debian_path,
             self.path_to)
 

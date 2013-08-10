@@ -26,7 +26,8 @@ import subprocess
 import sys
 
 from datetime import datetime
-from sqlalchemy import create_engine
+from email.utils import formatdate
+from sqlalchemy import create_engine, func as sql_func
 from sqlalchemy.orm import sessionmaker
 
 import mainlib
@@ -34,9 +35,9 @@ import dbutils
 import fs_storage
 
 from debmirror import SourceMirror, SourcePackage
-from models import Package, Version, BinaryPackage, BinaryVersion, SuitesMapping
+from models import Metric, Version
 
-# TODO fill BinaryPackage, BinaryVersion, SuitesMapping
+# TODO fill tables: BinaryPackage, BinaryVersion, SuitesMapping
 
 # list of per-action observers. Global variable
 observers = None
@@ -143,9 +144,30 @@ def init(conf):
         atexit.register(lambda: os.unlink(lockfile))
 
 
-def finish():
+def update_metadata(conf, session):
+    # update global stats file (most notably: size info in it)
+    stats_file = os.path.join(conf['cache_dir'], 'stats.data')
+    total_size = session.query(sql_func.sum(Metric.value)) \
+                        .filter_by(metric='size').first()
+    with open(stats_file, 'w') as out:
+        if total_size:
+            out.write('%s\t%d\n' % ('size', total_size[0]))
+
+    # update package prefixes list
+    with open(os.path.join(conf['cache_dir'], 'pkg-prefixes'), 'w') as out:
+        for prefix in SourceMirror(conf['mirror_dir']).pkg_prefixes():
+            out.write('%s\n' % prefix)
+
+    # update timestamp
+    timestamp_file = os.path.join(conf['cache_dir'], 'last-update')
+    with open(timestamp_file, 'w') as out:
+        out.write('%s\n' % formatdate())
+
+
+def finish(conf, session):
     """clean up actions
     """
+    update_metadata(conf, session)
     # note: lockfile is removed via atexit, no need to do that explicitly here
     logging.info('finish')
 
@@ -158,7 +180,7 @@ def update(conf, session):
 
     # step 1: list mirror and extract new packages
     logging.info('list mirror packages...')
-    mirror = SourceMirror(os.path.join(conf['mirror_dir']))
+    mirror = SourceMirror(conf['mirror_dir'])
     logging.info('add new packages...')
     for pkg in mirror.ls():
         pkgdir = pkg.extraction_dir(conf['sources_dir'])
@@ -221,7 +243,7 @@ def update(conf, session):
             except:
                 logging.exception('trigger failure on %s' % pkg)
 
-    finish()
+    finish(conf, session)
 
 
 if __name__ == '__main__':
