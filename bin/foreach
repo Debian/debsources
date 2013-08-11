@@ -19,23 +19,25 @@
 
 # Iterate a given command in each unpacked source package dir
 #
-# Usage: foreach COMMAND...
+# Usage: foreach SOURCES_LIST COMMAND...
 
-source "/srv/debsources/etc/config.sh"
-source "${bindir}/lib.sh"
+die_usage() {
+    echo "Usage: foreach SOURCES_LIST COMMAND..."
+    exit 2
+}
 
-srclist="$sources_list"
+if ! [ -f "$1" ] ; then
+    die_usage
+fi
+srclist="$1"
+shift 1
 
 if [ -z "$1" ] ; then
-    err "Usage: foreach COMMAND..." 2
+    die_usage
 fi
-
-sources_count=$(wc -l $srclist | cut -f 1 -d' ')
-stats_init "foreach" "$sources_count"
 
 cat $srclist | \
 while read package version area dsc dest ; do
-    stats_tick
     if ! [ -d "$dest" ] ; then
 	warn "directory for ${package}/${version} does not exist, skipping."
     else

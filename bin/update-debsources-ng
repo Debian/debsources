@@ -181,6 +181,8 @@ def update(conf, session):
         """step 1: list mirror and extract new packages
         """
         logging.info('add new packages...')
+        src_list_path = os.path.join(conf['cache_dir'], 'sources.txt')
+        src_list = open(src_list_path + '.new', 'w')
         for pkg in mirror.ls():
             pkgdir = pkg.extraction_dir(conf['sources_dir'])
             if not dbutils.lookup_version(session,
@@ -206,6 +208,11 @@ def update(conf, session):
                                    dry=dry)
                 except:
                     logging.exception('trigger failure on %s' % pkg)
+            src_list.write('%s\t%s\t%s\t%s\t%s\n' %
+                           (pkg['package'], pkg['version'], pkg.archive_area(),
+                            pkg.dsc_path(), pkgdir))
+        src_list.close()
+        os.rename(src_list_path + '.new', src_list_path)
 
     def garbage_collect(mirror):
         """step 2: list db and remove disappeared and expired packages
