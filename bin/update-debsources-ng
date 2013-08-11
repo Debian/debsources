@@ -175,74 +175,81 @@ def finish(conf, session):
 def update(conf, session):
     """do a full update run
     """
-    init(conf)
     dry = conf['dry_run']
 
-    # step 1: list mirror and extract new packages
+    def extract_new(mirror):
+        """step 1: list mirror and extract new packages
+        """
+        logging.info('add new packages...')
+        for pkg in mirror.ls():
+            pkgdir = pkg.extraction_dir(conf['sources_dir'])
+            if not dbutils.lookup_version(session,
+                                          pkg['package'], pkg['version']):
+                try:
+                    logging.info('add %s...' % pkg)
+                    if not dry and 'fs' in conf['passes']:
+                        fs_storage.extract_package(pkg, pkgdir)
+                    with session.begin_nested():
+                        # single db session for package addition and hook
+                        # execution: if the hooks fail, the package won't be
+                        # added to the db (it will be tried again at next run)
+                        if not dry and 'db' in conf['passes']:
+                            dbutils.add_package(session, pkg)
+                        if not dry and 'hooks' in conf['passes']:
+                            notify(conf, 'add-package', session, pkg, pkgdir)
+                except:
+                    logging.exception('failed to extract %s' % pkg)
+            if conf['force_triggers']:
+                try:
+                    notify_plugins('add-package', session, pkg, pkgdir,
+                                   triggers=conf['force_triggers'],
+                                   dry=dry)
+                except:
+                    logging.exception('trigger failure on %s' % pkg)
+
+    def garbage_collect(mirror):
+        """step 2: list db and remove disappeared and expired packages
+        """
+        logging.info('garbage collection...')
+        for version in session.query(Version).all():
+            pkg = SourcePackage.from_db_model(version)
+            pkg_id = (pkg['package'], pkg['version'])
+            pkgdir = pkg.extraction_dir(conf['sources_dir'])
+            if not pkg_id in mirror.packages:
+                # package is in in Debsources db, but gone from mirror: we
+                # might have to garbage collect it (depending on expiry)
+                try:
+                    expire_days = conf['expire_days']
+                    age = None
+                    if os.path.exists(pkgdir):
+                        age = datetime.now() \
+                              - datetime.fromtimestamp(os.path.getctime(pkgdir))
+                    if not age or age.days >= expire_days:
+                        logging.info("gc %s..." % pkg)
+                        if not dry and 'hooks' in conf['passes']:
+                            notify(conf, 'rm-package', session, pkg, pkgdir)
+                        if not dry and 'fs' in conf['passes']:
+                            fs_storage.remove_package(pkg, pkgdir)
+                        if not dry and 'db' in conf['passes']:
+                            with session.begin_nested():
+                                dbutils.rm_package(session, pkg, version)
+                    else:
+                        logging.debug('not removing %s as it is too young' % pkg)
+                except:
+                    logging.exception('failed to remove %s' % pkg)
+            if conf['force_triggers']:
+                try:
+                    notify_plugins('rm-package', session, pkg, pkgdir,
+                                   triggers=conf['force_triggers'],
+                                   dry=dry)
+                except:
+                    logging.exception('trigger failure on %s' % pkg)
+
+    init(conf)
     logging.info('list mirror packages...')
     mirror = SourceMirror(conf['mirror_dir'])
-    logging.info('add new packages...')
-    for pkg in mirror.ls():
-        pkgdir = pkg.extraction_dir(conf['sources_dir'])
-        if not dbutils.lookup_version(session, pkg['package'], pkg['version']):
-            try:
-                logging.info('add %s...' % pkg)
-                if not dry and 'fs' in conf['passes']:
-                    fs_storage.extract_package(pkg, pkgdir)
-                with session.begin_nested():
-                    # single db session for package addition and hook
-                    # execution: if the hooks fail, the package won't be added
-                    # to the db (it will be tried again at next run)
-                    if not dry and 'db' in conf['passes']:
-                        dbutils.add_package(session, pkg)
-                    if not dry and 'hooks' in conf['passes']:
-                        notify(conf, 'add-package', session, pkg, pkgdir)
-            except:
-                logging.exception('failed to extract %s' % pkg)
-        if conf['force_triggers']:
-            try:
-                notify_plugins('add-package', session, pkg, pkgdir,
-                               triggers=conf['force_triggers'],
-                               dry=dry)
-            except:
-                logging.exception('trigger failure on %s' % pkg)
-
-    # step 2: list db and remove disappeared and expired packages
-    logging.info('garbage collection...')
-    for version in session.query(Version).all():
-        pkg = SourcePackage.from_db_model(version)
-        pkg_id = (pkg['package'], pkg['version'])
-        pkgdir = pkg.extraction_dir(conf['sources_dir'])
-        if not pkg_id in mirror.packages:
-            # package is in in Debsources db, but gone from mirror: we might
-            # have to garbage collect it (depending on expiry)
-            try:
-                expire_days = conf['expire_days']
-                age = None
-                if os.path.exists(pkgdir):
-                    age = datetime.now() \
-                          - datetime.fromtimestamp(os.path.getctime(pkgdir))
-                if not age or age.days >= expire_days:
-                    logging.info("gc %s..." % pkg)
-                    if not dry and 'hooks' in conf['passes']:
-                        notify(conf, 'rm-package', session, pkg, pkgdir)
-                    if not dry and 'fs' in conf['passes']:
-                        fs_storage.remove_package(pkg, pkgdir)
-                    if not dry and 'db' in conf['passes']:
-                        with session.begin_nested():
-                            dbutils.rm_package(session, pkg, version)
-                else:
-                    logging.debug('not removing %s as it is too young' % pkg)
-            except:
-                logging.exception('failed to remove %s' % pkg)
-        if conf['force_triggers']:
-            try:
-                notify_plugins('rm-package', session, pkg, pkgdir,
-                               triggers=conf['force_triggers'],
-                               dry=dry)
-            except:
-                logging.exception('trigger failure on %s' % pkg)
-
+    extract_new(mirror)
+    garbage_collect(mirror)
     finish(conf, session)
 
 
