@@ -27,6 +27,9 @@ from debian.debian_support import version_compare
 
 from sqlalchemy import and_
 
+# debian package areas
+AREAS = ["main", "contrib", "non-free"]
+
 # sane (?) default if the package prefix file is not available
 PREFIXES_DEFAULT = ['0', '2', '3', '4', '6', '7', '9', 'a', 'b', 'c', 'd', 'e',
                     'f', 'g', 'h', 'i', 'j', 'k', 'l', 'lib3', 'liba', 'libb',
@@ -99,6 +102,11 @@ class Location(object):
         It's the path of a *version*, since a package can have multiple
         versions in multiple areas (ie main/contrib/nonfree).
         """
+        if package[0:3] == "lib":
+            prefix = package[0:4]
+        else:
+            prefix = package[0]
+        
         try:
             p_id = session.query(Package_app).filter(
                 Package_app.name==package).first().id
@@ -106,15 +114,20 @@ class Location(object):
                         Version_app.package_id==p_id,
                         Version_app.vnumber==version)).first().area
         except:
-            # the package or version doesn't exist
+            # the package or version doesn't exist in the database
+            # BUT: packages are stored for a longer time in the filesystem
+            # to allow codesearch.d.n and others less up-to-date platforms
+            # to point here.
+            # Problem: we don't know the area of such a package
+            # so we try in main, contrib and non-free.
+            for area in AREAS:
+                if os.path.exists(os.path.join(app.config["SOURCES_DIR"],
+                                          area, prefix, package, version)):
+                    return os.path.join(area, prefix)
+            
             raise InvalidPackageOrVersionError("%s %s" % (package, version))
         
-        if package[0:3] == "lib":
-            prefix = package[0:4]
-        else:
-            prefix = package[0]
         return os.path.join(varea, prefix)
-            
     
     def __init__(self, package, version="", path=""):
         """ initialises useful attributes """
