@@ -61,7 +61,7 @@ update_graphs() {
     flags="$flags CDEF:bytes=kbytes,1000,*"
     flags="$flags LINE2:bytes#FF0000"
 
-    local statsdir="${cachedir}/stats"
+    local statsdir="${cache_dir}/stats"
     test -d "$statsdir" || mkdir -p "$statsdir"
 
     if [ "$dry_run" != "yes" ] ; then

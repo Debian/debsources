@@ -27,7 +27,7 @@ CONFFILE="/srv/debsources/etc/config.ini"
 
 umask 0002
 
-alt_conffile= $(echo "$CONFFILE" | sed 's/config.ini/config.local.ini/')
+alt_conffile=$(echo "$CONFFILE" | sed 's/config.ini/config.local.ini/')
 conffile="$CONFFILE"
 if [ -f "$alt_conffile" ] ; then
     conffile="$alt_conffile"
