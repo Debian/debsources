@@ -85,10 +85,10 @@
 <h3>Checksums</h3>
 
 <p>
-  You can query a file checksum (sha256) like this:
-  <span class="url">{{ url_prefix
-  }}/api/checksum/<strong>shasum</strong>/</span>
-  and get all corresponding files. This is useful to find duplicates.
+  Query the list of indexed source files by SHA256 hash:
+  <span class="url">{{ url_prefix }}/api/sha256/<strong>sha256</strong>.</span>
+  <a href="{{ url_prefix }}/api/sha256/57c8ff33c9c0cfc3ef00e650a1cc910d7ee479a8bc509f6c9209a7c2a11399d6">See
+    example</a>
 
 <h3>Check the service status</h3>
 

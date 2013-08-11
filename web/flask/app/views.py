@@ -588,7 +588,7 @@ class ChecksumView(GeneralView):
 
 
 # CHECKSUM REQUEST (JSON)
-app.add_url_rule('/api/checksum/<checksum>/', view_func=ChecksumView.as_view(
+app.add_url_rule('/api/sha256/<checksum>', view_func=ChecksumView.as_view(
         'checksum_json',
         render_func=jsonify,
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
