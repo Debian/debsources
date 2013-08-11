@@ -54,7 +54,7 @@ main () {
 	exit 2
     fi
     ${bin_dir}/debian-source-mirror "$conffile"
-    ${bin_dir}/update-debsources-ng
+    ${bin_dir}/update-debsources
     ${bin_dir}/update-stats "$cache_dir"
 }
 
