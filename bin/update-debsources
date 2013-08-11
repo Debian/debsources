@@ -128,21 +128,6 @@ def init(conf):
     if conf['force_triggers']:
         logging.warn('forcing triggers: %s' % conf['force_triggers'])
 
-    lockfile = os.path.join(conf['root_dir'], 'ONGOING-UPDATE.pid')
-    if os.path.exists(lockfile):
-        with open(lockfile) as lock,\
-             open(os.devnull, 'w') as null:
-            pid = lock.readline().rstrip()
-            if subprocess.call(['ps', pid], stdout=null, stderr=null) != 0:
-                logging.warn('remove stale lockfile for gone pid %s' % pid)
-                os.unlink(lockfile)
-            else:
-                logging.error('lockfile found. Abort')
-                sys.exit(1)
-    with open(lockfile, 'w') as lock:
-        lock.write('%d\n' % os.getpid())
-        atexit.register(lambda: os.unlink(lockfile))
-
 
 def update_metadata(conf, session):
     # update global stats file (most notably: size info in it)

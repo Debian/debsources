@@ -26,6 +26,7 @@ CONFFILE="/srv/debsources/etc/config.ini"
 # -----------------------------------------------------------------------
 
 umask 0002
+export LANG=C
 
 alt_conffile=$(echo "$CONFFILE" | sed 's/config.ini/config.local.ini/')
 conffile="$CONFFILE"
@@ -47,15 +48,41 @@ conf_get () {
 bin_dir=$( conf_get "bin_dir" )
 cache_dir=$( conf_get "cache_dir" )
 disabler="${root_dir}/UPDATE-DISABLED"
+lockfile="${root_dir}/ONGOING-UPDATE.pid"
+logfile=$( conf_get "log_file" )
+
+# uses $logfile global
+source "${bin_dir}/lib.sh"
 
 main () {
+    info "main: starting at $(date)"
     if [ -f "$disabler" ] ; then
 	echo "updates disabled by ${disabler}: skipping update run."
 	exit 2
     fi
-    ${bin_dir}/debian-source-mirror "$conffile"
+    if [ -f "$lockfile" ] ; then
+	pid=$(head "$lockfile")
+	if ! ps "$pid" > /dev/null ; then
+	    info "update-debsources: remove stale lockfile for pid '$pid'"
+	    rm -f "$lockfile"
+	else
+	    err "lockfile found. Abort" 2
+	fi
+    fi
+    echo $$ > "$lockfile"
+
+    info "main: update source mirror..."
+    ${bin_dir}/debian-source-mirror "$conffile" >> $logfile 2>&1
+
+    info "main: update-debsources..."
+    # note: update-debsources does his own logging to $logfile
     ${bin_dir}/update-debsources
-    ${bin_dir}/update-stats "$cache_dir"
+
+    info "main: update statistics..."
+    ${bin_dir}/update-stats "$cache_dir" >> $logfile 2>&1
+
+    rm -f "$lockfile"
+    info "main: all done at $(date)\n"
 }
 
 case "$1" in
