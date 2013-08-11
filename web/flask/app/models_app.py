@@ -18,6 +18,7 @@
 
 from app import app, session
 import models
+import filetype
 
 from flask import url_for
 
@@ -42,7 +43,7 @@ class Package_app(models.Package):
         returns the packages prefixes (a, b, ..., liba, libb, ..., y, z)
         """
         try:
-            with open(app.config['PKG_PREFIXES_FILE']) as f:
+            with open(os.path.join(app.config['CACHE_DIR'], 'pkg-prefixes')) as f:
                 prefixes = [ l.rstrip() for l in f ]
         except IOError:
             prefixes = PREFIXES_DEFAULT
@@ -124,7 +125,7 @@ class Location(object):
         self.path_to = os.path.join(package, version, path)
         
         self.sources_path = os.path.join(
-            app.config['SOURCES_FOLDER'],
+            app.config['SOURCES_DIR'],
             debian_path,
             self.path_to)
 
@@ -232,15 +233,39 @@ class SourceFile(object):
     def get_mime(self):
         return self.mime
 
-    def istextfile(self, text_file_mimes):
+    def istextfile(self):
         """ 
         True if self is a text file, False if it's not.
         """
-        for substring in text_file_mimes:
-            if substring in self.mime['type']:
-                return True
-        return False
+        return filetype.is_text_file(self.mime['type'])
+        # for substring in text_file_mimes:
+        #     if substring in self.mime['type']:
+        #         return True
+        # return False
         
     def get_raw_url(self):
         """ return the raw url on disk (e.g. data/main/a/azerty/foo.bar) """
         return self.sources_path_static
+
+class Checksum_app(models.Checksum):
+    @staticmethod
+    def files_with_sum(checksum):
+        """
+        Returns a list of files whose hexdigest is checksum.
+        """
+        # here we use db.session.query() instead of Class.query,
+        # because after all "pure" SQLAlchemy is better than the
+        # Flask-SQLAlchemy plugin.
+        results = (db.session.query(Package_app.name.label("package"),
+                                    Version_app.vnumber.label("version"),
+                                    Checksum_app.path.label("path"))
+                   .filter(Checksum_app.sha256 == checksum)
+                   .filter(Checksum_app.version_id == Version_app.id)
+                   .filter(Version_app.package_id == Package_app.id)
+                   .all()
+                   )
+        
+        return [dict(path=res.path,
+                     package=res.package,
+                     version=res.version)
+                for res in results]

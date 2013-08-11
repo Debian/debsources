@@ -18,35 +18,41 @@
 import os
 import logging
 from logging import Formatter, StreamHandler
+from ConfigParser import SafeConfigParser
 
 from flask import Flask
 
 app = Flask(__name__)
 
-app.config.from_pyfile(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                    '../../../etc/webconfig.py'))
-if "DEBSOURCES_CONFIG" in os.environ:
-    app.config.from_envvar('DEBSOURCES_CONFIG')
-else:
-    try:
-        app.config.from_pyfile(os.path.join(
-                os.path.dirname(os.path.abspath(__file__)),
-                '../../../etc/webconfig_local.py'))
-    except Exception as e:
-        print(e)
+# Configuration
+parser = SafeConfigParser()
+conf_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          '../../../etc/config.local.ini')
+if not(os.path.exists(conf_file)):
+    conf_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             '../../../etc/config.ini')
+
+parser.read(conf_file)
+
+for (key, value) in parser.items("webapp"):
+    if value.lower() == "false":
+        value = False
+    elif value.lower() == "true":
+        value = True
+    app.config[key.upper()] = value
 
 import sys
-sys.path.append(app.config['MODELS_FOLDER'])
+sys.path.append(app.config['PYTHON_DIR'])
 
-from dbutils import get_engine_session, close_session
+from dbutils import _get_engine_session, _close_session
 
 # SQLAlchemy
-engine, session = get_engine_session(app.config["SQLALCHEMY_DATABASE_URI"],
+engine, session = _get_engine_session(app.config["SQLALCHEMY_DATABASE_URI"],
                                      verbose = app.config["SQLALCHEMY_ECHO"])
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
-    close_session(session)
+    _close_session(session)
 
 
 from app import views

@@ -132,6 +132,13 @@ shebangs = dict(
     #wish =	TCL,
     )
 
+# if the mime type of the file contains one of the below items,
+# the file will be considered as a text file
+text_file_mimes = [
+    "text",
+    "xml",
+]
+
 def get_filetype(filename, firstline):
     """
     Tries to guess the programming language used in the file.
@@ -204,6 +211,15 @@ def get_highlightjs_language(filename, firstline):
     else:
         return highlightjs[language]
 
+def is_text_file(mimetype):
+    """
+    True if the passed mime corresponds to the mime of a text file,
+    False otherwise.
+    """
+    for text_mime in text_file_mimes:
+        if text_mime in mimetype:
+            return True
+    return False
 
 if __name__ == "__main__":
     assert get_filetype("foo", "#!/usr/bin/env python") == PYTHON

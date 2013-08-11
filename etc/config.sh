@@ -16,13 +16,10 @@ cachedir="${root}/cache"
 
 # Source mirror configuration
 mirror_host="ftp.de.debian.org"
-mirror_suites="oldstable,stable,testing,unstable,experimental"
-mirror_suites="${mirror_suites},proposed-updates,testing-proposed-updates"
-mirror_suites="${mirror_suites},oldstable-updates,stable-updates"
+mirror_suites="unstable,experimental"
 # "wheezy" name hard-coded here, instead of "stable", due to
 # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=714726
-mirror_suites="${mirror_suites},wheezy-backports"
-mirror_sections="main,contrib,non-free"
+mirror_sections="contrib"
 
 # Directory where the Debian source mirror will be found.
 mirror_dir="/srv/debian-mirror"

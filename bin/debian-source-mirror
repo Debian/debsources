@@ -19,10 +19,28 @@
 
 # Depends: debmirror
 
-set -e
+conffile="$1"
+shift 1
+if ! [ -f "$conffile" ] ; then
+    echo "Usage: debian-source-mirror DEBSOURCES_CONFFILE [DEBMIRROR_OPTIONS]"
+    exit 2
+fi
 
-source "/srv/debsources/etc/config.sh"
-source "${bindir}/lib.sh"
+root_dir=$(grep "^root_dir:" "$conffile" | awk '{ print $2 }')
+conf_get () {
+    local key="$1"
+    local value=$(grep "^${key}:" "$conffile" | awk '{ print $2 }')
+    value=$(echo $value | sed "s|%(root_dir)s|${root_dir}|")
+    if [ -z "$value" ] ; then
+	echo "debian-source-mirror: required configuration value $key not found in $conffile, abort." 1>&2
+    fi
+    echo "$value"
+}
+
+mirror_host=$( conf_get "mirror_host" )
+mirror_suites=$( conf_get "mirror_suites" )
+mirror_sections=$( conf_get "mirror_sections" )
+mirror_dir=$( conf_get "mirror_dir" )
 
 debmirror \
   --source \

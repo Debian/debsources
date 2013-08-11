@@ -17,22 +17,51 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Index, Enum
+from sqlalchemy import Column, ForeignKey, UniqueConstraint
+from sqlalchemy import Integer, String, Index, Enum, LargeBinary
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-from hashutil import sha1sum, sha256sum
 
+# this list should be kept in sync with
+# http://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-VCS-fields
+VCS_TYPES = ("arch", "bzr", "cvs", "darcs", "git", "hg", "mtn", "svn")
 
-vcs_types = ("arch", "bzr", "cvs", "darcs", "git", "hg", "mtn", "svn")
+# this list should be kept in sync with languages supported by sloccount. A
+# good start is http://www.dwheeler.com/sloccount/sloccount.html (section
+# "Basic concepts"). Others have been added to the Debian package via patches.
+SLOCCOUNT_LANGUAGES = (
 
-languages = ("ansic", "cpp", "sh", "xml", "java", "python", "perl", "lisp",
-             "fortran", "asm", "php", "cs", "pascal", "ruby", "ml", "erlang",
-             "tcl", "objc", "haskell", "ada", "yacc", "f90", "exp", "lex",
-             "awk", "jsp", "vhdl", "csh", "sed", "modula3", "cobol")
+    # sloccount 2.26 languages
+    "ada", "asm", "awk", "sh", "ansic", "cpp", "cs", "csh", "cobol", "exp",
+    "fortran", "f90", "haskell", "java", "lex", "lisp", "makefile", "ml",
+    "modula3", "objc", "pascal", "perl", "php", "python",
+    "ruby", "sed", "sql", "tcl", "yacc",
+
+    # enhancements from Debian patches, version 2.26-5
+    "erlang", "jsp", "vhdl", "xml",
+)
+
+# this list should be kept in sync with languages supported by (exuberant)
+# ctags. See: http://ctags.sourceforge.net/languages.html and the output of
+# `ctags --list-languages`
+CTAGS_LANGUAGES = (
+    'ant', 'asm', 'asp', 'awk', 'basic', 'beta', 'c', 'c++',
+    'c#', 'cobol', 'dosbatch', 'eiffel', 'erlang', 'flex', 'fortran', 'go',
+    'html', 'java', 'javascript', 'lisp', 'lua', 'make', 'matlab',
+    'objectivec', 'ocaml', 'pascal', 'perl', 'php', 'python', 'rexx', 'ruby',
+    'scheme', 'sh', 'slang', 'sml', 'sql', 'tcl', 'tex', 'vera', 'verilog',
+    'vhdl', 'vim', 'yacc',
+)
+
+# TODO uniform CTAGS_* language naming (possibly without blessing any of the
+# two, but using a 3rd, Debsources specific, canonical form)
+
+METRIC_TYPES = ("size",)
 
 
 Base = declarative_base()
+
 
 class Package(Base):
     """ a source package """
@@ -40,7 +69,9 @@ class Package(Base):
     
     id = Column(Integer, primary_key=True)
     name = Column(String, index=True, unique=True)
-    versions = relationship("Version", backref="package")#, lazy="joined")
+    versions = relationship("Version", backref="package",
+                            cascade="all, delete-orphan",
+                            passive_deletes=True)
     
     def __init__(self, name):
         self.name = name
@@ -48,20 +79,23 @@ class Package(Base):
     def __repr__(self):
         return self.name
 
+
 class Version(Base):
     """ a version of a source package """
     __tablename__ = 'versions'
     
     id = Column(Integer, primary_key=True)
     vnumber = Column(String)
-    package_id = Column(Integer, ForeignKey('packages.id'))
-    area = Column(String(8)) # main, contrib, nonfree
-    vcs_type = Column(Enum(*vcs_types, name="vcs_types"))
+    package_id = Column(Integer, ForeignKey('packages.id', ondelete="CASCADE"),
+                        nullable=False)
+    area = Column(String(8), index=True)	# main, contrib, non-free
+    vcs_type = Column(Enum(*VCS_TYPES, name="vcs_types"))
     vcs_url = Column(String)
     vcs_browser = Column(String)
     
-    def __init__(self, vnumber, area="main"):
-        self.vnumber = vnumber
+    def __init__(self, version, package):
+        self.vnumber = version
+        self.package_id = package.id
 
     def __repr__(self):
         return self.vnumber
@@ -76,37 +110,36 @@ class SuitesMapping(Base):
     __tablename__ = 'suitesmapping'
     
     id = Column(Integer, primary_key=True)
-    sourceversion_id = Column(Integer, ForeignKey('versions.id'))
-    suite = Column(String)
+    sourceversion_id = Column(Integer,
+                              ForeignKey('versions.id', ondelete="CASCADE"),
+                              nullable=False)
+    suite = Column(String, index=True)
     
 
-class Checksums(Base):
+class Checksum(Base):
     __tablename__ = 'checksums'
+    __table_args__ = (UniqueConstraint('version_id', 'path'),)
 
     id = Column(Integer, primary_key=True)
-    version_id = Column(Integer, ForeignKey('versions.id'))
-    path = Column(String)
-    sha1 = Column(String(40), index=True)
-    sha256 = Column(String(64), index=True)
+    version_id = Column(Integer, ForeignKey('versions.id', ondelete="CASCADE"),
+                        nullable=False)
+    path = Column(LargeBinary, nullable=False)	# path/whitin/source/pkg
+    sha256 = Column(String(64), nullable=False, index=True)
 
-    def __init__(self, version, path, sha1=None, sha256=None):
-        self.version = version
+    def __init__(self, version, path, sha256):
+        self.version_id = version.id
         self.path = path
-        
-        if not sha1:
-            sha1 = sha1sum(path)
-        self.sha1 = sha1
-        
-        if not sha256:
-            sha256 = sha256sum(path)
         self.sha256 = sha256
+
 
 class BinaryPackage(Base):
     __tablename__ = 'binarypackages'
     
     id = Column(Integer, primary_key=True)
     name = Column(String, index=True, unique=True)
-    versions = relationship("BinaryVersion", backref="binarypackage")
+    versions = relationship("BinaryVersion", backref="binarypackage",
+                            cascade="all, delete-orphan",
+                            passive_deletes=True)
     
     def __init__(self, name):
         self.name = name
@@ -114,13 +147,18 @@ class BinaryPackage(Base):
     def __repr__(self):
         return self.name
 
+
 class BinaryVersion(Base):
     __tablename__ = 'binaryversions'
     
     id = Column(Integer, primary_key=True)
     vnumber = Column(String)
-    binarypackage_id = Column(Integer, ForeignKey('binarypackages.id'))
-    sourceversion_id = Column(Integer, ForeignKey('versions.id'))
+    binarypackage_id = Column(Integer, ForeignKey('binarypackages.id',
+                                                  ondelete="CASCADE"),
+                              nullable=False)
+    sourceversion_id = Column(Integer, ForeignKey('versions.id',
+                                                  ondelete="CASCADE"),
+                              nullable=False)
     
     def __init__(self, vnumber, area="main"):
         self.vnumber = vnumber
@@ -128,10 +166,61 @@ class BinaryVersion(Base):
     def __repr__(self):
         return self.vnumber
 
+
 class SlocCount(Base):
     __tablename__ = 'sloccounts'
+    __table_args__ = (UniqueConstraint('sourceversion_id', 'language'),)
     
     id = Column(Integer, primary_key=True)
-    sourceversion_id = Column(Integer, ForeignKey('versions.id'))
-    language = Column(Enum(*languages, name="language_names"))
-    count = Column(Integer)
+    sourceversion_id = Column(Integer,
+                              ForeignKey('versions.id', ondelete="CASCADE"),
+                              nullable=False)
+    language = Column(Enum(*SLOCCOUNT_LANGUAGES, name="language_names"),
+                      # TODO rename enum s/language_names/sloccount/languages
+                      nullable=False)
+    count = Column(Integer, nullable=False)
+
+    def __init__(self, version, lang, locs):
+        self.sourceversion_id = version.id
+        self.language = lang
+        self.count = locs
+
+
+class Ctag(Base):
+    __tablename__ = 'ctags'
+
+    id = Column(Integer, primary_key=True)
+    version_id = Column(Integer, ForeignKey('versions.id', ondelete="CASCADE"),
+                        nullable=False)
+    tag = Column(String, nullable=False, index=True)
+    path = Column(LargeBinary, nullable=False)	# path/whitin/source/pkg
+    line = Column(Integer, nullable=False)
+    kind = Column(String)	# see `ctags --list-kinds`; unfortunately ctags
+        # gives no guarantee of uniformity in kinds, they might be one-lettered
+        # or full names, sigh
+    language = Column(Enum(*CTAGS_LANGUAGES, name="ctags_languages"))
+
+    def __init__(self, version, tag, path, line, kind, language):
+        self.version_id = version.id
+        self.tag = tag
+        self.path = path
+        self.line = line
+        self.kind = kind
+        self.language = language
+
+
+class Metric(Base):
+    __tablename__ = 'metrics'
+    __table_args__ = (UniqueConstraint('sourceversion_id', 'metric'),)
+
+    id = Column(Integer, primary_key=True)
+    sourceversion_id = Column(Integer,
+                              ForeignKey('versions.id', ondelete="CASCADE"),
+                              nullable=False)
+    metric = Column(Enum(*METRIC_TYPES, name="metric_types"), nullable=False)
+    value = Column("value_", Integer, nullable=False)
+
+    def __init__(self, version, metric, value):
+        self.sourceversion_id = version.id
+        self.metric = metric
+        self.value = value

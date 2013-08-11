@@ -1,0 +1,116 @@
+#!/usr/bin/python
+
+# Copyright (C) 2013  Stefano Zacchiroli <zack@upsilon.cc>
+#
+# This file is part of Debsources.
+#
+# Debsources is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Check for DB/FS inconsistencies
+
+import argparse
+import logging
+import os
+import shutil
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+import mainlib
+import dbutils
+import fs_storage
+
+from debmirror import SourcePackage
+from models import Version
+
+Session = sessionmaker()
+
+
+# Global. List of allowed extensions in FS storage (will be extended querying
+# plugin information)
+file_extensions = [ '.done', '.log' ]
+
+
+def fs_check_missing(conf, session, fix=False):
+    global file_extensions
+
+    logging.info('fs storage: check for missing data...')
+    for version in session.query(Version).all():
+        pkg = SourcePackage.from_db_model(version)
+        pkgdir = pkg.extraction_dir(conf['sources_dir'])
+        if not os.path.isdir(pkgdir):
+            logging.warn('missing package directory: %s' % pkgdir)
+        for ext in file_extensions:
+            metafile = pkgdir + ext
+            if not os.path.isfile(metafile):
+                logging.warn('missing metadata file: %s' % metafile)
+
+
+def fs_check_stale(conf, session, fix=False):
+    global file_extensions
+
+    checked_versions = {}
+
+    def have_version(package, version):
+        """check if a given package/version exists in the DB, with memoization
+        """
+        pkg_id = (package, version)
+        if not checked_versions.has_key(pkg_id):
+            checked_versions[pkg_id] = \
+                bool(dbutils.lookup_version(session, package, version))
+        return checked_versions[pkg_id]
+
+    logging.info('fs storage: check for stale data...')
+    for entry in fs_storage.walk(conf['sources_dir']):
+        path = fs_storage.parse_path(entry)
+        if os.path.isdir(entry):
+            if not have_version(path['package'], path['version']):
+               logging.warn('orphan package directory: %s' % entry)
+               if fix:
+                   logging.info('removing orphan package directory %s' % entry)
+                   shutil.rmtree(entry)
+        elif os.path.isfile(entry):
+            if path['ext'] in file_extensions:
+                if not have_version(path['package'], path['version']):
+                    logging.warn('orphan metadata file: %s' % entry)
+                    if fix:
+                        logging.info('removing orphan metadata file %s' % entry)
+                        os.unlink(entry)
+            else:
+                logging.warn('unknown metadata file: %s' % entry)
+                if fix:
+                    logging.info('removing unknown metadata file %s' % entry)
+                    os.unlink(entry)
+
+
+def main(conf, session, fix):
+    fs_check_missing(conf, session, fix)
+    fs_check_stale(conf, session, fix)
+
+
+if __name__ == '__main__':
+    cmdline = argparse.ArgumentParser(description='Debsources fsck')
+    cmdline.add_argument('--fix', '-f',
+                         action='store_true',
+                         help='fix errors')
+    args = cmdline.parse_args()
+
+    conf = mainlib.load_configuration()
+    mainlib.init_logging(conf, logging.INFO)
+    (_observers, exts)  = mainlib.load_hooks(conf)
+    file_extensions.extend(exts.keys())
+    db = create_engine(conf['db_uri'])
+    session = Session(bind=db)
+
+    main(conf, session, args.fix)

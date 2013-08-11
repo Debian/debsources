@@ -16,23 +16,74 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql import exists
 
-from models import Base, Package, Version
+from models import Base, Package, Version, VCS_TYPES
 
-def get_engine_session(url, verbose=True):
+
+def add_package(session, pkg):
+    """Add a package (= debmirror.SourcePackage) to the Debsources db
+    """
+    logging.debug('add to db %s...' % pkg)
+    package = session.query(Package).filter_by(name=pkg['package']).first()
+    if not package:
+        package = Package(pkg['package'])
+        session.add(package)
+
+    version = session.query(Version) \
+                     .filter_by(vnumber=pkg['version'],
+                                package_id=package.id)\
+                     .first()
+    if not version:
+        version = Version(pkg['version'], package)
+        version.area = pkg.archive_area()
+        if pkg.has_key('vcs-browser'):
+            version.vcs_browser = pkg['vcs-browser']
+        for vcs_type in VCS_TYPES:
+            vcs_key = 'vcs-' + vcs_type
+            if pkg.has_key(vcs_key):
+                version.vcs_type = vcs_type
+                version.vcs_url = pkg[vcs_key]
+        package.versions.append(version)
+        session.add(version)
+
+
+def rm_package(session, pkg, db_version):
+    """Remove a package (= debmirror.SourcePackage) from the Debsources db
+    """
+    logging.debug('remove from db %s...' % pkg)
+    session.delete(db_version)
+    if not db_version.package.versions:
+        # just removed last version, get rid of package too
+        session.delete(db_version.package)
+
+
+def lookup_version(session, package, version):
+    """Lookup a package in the Debsources db, using <package, version> as key
+    """
+    return session.query(Version) \
+                  .join(Package) \
+                  .filter(Version.vnumber==version) \
+                  .filter(Package.name==package) \
+                  .first()
+
+
+def _get_engine_session(url, verbose=True):
     engine = create_engine(url, echo=verbose)
     session = scoped_session(sessionmaker(bind=engine))
     return engine, session
 
-def close_session(session):
+def _close_session(session):
     session.remove()
 
+# TODO get rid of this function. With sources2sqlite (soon) gone, the only
+# remaining client code is web/flask/tests.py
 def sources2db(sources, url, drop=False, verbose=True):
-    engine, session = get_engine_session(url, verbose)
+    engine, session = _get_engine_session(url, verbose)
 
     if drop:
         Base.metadata.drop_all(engine)
@@ -62,4 +113,4 @@ def sources2db(sources, url, drop=False, verbose=True):
         [dict(vnumber=b, package_id=packids[a], area=c) for a, b, c in versions]
         )
 
-    close_session(session)
+    _close_session(session)

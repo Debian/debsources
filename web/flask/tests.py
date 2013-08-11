@@ -104,7 +104,7 @@ class DebsourcesTestCase(unittest.TestCase):
         assert 'size_t CNetStatsTable::GetNumberRows()' in rv.data
     
     def test_source_file_text(self):
-        app.config['SOURCES_FOLDER'] = os.path.join(
+        app.config['SOURCES_DIR'] = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             "tests/sources")
         rv = self.app.get('/src/0ad/0.0.13-2/simplefile')

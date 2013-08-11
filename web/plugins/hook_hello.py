@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (C) 2013  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
@@ -17,33 +15,20 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Driver for asynchronous update runs (e.g. ssh push)
-# Usage: receive-push [ enable | disable ]
+import logging
 
-source "/srv/debsources/etc/config.sh"
-source "${bindir}/lib.sh"
+conf = None
 
-disabler="${root}/PUSH-DISABLED"
+def add_package(session, pkg, pkgdir):
+    global conf
+    logging.debug('add-package %s %s' % (pkg, pkgdir))
 
-main () {
-    info "received push update request at $(date)"
-    if [ -f "$disabler" ] ; then
-	info "push disabled by ${disabler}: skipping update"
-    else
-	${bindir}/update-debsources-ng
-    fi
-}
+def rm_package(session, pkg, pkgdir):
+    global conf
+    logging.debug('rm-package %s %s' % (pkg, pkgdir))
 
-case "$1" in
-    disable)
-	echo -e "Push updates are currently disabled.\nUse '${bindir}/receive-push enable' to enable." > "$disabler"
-	info "push updates are now disabled"
-	;;
-    enable)
-	rm -f "$disabler"
-	info "push updates are now enabled"
-	;;
-    *)
-	main >> $logfile 2>&1
-	;;
-esac
+def init_plugin(debsources):
+    global conf
+    conf = debsources['config']
+    debsources['subscribe']('add-package', add_package, title='hello')
+    debsources['subscribe']('rm-package', rm_package, title='hello')

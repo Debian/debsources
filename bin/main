@@ -17,15 +17,57 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Driver for synchronous update runs (e.g. by hand or cron-driven)
+# Driver for update runs, both synchronous (e.g. cmdline) and asynchronous
+# (e.g. cron and pushes)
 
-source "/srv/debsources/etc/config.sh"
-source "${bindir}/lib.sh"
+# will be overridden by config.local.ini in the same dir, if present
+CONFFILE="/srv/debsources/etc/config.ini"
 
-echo >> $logfile	# log session separator
-${bindir}/update-debsources >> $logfile 2>&1
-rc=$?
-if [ "$rc" -ne 0 ] ; then
-    info "update-debsources: abnormal termination (exit code: ${rc}) at $(date)" >> $logfile
-    echo "update-debsources returned non 0 exit code: ${rc}"	# for mail delivery by cron
+# -----------------------------------------------------------------------
+
+umask 0002
+
+alt_conffile=$(echo "$CONFFILE" | sed 's/config.ini/config.local.ini/')
+conffile="$CONFFILE"
+if [ -f "$alt_conffile" ] ; then
+    conffile="$alt_conffile"
 fi
+
+root_dir=$(grep "^root_dir:" "$conffile" | awk '{ print $2 }')
+conf_get () {
+    local key="$1"
+    local value=$(grep "^${key}:" "$conffile" | awk '{ print $2 }')
+    value=$(echo $value | sed "s|%(root_dir)s|${root_dir}|")
+    if [ -z "$value" ] ; then
+	echo "debian-source-mirror: required configuration value $key not found in $conffile, abort."
+    fi
+    echo "$value"
+}
+
+bin_dir=$( conf_get "bin_dir" )
+cache_dir=$( conf_get "cache_dir" )
+disabler="${root_dir}/UPDATE-DISABLED"
+
+main () {
+    if [ -f "$disabler" ] ; then
+	echo "updates disabled by ${disabler}: skipping update run."
+	exit 2
+    fi
+    ${bin_dir}/debian-source-mirror "$conffile"
+    ${bin_dir}/update-debsources-ng
+    ${bin_dir}/update-stats "$cache_dir"
+}
+
+case "$1" in
+    disable)
+	echo -e "Updates are currently disabled.\nUse '${bin_dir}/main enable' to enable." > "$disabler"
+	echo "Updates are now disabled."
+	;;
+    enable)
+	rm -f "$disabler"
+	echo "Updates are now enabled."
+	;;
+    *)
+	main
+	;;
+esac

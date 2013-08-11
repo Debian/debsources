@@ -16,6 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import os
+
 from flask import render_template, redirect, url_for, request, safe_join, \
     jsonify
 from flask.views import View
@@ -25,7 +27,8 @@ from debian.debian_support import version_compare
 
 from app import app, session
 from models_app import Package_app, Version_app, Location, Directory, \
-    SourceFile, InvalidPackageOrVersionError, FileOrFolderNotFound
+    SourceFile, InvalidPackageOrVersionError, FileOrFolderNotFound, \
+    Checksum_app
 from sourcecode import SourceCodeIterator
 from forms import SearchForm
 
@@ -42,7 +45,7 @@ except ImportError:
 @app.context_processor
 def skeleton_variables():
     try:
-        with open(app.config['LAST_UPDATE_FILE']) as f:
+        with open(os.path.join(app.config['CACHE_DIR'], 'last-update')) as f:
             last_update = f.readline()
     except IOError:
         last_update = "unknown"
@@ -427,7 +430,7 @@ class SourceView(GeneralView):
                     mime=file_.get_mime(),
                     raw_url=file_.get_raw_url(),
                     path=location.get_path_to(),
-                    text_file=file_.istextfile(app.config['TEXT_FILE_MIMES']),
+                    text_file=file_.istextfile(),
                     pts_link=self._get_pts_link(location.get_package()))
     
     def _handle_latest_version(self, package, path):
@@ -507,7 +510,7 @@ def render_source_file_html(templatename, **kwargs):
             return redirect(kwargs['raw_url'])
         
         sources_path = kwargs['raw_url'].replace(app.config['SOURCES_STATIC'],
-                                                 app.config['SOURCES_FOLDER'],
+                                                 app.config['SOURCES_DIR'],
                                                  1)
         # ugly, but better than global variable,
         # and better than re-requesting the db
@@ -569,4 +572,24 @@ app.add_url_rule('/embedded/<path:path_to>', view_func=SourceView.as_view(
         render_func=lambda **kwargs:
                 render_source_file_html("source_file_embedded.html", **kwargs),
         err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+
+
+### CHECKSUM REQUEST ###
+
+class ChecksumView(GeneralView):
+    def get_objects(self, checksum):
+        """ returns the files whose checksum corresponds to the one given """
+        results = Checksum_app.files_with_sum(checksum)
+        
+        return dict(results=results,
+                    sha256=checksum,
+                    count=len(results))
+
+
+# CHECKSUM REQUEST (JSON)
+app.add_url_rule('/api/checksum/<checksum>/', view_func=ChecksumView.as_view(
+        'checksum_json',
+        render_func=jsonify,
+        err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
         ))
