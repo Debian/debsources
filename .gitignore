@@ -1,5 +1,4 @@
 cache
 sources
 *.pyc
-etc/webconfig_local.py
 etc/config.local.ini
