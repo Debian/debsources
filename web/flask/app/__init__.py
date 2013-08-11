@@ -47,8 +47,13 @@ sys.path.append(app.config['PYTHON_DIR'])
 from dbutils import _get_engine_session, _close_session
 
 # SQLAlchemy
-engine, session = _get_engine_session(app.config["SQLALCHEMY_DATABASE_URI"],
-                                     verbose = app.config["SQLALCHEMY_ECHO"])
+if os.environ.get("DEBSOURCES_TESTING") == "testing":
+    db_uri = app.config["SQLALCHEMY_DATABASE_URI_TESTING"]
+else:
+    db_uri = app.config["SQLALCHEMY_DATABASE_URI"]
+print db_uri
+engine, session = _get_engine_session(db_uri,
+                                      verbose = app.config["SQLALCHEMY_ECHO"])
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):

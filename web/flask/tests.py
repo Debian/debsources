@@ -22,7 +22,8 @@ import unittest
 import tempfile
 import json
 
-
+# must be done before importig the app
+os.environ["DEBSOURCES_TESTING"] = "testing"
 from app import app
 
 thisdir = os.path.dirname(os.path.abspath(__file__))
@@ -50,7 +51,7 @@ class DebsourcesTestCase(unittest.TestCase):
     def setupClass(self):
         try:
             sources2db(os.path.join(thisdir, "tests/sources.txt"),
-                       app.config["SQLALCHEMY_DATABASE_URI"],
+                       app.config["SQLALCHEMY_DATABASE_URI_TESTING"],
                        drop=True, verbose=False)
         except Exception as e:
             import logging
@@ -137,3 +138,4 @@ class DebsourcesTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main(exit=False)
+    del(os.environ["DEBSOURCES_TESTING"])
