@@ -256,9 +256,9 @@ class Checksum_app(models.Checksum):
         # here we use db.session.query() instead of Class.query,
         # because after all "pure" SQLAlchemy is better than the
         # Flask-SQLAlchemy plugin.
-        results = (db.session.query(Package_app.name.label("package"),
-                                    Version_app.vnumber.label("version"),
-                                    Checksum_app.path.label("path"))
+        results = (session.query(Package_app.name.label("package"),
+                                 Version_app.vnumber.label("version"),
+                                 Checksum_app.path.label("path"))
                    .filter(Checksum_app.sha256 == checksum)
                    .filter(Checksum_app.version_id == Version_app.id)
                    .filter(Version_app.package_id == Package_app.id)
