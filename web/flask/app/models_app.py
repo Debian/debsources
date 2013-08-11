@@ -123,7 +123,7 @@ class Location(object):
         self.path_to = os.path.join(package, version, path)
         
         self.sources_path = os.path.join(
-            app.config['POOL_DIR'],
+            app.config['SOURCES_DIR'],
             debian_path,
             self.path_to)
 

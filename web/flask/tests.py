@@ -103,7 +103,7 @@ class DebsourcesTestCase(unittest.TestCase):
         assert rv['type'] == "package"
         
     def test_folder(self):
-        app.config['POOL_DIR'] = os.path.join(
+        app.config['SOURCES_DIR'] = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             "tests/sources")
         rv = json.loads(self.app.get('/api/src/0ad/0.0.13-2').data)
@@ -111,7 +111,7 @@ class DebsourcesTestCase(unittest.TestCase):
         assert {'type': "file", 'name': "hello.c"} in rv['content']
         
     def test_source_file(self):
-        app.config['POOL_DIR'] = os.path.join(
+        app.config['SOURCES_DIR'] = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             "tests/sources")
         rv = self.app.get('/src/0ad/0.0.13-2/NetStats.cpp')
@@ -119,14 +119,14 @@ class DebsourcesTestCase(unittest.TestCase):
         assert 'size_t CNetStatsTable::GetNumberRows()' in rv.data
     
     def test_source_file_text(self):
-        app.config['POOL_DIR'] = os.path.join(
+        app.config['SOURCES_DIR'] = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             "tests/sources")
         rv = self.app.get('/src/0ad/0.0.13-2/simplefile')
         assert '<code id="sourcecode" class="no-highlight">' in rv.data
         
     def test_source_file_embedded(self):
-        app.config['POOL_DIR'] = os.path.join(
+        app.config['SOURCES_DIR'] = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             "tests/sources")
         rv = self.app.get('/embedded/0ad/0.0.13-2/NetStats.cpp')
@@ -143,7 +143,7 @@ class DebsourcesTestCase(unittest.TestCase):
         assert "0.0.13-2" in rv['path']
     
     def test_codesearch_box(self):
-        app.config['POOL_DIR'] = os.path.join(
+        app.config['SOURCES_DIR'] = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             "tests/sources")
         rv = self.app.get('/src/0ad/0.0.13-2/NetStats.cpp')

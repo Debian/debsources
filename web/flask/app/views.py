@@ -473,7 +473,7 @@ def render_source_file_html(templatename, **kwargs):
             return redirect(kwargs['raw_url'])
         
         sources_path = kwargs['raw_url'].replace(app.config['SOURCES_STATIC'],
-                                                 app.config['POOL_DIR'],
+                                                 app.config['SOURCES_DIR'],
                                                  1)
         # ugly, but better than global variable,
         # and better than re-requesting the db
