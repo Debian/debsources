@@ -21,6 +21,7 @@ import os
 from flask import render_template, redirect, url_for, request, safe_join, \
     jsonify
 from flask.views import View
+from sqlalchemy import and_
 
 from debian.debian_support import version_compare
 
@@ -360,6 +361,28 @@ class SourceView(GeneralView):
         pts_link = app.config['PTS_PREFIX'] + packagename
         pts_link = url_quote(pts_link) # for '+' symbol in Debian package names
         return pts_link
+
+    def _get_vcs(self, package, version):
+        """
+        returns a dictionary like::
+
+            { 'type_':   'git',
+              'browser': 'http://anonscm.debian.org/git/collab-maint/foo.git/',
+            }
+        """
+        try:
+            v = (session.query(Version_app)
+                 .filter(and_(Version_app.vnumber==version,
+                              Version_app.package_id==Package_app.id,
+                              Package_app.name==package))
+                 .first())
+            vcs = {}
+            if v.vcs_type and v.vcs_browser:
+                vcs['type_'] = v.vcs_type
+                vcs['browser'] = v.vcs_browser
+            return vcs
+        except Exception as e:
+            raise Http500Error(e)
     
     def _render_package(self, packagename, path_to):
         """
@@ -416,7 +439,9 @@ class SourceView(GeneralView):
                     package=location.get_package(),
                     content=directory.get_listing(),
                     path=location.get_path_to(),
-                    pts_link=self._get_pts_link(location.get_package()))
+                    pts_link=self._get_pts_link(location.get_package()),
+                    vcs=self._get_vcs(location.get_package(),
+                                      location.get_version()))
     
     def _render_file(self, location):
         """
@@ -431,7 +456,9 @@ class SourceView(GeneralView):
                     raw_url=file_.get_raw_url(),
                     path=location.get_path_to(),
                     text_file=file_.istextfile(),
-                    pts_link=self._get_pts_link(location.get_package()))
+                    pts_link=self._get_pts_link(location.get_package()),
+                    vcs=self._get_vcs(location.get_package(),
+                                      location.get_version()))
     
     def _handle_latest_version(self, package, path):
         """

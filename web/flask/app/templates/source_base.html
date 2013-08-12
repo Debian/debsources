@@ -12,8 +12,11 @@
 {% block content %}
 
 <div id="pkglinks">
-  package {{ pathl[0][0] }} links:
-  <a href="{{ pts_link }}"><abbr title="Debian Package Tracking System">PTS</acronym></a>
+  links for {{ pathl[0][0] }}:
+  <a href="{{ pts_link }}"><abbr title="Debian Package Tracking
+  System">PTS</abbr></a>{% if vcs %},
+  <a href="{{ vcs['browser'] }}"><abbr title="Version Control System">VCS</abbr></a>
+  {% endif %}
 </div>
 
 {% block source_content %}{% endblock %}
