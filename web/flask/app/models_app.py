@@ -23,6 +23,7 @@ import filetype
 from flask import url_for
 
 import os, subprocess, magic
+import stat
 from debian.debian_support import version_compare
 
 from sqlalchemy import and_
@@ -245,6 +246,32 @@ class SourceFile(object):
     
     def get_mime(self):
         return self.mime
+    
+    def get_permissions(self):
+        """
+        Returns the permissions of the folder/file on the disk, unix-styled.
+        """
+        read = ("-", "r")
+        write = ("-", "w")
+        execute = ("-", "x")
+        flags = [
+            (stat.S_IRUSR, "r", "-"),
+            (stat.S_IWUSR, "w", "-"),
+            (stat.S_IXUSR, "x", "-"),
+            (stat.S_IRGRP, "r", "-"),
+            (stat.S_IWGRP, "w", "-"),
+            (stat.S_IXGRP, "x", "-"),
+            (stat.S_IROTH, "r", "-"),
+            (stat.S_IWOTH, "w", "-"),
+            (stat.S_IXOTH, "x", "-"),
+            ]
+        perms = os.stat(self.sources_path).st_mode
+        unix_style = ""
+        for (flag, do_true, do_false) in flags:
+            unix_style += do_true if (perms & flag) else do_false
+        
+        return unix_style
+
 
     def istextfile(self):
         """ 

@@ -458,7 +458,8 @@ class SourceView(GeneralView):
                     text_file=file_.istextfile(),
                     pts_link=self._get_pts_link(location.get_package()),
                     vcs=self._get_vcs(location.get_package(),
-                                      location.get_version()))
+                                      location.get_version()),
+                    permissions=file_.get_permissions())
     
     def _handle_latest_version(self, package, path):
         """
