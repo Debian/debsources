@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import argparse
 import logging
 import mainlib
 import os
@@ -65,7 +66,12 @@ def main(conf, ctagsfile=None):
 
 
 if __name__ == '__main__':
-    conf = mainlib.load_configuration()
+    cmdline = argparse.ArgumentParser(description='Debsources: bulk ctags insertion')
+    cmdline.add_argument('--config', '-c', dest='conffile',
+                         help='alternate configuration file')
+    args = cmdline.parse_args()
+    conf = mainlib.load_configuration(args.conffile)
+
     mainlib.init_logging(conf, logging.DEBUG)
     ctagsfile = None
     if len(sys.argv) >= 2:
