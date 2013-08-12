@@ -70,11 +70,9 @@ if __name__ == '__main__':
     cmdline = argparse.ArgumentParser(description='Debsources: bulk checksum insertion')
     cmdline.add_argument('--config', '-c', dest='conffile',
                          help='alternate configuration file')
+    cmdline.add_argument('file', help='.checksum metadata file')
     args = cmdline.parse_args()
     conf = mainlib.load_configuration(args.conffile)
 
     mainlib.init_logging(conf, logging.ERROR)
-    sumsfile = None
-    if len(sys.argv) >= 2:
-        sumsfile = sys.argv[1]
-    main(conf, sumsfile)
+    main(conf, sumsfile=args.file)
