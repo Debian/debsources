@@ -459,7 +459,8 @@ class SourceView(GeneralView):
                     pts_link=self._get_pts_link(location.get_package()),
                     vcs=self._get_vcs(location.get_package(),
                                       location.get_version()),
-                    permissions=file_.get_permissions())
+                    permissions=file_.get_permissions(),
+                    checksum=file_.get_sha256sum())
     
     def _handle_latest_version(self, package, path):
         """

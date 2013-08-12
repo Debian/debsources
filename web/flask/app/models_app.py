@@ -228,6 +228,7 @@ class Directory(object):
 class SourceFile(object):
     """ a source file in a package """
     def __init__(self, location):
+        self.location = location
         self.sources_path = location.sources_path
         self.sources_path_static = location.sources_path_static
         self.mime = self._find_mime()
@@ -246,6 +247,30 @@ class SourceFile(object):
     
     def get_mime(self):
         return self.mime
+    
+    def get_sha256sum(self):
+        """
+        Queries the DB and returns the shasum of the file.
+        """
+        app.logger.error(type(self.location.path))
+        try:
+            shasum = (session.query(Checksum_app.sha256)
+                      .filter(Checksum_app.version_id==Version_app.id)
+                      .filter(Version_app.package_id==Package_app.id)
+                      .filter(Package_app.name==self.location.package)
+                      .filter(Version_app.vnumber==self.location.version)
+                      # WARNING:
+                      # in the DB path is binary,
+                      # and here location.path is unicode, because the path
+                      # comes from the URL.
+                      # TODO: check with non-unicode paths
+                      .filter(Checksum_app.path==str(self.location.path))
+                      .first()
+                      )[0]
+        except Exception as e:
+            app.logger.error(e)
+            shasum = None
+        return shasum
     
     def get_permissions(self):
         """
