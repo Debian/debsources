@@ -5,7 +5,10 @@
     | <a href="{{ url_for('source_html', path_to='/'.join(path.split('/')[:-1])) }}">parent folder</a>
     | <a href="{{ raw_url }}">download</a>
     | permissions: {{ permissions }}
-    | <a href="{{ url_for('checksum_html', checksum=checksum) }}">duplicates</a>
+    {% if number_of_duplicates > 1 %}
+    | <a href="{{ url_for('checksum_html', checksum=checksum) }}">
+	  duplicates ({{ number_of_duplicates }})</a>
+    {% endif %}
     </span>
   </caption>
   <tr>

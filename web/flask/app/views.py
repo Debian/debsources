@@ -448,6 +448,9 @@ class SourceView(GeneralView):
         renders a file
         """
         file_ = SourceFile(location)
+        
+        checksum = file_.get_sha256sum()
+        number_of_duplicates = Checksum_app.count_files_with_sum(checksum)
             
         return dict(type="file",
                     file=location.get_deepest_element(),
@@ -460,7 +463,8 @@ class SourceView(GeneralView):
                     vcs=self._get_vcs(location.get_package(),
                                       location.get_version()),
                     permissions=file_.get_permissions(),
-                    checksum=file_.get_sha256sum())
+                    checksum=checksum,
+                    number_of_duplicates=number_of_duplicates)
     
     def _handle_latest_version(self, package, path):
         """

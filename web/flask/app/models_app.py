@@ -314,6 +314,21 @@ class SourceFile(object):
 
 class Checksum_app(models.Checksum):
     @staticmethod
+    def _query_checksum(checksum):
+        """
+        Returns the query used to retrieve checksums/count checksums.
+        """
+        return (session.query(Package_app.name.label("package"),
+                              Version_app.vnumber.label("version"),
+                              Checksum_app.path.label("path"))
+                .filter(Checksum_app.sha256 == checksum)
+                .filter(Checksum_app.version_id == Version_app.id)
+                .filter(Version_app.package_id == Package_app.id)
+                .order_by("package", "version", "path")
+                )
+        
+
+    @staticmethod
     def files_with_sum(checksum):
         """
         Returns a list of files whose hexdigest is checksum.
@@ -321,17 +336,15 @@ class Checksum_app(models.Checksum):
         # here we use db.session.query() instead of Class.query,
         # because after all "pure" SQLAlchemy is better than the
         # Flask-SQLAlchemy plugin.
-        results = (session.query(Package_app.name.label("package"),
-                                 Version_app.vnumber.label("version"),
-                                 Checksum_app.path.label("path"))
-                   .filter(Checksum_app.sha256 == checksum)
-                   .filter(Checksum_app.version_id == Version_app.id)
-                   .filter(Version_app.package_id == Package_app.id)
-                   .order_by("package", "version", "path")
-                   .all()
-                   )
+        results = Checksum_app._query_checksum(checksum).all()
         
         return [dict(path=res.path,
                      package=res.package,
                      version=res.version)
                 for res in results]
+    
+    @staticmethod
+    def count_files_with_sum(checksum):
+        count = Checksum_app._query_checksum(checksum).count()
+        
+        return count
