@@ -51,7 +51,6 @@ if os.environ.get("DEBSOURCES_TESTING") == "testing":
     db_uri = app.config["SQLALCHEMY_DATABASE_URI_TESTING"]
 else:
     db_uri = app.config["SQLALCHEMY_DATABASE_URI"]
-print db_uri
 engine, session = _get_engine_session(db_uri,
                                       verbose = app.config["SQLALCHEMY_ECHO"])
 
