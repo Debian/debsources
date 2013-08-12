@@ -253,6 +253,26 @@ app.add_url_rule('/api/search/<query>/', view_func=SearchView.as_view(
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
         ))
 
+### ADVANCED SEARCH ###
+
+class AdvancedSearchView(GeneralView):
+    def get_objects(self):
+        return dict()
+
+# ADVANCED SEARCH (HTML)
+app.add_url_rule('/advancedsearch/', view_func=AdvancedSearchView.as_view(
+        'advanced_search_html',
+        render_func=lambda **kwargs: render_template('advanced_search.html', **kwargs),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+
+# ADVANCED SEARCH (JSON)
+app.add_url_rule('/api/advancedsearch/', view_func=AdvancedSearchView.as_view(
+        'advanced_search_json',
+        render_func=jsonify,
+        err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
+        ))
+
 ### NAVIGATION: ALL PACKAGES ###
 
 class ListpackagesView(GeneralView):
