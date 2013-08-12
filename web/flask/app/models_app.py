@@ -302,6 +302,7 @@ class Checksum_app(models.Checksum):
                    .filter(Checksum_app.sha256 == checksum)
                    .filter(Checksum_app.version_id == Version_app.id)
                    .filter(Version_app.package_id == Package_app.id)
+                   .order_by("package", "version", "path")
                    .all()
                    )
         
