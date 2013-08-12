@@ -1,0 +1,28 @@
+{#
+  Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
+  License: GNU Affero General Public License, version 3 or above.
+#}
+
+{% extends "base.html" %}
+{% import "macros.inc.html" as macros %}
+n
+{% block title %}Checksum: {{ sha256 }}{% endblock %}
+
+{% block breadcrumbs %}checksum / {{ sha256 }}{% endblock %}
+
+{% block content %}
+
+<h2>{{ self.title() }}</h2>
+
+{{ count }} result{% if count >= 2 %}s{% endif %}:
+
+<ul>
+  {% for result in results %}
+    {% set path_to=result.package + "/" + result.version + "/" + result.path %}
+    <li>
+      <a href="{{ url_for('source_html', path_to=path_to) }}">{{ path_to }}</a>
+    </li>
+  {% endfor %}
+</ul>
+
+{% endblock %}

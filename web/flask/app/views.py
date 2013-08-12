@@ -614,6 +614,14 @@ class ChecksumView(GeneralView):
                     sha256=checksum,
                     count=len(results))
 
+# CHECKSUM REQUEST (HTML)
+app.add_url_rule('/sha256/<checksum>', view_func=ChecksumView.as_view(
+        'checksum_html',
+        render_func=lambda **kwargs:
+                render_template("checksum.html", **kwargs),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+
 
 # CHECKSUM REQUEST (JSON)
 app.add_url_rule('/api/sha256/<checksum>', view_func=ChecksumView.as_view(
