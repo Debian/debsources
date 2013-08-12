@@ -58,7 +58,12 @@ def main(conf, sumsfile=None):
         insert_checksums(conn, sumsfile)
     else:
         for f in fs_storage.walk(conf['sources_dir'], test=is_checksum):
-            insert_checksums(conn, f)
+            with conn.begin() as trans:
+                try:
+                    insert_checksums(conn, f)
+                except:
+                    logging.exception('cannot inject %s' % f)
+                    trans.rollback()
 
 
 if __name__ == '__main__':
