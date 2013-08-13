@@ -628,6 +628,17 @@ app.add_url_rule('/embedded/<path:path_to>', view_func=SourceView.as_view(
 
 ### CHECKSUM REQUEST ###
 
+@app.route('/sha256/', methods=['GET', 'POST'])
+def receive_sha256_search():
+    if request.args.get("shasum"):
+        return redirect(url_for("checksum_html",
+                                checksum=request.args.get("shasum"),
+                                page=1))
+    else:
+        # we return to the advanced search page
+        return render_template('advanced_search.html')
+
+
 class ChecksumView(GeneralView):
     def get_objects(self, checksum, page=1):
         """ returns the files whose checksum corresponds to the one given """

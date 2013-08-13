@@ -43,7 +43,8 @@
 <h3>File search</h3>
 
 <h4>By SHA256 hash</h4>
-<form name="shasearch" method="get" action="">
+<form name="shasearch" method="get"
+      action="{{ url_for('receive_sha256_search') }}">
   <input type="text" name="shasum" placeholder="sha256" />
   <input type="text" name="package" placeholder="package (optional)" />
   <input type="submit" value="Search files" />
