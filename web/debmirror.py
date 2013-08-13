@@ -191,7 +191,7 @@ class SourceMirror(object):
                 entry = os.path.join(pool_subdir, entry)
                 if os.path.isdir(entry):
                     prefixes.add(os.path.relpath(entry, pool_subdir))
-        return list(prefixes)
+        return sorted(list(prefixes))
 
 
     def ls(self):
