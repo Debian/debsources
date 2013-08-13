@@ -27,6 +27,13 @@ VERSION_ID_Q = sql_query("""
     AND packages.name = :p
     """)
 
+CTAGS_EXIST_Q = sql_query("""
+    SELECT 1
+    FROM ctags
+    WHERE version_id = :v
+    LIMIT 1
+    """)
+
 INSERT_CTAGS_Q = sql_query("""
     INSERT INTO ctags (version_id, tag, path, line, kind, language)
     VALUES (:version_id, :tag, :path, :line, :kind, :language)
@@ -42,6 +49,11 @@ def insert_ctags(conn, ctagsfile):
     logging.debug('INSERT INTO ctags %s/%s...' % (package, version))
 
     version_id = conn.execute(VERSION_ID_Q, v=version, p=package).first()[0]
+    assert version_id is not None
+    has_ctags = conn.execute(CTAGS_EXIST_Q, v=version_id).first()
+    if has_ctags:
+        return
+
     ctags = []
     for tag in parse_ctags(ctagsfile):
         tag['version_id'] = version_id

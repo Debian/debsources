@@ -27,6 +27,13 @@ VERSION_ID_Q = sql_query("""
     AND packages.name = :p
     """)
 
+CHECKSUMS_EXIST_Q = sql_query("""
+    SELECT 1
+    FROM checksums
+    WHERE version_id = :v
+    LIMIT 1
+    """)
+
 INSERT_SHA_Q = sql_query("""
     INSERT INTO checksums (version_id, path, sha256)
     VALUES (:version_id, :path, :sha256)
@@ -42,6 +49,11 @@ def insert_checksums(conn, sumsfile):
     logging.debug('INSERT INTO checksums %s/%s...' % (package, version))
 
     version_id = conn.execute(VERSION_ID_Q, v=version, p=package).first()[0]
+    assert version_id is not None
+    has_checksums = conn.execute(CHECKSUMS_EXIST_Q, v=version_id).first()
+    if has_checksums:
+        return
+
     checksums = []
     for (sha256, path) in parse_checksums(sumsfile):
         checksums.append({ 'version_id': version_id,
