@@ -87,5 +87,5 @@ if __name__ == '__main__':
     args = cmdline.parse_args()
     conf = mainlib.load_configuration(args.conffile)
 
-    mainlib.init_logging(conf, logging.DEBUG)
+    mainlib.init_logging(conf, logging.ERROR)
     main(conf, ctagsfile=args.file)
