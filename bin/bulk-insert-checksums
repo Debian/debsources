@@ -59,7 +59,8 @@ def insert_checksums(conn, sumsfile):
         checksums.append({ 'version_id': version_id,
                            'path': path,
                            'sha256': sha256 })
-    conn.execute(INSERT_SHA_Q, checksums)
+    if checksums:
+        conn.execute(INSERT_SHA_Q, checksums)
 
 
 is_checksum = lambda p: p.endswith(METADATA_SUFFIX)

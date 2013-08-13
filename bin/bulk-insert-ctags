@@ -58,7 +58,8 @@ def insert_ctags(conn, ctagsfile):
     for tag in parse_ctags(ctagsfile):
         tag['version_id'] = version_id
         ctags.append(tag)
-    conn.execute(INSERT_CTAGS_Q, ctags)
+    if ctags:
+        conn.execute(INSERT_CTAGS_Q, ctags)
 
 
 is_ctags = lambda p: p.endswith(METADATA_SUFFIX)
