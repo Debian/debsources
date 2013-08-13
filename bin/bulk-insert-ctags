@@ -82,7 +82,8 @@ if __name__ == '__main__':
     cmdline = argparse.ArgumentParser(description='Debsources: bulk ctags insertion')
     cmdline.add_argument('--config', '-c', dest='conffile',
                          help='alternate configuration file')
-    cmdline.add_argument('file', help='.ctags metadata file')
+    cmdline.add_argument('file', nargs='?',
+                         help='.ctags metadata file')
     args = cmdline.parse_args()
     conf = mainlib.load_configuration(args.conffile)
 
