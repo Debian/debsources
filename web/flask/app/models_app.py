@@ -329,14 +329,18 @@ class Checksum_app(models.Checksum):
         
 
     @staticmethod
-    def files_with_sum(checksum):
+    def files_with_sum(checksum, slice_=None):
         """
         Returns a list of files whose hexdigest is checksum.
+        You can slice the results, passing slice=(start, end).
         """
         # here we use db.session.query() instead of Class.query,
         # because after all "pure" SQLAlchemy is better than the
         # Flask-SQLAlchemy plugin.
-        results = Checksum_app._query_checksum(checksum).all()
+        results = Checksum_app._query_checksum(checksum)
+        if slice is not None:
+            results = results.slice(slice_[0], slice_[1])
+        results = results.all()
         
         return [dict(path=res.path,
                      package=res.package,

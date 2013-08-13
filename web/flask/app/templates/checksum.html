@@ -6,7 +6,7 @@
 {% extends "base.html" %}
 {% import "macros.inc.html" as macros %}
 n
-{% block title %}Checksum: {{ sha256 }}{% endblock %}
+{% block title %}Checksum: {{ sha256 }} (page {{ page }}){% endblock %}
 
 {% block breadcrumbs %}checksum / {{ sha256 }}{% endblock %}
 
@@ -24,5 +24,7 @@ n
     </li>
   {% endfor %}
 </ul>
+
+{{ macros.render_pagination(pagination) }}
 
 {% endblock %}

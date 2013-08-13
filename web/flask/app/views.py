@@ -61,11 +61,9 @@ def skeleton_variables():
 from pagination import Pagination
 
 def url_for_other_page(page):
-    args = request.args.copy()
+    args = request.view_args.copy()
     args['page'] = page
-    # args is a werkzeug.datastructures.MultiDict, we have to convert it
-    # into a regular dict in order to flat lists:
-    return url_for(request.endpoint, **args.to_dict())
+    return url_for(request.endpoint, **args)
 app.jinja_env.globals['url_for_other_page'] = url_for_other_page
 
 
@@ -611,16 +609,25 @@ app.add_url_rule('/embedded/<path:path_to>', view_func=SourceView.as_view(
 ### CHECKSUM REQUEST ###
 
 class ChecksumView(GeneralView):
-    def get_objects(self, checksum):
+    def get_objects(self, checksum, page=1):
         """ returns the files whose checksum corresponds to the one given """
-        results = Checksum_app.files_with_sum(checksum)
+        # pagination:
+        offset = app.config.get("LIST_OFFSET") or 60
+        start = (page - 1) * offset
+        end = start + offset
+        count = Checksum_app.count_files_with_sum(checksum)
+        pagination = Pagination(page, offset, count)
+
+        results = Checksum_app.files_with_sum(checksum, slice_=(start, end))
         
         return dict(results=results,
                     sha256=checksum,
-                    count=len(results))
+                    count=len(results),
+                    page=page,
+                    pagination=pagination)
 
 # CHECKSUM REQUEST (HTML)
-app.add_url_rule('/sha256/<checksum>', view_func=ChecksumView.as_view(
+app.add_url_rule('/sha256/<checksum>/<int:page>/',view_func=ChecksumView.as_view(
         'checksum_html',
         render_func=lambda **kwargs:
                 render_template("checksum.html", **kwargs),
