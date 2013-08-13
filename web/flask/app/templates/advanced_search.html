@@ -6,50 +6,47 @@
 {% extends "base.html" %}
 {% import "macros.inc.html" as macros %}
 
-{% block title %}Advanced search{% endblock %}
+{% block title %}Search{% endblock %}
 
-{% block breadcrumbs %}advanced search{% endblock %}
+{% block breadcrumbs %}search{% endblock %}
 
 {% block content %}
 
-<h2>{{ self.title() }}</h2>
+<!-- <h2>{{ self.title() }}</h2> -->
 
-<h3>Search packages</h3>
 
-<p>Simple search with a package name.</p>
+<h3>Package search</h3>
 
+<p>
 {{ macros.searchform(searchform, display="inline", placeholder="package name") }}
+</p>
 
-<h3>Search occurences</h3>
 
-<p>Search actual things in the source code.</p>
+<h3>Source code search</h3>
 
-<h4>Via our tags base:</h4>
-<p>You can search for the conjunction of tags, separating them with a semicolon.</p>
-<form name="tagsearch" method="get" action="">
-  <input type="text" name="tags" placeholder="tags" />
-  <input type="text" name="package" placeholder="package name" />
-  <input type="submit" value="Search tags!" />
-</form>
-
-<h4>Via codesearch:</h4>
-<p>Or you can use regexes with Debian Codesearch.</p>
+<h4>Via <a href="http://codesearch.debian.net/">codesearch</a> (regex allowed)</h4>
 <form name="codesearch" method="get"
       action="http://codesearch.debian.net/search">
   <input name="q" placeholder="code regex" type="text" />
   <input type="submit" value="Search code" />
 </form>
 
+<h4>By <a href="http://ctags.sourceforge.net">ctags</a> (tag conjunctions
+  allowed, semicolon-separated)</h4>
+<form name="tagsearch" method="get" action="">
+  <input type="text" name="tags" placeholder="tags" />
+  <input type="text" name="package" placeholder="package (optional)" />
+  <input type="submit" value="Search tags" />
+</form>
 
 
-<h3>Search files</h3>
+<h3>File search</h3>
 
-<p>Search identical files in the Debian archive or in a single
-  package.</p>
+<h4>By SHA256 hash</h4>
 <form name="shasearch" method="get" action="">
-  <input type="text" name="shasum" placeholder="sha256 shum" />
-  <input type="text" name="package" placeholder="package name" />
-  <input type="submit" value="Search files!" />
+  <input type="text" name="shasum" placeholder="sha256" />
+  <input type="text" name="package" placeholder="package (optional)" />
+  <input type="submit" value="Search files" />
 </form>
 
 {% endblock %}
