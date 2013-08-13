@@ -619,10 +619,11 @@ class ChecksumView(GeneralView):
         pagination = Pagination(page, offset, count)
 
         results = Checksum_app.files_with_sum(checksum, slice_=(start, end))
+        count = Checksum_app.count_files_with_sum(checksum)
         
         return dict(results=results,
                     sha256=checksum,
-                    count=len(results),
+                    count=count,
                     page=page,
                     pagination=pagination)
 
