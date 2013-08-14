@@ -314,22 +314,26 @@ class SourceFile(object):
 
 class Checksum_app(models.Checksum):
     @staticmethod
-    def _query_checksum(checksum):
+    def _query_checksum(checksum, package=None):
         """
         Returns the query used to retrieve checksums/count checksums.
         """
-        return (session.query(Package_app.name.label("package"),
+        query = (session.query(Package_app.name.label("package"),
                               Version_app.vnumber.label("version"),
                               Checksum_app.path.label("path"))
                 .filter(Checksum_app.sha256 == checksum)
                 .filter(Checksum_app.version_id == Version_app.id)
                 .filter(Version_app.package_id == Package_app.id)
-                .order_by("package", "version", "path")
-                )
+                 )
+        if package is not None and package != "":
+            query = query.filter(Package_app.name == package)
+        
+        query = query.order_by("package", "version", "path")
+        return query
         
 
     @staticmethod
-    def files_with_sum(checksum, slice_=None):
+    def files_with_sum(checksum, slice_=None, package=None):
         """
         Returns a list of files whose hexdigest is checksum.
         You can slice the results, passing slice=(start, end).
@@ -337,7 +341,7 @@ class Checksum_app(models.Checksum):
         # here we use db.session.query() instead of Class.query,
         # because after all "pure" SQLAlchemy is better than the
         # Flask-SQLAlchemy plugin.
-        results = Checksum_app._query_checksum(checksum)
+        results = Checksum_app._query_checksum(checksum, package=package)
         
         if slice_ is not None:
             results = results.slice(slice_[0], slice_[1])
@@ -349,7 +353,7 @@ class Checksum_app(models.Checksum):
                 for res in results]
     
     @staticmethod
-    def count_files_with_sum(checksum):
-        count = Checksum_app._query_checksum(checksum).count()
+    def count_files_with_sum(checksum, package=None):
+        count = Checksum_app._query_checksum(checksum, package=package).count()
         
         return count

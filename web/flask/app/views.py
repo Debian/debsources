@@ -645,6 +645,7 @@ class ChecksumView(GeneralView):
         """
         page = request.args.get("page") or 1
         checksum = request.args.get("checksum")
+        package = request.args.get("package") or None
         
         # pagination:
         if not self.all_:
@@ -658,8 +659,9 @@ class ChecksumView(GeneralView):
             pagination = None
             slice_ = None
         
-        results = Checksum_app.files_with_sum(checksum, slice_=slice_)
-        count = Checksum_app.count_files_with_sum(checksum)
+        results = Checksum_app.files_with_sum(checksum, slice_=slice_,
+                                              package=package)
+        count = Checksum_app.count_files_with_sum(checksum, package=package)
         
         return dict(results=results,
                     sha256=checksum,
