@@ -628,28 +628,37 @@ app.add_url_rule('/embedded/<path:path_to>', view_func=SourceView.as_view(
 
 ### CHECKSUM REQUEST ###
 
-@app.route('/sha256/', methods=['GET', 'POST'])
-def receive_sha256_search():
-    if request.args.get("shasum"):
-        return redirect(url_for("checksum_html",
-                                checksum=request.args.get("shasum"),
-                                page=1))
-    else:
-        # we return to the advanced search page
-        return render_template('advanced_search.html')
-
-
 class ChecksumView(GeneralView):
-    def get_objects(self, checksum, page=1):
-        """ returns the files whose checksum corresponds to the one given """
-        # pagination:
-        offset = app.config.get("LIST_OFFSET") or 60
-        start = (page - 1) * offset
-        end = start + offset
-        count = Checksum_app.count_files_with_sum(checksum)
-        pagination = Pagination(page, offset, count)
+    def __init__(self, render_func=jsonify, err_func=lambda *x: x, all_=False):
+        """
+        the all_ parameter allows to determine if we render all results (json)
+        or if we paginate them (html)
+        """
+        self.all_ = all_
+        super(ChecksumView, self).__init__(
+            render_func=render_func, err_func=err_func)
 
-        results = Checksum_app.files_with_sum(checksum, slice_=(start, end))
+    def get_objects(self, all=False):#, checksum, page=1):
+        """
+        Returns the files whose checksum corresponds to the one given.
+        If all=True, the results aren't paginated.
+        """
+        page = request.args.get("page") or 1
+        checksum = request.args.get("checksum")
+        
+        # pagination:
+        if not self.all_:
+            offset = app.config.get("LIST_OFFSET") or 60
+            start = (page - 1) * offset
+            end = start + offset
+            slice_ = (start, end)
+            count = Checksum_app.count_files_with_sum(checksum)
+            pagination = Pagination(page, offset, count)
+        else:
+            pagination = None
+            slice_ = None
+        
+        results = Checksum_app.files_with_sum(checksum, slice_=slice_)
         count = Checksum_app.count_files_with_sum(checksum)
         
         return dict(results=results,
@@ -659,7 +668,7 @@ class ChecksumView(GeneralView):
                     pagination=pagination)
 
 # CHECKSUM REQUEST (HTML)
-app.add_url_rule('/sha256/<checksum>/<int:page>/',view_func=ChecksumView.as_view(
+app.add_url_rule('/sha256/',view_func=ChecksumView.as_view(
         'checksum_html',
         render_func=lambda **kwargs:
                 render_template("checksum.html", **kwargs),
@@ -668,8 +677,9 @@ app.add_url_rule('/sha256/<checksum>/<int:page>/',view_func=ChecksumView.as_view
 
 
 # CHECKSUM REQUEST (JSON)
-app.add_url_rule('/api/sha256/<checksum>', view_func=ChecksumView.as_view(
+app.add_url_rule('/api/sha256/', view_func=ChecksumView.as_view(
         'checksum_json',
+        all_=True,
         render_func=jsonify,
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
         ))
