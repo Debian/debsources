@@ -338,7 +338,8 @@ class Checksum_app(models.Checksum):
         # because after all "pure" SQLAlchemy is better than the
         # Flask-SQLAlchemy plugin.
         results = Checksum_app._query_checksum(checksum)
-        if slice is not None:
+        
+        if slice_ is not None:
             results = results.slice(slice_[0], slice_[1])
         results = results.all()
         
