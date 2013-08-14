@@ -54,3 +54,4 @@ Debian packages:
 - debmirror
 - rrdtool
 - sloccount
+- ctags
