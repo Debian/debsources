@@ -21,6 +21,16 @@
 {{ macros.searchform(searchform, display="inline", placeholder="package name") }}
 </p>
 
+<h3>File search</h3>
+
+<h4>By SHA256 hash</h4>
+
+<form name="shasearch" method="get"
+      action="{{ url_for('checksum_html') }}">
+  <input type="text" name="checksum" placeholder="sha256" />
+  <input type="text" name="package" placeholder="package (optional)" />
+  <input type="submit" value="Search files" />
+</form>
 
 <h3>Source code search</h3>
 
@@ -39,16 +49,5 @@
   <input type="submit" value="Search tags" />
 </form>
 
-
-<h3>File search</h3>
-
-<h4>By SHA256 hash</h4>
-
-<form name="shasearch" method="get"
-      action="{{ url_for('checksum_html') }}">
-  <input type="text" name="checksum" placeholder="sha256" />
-  <input type="text" name="package" placeholder="package (optional)" />
-  <input type="submit" value="Search files" />
-</form>
 
 {% endblock %}
