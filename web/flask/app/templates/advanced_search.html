@@ -37,9 +37,18 @@
   <input type="text" name="package" id="input_package_file" />
   <label for="input_package_file">package</label>
   <br />
+  <input type="submit" value="Search files" />
+</form>
+
+<h4>By ctags</h4>
+
+<form name="ctagssearch" method="get" action=".">
   <input type="text" name="ctags" id="submit_ctags" />
   <label for="submit_ctags">ctags (tag conjunctions allowed,
   semicolon-separated)</label>
+  <br />
+  <input type="text" name="package" id="input_package_ctags" />
+  <label for="input_package_ctags">package</label>
   <br />
   <input type="submit" value="Search files" />
 </form>
