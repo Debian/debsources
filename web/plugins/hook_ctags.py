@@ -54,7 +54,8 @@ def parse_ctags(path):
         # initialize with extension fields which are not guaranteed to exist
 
         fields = line.rstrip().split('\t')
-        tag['tag'] = fields[0]
+        tag['tag'] = fields[0].decode()	# will fail when encountering encoding issues;
+					# that is intended
         tag['path'] = fields[1]
         # note: ignore fields[2], ex_cmd
 
