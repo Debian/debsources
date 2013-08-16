@@ -44,16 +44,19 @@ def insert_ctags(conn, ctagsfile):
     steps = ctagsfile.split('/')
     package = steps[-2]
     version = steps[-1][:-METADATA_SUFFIX_LEN]
-
     logging.debug('package %s/%s' % (package, version))
-    logging.debug('INSERT INTO ctags %s/%s...' % (package, version))
 
-    version_id = conn.execute(VERSION_ID_Q, v=version, p=package).first()[0]
-    assert version_id is not None
-    has_ctags = conn.execute(CTAGS_EXIST_Q, v=version_id).first()
-    if has_ctags:
+    version_id = conn.execute(VERSION_ID_Q, v=version, p=package).first()
+    if not version_id:
+        logging.warn('skipping %s/%s (does not exist in DB)' % (package, version))
         return
 
+    has_ctags = conn.execute(CTAGS_EXIST_Q, v=version_id[0]).first()
+    if has_ctags:
+        logging.warn('skipping %s/%s (already inserted)' % (package, version))
+        return
+
+    logging.debug('INSERT INTO ctags %s/%s...' % (package, version))
     ctags = []
     for tag in parse_ctags(ctagsfile):
         tag['version_id'] = version_id
