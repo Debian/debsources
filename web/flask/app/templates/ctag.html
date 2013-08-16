@@ -1,0 +1,36 @@
+{#
+  Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
+  License: GNU Affero General Public License, version 3 or above.
+#}
+
+{% extends "base.html" %}
+{% import "macros.inc.html" as macros %}
+n
+{% block title %}Ctag: {{ ctag }}
+{% if package %}(in package {{ package }}){% endif %}
+(page {{ page }}){% endblock %}
+
+{% block breadcrumbs %}ctag / {{ sha256 }}{% endblock %}
+
+{% block content %}
+
+<h2>{{ self.title() }}</h2>
+
+{{ count }} result{% if count >= 2 %}s{% endif %}:
+
+<ul>
+  {% for result in results %}
+    <li>
+      <a href="{{ url_for('source_html',
+	     path_to="%s/%s/%s" % (result.package, result.version,
+	     result.path),
+	     hl = result.line,
+	     _anchor="L%d" % result.line) }}">
+	{{ result.package }}/{{ result.version }}/{{ result.path }}</a>
+    </li>
+  {% endfor %}
+</ul>
+
+{{ macros.render_pagination(pagination) }}
+
+{% endblock %}
