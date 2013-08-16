@@ -191,7 +191,7 @@ class Ctag(Base):
 
     id = Column(Integer, primary_key=True)
     version_id = Column(Integer, ForeignKey('versions.id', ondelete="CASCADE"),
-                        nullable=False)
+                        nullable=False, index=True)
     tag = Column(String, nullable=False, index=True)
     path = Column(LargeBinary, nullable=False)	# path/whitin/source/pkg
     line = Column(Integer, nullable=False)
