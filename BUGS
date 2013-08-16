@@ -88,6 +88,8 @@
   since we don't use sqlalchemy plugin anymore, methods from
   *_app can be merged into * (* = Package, Version, ...)
 * TODO database schema refactoring 				      :model:
-  * merge package and version into one table
-  * create table File and use foreignkey(file) in CheckSum and Ctags
-  * (un)distinguish Source and Binary packages where it is necessary
+  - merge package and version into one table
+  - create table File and use foreignkey(file) in CheckSum and Ctags
+  - (un)distinguish Source and Binary packages where it is necessary
+  - uniform reference to version_id (currently it's sometime version_id,
+    other sourceversion_id)
