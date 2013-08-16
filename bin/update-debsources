@@ -133,10 +133,11 @@ def update_metadata(conf, session):
     # update global stats file (most notably: size info in it)
     stats_file = os.path.join(conf['cache_dir'], 'stats.data')
     total_size = session.query(sql_func.sum(Metric.value)) \
-                        .filter_by(metric='size').first()
+                        .filter_by(metric='size').first()[0]
+    if not total_size:
+        total_size = 0
     with open(stats_file, 'w') as out:
-        if total_size:
-            out.write('%s\t%d\n' % ('size', total_size[0]))
+        out.write('%s\t%d\n' % ('size', total_size))
 
     # update package prefixes list
     with open(os.path.join(conf['cache_dir'], 'pkg-prefixes'), 'w') as out:
