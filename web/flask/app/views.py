@@ -30,6 +30,7 @@ from app import app, session
 from models_app import Package_app, Version_app, Location, Directory, \
     SourceFile, InvalidPackageOrVersionError, FileOrFolderNotFound, \
     Checksum_app
+from models import Ctag
 from sourcecode import SourceCodeIterator
 from forms import SearchForm
 
@@ -61,7 +62,7 @@ def skeleton_variables():
 from pagination import Pagination
 
 def url_for_other_page(page):
-    args = request.view_args.copy()
+    args = request.args.copy()
     args['page'] = page
     return url_for(request.endpoint, **args)
 app.jinja_env.globals['url_for_other_page'] = url_for_other_page
@@ -681,6 +682,72 @@ app.add_url_rule('/sha256/',view_func=ChecksumView.as_view(
 # CHECKSUM REQUEST (JSON)
 app.add_url_rule('/api/sha256/', view_func=ChecksumView.as_view(
         'checksum_json',
+        all_=True,
+        render_func=jsonify,
+        err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
+        ))
+
+### CTAG REQUEST ###
+
+class CtagView(GeneralView):
+    def __init__(self, render_func=jsonify, err_func=lambda *x: x, all_=False):
+        """
+        the all_ parameter allows to determine if we render all results (json)
+        or if we paginate them (html)
+        """
+        self.all_ = all_
+        super(CtagView, self).__init__(
+            render_func=render_func, err_func=err_func)
+
+    def get_objects(self, all=False):
+        """
+        Returns the places where ctag are found.
+        (limit to package if package is not None)
+        If all=True, the results aren't paginated.
+        """
+        try:
+            page = int(request.args.get("page"))
+        except:
+            page = 1
+        ctag = request.args.get("ctag")
+        package = request.args.get("package") or None
+        
+        # pagination:
+        if not self.all_:
+            offset = app.config.get("LIST_OFFSET") or 60
+            start = (page - 1) * offset
+            end = start + offset
+            slice_ = (start, end)
+        else:
+            pagination = None
+            slice_ = None
+        
+        (count, results) = Ctag.find_ctag(session, ctag, slice_=slice_,
+                                              package=package)
+        if not self.all_:
+            pagination = Pagination(page, offset, count)
+        else:
+            pagination = None
+        
+        return dict(results=results,
+                    ctag=ctag,
+                    count=count,
+                    page=page,
+                    package=package,
+                    pagination=pagination)
+
+# CTAG REQUEST (HTML)
+app.add_url_rule('/ctag/',view_func=CtagView.as_view(
+        'ctag_html',
+        render_func=lambda **kwargs:
+                render_template("ctag.html", **kwargs),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+
+
+# CTAG REQUEST (JSON)
+app.add_url_rule('/api/ctag/', view_func=ChecksumView.as_view(
+        'ctag_json',
         all_=True,
         render_func=jsonify,
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)

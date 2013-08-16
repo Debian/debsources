@@ -223,6 +223,34 @@ class Ctag(Base):
     #     results = (session.query(Ctag.path, Ctag.version_id)
     #                .filter(Ctag.tag in ctags)
     #                .filter(Ctag
+    
+    @staticmethod
+    def find_ctag(session, ctag, package=None, slice_=None):
+        """
+        Returns places in the code where a ctag is found.
+             tuple (count, [sliced] results)
+        
+        session: an SQLAlchemy session
+        ctag: the ctag to search
+        package: limit results to package
+        """
+        
+        results = (session.query(Package.name.label("package"),
+                                 Version.vnumber.label("version"),
+                                 Ctag.path.label("path"),
+                                 Ctag.line.label("line"))
+                   .filter(Ctag.tag == ctag)
+                   )
+        if package is not None:
+            results = (results.filter(Ctag.version_id == Version.id)
+                       .filter(Version.package_id == Package.id)
+                       .filter(Package.name == package)
+                       )
+        results = results.order_by(Ctag.version_id, Ctag.path)
+        count = results.count()
+        if slice_ is not None:
+            results = results.slice(slice_[0], slice_[1])
+        return (count, results.all())
 
 
 class Metric(Base):

@@ -65,8 +65,8 @@
 </form>
 
 <h4>By <a href="http://ctags.sourceforge.net">ctags</a></h4>
-<form name="tagsearch" method="get" action="">
-  <input type="text" name="tags" id="input_tag" />
+<form name="tagsearch" method="get" action="{{ url_for('ctag_html') }}">
+  <input type="text" name="ctag" id="input_tag" />
   <label for="input_tag">tag</label>
   <br />
   <input type="text" name="package" id="input_package_sourcecode" />
