@@ -84,3 +84,6 @@
 * TODO adapt the tests to the new infrastructure 		  :tests:web:
   use update-debsources-ng with a small Sources.gz
   add test for /api/checksum/foo/
+* TODO merge web/models.py and web/flask/models_app.py 			:web:
+  since we don't use sqlalchemy plugin anymore, methods from
+  *_app can be merged into * (* = Package, Version, ...)
