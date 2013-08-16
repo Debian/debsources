@@ -644,7 +644,10 @@ class ChecksumView(GeneralView):
         Returns the files whose checksum corresponds to the one given.
         If all=True, the results aren't paginated.
         """
-        page = request.args.get("page") or 1
+        try:
+            page = int(request.args.get("page"))
+        except:
+            page = 1
         checksum = request.args.get("checksum")
         package = request.args.get("package") or None
         
