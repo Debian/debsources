@@ -207,6 +207,22 @@ class Ctag(Base):
         self.line = line
         self.kind = kind
         self.language = language
+    
+    # TODO:
+    # after refactoring, when we'll have a File table
+    # the query to get a list of files containing a list of tags will be simpler
+    #
+    # def find_files_containing(self, session, ctags, package=None):
+    #     """
+    #     Returns a list of files containing all the ctags.
+        
+    #     session: SQLAlchemy session
+    #     ctags: [tags]
+    #     package: limit search in package
+    #     """
+    #     results = (session.query(Ctag.path, Ctag.version_id)
+    #                .filter(Ctag.tag in ctags)
+    #                .filter(Ctag
 
 
 class Metric(Base):
