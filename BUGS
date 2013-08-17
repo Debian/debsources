@@ -125,4 +125,33 @@
   test recipe (single file):
   - bin/bulk-insert-ctags -c etc/config.batch.ini 1.3.1-4.ctags
     (see attachment)
-  
+
+* TODO shutil.rmtree error during gc 				      :infra:
+    2013-08-17 15:38:43 update-debsources:ERROR failed to remove ghc/7.6.3-2
+    Traceback (most recent call last):
+      File "/srv/debsources/bin/update-debsources", line 225, in garbage_collect
+        fs_storage.remove_package(pkg, pkgdir)
+      File "/home/srv/debsources/python/fs_storage.py", line 47, in remove_package
+        shutil.rmtree(destdir)
+      File "/usr/lib/python2.7/shutil.py", line 247, in rmtree
+        rmtree(fullname, ignore_errors, onerror)
+      File "/usr/lib/python2.7/shutil.py", line 247, in rmtree
+        rmtree(fullname, ignore_errors, onerror)
+      File "/usr/lib/python2.7/shutil.py", line 247, in rmtree
+        rmtree(fullname, ignore_errors, onerror)
+      File "/usr/lib/python2.7/shutil.py", line 241, in rmtree
+        fullname = os.path.join(path, name)
+      File "/usr/lib/python2.7/posixpath.py", line 80, in join
+        path += '/' + b
+    UnicodeDecodeError: 'ascii' codec can't decode byte 0xc3 in position 7: ordinal not in range(128)
+
+  more generally:
+  $ grep 'ERROR failed to remove' /var/log/debsources/debsources.log
+
+  notes:
+  - the one above has been removed by hand, to test that the debsources user
+    can in fact in the abstract do a successful shutil.rmtree (so it's
+    something more contextual, reproducible only during an actual upgrade)
+  - upon failed removal, the ctime of the dir gets updated (likely because
+    /some/ files are actually removed successfully). As a consequence, another
+    removal is attempted only another expire period later
