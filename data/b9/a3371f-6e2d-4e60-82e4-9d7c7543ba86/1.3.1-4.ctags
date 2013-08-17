@@ -1,0 +1,436 @@
+is_absolute	configure	51;"	kind:f	line:51	language:Sh
+absolute_or_prefix	configure	57;"	kind:f	line:57	language:Sh
+showhelp	configure	65;"	kind:f	line:65	language:Sh
+yorn	configure	202;"	kind:f	line:202	language:Sh
+nory	configure	207;"	kind:f	line:207	language:Sh
+message	configure	213;"	kind:f	line:213	language:Sh
+info	configure	214;"	kind:f	line:214	language:Sh
+warning	configure	215;"	kind:f	line:215	language:Sh
+error	configure	217;"	kind:f	line:217	language:Sh
+fatal	configure	218;"	kind:f	line:218	language:Sh
+output	configure	234;"	kind:f	line:234	language:Sh
+findcommand	configure	262;"	kind:f	line:262	language:Sh
+whizzy-xemacsp	configure.el	1;"	kind:f	line:1	language:Lisp
+all	configure.el	3;"	kind:f	line:3	language:Lisp
+add-one	configure.el	9;"	kind:f	line:9	language:Lisp
+compare	configure.el	48;"	kind:f	line:48	language:Lisp
+printall	configure.el	51;"	kind:f	line:51	language:Lisp
+test	debian/testfile/test1.tex	6;"	kind:s	line:6	language:Tex
+This is a test	debian/testfile/test1.tex	11;"	kind:u	line:11	language:Tex
+tes	debian/testfile/test-gv.tex	9;"	kind:s	line:9	language:Tex
+This is a test	debian/testfile/test-gv.tex	12;"	kind:u	line:12	language:Tex
+tes	debian/testfile/test-edit.tex	7;"	kind:s	line:7	language:Tex
+This is a test	debian/testfile/test-edit.tex	12;"	kind:u	line:12	language:Tex
+tes	debian/testfile/test-xpdf.tex	11;"	kind:s	line:11	language:Tex
+This is a test	debian/testfile/test-xpdf.tex	14;"	kind:u	line:14	language:Tex
+DH_COMPAT	debian/rules	9;"	kind:m	line:9	language:Make
+LC_ALL	debian/rules	31;"	kind:m	line:31	language:Make
+htoc1	debian/FAQ.html	60;"	kind:a	line:60	language:HTML
+isitabug	debian/FAQ.html	70;"	kind:a	line:70	language:HTML
+htoc2	debian/FAQ.html	73;"	kind:a	line:73	language:HTML
+htoc3	debian/FAQ.html	114;"	kind:a	line:114	language:HTML
+htoc4	debian/FAQ.html	166;"	kind:a	line:166	language:HTML
+cygwin	debian/FAQ.html	182;"	kind:a	line:182	language:HTML
+htoc5	debian/FAQ.html	185;"	kind:a	line:185	language:HTML
+htoc6	debian/FAQ.html	244;"	kind:a	line:244	language:HTML
+htoc7	debian/FAQ.html	260;"	kind:a	line:260	language:HTML
+htoc8	debian/FAQ.html	264;"	kind:a	line:264	language:HTML
+DESTDIR	Makefile	6;"	kind:m	line:6	language:Make
+SRC	Makefile	9;"	kind:m	line:9	language:Make
+TMP	Makefile	10;"	kind:m	line:10	language:Make
+INSTALLX	Makefile	11;"	kind:m	line:11	language:Make
+INSTALLR	Makefile	12;"	kind:m	line:12	language:Make
+usage	checkconfig	4;"	kind:f	line:4	language:Sh
+message	checkconfig	32;"	kind:f	line:32	language:Sh
+warning	checkconfig	33;"	kind:f	line:33	language:Sh
+error	checkconfig	35;"	kind:f	line:35	language:Sh
+fatal	checkconfig	36;"	kind:f	line:36	language:Sh
+nonempty	checkconfig	55;"	kind:f	line:55	language:Sh
+checkdvi	checkconfig	161;"	kind:f	line:161	language:Sh
+HEVEA	doc/Makefile	1;"	kind:m	line:1	language:Make
+HVAOPT	doc/Makefile	2;"	kind:m	line:2	language:Make
+DOCSOURCES	doc/Makefile	4;"	kind:m	line:4	language:Make
+DOCFORMATS	doc/Makefile	5;"	kind:m	line:5	language:Make
+Quick start	doc/manual.tex	403;"	kind:u	line:403	language:Tex
+Editing	doc/manual.tex	445;"	kind:u	line:445	language:Tex
+Modes	doc/manual.tex	932;"	kind:u	line:932	language:Tex
+Viewer types	doc/manual.tex	989;"	kind:u	line:989	language:Tex
+Configuration via texttt  whizzy.sh	doc/manual.tex	1039;"	kind:u	line:1039	language:Tex
+Watching other files	doc/manual.tex	1077;"	kind:u	line:1077	language:Tex
+Frequency of recompilation	doc/manual.tex	1100;"	kind:u	line:1100	language:Tex
+whizzy-ing macro files	doc/manual.tex	1122;"	kind:u	line:1122	language:Tex
+Cross-references  page and section numbers	doc/manual.tex	1132;"	kind:u	line:1132	language:Tex
+Per session  LaTeX	doc/manual.tex	1140;"	kind:u	line:1140	language:Tex
+System  user  and local customization	doc/manual.tex	1150;"	kind:u	line:1150	language:Tex
+Example of  LaTeX	doc/manual.tex	1185;"	kind:u	line:1185	language:Tex
+Viewers	doc/manual.tex	1205;"	kind:s	line:1205	language:Tex
+Viewing with ActiveDVI	doc/manual.tex	1208;"	kind:u	line:1208	language:Tex
+Defining your own previewer	doc/manual.tex	1259;"	kind:u	line:1259	language:Tex
+Viewing with texttt  xpdf	doc/manual.tex	1266;"	kind:u	line:1266	language:Tex
+Whizzy Effects	doc/manual.tex	1284;"	kind:s	line:1284	language:Tex
+WhizzyEdit ing	doc/manual.tex	1313;"	kind:s	line:1313	language:Tex
+whizzy-xemacsp	byte-compile.el	2;"	kind:f	line:2	language:Lisp
+TeX-master	byte-compile.el	4;"	kind:f	line:4	language:Lisp
+iso-tex2iso-trans-tab	byte-compile.el	5;"	kind:f	line:5	language:Lisp
+iso-tex2iso	byte-compile.el	7;"	kind:f	line:7	language:Lisp
+First section	examples/xsymbol/main.tex	13;"	kind:s	line:13	language:Tex
+Sub	examples/xsymbol/main.tex	19;"	kind:u	line:19	language:Tex
+SubSub	examples/xsymbol/main.tex	23;"	kind:b	line:23	language:Tex
+Foo	examples/xsymbol/main.tex	27;"	kind:s	line:27	language:Tex
+Bar	examples/xsymbol/main.tex	33;"	kind:u	line:33	language:Tex
+Par	examples/xsymbol/main.tex	35;"	kind:P	line:35	language:Tex
+gpicheader	examples/gpic/whizzy.sh	3;"	kind:f	line:3	language:Sh
+gpicprocess	examples/gpic/whizzy.sh	13;"	kind:f	line:13	language:Sh
+gpicmkslice	examples/gpic/whizzy.sh	24;"	kind:f	line:24	language:Sh
+gpicmkfile	examples/gpic/whizzy.sh	35;"	kind:f	line:35	language:Sh
+SOURCES	examples/gpic/Makefile	1;"	kind:m	line:1	language:Make
+TEXFILES	examples/gpic/Makefile	2;"	kind:m	line:2	language:Make
+GPIC	examples/gpic/Makefile	3;"	kind:m	line:3	language:Make
+Other uses of preprocessing	examples/gpic/main.tex	82;"	kind:u	line:82	language:Tex
+Examples of drawing	examples/gpic/main.tex	90;"	kind:u	line:90	language:Tex
+process	examples/gpic/mkfile	3;"	kind:f	line:3	language:Sh
+centerline  textcolor  blue	examples/slides/main.tex	17;"	kind:u	line:17	language:Tex
+A	examples/book/main.tex	7;"	kind:c	line:7	language:Tex
+One	examples/book/main.tex	11;"	kind:s	line:11	language:Tex
+Two	examples/book/main.tex	19;"	kind:s	line:19	language:Tex
+B	examples/book/main.tex	28;"	kind:c	line:28	language:Tex
+One	examples/book/main.tex	32;"	kind:s	line:32	language:Tex
+Two	examples/book/main.tex	39;"	kind:s	line:39	language:Tex
+This in another included file from slave	examples/includes/second.tex	0;"	kind:s	line:0	language:Tex
+This is the second slave	examples/includes/second.tex	4;"	kind:u	line:4	language:Tex
+Another slice in the slave	examples/includes/second.tex	14;"	kind:s	line:14	language:Tex
+Another slice in the slave	examples/includes/second.tex	18;"	kind:s	line:18	language:Tex
+This is the first included file	examples/includes/first.tex	0;"	kind:s	line:0	language:Tex
+This is the first  sub  section of the slave	examples/includes/first.tex	3;"	kind:u	line:3	language:Tex
+Another slice in the first slave	examples/includes/first.tex	16;"	kind:s	line:16	language:Tex
+An inlined file inside an include	examples/includes/insidefirst.tex	0;"	kind:u	line:0	language:Tex
+First section	examples/basic/main.tex	28;"	kind:s	line:28	language:Tex
+Sub	examples/basic/main.tex	32;"	kind:u	line:32	language:Tex
+SubSub	examples/basic/main.tex	36;"	kind:b	line:36	language:Tex
+Foo	examples/basic/main.tex	40;"	kind:s	line:40	language:Tex
+Bar	examples/basic/main.tex	43;"	kind:u	line:43	language:Tex
+Par	examples/basic/main.tex	45;"	kind:P	line:45	language:Tex
+DIRS	examples/Makefile	1;"	kind:m	line:1	language:Make
+FILES	examples/Makefile	2;"	kind:m	line:2	language:Make
+What is the advantage of protect psset  fillcolor  yellow  fillstyle  solid	examples/ps2pdf/main.tex	7;"	kind:s	line:7	language:Tex
+Sub	examples/ps2pdf/main.tex	17;"	kind:u	line:17	language:Tex
+SubSub	examples/ps2pdf/main.tex	21;"	kind:b	line:21	language:Tex
+Foo	examples/ps2pdf/main.tex	31;"	kind:s	line:31	language:Tex
+Bar	examples/ps2pdf/main.tex	35;"	kind:u	line:35	language:Tex
+Par	examples/ps2pdf/main.tex	37;"	kind:P	line:37	language:Tex
+header	examples/bin/mkgpic	3;"	kind:f	line:3	language:Sh
+process	examples/bin/mkgpic	13;"	kind:f	line:13	language:Sh
+#1	examples/effects/main.tex	7;"	kind:u	line:7	language:Tex
+Drawers	examples/effects/main.tex	16;"	kind:s	line:16	language:Tex
+Foo	examples/hyperref/main.tex	3;"	kind:s	line:3	language:Tex
+Chapter 1	examples/documentclass/report_main.tex	3;"	kind:c	line:3	language:Tex
+Section 1.1	examples/documentclass/report_main.tex	5;"	kind:s	line:5	language:Tex
+Section 1.2	examples/documentclass/report_main.tex	7;"	kind:s	line:7	language:Tex
+Section 1.3	examples/documentclass/report_main.tex	9;"	kind:s	line:9	language:Tex
+Subsection 1	examples/documentclass/report_main.tex	11;"	kind:u	line:11	language:Tex
+Chapter 2	examples/documentclass/report_main.tex	13;"	kind:c	line:13	language:Tex
+Section 2.1	examples/documentclass/report_main.tex	15;"	kind:s	line:15	language:Tex
+Subsection 2.1	examples/documentclass/report_main.tex	17;"	kind:u	line:17	language:Tex
+Subsection 2.2	examples/documentclass/report_main.tex	19;"	kind:u	line:19	language:Tex
+Auxiliary file	examples/documentclass/report_leave.tex	0;"	kind:c	line:0	language:Tex
+Section 1	examples/documentclass/report_leave.tex	1;"	kind:s	line:1	language:Tex
+Section 2	examples/documentclass/report_leave.tex	3;"	kind:s	line:3	language:Tex
+antidate	examples/pdflatex/whizzy.sh	10;"	kind:f	line:10	language:Sh
+First section	examples/pdflatex/main.tex	12;"	kind:s	line:12	language:Tex
+Sub	examples/pdflatex/main.tex	17;"	kind:u	line:17	language:Tex
+SubSub	examples/pdflatex/main.tex	21;"	kind:b	line:21	language:Tex
+Foo	examples/pdflatex/main.tex	31;"	kind:s	line:31	language:Tex
+Bar	examples/pdflatex/main.tex	35;"	kind:u	line:35	language:Tex
+Par	examples/pdflatex/main.tex	37;"	kind:P	line:37	language:Tex
+Another one  from the second slave	examples/multiple/second.tex	0;"	kind:s	line:0	language:Tex
+This is the second slave	examples/multiple/second.tex	4;"	kind:u	line:4	language:Tex
+Another slice in the slave	examples/multiple/second.tex	14;"	kind:s	line:14	language:Tex
+Another slice in the slave	examples/multiple/second.tex	18;"	kind:s	line:18	language:Tex
+This is the  em master	examples/multiple/main.tex	5;"	kind:s	line:5	language:Tex
+A master section  loading the first slave	examples/multiple/main.tex	13;"	kind:s	line:13	language:Tex
+Another master section  loading the first slave	examples/multiple/main.tex	22;"	kind:s	line:22	language:Tex
+second	examples/multiple/main.tex	41;"	kind:i	line:41	language:Tex
+second	examples/multiple/main.tex	43;"	kind:i	line:43	language:Tex
+Last section  from master	examples/multiple/main.tex	44;"	kind:s	line:44	language:Tex
+The end	examples/multiple/main.tex	53;"	kind:s	line:53	language:Tex
+This is the first  sub  section of the slave	examples/multiple/first.tex	4;"	kind:u	line:4	language:Tex
+Another slice in the first slave	examples/multiple/first.tex	18;"	kind:s	line:18	language:Tex
+whole	examples/multiple/whizzy.el	1;"	kind:f	line:1	language:Lisp
+This is a subfile in a subdir	examples/multiple/subdir/subfile.tex	0;"	kind:s	line:0	language:Tex
+First chapter	examples/chapter/main.tex	7;"	kind:c	line:7	language:Tex
+A section	examples/chapter/main.tex	11;"	kind:s	line:11	language:Tex
+A subsection	examples/chapter/main.tex	15;"	kind:u	line:15	language:Tex
+Second chapter	examples/chapter/main.tex	19;"	kind:c	line:19	language:Tex
+A section	examples/chapter/main.tex	23;"	kind:s	line:23	language:Tex
+And a subsection	examples/chapter/main.tex	26;"	kind:u	line:26	language:Tex
+#1	examples/advanced/main.tex	8;"	kind:u	line:8	language:Tex
+whizzytex-version	src/whizzytex.el	63;"	kind:f	line:63	language:Lisp
+whizzytex	src/whizzytex.el	74;"	kind:f	line:74	language:Lisp
+whizzytex-mode-hook	src/whizzytex.el	82;"	kind:f	line:82	language:Lisp
+whizzy-command-name	src/whizzytex.el	103;"	kind:f	line:103	language:Lisp
+whizzy-viewers	src/whizzytex.el	106;"	kind:f	line:106	language:Lisp
+whizzy-slicing-commands	src/whizzytex.el	172;"	kind:f	line:172	language:Lisp
+whizzy-noslicing-commands	src/whizzytex.el	177;"	kind:f	line:177	language:Lisp
+whizzy-line	src/whizzytex.el	182;"	kind:f	line:182	language:Lisp
+whizzy-point-visible	src/whizzytex.el	202;"	kind:f	line:202	language:Lisp
+whizzy-point	src/whizzytex.el	223;"	kind:f	line:223	language:Lisp
+whizzy-paragraph-regexp	src/whizzytex.el	226;"	kind:f	line:226	language:Lisp
+whizzy-overlays	src/whizzytex.el	230;"	kind:f	line:230	language:Lisp
+whizzy-pop-up-windows	src/whizzytex.el	242;"	kind:f	line:242	language:Lisp
+whizzy-auto-visit	src/whizzytex.el	246;"	kind:f	line:246	language:Lisp
+whizzy-save-buffers	src/whizzytex.el	253;"	kind:f	line:253	language:Lisp
+whizzy-auto-raise	src/whizzytex.el	259;"	kind:f	line:259	language:Lisp
+whizzy-mode-regexp-prefix	src/whizzytex.el	262;"	kind:f	line:262	language:Lisp
+whizzy-mode-regexp-alist	src/whizzytex.el	265;"	kind:f	line:265	language:Lisp
+whizzy-class-mode-alist	src/whizzytex.el	298;"	kind:f	line:298	language:Lisp
+whizzy-select-mode-regexp-alist	src/whizzytex.el	310;"	kind:f	line:310	language:Lisp
+whizzy-auto-show-output	src/whizzytex.el	321;"	kind:f	line:321	language:Lisp
+whizzy-sit-for	src/whizzytex.el	333;"	kind:f	line:333	language:Lisp
+whizzy-xemacsp	src/whizzytex.el	340;"	kind:f	line:340	language:Lisp
+whizzy-file-prefix	src/whizzytex.el	360;"	kind:f	line:360	language:Lisp
+whizzy-status	src/whizzytex.el	415;"	kind:f	line:415	language:Lisp
+whizzy-running	src/whizzytex.el	439;"	kind:f	line:439	language:Lisp
+whizzy-master-buffer	src/whizzytex.el	445;"	kind:f	line:445	language:Lisp
+whizzy-active-buffer	src/whizzytex.el	446;"	kind:f	line:446	language:Lisp
+whizzy-process-buffer	src/whizzytex.el	448;"	kind:f	line:448	language:Lisp
+whizzy-process-window	src/whizzytex.el	450;"	kind:f	line:450	language:Lisp
+whizzy-process	src/whizzytex.el	452;"	kind:f	line:452	language:Lisp
+whizzy-dir	src/whizzytex.el	454;"	kind:f	line:454	language:Lisp
+whizzy-input-dir	src/whizzytex.el	455;"	kind:f	line:455	language:Lisp
+whizzy-output-dir	src/whizzytex.el	456;"	kind:f	line:456	language:Lisp
+whizzy-filename	src/whizzytex.el	457;"	kind:f	line:457	language:Lisp
+whizzy-basename	src/whizzytex.el	458;"	kind:f	line:458	language:Lisp
+whizzy-slicename	src/whizzytex.el	459;"	kind:f	line:459	language:Lisp
+whizzy-slaves	src/whizzytex.el	460;"	kind:f	line:460	language:Lisp
+whizzy-slice-start	src/whizzytex.el	462;"	kind:f	line:462	language:Lisp
+whizzy-slice-time	src/whizzytex.el	463;"	kind:f	line:463	language:Lisp
+whizzy-slice-date	src/whizzytex.el	464;"	kind:f	line:464	language:Lisp
+whizzy-slice-fed	src/whizzytex.el	465;"	kind:f	line:465	language:Lisp
+whizzy-slicing-mode	src/whizzytex.el	467;"	kind:f	line:467	language:Lisp
+whizzy-view-mode	src/whizzytex.el	468;"	kind:f	line:468	language:Lisp
+whizzy-counters	src/whizzytex.el	469;"	kind:f	line:469	language:Lisp
+whizzy-layers	src/whizzytex.el	470;"	kind:f	line:470	language:Lisp
+whizzy-log-buffer	src/whizzytex.el	471;"	kind:f	line:471	language:Lisp
+whizzy-custom	src/whizzytex.el	472;"	kind:f	line:472	language:Lisp
+whizzy-configuration-loaded	src/whizzytex.el	473;"	kind:f	line:473	language:Lisp
+whizzy-debug	src/whizzytex.el	474;"	kind:f	line:474	language:Lisp
+whizzy-initialized	src/whizzytex.el	475;"	kind:f	line:475	language:Lisp
+whizzy-length	src/whizzytex.el	479;"	kind:f	line:479	language:Lisp
+whizzy-get	src/whizzytex.el	480;"	kind:f	line:480	language:Lisp
+whizzy-set	src/whizzytex.el	484;"	kind:f	line:484	language:Lisp
+whizzy-describe	src/whizzytex.el	488;"	kind:f	line:488	language:Lisp
+whizzy-slave	src/whizzytex.el	495;"	kind:f	line:495	language:Lisp
+whizzy-section-regexp	src/whizzytex.el	507;"	kind:f	line:507	language:Lisp
+whizzy-section-counters-alist	src/whizzytex.el	512;"	kind:f	line:512	language:Lisp
+whizzy-line-section-alist	src/whizzytex.el	519;"	kind:f	line:519	language:Lisp
+whizzy-save-section-lines	src/whizzytex.el	524;"	kind:f	line:524	language:Lisp
+whizzy-relname	src/whizzytex.el	545;"	kind:f	line:545	language:Lisp
+whizzy-section-counters	src/whizzytex.el	553;"	kind:f	line:553	language:Lisp
+whizzy-read-sections	src/whizzytex.el	617;"	kind:f	line:617	language:Lisp
+whizzy-start-process	src/whizzytex.el	684;"	kind:f	line:684	language:Lisp
+whizzy-write-at-begin-document	src/whizzytex.el	719;"	kind:f	line:719	language:Lisp
+whizzy-backward-comment	src/whizzytex.el	721;"	kind:f	line:721	language:Lisp
+whizzy-in-comment-p	src/whizzytex.el	729;"	kind:f	line:729	language:Lisp
+whizzy-backward-space	src/whizzytex.el	732;"	kind:f	line:732	language:Lisp
+whizzy-backward-command	src/whizzytex.el	758;"	kind:f	line:758	language:Lisp
+whizzy-in-command-p	src/whizzytex.el	772;"	kind:f	line:772	language:Lisp
+whizzy-in-fragile-arg-p	src/whizzytex.el	775;"	kind:f	line:775	language:Lisp
+whizzy-between-args-p	src/whizzytex.el	788;"	kind:f	line:788	language:Lisp
+whizzy-dimen-p	src/whizzytex.el	797;"	kind:f	line:797	language:Lisp
+whizzy-backward-arg	src/whizzytex.el	803;"	kind:f	line:803	language:Lisp
+whizzy-backward-script	src/whizzytex.el	814;"	kind:f	line:814	language:Lisp
+whizzy-backward-atom	src/whizzytex.el	821;"	kind:f	line:821	language:Lisp
+whizzy-backward-safe	src/whizzytex.el	842;"	kind:f	line:842	language:Lisp
+whizzy-last-tick	src/whizzytex.el	866;"	kind:f	line:866	language:Lisp
+whizzy-last-saved	src/whizzytex.el	867;"	kind:f	line:867	language:Lisp
+whizzy-last-point	src/whizzytex.el	868;"	kind:f	line:868	language:Lisp
+whizzy-last-slice-begin	src/whizzytex.el	869;"	kind:f	line:869	language:Lisp
+whizzy-last-slice-end	src/whizzytex.el	870;"	kind:f	line:870	language:Lisp
+whizzy-last-layer	src/whizzytex.el	871;"	kind:f	line:871	language:Lisp
+whizzy-cursor-autohide	src/whizzytex.el	880;"	kind:f	line:880	language:Lisp
+whizzy-show-point	src/whizzytex.el	884;"	kind:f	line:884	language:Lisp
+whizzy-show-point-safer	src/whizzytex.el	949;"	kind:f	line:949	language:Lisp
+whizzy-slice-error	src/whizzytex.el	977;"	kind:f	line:977	language:Lisp
+whizzy-tex-error	src/whizzytex.el	978;"	kind:f	line:978	language:Lisp
+whizzy-format-error	src/whizzytex.el	979;"	kind:f	line:979	language:Lisp
+whizzy-reformat-message	src/whizzytex.el	980;"	kind:f	line:980	language:Lisp
+whizzy-recompile-message	src/whizzytex.el	981;"	kind:f	line:981	language:Lisp
+whizzy-show-cursor	src/whizzytex.el	983;"	kind:f	line:983	language:Lisp
+whizzy-test-show	src/whizzytex.el	995;"	kind:f	line:995	language:Lisp
+whizzy-point-trace	src/whizzytex.el	1004;"	kind:f	line:1004	language:Lisp
+whizzy-point-trace-overlay	src/whizzytex.el	1007;"	kind:f	line:1007	language:Lisp
+whizzy-use-write-annotate	src/whizzytex.el	1022;"	kind:f	line:1022	language:Lisp
+whizzy-write-slice	src/whizzytex.el	1034;"	kind:f	line:1034	language:Lisp
+whizzytex-mode	src/whizzytex.el	1071;"	kind:f	line:1071	language:Lisp
+whizzy-local-variables	src/whizzytex.el	1095;"	kind:f	line:1095	language:Lisp
+whizzy-temp-for-revert-buffer	src/whizzytex.el	1105;"	kind:f	line:1105	language:Lisp
+whizzy-before-revert	src/whizzytex.el	1106;"	kind:f	line:1106	language:Lisp
+whizzy-after-revert	src/whizzytex.el	1120;"	kind:f	line:1120	language:Lisp
+whizzy-customize	src/whizzytex.el	1136;"	kind:f	line:1136	language:Lisp
+whizzy-sync-lines	src/whizzytex.el	1168;"	kind:f	line:1168	language:Lisp
+whizzy-write-region-annotate	src/whizzytex.el	1172;"	kind:f	line:1172	language:Lisp
+whizzy-call	src/whizzytex.el	1207;"	kind:f	line:1207	language:Lisp
+whizzy-begin	src/whizzytex.el	1229;"	kind:f	line:1229	language:Lisp
+whizzy-local	src/whizzytex.el	1232;"	kind:f	line:1232	language:Lisp
+whizzy-backward	src/whizzytex.el	1235;"	kind:f	line:1235	language:Lisp
+whizzy-slice-pages	src/whizzytex.el	1244;"	kind:f	line:1244	language:Lisp
+whizzy-slice	src/whizzytex.el	1263;"	kind:f	line:1263	language:Lisp
+whizzy-current-time	src/whizzytex.el	1378;"	kind:f	line:1378	language:Lisp
+whizzy-set-time	src/whizzytex.el	1383;"	kind:f	line:1383	language:Lisp
+whizzy-timer	src/whizzytex.el	1398;"	kind:f	line:1398	language:Lisp
+whizzy-watch	src/whizzytex.el	1399;"	kind:f	line:1399	language:Lisp
+whizzy-check-consistency	src/whizzytex.el	1404;"	kind:f	line:1404	language:Lisp
+whizzy-wakeup	src/whizzytex.el	1413;"	kind:f	line:1413	language:Lisp
+whizzy-kill	src/whizzytex.el	1426;"	kind:f	line:1426	language:Lisp
+whizzy-suspend	src/whizzytex.el	1454;"	kind:f	line:1454	language:Lisp
+whizzy-suspended-slice	src/whizzytex.el	1484;"	kind:f	line:1484	language:Lisp
+whizzy-load-factor	src/whizzytex.el	1489;"	kind:f	line:1489	language:Lisp
+whizzy-load-factor	src/whizzytex.el	1494;"	kind:f	line:1494	language:Lisp
+whizzy-wait	src/whizzytex.el	1527;"	kind:f	line:1527	language:Lisp
+whizzy-duplex	src/whizzytex.el	1547;"	kind:f	line:1547	language:Lisp
+whizzy-toggle-debug	src/whizzytex.el	1554;"	kind:f	line:1554	language:Lisp
+whizzy-auto-recompile	src/whizzytex.el	1567;"	kind:f	line:1567	language:Lisp
+whizzy-reslice	src/whizzytex.el	1574;"	kind:f	line:1574	language:Lisp
+whizzy-reformat	src/whizzytex.el	1579;"	kind:f	line:1579	language:Lisp
+whizzy-send-command	src/whizzytex.el	1584;"	kind:f	line:1584	language:Lisp
+whizzy-send-previous-page	src/whizzytex.el	1605;"	kind:f	line:1605	language:Lisp
+whizzy-send-next-page	src/whizzytex.el	1608;"	kind:f	line:1608	language:Lisp
+whizzy-send-switch-duplex	src/whizzytex.el	1611;"	kind:f	line:1611	language:Lisp
+whizzy-send-goto-end	src/whizzytex.el	1618;"	kind:f	line:1618	language:Lisp
+whizzy-send-goto-home	src/whizzytex.el	1621;"	kind:f	line:1621	language:Lisp
+whizzy-recompile	src/whizzytex.el	1626;"	kind:f	line:1626	language:Lisp
+whizzy-after-save	src/whizzytex.el	1631;"	kind:f	line:1631	language:Lisp
+whizzy-observe-changes	src/whizzytex.el	1651;"	kind:f	line:1651	language:Lisp
+whizzytex-mode	src/whizzytex.el	1728;"	kind:f	line:1728	language:Lisp
+whizzytex-mode-map	src/whizzytex.el	1827;"	kind:f	line:1827	language:Lisp
+whizzy-bad-extensions	src/whizzytex.el	1830;"	kind:f	line:1830	language:Lisp
+whizzy-configuration-alist	src/whizzytex.el	1834;"	kind:f	line:1834	language:Lisp
+whizzy-hook-alist	src/whizzytex.el	1854;"	kind:f	line:1854	language:Lisp
+whizzy-run-file-hooks	src/whizzytex.el	1864;"	kind:f	line:1864	language:Lisp
+whizzy-mode-on	src/whizzytex.el	1870;"	kind:f	line:1870	language:Lisp
+whizzy-mode-off	src/whizzytex.el	2001;"	kind:f	line:2001	language:Lisp
+whizzy-auto-mode	src/whizzytex.el	2038;"	kind:f	line:2038	language:Lisp
+whizzy-setup-mode	src/whizzytex.el	2057;"	kind:f	line:2057	language:Lisp
+whizzy-read-mode	src/whizzytex.el	2096;"	kind:f	line:2096	language:Lisp
+whizzy-change-mode	src/whizzytex.el	2107;"	kind:f	line:2107	language:Lisp
+whizzy-read-mode-from-file	src/whizzytex.el	2150;"	kind:f	line:2150	language:Lisp
+whizzy-unquote	src/whizzytex.el	2189;"	kind:f	line:2189	language:Lisp
+whizzy-command-options	src/whizzytex.el	2198;"	kind:f	line:2198	language:Lisp
+whizzy-read-view-from-file	src/whizzytex.el	2208;"	kind:f	line:2208	language:Lisp
+whizzy-setup	src/whizzytex.el	2261;"	kind:f	line:2261	language:Lisp
+whizzy-setup-master	src/whizzytex.el	2295;"	kind:f	line:2295	language:Lisp
+whizzy-find-running-master	src/whizzytex.el	2378;"	kind:f	line:2378	language:Lisp
+whizzy-default-guess-master	src/whizzytex.el	2397;"	kind:f	line:2397	language:Lisp
+whizzy-guess-master	src/whizzytex.el	2431;"	kind:f	line:2431	language:Lisp
+whizzy-setup-slave	src/whizzytex.el	2442;"	kind:f	line:2442	language:Lisp
+whizzy-assoc-if	src/whizzytex.el	2542;"	kind:f	line:2542	language:Lisp
+whizzy-add-configuration	src/whizzytex.el	2549;"	kind:f	line:2549	language:Lisp
+whizzy-configuration	src/whizzytex.el	2603;"	kind:f	line:2603	language:Lisp
+whizzy-configuration-path	src/whizzytex.el	2606;"	kind:f	line:2606	language:Lisp
+whizzy-load-configuration	src/whizzytex.el	2617;"	kind:f	line:2617	language:Lisp
+whizzy-read-file-config	src/whizzytex.el	2637;"	kind:f	line:2637	language:Lisp
+whizzy-explode-filename	src/whizzytex.el	2658;"	kind:f	line:2658	language:Lisp
+whizzy-relative-dir	src/whizzytex.el	2667;"	kind:f	line:2667	language:Lisp
+whizzy-write-file-config	src/whizzytex.el	2678;"	kind:f	line:2678	language:Lisp
+whizzy-write-configuration	src/whizzytex.el	2687;"	kind:f	line:2687	language:Lisp
+whizzy-string-from-file	src/whizzytex.el	2854;"	kind:f	line:2854	language:Lisp
+whizzy-recenter-output-buffer	src/whizzytex.el	2871;"	kind:f	line:2871	language:Lisp
+whizzy-shrink-output	src/whizzytex.el	2893;"	kind:f	line:2893	language:Lisp
+whizzy-shrink-output	src/whizzytex.el	2900;"	kind:f	line:2900	language:Lisp
+whizzy-latex-error-regexp	src/whizzytex.el	2907;"	kind:f	line:2907	language:Lisp
+whizzy-check-errors	src/whizzytex.el	2911;"	kind:f	line:2911	language:Lisp
+whizzy-error-overlay	src/whizzytex.el	2990;"	kind:f	line:2990	language:Lisp
+whizzy-point-overlay	src/whizzytex.el	2994;"	kind:f	line:2994	language:Lisp
+whizzy-jump-to-error	src/whizzytex.el	2998;"	kind:f	line:2998	language:Lisp
+whizzy-delete-error-overlay	src/whizzytex.el	3008;"	kind:f	line:3008	language:Lisp
+whizzy-delete-point-overlay	src/whizzytex.el	3011;"	kind:f	line:3011	language:Lisp
+whizzy-error-face	src/whizzytex.el	3015;"	kind:f	line:3015	language:Lisp
+whizzy-point-face	src/whizzytex.el	3030;"	kind:f	line:3030	language:Lisp
+whizzy-overlay-point	src/whizzytex.el	3043;"	kind:f	line:3043	language:Lisp
+whizzy-overlay-region	src/whizzytex.el	3052;"	kind:f	line:3052	language:Lisp
+whizzy-show-wdiff	src/whizzytex.el	3062;"	kind:f	line:3062	language:Lisp
+whizzy-show-interaction	src/whizzytex.el	3096;"	kind:f	line:3096	language:Lisp
+whizzy-error-timer	src/whizzytex.el	3162;"	kind:f	line:3162	language:Lisp
+whizzy-watch-error	src/whizzytex.el	3163;"	kind:f	line:3163	language:Lisp
+whizzy-show-error	src/whizzytex.el	3168;"	kind:f	line:3168	language:Lisp
+whizzy-auto-show	src/whizzytex.el	3174;"	kind:f	line:3174	language:Lisp
+iso-translate-string	src/whizzytex.el	3196;"	kind:f	line:3196	language:Lisp
+whizzy-tex2iso-string	src/whizzytex.el	3220;"	kind:f	line:3220	language:Lisp
+whizzy-detex	src/whizzytex.el	3232;"	kind:f	line:3232	language:Lisp
+whizzy-goto-file	src/whizzytex.el	3239;"	kind:f	line:3239	language:Lisp
+whizzy-goto-line	src/whizzytex.el	3294;"	kind:f	line:3294	language:Lisp
+whizzy-error-name-alist	src/whizzytex.el	3372;"	kind:f	line:3372	language:Lisp
+whizzy-running-message	src/whizzytex.el	3382;"	kind:f	line:3382	language:Lisp
+whizzy-error	src/whizzytex.el	3393;"	kind:f	line:3393	language:Lisp
+whizzy-set-active-buffer	src/whizzytex.el	3405;"	kind:f	line:3405	language:Lisp
+whizzy-edit-field	src/whizzytex.el	3410;"	kind:f	line:3410	language:Lisp
+whizzy-edit	src/whizzytex.el	3425;"	kind:f	line:3425	language:Lisp
+whizzy-filter-output	src/whizzytex.el	3471;"	kind:f	line:3471	language:Lisp
+whizzy-slice-face	src/whizzytex.el	3636;"	kind:f	line:3636	language:Lisp
+whizzy-slice-overlay	src/whizzytex.el	3649;"	kind:f	line:3649	language:Lisp
+whizzy-create-slice-overlays	src/whizzytex.el	3653;"	kind:f	line:3653	language:Lisp
+whizzy-move-slice-overlays	src/whizzytex.el	3660;"	kind:f	line:3660	language:Lisp
+whizzy-delete-slice-overlays	src/whizzytex.el	3668;"	kind:f	line:3668	language:Lisp
+whizzy-next-slice	src/whizzytex.el	3676;"	kind:f	line:3676	language:Lisp
+whizzy-previous-slice	src/whizzytex.el	3728;"	kind:f	line:3728	language:Lisp
+whizzy-sendkey-command	src/whizzytex.el	3738;"	kind:f	line:3738	language:Lisp
+whizzy-toggle-point	src/whizzytex.el	3747;"	kind:f	line:3747	language:Lisp
+whizzy-toggle-line	src/whizzytex.el	3754;"	kind:f	line:3754	language:Lisp
+whizzy-toggle-auto-show	src/whizzytex.el	3761;"	kind:f	line:3761	language:Lisp
+whizzy-toggle-delete-output	src/whizzytex.el	3767;"	kind:f	line:3767	language:Lisp
+whizzy-toggle-sync-lines	src/whizzytex.el	3772;"	kind:f	line:3772	language:Lisp
+whizzy-help	src/whizzytex.el	3780;"	kind:f	line:3780	language:Lisp
+whizzy-help-view-slice	src/whizzytex.el	3787;"	kind:f	line:3787	language:Lisp
+whizzy-view-log	src/whizzytex.el	3791;"	kind:f	line:3791	language:Lisp
+whizzy-slicing-paragraph	src/whizzytex.el	3819;"	kind:f	line:3819	language:Lisp
+whizzy-slicing-wide-paragraph	src/whizzytex.el	3824;"	kind:f	line:3824	language:Lisp
+whizzy-set-paragraph-regexp	src/whizzytex.el	3829;"	kind:f	line:3829	language:Lisp
+whizzy-unmaster	src/whizzytex.el	3836;"	kind:f	line:3836	language:Lisp
+whizzy-show-point-never	src/whizzytex.el	3839;"	kind:f	line:3839	language:Lisp
+whizzy-show-point-pessimistic	src/whizzytex.el	3841;"	kind:f	line:3841	language:Lisp
+whizzy-show-point-optimistic	src/whizzytex.el	3843;"	kind:f	line:3843	language:Lisp
+whizzy-slicing-mode-p	src/whizzytex.el	3846;"	kind:f	line:3846	language:Lisp
+whizzy-slice-adjust	src/whizzytex.el	3849;"	kind:f	line:3849	language:Lisp
+whizzy-menu-map	src/whizzytex.el	3853;"	kind:f	line:3853	language:Lisp
+whizzy-xemacsp-menu	src/whizzytex.el	3959;"	kind:f	line:3959	language:Lisp
+whizzy-common-bindings	src/whizzytex.el	4055;"	kind:f	line:4055	language:Lisp
+whizzy-short-bindings	src/whizzytex.el	4061;"	kind:f	line:4061	language:Lisp
+whizzy-auctex-bindings	src/whizzytex.el	4078;"	kind:f	line:4078	language:Lisp
+whizzy-key-bindings	src/whizzytex.el	4090;"	kind:f	line:4090	language:Lisp
+whizzy-default-bindings	src/whizzytex.el	4110;"	kind:f	line:4110	language:Lisp
+whizzy-unset-options	src/whizzytex.el	4135;"	kind:f	line:4135	language:Lisp
+defaultmkslice	src/whizzytex	92;"	kind:f	line:92	language:Sh
+defaultmkfile	src/whizzytex	93;"	kind:f	line:93	language:Sh
+errlog	src/whizzytex	277;"	kind:f	line:277	language:Sh
+fatal	src/whizzytex	278;"	kind:f	line:278	language:Sh
+warning	src/whizzytex	284;"	kind:f	line:284	language:Sh
+quit	src/whizzytex	288;"	kind:f	line:288	language:Sh
+log	src/whizzytex	293;"	kind:f	line:293	language:Sh
+texlog	src/whizzytex	300;"	kind:f	line:300	language:Sh
+clean	src/whizzytex	321;"	kind:f	line:321	language:Sh
+cleanquit	src/whizzytex	336;"	kind:f	line:336	language:Sh
+cleankill	src/whizzytex	348;"	kind:f	line:348	language:Sh
+wakeup	src/whizzytex	360;"	kind:f	line:360	language:Sh
+runinitex	src/whizzytex	361;"	kind:f	line:361	language:Sh
+runlatex	src/whizzytex	362;"	kind:f	line:362	language:Sh
+runslice	src/whizzytex	363;"	kind:f	line:363	language:Sh
+format	src/whizzytex	368;"	kind:f	line:368	language:Sh
+makebibtex	src/whizzytex	375;"	kind:f	line:375	language:Sh
+batchmarks	src/whizzytex	384;"	kind:f	line:384	language:Sh
+wordify	src/whizzytex	415;"	kind:f	line:415	language:Sh
+worddiff	src/whizzytex	420;"	kind:f	line:420	language:Sh
+checkMKfile	src/whizzytex	491;"	kind:f	line:491	language:Sh
+preview	src/whizzytex	556;"	kind:f	line:556	language:Sh
+preview	src/whizzytex	564;"	kind:f	line:564	language:Sh
+preview	src/whizzytex	569;"	kind:f	line:569	language:Sh
+newfiles	src/whizzytex	574;"	kind:f	line:574	language:Sh
+newfile	src/whizzytex	577;"	kind:f	line:577	language:Sh
+preprocess	src/whizzytex	581;"	kind:f	line:581	language:Sh
+process	src/whizzytex	594;"	kind:f	line:594	language:Sh
+sendcommand	src/whizzytex	684;"	kind:f	line:684	language:Sh
+sigreload	src/whizzytex	690;"	kind:f	line:690	language:Sh
+xpdfreload	src/whizzytex	693;"	kind:f	line:693	language:Sh
+whole	src/whizzytex	697;"	kind:f	line:697	language:Sh
+reformat	src/whizzytex	714;"	kind:f	line:714	language:Sh
+duplex	src/whizzytex	734;"	kind:f	line:734	language:Sh
+viewps	src/whizzytex	757;"	kind:f	line:757	language:Sh
