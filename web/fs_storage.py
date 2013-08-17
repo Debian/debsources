@@ -29,7 +29,7 @@ def extract_package(pkg, destdir):
     if not os.path.isdir(parentdir):
         os.makedirs(parentdir)
     if os.path.isdir(destdir):	# remove stale dir, dpkg-source doesn't clobber
-        shutil.rmtree(destdir)
+        shutil.rmtree(str(destdir))
     dsc = pkg.dsc_path()
     cmd = ['dpkg-source', '--no-copy', '--no-check',
            '-x', dsc, destdir ]
@@ -44,7 +44,7 @@ def remove_package(pkg, destdir):
     """dispose of a package from the Debsources file system storage
     """
     if os.path.exists(destdir):
-        shutil.rmtree(destdir)
+        shutil.rmtree(str(destdir))
     for meta in ['log', 'done']:
         fname = destdir + '.' + meta
         if os.path.exists(fname):
