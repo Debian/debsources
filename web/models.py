@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from sqlalchemy import func as sql_func
 from sqlalchemy import Column, ForeignKey, UniqueConstraint
 from sqlalchemy import Integer, String, Index, Enum, LargeBinary
 from sqlalchemy.orm import relationship
@@ -192,7 +193,7 @@ class Ctag(Base):
     id = Column(Integer, primary_key=True)
     version_id = Column(Integer, ForeignKey('versions.id', ondelete="CASCADE"),
                         nullable=False, index=True)
-    tag = Column(String, nullable=False, index=True)
+    tag = Column(String, nullable=False)
     path = Column(LargeBinary, nullable=False)	# path/whitin/source/pkg
     line = Column(Integer, nullable=False)
     kind = Column(String)	# see `ctags --list-kinds`; unfortunately ctags
@@ -207,6 +208,9 @@ class Ctag(Base):
         self.line = line
         self.kind = kind
         self.language = language
+
+Index('ix_ctags_tags', Ctag.tag,
+      postgresql_where=sql_func.length(Ctag.tag) < 100)
 
 
 class Metric(Base):
