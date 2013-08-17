@@ -240,12 +240,12 @@ class Ctag(Base):
                                  Ctag.path.label("path"),
                                  Ctag.line.label("line"))
                    .filter(Ctag.tag == ctag)
+                   .filter(Ctag.version_id == Version.id)
+                   .filter(Version.package_id == Package.id)
                    )
         if package is not None:
-            results = (results.filter(Ctag.version_id == Version.id)
-                       .filter(Version.package_id == Package.id)
-                       .filter(Package.name == package)
-                       )
+            results = results.filter(Package.name == package)
+        
         results = results.order_by(Ctag.version_id, Ctag.path)
         count = results.count()
         if slice_ is not None:
