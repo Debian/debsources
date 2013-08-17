@@ -155,3 +155,6 @@
   - upon failed removal, the ctime of the dir gets updated (likely because
     /some/ files are actually removed successfully). As a consequence, another
     removal is attempted only another expire period later
+
+** note: should have been fixed by ccface6304cdff3b9e84a0a00a4792f96236bdaa
+   to be verified...
