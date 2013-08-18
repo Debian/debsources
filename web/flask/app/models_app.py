@@ -252,7 +252,6 @@ class SourceFile(object):
         """
         Queries the DB and returns the shasum of the file.
         """
-        app.logger.error(type(self.location.path))
         try:
             shasum = (session.query(Checksum_app.sha256)
                       .filter(Checksum_app.version_id==Version_app.id)
