@@ -77,3 +77,35 @@ License: GNU Affero General Public License, version 3 or above.
     margin-bottom: 10px;
     text-align: center;
 }
+
+.search-box {
+    background-color: #f5f6f7;
+    border-radius: 15px;
+    padding: 0 10px 0 10px;
+}
+
+.search-box h3 {
+    margin-bottom: 0;
+}
+
+.search-box h4 {
+    margin-top: 5px;
+    margin-bottom: 0;
+    font-style: normal;
+    text-decoration: underline;
+}
+
+.search-box .description {
+    font-style: italic;
+    font-size: 95%;
+}
+
+.search-box form table {
+    border: 0;
+}
+
+.search-box form table tr td {
+    border: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}

@@ -37,6 +37,7 @@ http://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginatio
       {% if display == "block" %}<br />{% endif %}
       <strong>{{ error }}</strong>
     {% endfor %}
+    {% if display == "block" %}<br />{% endif %}
     <input type="submit" value="Search package" />
   </form>
 {%- endmacro %}

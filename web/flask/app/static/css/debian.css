@@ -376,7 +376,7 @@ h2 {
 h3 {
 	font-size: 1.125em;
 	line-height: 1.333em;
-	margin: 1.333em 0 0 0;
+	margin: 1.333em 0 1.333em 0; /* modified */
 }
 h4 {
 	font-weight: normal;
