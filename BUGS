@@ -30,9 +30,8 @@
 * TODO multiple popup messages					  :web:popup:
   to be able to show multiple error( location)s on the same source file
 
-* TODO search based on the file name				 :web:search:
-  should be feasible, if the mlocate database is to be believed. Maybe we
-  should simply use it, making the indexing available *in* the VM?
+* TODO file name search 					 :web:search:
+  now that we have the actual file names in the db, this should be easy
 
 * TODO highlight #Lxxx lines					     :web:ui:
   On Thu, Jun 13, 2013 at 12:19:58AM +0200, Joachim Breitner wrote:
