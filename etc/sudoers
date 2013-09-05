@@ -1,0 +1,2 @@
+debian-mirror ALL = (debsources) NOPASSWD: /srv/debsources/bin/update-debsources
+debian-mirror ALL = (debsources) NOPASSWD: /srv/debsources/bin/update-stats
