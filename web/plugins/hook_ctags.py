@@ -70,6 +70,7 @@ def parse_ctags(path):
             else:
                 pass	# ignore other fields
 
+        assert tag['line'] is not None
         return tag
 
     with open(path) as ctags:
