@@ -216,7 +216,7 @@ def update(conf, session):
                     age = None
                     if os.path.exists(pkgdir):
                         age = datetime.now() \
-                              - datetime.fromtimestamp(os.path.getctime(pkgdir))
+                              - datetime.fromtimestamp(os.path.getmtime(pkgdir))
                     if not age or age.days >= expire_days:
                         logging.info("gc %s..." % pkg)
                         if not dry and 'hooks' in conf['passes']:
