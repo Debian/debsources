@@ -94,7 +94,10 @@ case "$1" in
 	rm -f "$disabler"
 	echo "Updates are now enabled."
 	;;
-    *)
+    update)
 	main
+	;;
+    *)
+	echo "Usage: main { update | enable | disable }"
 	;;
 esac
