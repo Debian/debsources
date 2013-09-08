@@ -93,6 +93,12 @@
   - uniform reference to version_id (currently it's sometime version_id,
     other sourceversion_id)
 
+* TODO /latest redirection for /data URLs		       :infra:apache:
+  [ bug report from Simon Paillard, Message-Id: <20130907214628.GY17455@mraw.org> ]
+  to implement this we need to generate batchly redirection maps (as we did in
+  the past) and configura Apache to use them, as /data is served directly by
+  Apache
+
 * TODO bulk ctags insertion traceback		:ctags:bulk:traceback:ATTACH:
   :PROPERTIES:
   :Attachments: 1.3.1-4.ctags
