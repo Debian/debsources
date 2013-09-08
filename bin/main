@@ -57,7 +57,7 @@ source "${bin_dir}/lib.sh"
 main () {
     info "main: starting at $(date)"
     if [ -f "$disabler" ] ; then
-	info "updates disabled by ${disabler}: skipping update run."
+	info "updates disabled by ${disabler}: skipping update run.\n"
 	exit 2
     fi
     if [ -f "$lockfile" ] ; then
