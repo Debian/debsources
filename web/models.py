@@ -23,6 +23,12 @@ from sqlalchemy import Integer, String, Index, Enum, LargeBinary
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
+# Limit on the maximum key length for Postgres columns which are subject to
+# btree indexing. The actual value is 8192, but we play safe and round down.
+# This allows to have complete indexes, rather than partial, which would
+# require AND ing the index predicate to all queries, for the index to be
+# consistently use.
+MAX_KEY_LENGTH = 8000
 
 # this list should be kept in sync with
 # http://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-VCS-fields
@@ -193,7 +199,7 @@ class Ctag(Base):
     id = Column(Integer, primary_key=True)
     version_id = Column(Integer, ForeignKey('versions.id', ondelete="CASCADE"),
                         nullable=False, index=True)
-    tag = Column(String, nullable=False)
+    tag = Column(String, nullable=False, index=True)
     path = Column(LargeBinary, nullable=False)	# path/whitin/source/pkg
     line = Column(Integer, nullable=False)
     kind = Column(String)	# see `ctags --list-kinds`; unfortunately ctags
@@ -252,9 +258,6 @@ class Ctag(Base):
         if slice_ is not None:
             results = results.slice(slice_[0], slice_[1])
         return (count, results.all())
-
-Index('ix_ctags_tags', Ctag.tag,
-      postgresql_where=sql_func.length(Ctag.tag) < 100)
 
 
 class Metric(Base):

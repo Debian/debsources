@@ -21,7 +21,7 @@ import subprocess
 
 import dbutils
 
-from models import Ctag
+from models import Ctag, MAX_KEY_LENGTH
 
 
 conf = None
@@ -71,6 +71,7 @@ def parse_ctags(path):
                 pass	# ignore other fields
 
         assert tag['line'] is not None
+        assert len(tag['tag']) <= MAX_KEY_LENGTH
         return tag
 
     with open(path) as ctags:
