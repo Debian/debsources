@@ -247,7 +247,7 @@ class Ctag(Base):
         if package is not None:
             results = results.filter(Package.name == package)
         
-        results = results.order_by(Ctag.version_id, Ctag.path)
+        #results = results.order_by(Ctag.version_id, Ctag.path)
         count = results.count()
         if slice_ is not None:
             results = results.slice(slice_[0], slice_[1])
