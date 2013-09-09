@@ -653,11 +653,11 @@ class ChecksumView(GeneralView):
         
         # pagination:
         if not self.all_:
-            offset = app.config.get("LIST_OFFSET") or 60
+            offset = int(app.config.get("LIST_OFFSET")) or 60
             start = (page - 1) * offset
             end = start + offset
             slice_ = (start, end)
-            count = Checksum_app.count_files_with_sum(checksum)
+            count = Checksum_app.count_files_with_sum(checksum, package=package)
             pagination = Pagination(page, offset, count)
         else:
             pagination = None
