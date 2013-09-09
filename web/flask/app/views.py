@@ -717,7 +717,10 @@ class CtagView(GeneralView):
         
         # pagination:
         if not self.all_:
-            offset = app.config.get("LIST_OFFSET") or 60
+            try:
+                offset = int(app.config.get("LIST_OFFSET"))
+            except:
+                offset = 60
             start = (page - 1) * offset
             end = start + offset
             slice_ = (start, end)
