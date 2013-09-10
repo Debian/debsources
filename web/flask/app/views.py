@@ -752,7 +752,7 @@ app.add_url_rule('/ctag/',view_func=CtagView.as_view(
 
 
 # CTAG REQUEST (JSON)
-app.add_url_rule('/api/ctag/', view_func=ChecksumView.as_view(
+app.add_url_rule('/api/ctag/', view_func=CtagView.as_view(
         'ctag_json',
         all_=True,
         render_func=jsonify,
