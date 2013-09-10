@@ -257,7 +257,13 @@ class Ctag(Base):
         count = results.count()
         if slice_ is not None:
             results = results.slice(slice_[0], slice_[1])
-        return (count, results.all())
+        results = [dict(package=res.package,
+                        version=res.version,
+                        path=res.path,
+                        line=res.line)
+                   for res in results.all()]
+        return (count, results)
+    
 
 
 class Metric(Base):
