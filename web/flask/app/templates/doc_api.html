@@ -28,11 +28,28 @@
 
 <h3>Search</h3>
 
+<h4>Package search</h4>
 <p>
   By accessing the following URL:
   <span class="url">{{ url_prefix }}/api/search/<strong>query</strong></span>
   <a href="{{ url_prefix }}/api/search/hello">See example</a>
 </p>
+
+<h4>File search</h4>
+<p>
+  You can look for duplicate files using their SHA-256 sum:
+  <span class="url">{{ url_prefix }}/api/sha256/?checksum=<strong>sha256</strong>&package=<strong>packagename</strong></span>
+  Specifying a package name is optional.
+
+<h4>Code search</h4>
+<p>
+  You can search within the code
+  through <a href="http://ctags.sourceforge.net">tags</a>.
+  <span class="url">{{ url_prefix
+  }}/api/ctag/?ctag=<strong>tag</strong>&package=<strong>packagename</strong></span>
+  Specifying a package name is optional.
+</p>
+
 
 <h3>Package list</h3>
 

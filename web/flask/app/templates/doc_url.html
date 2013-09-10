@@ -23,11 +23,29 @@
 
 <h3>Search</h3>
 
+<h4>Package search</h4>
 <p>
-  You can simply point a search query with the following URL:
+  You can simply point a package search query with the following URL:
   <span class="url">{{ url_prefix
     }}/search/<strong>query</strong></span>
   <a href="{{ url_prefix }}/search/hello">See example</a>
+</p>
+
+<h4>File search</h4>
+<p>
+  The URL for a SHAsum search is:
+  <span class="url">{{ url_prefix
+  }}/sha256/?checksum=<strong>sha256</strong>&package=<strong>packagename</strong></span>
+  Specifying a package name is optional.
+</p>
+
+<h4>Code search</h4>
+<p>
+  You can search within the code
+  through <a href="http://ctags.sourceforge.net">tags</a>.
+  <span class="url">{{ url_prefix
+  }}/ctag/?ctag=<strong>tag</strong>&package=<strong>packagename</strong></span>
+  Specifying a package name is optional.
 </p>
 
 <h3>Package list</h3>
