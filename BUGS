@@ -38,6 +38,13 @@
   more than double the size of the tag file". Bug report by Olly Betts
   on #debian-devel.
 
+* TODO debian cross reference (lxr.debian.net)			  :web:ctags:
+  A-la http://lxr.linux.no/ . Suggested by Pierre Habouzit. Main problem is of
+  scope, cross-ref is mostly reasonable within the same package; /possibly/
+  reasonable between dependent packages; largely unresonable among unrelated
+  packages. (Not to mention the risk of cross-referincing across different
+  languages; although we should have the info to avoid that...)
+
 * TODO highlight #Lxxx lines					     :web:ui:
   On Thu, Jun 13, 2013 at 12:19:58AM +0200, Joachim Breitner wrote:
   > An URL like
