@@ -129,6 +129,7 @@ def page_not_found(e):
 def deal_500_error(error, mode='html'):
     """ logs a 500 error and returns the correct template """
     app.logger.exception(error)
+    app.logger.error(error)
     
     if mode == 'json':
         return jsonify(dict(error=500))
