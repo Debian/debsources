@@ -298,7 +298,13 @@ class ListpackagesView(GeneralView):
         else: # we paginate
             # WARNING: not serializable (TODO: serialize Pagination obj)
             try:
-                offset = app.config.get("LIST_OFFSET") or 60
+                try:
+                    offset = int(app.config.get("LIST_OFFSET"))
+                except:
+                    app.logger.warning("list_offset is not defined in the "
+                                       "configuration, or has a bad value")
+                    offset = 60
+                
                 # we calculate the range of results
                 start = (page - 1) * offset
                 end = start + offset
