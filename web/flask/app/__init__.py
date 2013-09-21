@@ -71,15 +71,4 @@ handler.setFormatter(Formatter(
 handler.setLevel(logging.INFO)
 app.logger.addHandler(handler)
 
-# DEBUG #
-from logging.handlers import RotatingFileHandler
-file_handler = RotatingFileHandler('/tmp/debsources.log',
-                                   maxBytes=1024 * 1024 * 100, backupCount=20)
-file_handler.setLevel(logging.ERROR)
-file_handler.setFormatter(Formatter(
-        '%(asctime)s %(levelname)s: %(message)s '
-        '[in %(pathname)s:%(lineno)d]'
-        ))
-app.logger.addHandler(file_handler)
-
 
