@@ -62,7 +62,7 @@ def skeleton_variables():
 from pagination import Pagination
 
 def url_for_other_page(page):
-    args = request.args.copy()
+    args = dict(request.args.copy())
     args['page'] = page
     return url_for(request.endpoint, **args)
 app.jinja_env.globals['url_for_other_page'] = url_for_other_page
