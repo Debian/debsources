@@ -73,7 +73,7 @@ app.logger.addHandler(handler)
 
 # DEBUG #
 from logging.handlers import RotatingFileHandler
-file_handler = RotatingFileHandler('python.log',
+file_handler = RotatingFileHandler('/tmp/debsources.log',
                                    maxBytes=1024 * 1024 * 100, backupCount=20)
 file_handler.setLevel(logging.ERROR)
 file_handler.setFormatter(Formatter(
