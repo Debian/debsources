@@ -27,10 +27,10 @@ app = Flask(__name__)
 # Configuration
 parser = SafeConfigParser()
 conf_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                          '../../../etc/config.local.ini')
+                          '../../etc/config.local.ini')
 if not(os.path.exists(conf_file)):
     conf_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                             '../../../etc/config.ini')
+                             '../../etc/config.ini')
 
 parser.read(conf_file)
 
