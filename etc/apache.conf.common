@@ -63,7 +63,7 @@
 	# begin: FastCGI deployment
 	# note: ScriptAlias should come *after* other Alias directives, to
 	# avoid shadowing them
-	ScriptAlias / /srv/debsources/web/flask/debsources.fcgi/
+	ScriptAlias / /srv/debsources/etc/debsources.fcgi/
 	FcgidProcessLifeTime 3600
 	FcgidMaxRequestsPerProcess 1000
 	# end: FastCGI deployment
