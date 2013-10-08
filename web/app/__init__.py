@@ -44,7 +44,7 @@ for (key, value) in parser.items("webapp"):
 import sys
 sys.path.append(app.config['PYTHON_DIR'])
 
-from dbutils import _get_engine_session, _close_session
+from sqla_session import _get_engine_session, _close_session
 
 # SQLAlchemy
 if os.environ.get("DEBSOURCES_TESTING") == "testing":

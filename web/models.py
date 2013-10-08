@@ -16,56 +16,29 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os, magic, stat
 
 from sqlalchemy import func as sql_func
 from sqlalchemy import Column, ForeignKey, UniqueConstraint
 from sqlalchemy import Integer, String, Index, Enum, LargeBinary
+from sqlalchemy import and_
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-# Limit on the maximum key length for Postgres columns which are subject to
-# btree indexing. The actual value is 8192, but we play safe and round down.
-# This allows to have complete indexes, rather than partial, which would
-# require AND ing the index predicate to all queries, for the index to be
-# consistently use.
-MAX_KEY_LENGTH = 8000
+from flask import url_for
 
-# this list should be kept in sync with
-# http://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-VCS-fields
-VCS_TYPES = ("arch", "bzr", "cvs", "darcs", "git", "hg", "mtn", "svn")
+from debian.debian_support import version_compare
 
-# this list should be kept in sync with languages supported by sloccount. A
-# good start is http://www.dwheeler.com/sloccount/sloccount.html (section
-# "Basic concepts"). Others have been added to the Debian package via patches.
-SLOCCOUNT_LANGUAGES = (
+from app import app, session
+# TODO: get rid of `from app import foo`
+# models.py must NOT depend on app
+# create config.py, and let it handle the configuration (instead of app/__init__)
+# and move session creation from app/__init__ to sqla_session
 
-    # sloccount 2.26 languages
-    "ada", "asm", "awk", "sh", "ansic", "cpp", "cs", "csh", "cobol", "exp",
-    "fortran", "f90", "haskell", "java", "lex", "lisp", "makefile", "ml",
-    "modula3", "objc", "pascal", "perl", "php", "python",
-    "ruby", "sed", "sql", "tcl", "yacc",
-
-    # enhancements from Debian patches, version 2.26-5
-    "erlang", "jsp", "vhdl", "xml",
-)
-
-# this list should be kept in sync with languages supported by (exuberant)
-# ctags. See: http://ctags.sourceforge.net/languages.html and the output of
-# `ctags --list-languages`
-CTAGS_LANGUAGES = (
-    'ant', 'asm', 'asp', 'awk', 'basic', 'beta', 'c', 'c++',
-    'c#', 'cobol', 'dosbatch', 'eiffel', 'erlang', 'flex', 'fortran', 'go',
-    'html', 'java', 'javascript', 'lisp', 'lua', 'make', 'matlab',
-    'objectivec', 'ocaml', 'pascal', 'perl', 'php', 'python', 'rexx', 'ruby',
-    'scheme', 'sh', 'slang', 'sml', 'sql', 'tcl', 'tex', 'vera', 'verilog',
-    'vhdl', 'vim', 'yacc',
-)
-
-# TODO uniform CTAGS_* language naming (possibly without blessing any of the
-# two, but using a 3rd, Debsources specific, canonical form)
-
-METRIC_TYPES = ("size",)
-
+from excepts import InvalidPackageOrVersionError, FileOrFolderNotFound
+from consts import MAX_KEY_LENGTH, VCS_TYPES, SLOCCOUNT_LANGUAGES, \
+    CTAGS_LANGUAGES, METRIC_TYPES, AREAS, PREFIXES_DEFAULT
+import filetype
 
 Base = declarative_base()
 
@@ -85,6 +58,43 @@ class Package(Base):
         
     def __repr__(self):
         return self.name
+    
+    @staticmethod
+    def get_packages_prefixes():
+        """
+        returns the packages prefixes (a, b, ..., liba, libb, ..., y, z)
+        """
+        try:
+            with open(os.path.join(app.config['CACHE_DIR'], 'pkg-prefixes')) as f:
+                prefixes = [ l.rstrip() for l in f ]
+        except IOError:
+            prefixes = PREFIXES_DEFAULT
+        return prefixes
+
+    
+    @staticmethod
+    def list_versions_from_name(packagename):
+         try:
+             package_id = session.query(Package).filter(
+                 Package.name==packagename).first().id
+         except Exception as e:
+             raise InvalidPackageOrVersionError(packagename)
+         try:
+             versions = session.query(Version).filter(
+                 Version.package_id==package_id).all()
+         except Exception as e:
+             raise e
+             raise InvalidPackageOrVersionError(packagename)
+         # we sort the versions according to debian versions rules
+         versions = sorted(versions, cmp=version_compare)
+         return versions
+    
+    def to_dict(self):
+        """
+        simply serializes a package (because SQLAlchemy query results
+        aren't serializable
+        """
+        return dict(name=self.name)
 
 
 class Version(Base):
@@ -106,6 +116,14 @@ class Version(Base):
 
     def __repr__(self):
         return self.vnumber
+    
+    def to_dict(self):
+        """
+        simply serializes a version (because SQLAlchemy query results
+        aren't serializable
+        """
+        return dict(vnumber=self.vnumber, area=self.area)
+
 
 Index('ix_versions_package_id_vnumber', Version.package_id, Version.vnumber)
 
@@ -137,6 +155,52 @@ class Checksum(Base):
         self.version_id = version.id
         self.path = path
         self.sha256 = sha256
+    
+    @staticmethod
+    def _query_checksum(checksum, package=None):
+        """
+        Returns the query used to retrieve checksums/count checksums.
+        """
+        query = (session.query(Package.name.label("package"),
+                              Version.vnumber.label("version"),
+                              Checksum.path.label("path"))
+                .filter(Checksum.sha256 == checksum)
+                .filter(Checksum.version_id == Version.id)
+                .filter(Version.package_id == Package.id)
+                 )
+        if package is not None and package != "":
+            query = query.filter(Package.name == package)
+        
+        query = query.order_by("package", "version", "path")
+        return query
+        
+
+    @staticmethod
+    def files_with_sum(checksum, slice_=None, package=None):
+        """
+        Returns a list of files whose hexdigest is checksum.
+        You can slice the results, passing slice=(start, end).
+        """
+        # here we use db.session.query() instead of Class.query,
+        # because after all "pure" SQLAlchemy is better than the
+        # Flask-SQLAlchemy plugin.
+        results = Checksum._query_checksum(checksum, package=package)
+        
+        if slice_ is not None:
+            results = results.slice(slice_[0], slice_[1])
+        results = results.all()
+        
+        return [dict(path=res.path,
+                     package=res.package,
+                     version=res.version)
+                for res in results]
+    
+    @staticmethod
+    def count_files_with_sum(checksum, package=None):
+        count = Checksum._query_checksum(checksum, package=package).count()
+        
+        return count
+
 
 
 class BinaryPackage(Base):
@@ -281,3 +345,224 @@ class Metric(Base):
         self.sourceversion_id = version.id
         self.metric = metric
         self.value = value
+
+
+class Location(object):
+    """ a location in a package, can be a directory or a file """
+    
+    def _get_debian_path(self, package, version):
+        """
+        Returns the Debian path of a package version.
+        For example: main/h
+                     contrib/libz
+        It's the path of a *version*, since a package can have multiple
+        versions in multiple areas (ie main/contrib/nonfree).
+        """
+        if package[0:3] == "lib":
+            prefix = package[0:4]
+        else:
+            prefix = package[0]
+        
+        try:
+            p_id = session.query(Package).filter(
+                Package.name==package).first().id
+            varea = session.query(Version).filter(and_(
+                        Version.package_id==p_id,
+                        Version.vnumber==version)).first().area
+        except:
+            # the package or version doesn't exist in the database
+            # BUT: packages are stored for a longer time in the filesystem
+            # to allow codesearch.d.n and others less up-to-date platforms
+            # to point here.
+            # Problem: we don't know the area of such a package
+            # so we try in main, contrib and non-free.
+            for area in AREAS:
+                if os.path.exists(os.path.join(app.config["SOURCES_DIR"],
+                                          area, prefix, package, version)):
+                    return os.path.join(area, prefix)
+            
+            raise InvalidPackageOrVersionError("%s %s" % (package, version))
+        
+        return os.path.join(varea, prefix)
+    
+    def __init__(self, package, version="", path=""):
+        """ initialises useful attributes """
+        debian_path = self._get_debian_path(package, version)
+        self.package = package
+        self.version = version
+        self.path = path
+        self.path_to = os.path.join(package, version, path)
+        
+        self.sources_path = os.path.join(
+            app.config['SOURCES_DIR'],
+            debian_path,
+            self.path_to)
+
+        if not(os.path.exists(self.sources_path)):
+            raise FileOrFolderNotFound("%s" % (self.path_to))
+        
+        self.sources_path_static = os.path.join(
+            app.config['SOURCES_STATIC'],
+            debian_path,
+            self.path_to)
+    
+    def is_dir(self):
+        """ True if self is a directory, False if it's not """
+        return os.path.isdir(self.sources_path)
+    
+    def is_file(self):
+        """ True if sels is a file, False if it's not """
+        return os.path.isfile(self.sources_path)
+
+    def issymlink(self):
+        """
+        True if a folder/file is a symbolic link file, False if it's not
+        """
+        return os.path.islink(self.sources_path)
+    
+    def get_package(self):
+        return self.package
+    
+    def get_version(self):
+        return self.version
+    
+    def get_path(self):
+        return self.path
+    
+    def get_deepest_element(self):
+        if self.version == "":
+            return self.package
+        elif self.path == "":
+            return self.version
+        else:
+            return self.path.split("/")[-1]
+        
+    def get_path_to(self):
+        return self.path_to.rstrip("/")
+    
+    @staticmethod
+    def get_path_links(endpoint, path_to):
+        """
+        returns the path hierarchy with urls, to use with 'You are here:'
+        [(name, url(name)), (...), ...]
+        """
+        path_dict = path_to.split('/')
+        pathl = []
+        for (i, p) in enumerate(path_dict):
+            pathl.append((p, url_for(endpoint,
+                                     path_to='/'.join(path_dict[:i+1]))))
+        return pathl
+
+class Directory(object):
+    """ a folder in a package """
+    
+    def __init__(self, location, toplevel=False):
+        # if the directory is a toplevel one, we remove the .pc folder
+        self.sources_path = location.sources_path
+        self.toplevel = toplevel
+
+    def get_listing(self):
+        """
+        returns the list of folders/files in a directory,
+        along with their type (directory/file)
+        in a tuple (name, type)
+        """
+        def get_type(f):
+            if os.path.isdir(os.path.join(self.sources_path, f)):
+                return "directory"
+            else: 
+                return "file"
+        listing = sorted(dict(name=f, type=get_type(f))
+                         for f in os.listdir(self.sources_path))
+        if self.toplevel:
+            listing = filter(lambda x: x['name'] != ".pc", listing)
+        
+        return listing
+    
+
+class SourceFile(object):
+    """ a source file in a package """
+    def __init__(self, location):
+        self.location = location
+        self.sources_path = location.sources_path
+        self.sources_path_static = location.sources_path_static
+        self.mime = self._find_mime()
+    
+    def _find_mime(self):
+        """ returns the mime encoding and type of a file """
+        mime = magic.open(magic.MIME_TYPE)
+        mime.load()
+        type_ = mime.file(self.sources_path)
+        mime.close()
+        mime = magic.open(magic.MIME_ENCODING)
+        mime.load()
+        encoding = mime.file(self.sources_path)
+        mime.close()
+        return dict(encoding=encoding, type=type_)
+    
+    def get_mime(self):
+        return self.mime
+    
+    def get_sha256sum(self):
+        """
+        Queries the DB and returns the shasum of the file.
+        """
+        try:
+            shasum = (session.query(Checksum.sha256)
+                      .filter(Checksum.version_id==Version.id)
+                      .filter(Version.package_id==Package.id)
+                      .filter(Package.name==self.location.package)
+                      .filter(Version.vnumber==self.location.version)
+                      # WARNING:
+                      # in the DB path is binary,
+                      # and here location.path is unicode, because the path
+                      # comes from the URL.
+                      # TODO: check with non-unicode paths
+                      .filter(Checksum.path==str(self.location.path))
+                      .first()
+                      )[0]
+        except Exception as e:
+            app.logger.error(e)
+            shasum = None
+        return shasum
+    
+    def get_permissions(self):
+        """
+        Returns the permissions of the folder/file on the disk, unix-styled.
+        """
+        read = ("-", "r")
+        write = ("-", "w")
+        execute = ("-", "x")
+        flags = [
+            (stat.S_IRUSR, "r", "-"),
+            (stat.S_IWUSR, "w", "-"),
+            (stat.S_IXUSR, "x", "-"),
+            (stat.S_IRGRP, "r", "-"),
+            (stat.S_IWGRP, "w", "-"),
+            (stat.S_IXGRP, "x", "-"),
+            (stat.S_IROTH, "r", "-"),
+            (stat.S_IWOTH, "w", "-"),
+            (stat.S_IXOTH, "x", "-"),
+            ]
+        perms = os.stat(self.sources_path).st_mode
+        unix_style = ""
+        for (flag, do_true, do_false) in flags:
+            unix_style += do_true if (perms & flag) else do_false
+        
+        return unix_style
+
+
+    def istextfile(self):
+        """ 
+        True if self is a text file, False if it's not.
+        """
+        return filetype.is_text_file(self.mime['type'])
+        # for substring in text_file_mimes:
+        #     if substring in self.mime['type']:
+        #         return True
+        # return False
+        
+    def get_raw_url(self):
+        """ return the raw url on disk (e.g. data/main/a/azerty/foo.bar) """
+        return self.sources_path_static
+

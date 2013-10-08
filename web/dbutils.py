@@ -18,8 +18,6 @@
 
 import logging
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql import exists
 
 from models import Base, Package, Version, VCS_TYPES
@@ -71,14 +69,6 @@ def lookup_version(session, package, version):
                   .filter(Package.name==package) \
                   .first()
 
-
-def _get_engine_session(url, verbose=True):
-    engine = create_engine(url, echo=verbose)
-    session = scoped_session(sessionmaker(bind=engine))
-    return engine, session
-
-def _close_session(session):
-    session.remove()
 
 # TODO get rid of this function. With sources2sqlite (soon) gone, the only
 # remaining client code is web/flask/tests.py

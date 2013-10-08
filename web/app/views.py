@@ -27,10 +27,10 @@ from debian.debian_support import version_compare
 
 
 from app import app, session
-from models_app import Package_app, Version_app, Location, Directory, \
-    SourceFile, InvalidPackageOrVersionError, FileOrFolderNotFound, \
-    Checksum_app
-from models import Ctag
+from excepts import InvalidPackageOrVersionError, FileOrFolderNotFound, \
+    Http500Error, Http404Error, Http403Error
+from models import Ctag, Package, Version, Checksum, Location, \
+    Directory, SourceFile
 from sourcecode import SourceCodeIterator
 from forms import SearchForm
 
@@ -52,7 +52,7 @@ def skeleton_variables():
     except IOError:
         last_update = "unknown"
     
-    return dict(packages_prefixes = Package_app.get_packages_prefixes(),
+    return dict(packages_prefixes = Package.get_packages_prefixes(),
                 searchform = SearchForm(),
                 last_update=last_update)
 
@@ -96,12 +96,6 @@ class GeneralView(View):
         except Http403Error as e:
             return self.err_func(e, http=403)
 
-
-### EXCEPTIONS ###
-
-class Http500Error(Exception): pass
-class Http404Error(Exception): pass
-class Http403Error(Exception): pass
 
 ### ERRORS ###
 
@@ -159,7 +153,7 @@ def server_error(e):
 @app.route('/api/ping/')
 def ping():
     try:
-        a = session.query(Package_app).first().id # database check
+        a = session.query(Package).first().id # database check
     except:
         return jsonify(dict(status="db error", http_status_code=500)), 500
     return jsonify(dict(status="ok", http_status_code=200))
@@ -216,13 +210,13 @@ class SearchView(GeneralView):
         """ processes the search query and renders the results in a dict """
         query = query.replace('%', '').replace('_', '')
         try:
-            exact_matching = (session.query(Package_app)
+            exact_matching = (session.query(Package)
                               .filter_by(name=query)
                               .first())
         
-            other_results = (session.query(Package_app)
-                             .filter(Package_app.name.contains(query))
-                             .order_by(Package_app.name)
+            other_results = (session.query(Package)
+                             .filter(Package.name.contains(query))
+                             .order_by(Package.name)
                              )
         except Exception as e:
             raise Http500Error(e) # db problem, ...
@@ -287,8 +281,8 @@ class ListpackagesView(GeneralView):
     def get_objects(self, page=1):
         if self.all_: # we retrieve all packages
             try:
-                packages = (session.query(Package_app)
-                            .order_by(Package_app.name)
+                packages = (session.query(Package)
+                            .order_by(Package.name)
                             .all()
                             )
                 packages = [p.to_dict() for p in packages]
@@ -309,11 +303,11 @@ class ListpackagesView(GeneralView):
                 start = (page - 1) * offset
                 end = start + offset
 
-                count_packages = (session.query(Package_app)
+                count_packages = (session.query(Package)
                                   .count()
                                   )
-                packages = (session.query(Package_app)
-                            .order_by(Package_app.name)
+                packages = (session.query(Package)
+                            .order_by(Package.name)
                             .slice(start, end)
                             )
                 pagination = Pagination(page, offset, count_packages)
@@ -347,11 +341,11 @@ app.add_url_rule('/api/list/', view_func=ListpackagesView.as_view(
 class PrefixView(GeneralView):
     def get_objects(self, prefix='a'):
         """ returns the packages beginning with prefix """
-        if prefix in Package_app.get_packages_prefixes():
+        if prefix in Package.get_packages_prefixes():
             try:
-                packages = (session.query(Package_app)
-                            .filter(Package_app.name.startswith(prefix))
-                            .order_by(Package_app.name)
+                packages = (session.query(Package)
+                            .filter(Package.name.startswith(prefix))
+                            .order_by(Package.name)
                             .all()
                             )
                 packages = [p.to_dict() for p in packages]
@@ -396,10 +390,10 @@ class SourceView(GeneralView):
             }
         """
         try:
-            v = (session.query(Version_app)
-                 .filter(and_(Version_app.vnumber==version,
-                              Version_app.package_id==Package_app.id,
-                              Package_app.name==package))
+            v = (session.query(Version)
+                 .filter(and_(Version.vnumber==version,
+                              Version.package_id==Package.id,
+                              Package.name==package))
                  .first())
             vcs = {}
             if v.vcs_type and v.vcs_browser:
@@ -415,7 +409,7 @@ class SourceView(GeneralView):
         """
         # we list the versions
         try:
-            versions = Package_app.list_versions_from_name(packagename)
+            versions = Package.list_versions_from_name(packagename)
         except InvalidPackageOrVersionError:
             raise Http404Error("%s not found" % packagename)
             
@@ -475,8 +469,8 @@ class SourceView(GeneralView):
         file_ = SourceFile(location)
         
         checksum = file_.get_sha256sum()
-        number_of_duplicates = Checksum_app.count_files_with_sum(checksum)
-            
+        number_of_duplicates = Checksum.count_files_with_sum(checksum)
+        
         return dict(type="file",
                     file=location.get_deepest_element(),
                     package=location.get_package(),
@@ -497,7 +491,7 @@ class SourceView(GeneralView):
         when 'latest' is provided instead of a version number
         """
         try:
-            versions = Package_app.list_versions_from_name(package)
+            versions = Package.list_versions_from_name(package)
         except InvalidPackageOrVersionError:
             raise Http404Error("%s not found" % package)
         # the latest version is the latest item in the
@@ -663,15 +657,15 @@ class ChecksumView(GeneralView):
             start = (page - 1) * offset
             end = start + offset
             slice_ = (start, end)
-            count = Checksum_app.count_files_with_sum(checksum, package=package)
+            count = Checksum.count_files_with_sum(checksum, package=package)
             pagination = Pagination(page, offset, count)
         else:
             pagination = None
             slice_ = None
         
-        results = Checksum_app.files_with_sum(checksum, slice_=slice_,
+        results = Checksum.files_with_sum(checksum, slice_=slice_,
                                               package=package)
-        count = Checksum_app.count_files_with_sum(checksum, package=package)
+        count = Checksum.count_files_with_sum(checksum, package=package)
         
         return dict(results=results,
                     sha256=checksum,
