@@ -47,7 +47,7 @@
 	Alias /javascript /usr/share/javascript/
 
 	# # begin: WSGI deployment
-	# WSGIScriptAlias / /srv/debsources/web/flask/debsources.wsgi
+	# WSGIScriptAlias / /srv/debsources/etc/debsources.wsgi
 	# WSGIDaemonProcess debsources user=www-data group=www-data threads=8
 	# WSGIProcessGroup debsources
 	# WSGIApplicationGroup debsources
@@ -56,7 +56,7 @@
 	Alias /robots.txt /srv/www/debsources/public_html/robots.txt
 	Alias /data/ /srv/debsources/sources/
 	Alias /static/stats/ /srv/debsources/cache/stats/
-	Alias /static/ /srv/debsources/web/flask/app/static/
+	Alias /static/ /srv/debsources/web/app/static/
 	Alias /icons/ /usr/share/icons/
 	Alias /private/ /srv/www/debsources/public_html/private/
 
