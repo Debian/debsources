@@ -102,6 +102,9 @@
   - uniform reference to version_id (currently it's sometime version_id,
     other sourceversion_id)
 
+* TODO file-level deduplication, using checksums		      :infra:
+  depends (to be done properly) on "database schema refactoring"
+
 * TODO /latest redirection for /data URLs		       :infra:apache:
   [ bug report from Simon Paillard, Message-Id: <20130907214628.GY17455@mraw.org> ]
   to implement this we need to generate batchly redirection maps (as we did in
