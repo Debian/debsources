@@ -213,3 +213,13 @@ Archived entries from file /srv/debian/debsources.bugs/BUGS
 
 ** note: should have been fixed by ccface6304cdff3b9e84a0a00a4792f96236bdaa
    to be verified...
+
+* DONE merge web/models.py and web/flask/models_app.py			:web:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2013-10-16 Wed 17:40
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: DONE
+  :END:
+  since we don't use sqlalchemy plugin anymore, methods from
+  *_app can be merged into * (* = Package, Version, ...)
