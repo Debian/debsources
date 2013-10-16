@@ -1,5 +1,32 @@
 #    -*- mode: org -*-
 
+* TODO [#A] database schema refactoring				      :model:
+  - merge package and version into one table
+  - create table File and use foreignkey(file) in CheckSum and Ctags
+  - (un)distinguish Source and Binary packages where it is necessary
+  - uniform reference to version_id (currently it's sometime version_id,
+    other sourceversion_id)
+
+* TODO [#A] end-to-end test suite for the infrastructure	:tests:infra:
+  use update-debsources-ng with a small Sources.gz
+
+* TODO [#B] file-level deduplication, using checksums		      :infra:
+  depends (to be done properly) on "database schema refactoring"
+
+* TODO [#B] suite support					      :infra:
+  to be able to compute statistics on a per-release basis
+
+* TODO check-in derivatives from the census		  :infra:derivatives:
+
+* TODO [#C] [0/4] new stats happy			:web:stats:rrd:infra:
+  depends: "suite support"
+** TODO programming languages breakdown
+** TODO postgres db size
+** TODO ctags symbols
+** TODO number of {source,binary} packages
+
+* TODO missing test: `/api/checksum/foo/`		      :web:api:tests:
+
 * TODO tarball-in-tarball 					  :infra:web:
   Explode nested tarballs, partly for some packaging habits still present in
   the archive (although they should die a horrible death), more importantly due
@@ -31,7 +58,7 @@
   to be able to show multiple error( location)s on the same source file
 
 * TODO file name search 					 :web:search:
-  now that we have the actual file names in the db, this should be easy
+  depends: "database schema refactoring"
 
 * TODO qualified ctags					 :plugin:ctags:infra:
   Add --extra=+q to ctags invocation. "However, that this could potentially
@@ -45,7 +72,7 @@
   packages. (Not to mention the risk of cross-referincing across different
   languages; although we should have the info to avoid that...)
 
-* TODO highlight #Lxxx lines					     :web:ui:
+* TODO highlight #Lxxx lines by default 			     :web:ui:
   On Thu, Jun 13, 2013 at 12:19:58AM +0200, Joachim Breitner wrote:
   > An URL like
   > http://sources.debian.net/src/cairo/1.12.14-4/boilerplate/cairo-boilerplate-xcb.c#L395
@@ -67,6 +94,8 @@
 * TODO package debsources with python distribute 	      :web:packaging:
   it will simple things like imports and the deployment would be easier
 
+* TODO make web UI parts conditional on plugin enablement	  :infra:web:
+
 * TODO shutter effect					    :web:hilight:css:
   When we highlight a line, we have to use a display:inline tag (whose
   rendering isn't cool, because an highlighted block doesn't have the
@@ -87,23 +116,12 @@
 
  Debugging: maybe with inline-block and other css tricks
 
-* TODO evaluate with DSA the possibility of sources.d.o		  :infra:dsa:
+* TODO evaluate the possibility of sources.d.o			  :infra:dsa:
+
 * TODO add binary->source redirection map			  :infra:web:
   Idea: http://sources.d.n/src/FOO -> http://sources.d.n/src/MAP[FOO], as long
   as FOO _does not exists_ as a source package.  Feature suggested in response
   to Selim T. Erdogan, Message-ID: <20130712112459.GA3156@cs.utexas.edu>
-* TODO adapt the tests to the new infrastructure 		  :tests:web:
-  use update-debsources-ng with a small Sources.gz
-  add test for /api/checksum/foo/
-* TODO database schema refactoring 				      :model:
-  - merge package and version into one table
-  - create table File and use foreignkey(file) in CheckSum and Ctags
-  - (un)distinguish Source and Binary packages where it is necessary
-  - uniform reference to version_id (currently it's sometime version_id,
-    other sourceversion_id)
-
-* TODO file-level deduplication, using checksums		      :infra:
-  depends (to be done properly) on "database schema refactoring"
 
 * TODO /latest redirection for /data URLs		       :infra:apache:
   [ bug report from Simon Paillard, Message-Id: <20130907214628.GY17455@mraw.org> ]
