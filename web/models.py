@@ -25,8 +25,6 @@ from sqlalchemy import and_
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-from flask import url_for
-
 from debian.debian_support import version_compare
 
 from app import app, session
@@ -448,6 +446,13 @@ class Location(object):
         """
         path_dict = path_to.split('/')
         pathl = []
+        
+        # we import flask here, in order to permit the use of this module
+        # without requiring the user to have flask (e.g. bin/update-debsources
+        # can run in another machine without flask, because it doesn't use
+        # this method)
+        from flask import url_for
+        
         for (i, p) in enumerate(path_dict):
             pathl.append((p, url_for(endpoint,
                                      path_to='/'.join(path_dict[:i+1]))))
