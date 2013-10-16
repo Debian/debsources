@@ -6,4 +6,5 @@
         delaycompress
         notifempty
         create 664 debian-mirror debsources
+	su debian-mirror debsources
 }
