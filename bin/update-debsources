@@ -19,24 +19,14 @@
 
 import argparse
 import logging
+import sqlalchemy
 import string
 import sys
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 import bininit
 
 import mainlib
-
-from updater import update
-
-
-# list of per-action observers. Global variable
-observers = []
-
-# DB session maker. Singleton instance
-Session = sessionmaker()
+import updater
 
 
 def main():
@@ -89,9 +79,10 @@ def main():
         logging.warn('forcing triggers: %s' % conf['force_triggers'])
 
     try:
-        db = create_engine(conf['db_uri'])
+        db = sqlalchemy.create_engine(conf['db_uri'])
+        Session = sqlalchemy.orm.sessionmaker()
         session = Session(bind=db)
-        update(conf, session, observers)
+        updater.update(conf, session, observers)
         session.commit()
     except SystemExit:	# exit as requested
         raise
