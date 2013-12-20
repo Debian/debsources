@@ -22,17 +22,17 @@ import unittest
 import tempfile
 import json
 
+from nose.tools import istest
+from nose.plugins.attrib import attr
+
 # must be done before importig the app
 os.environ["DEBSOURCES_TESTING"] = "testing"
 from app import app
 
-thisdir = os.path.dirname(os.path.abspath(__file__))
-parentdir = os.path.dirname(thisdir)
-sys.path.insert(0,parentdir)
-
 from dbutils import sources2db
 
 
+@attr('webapp')
 class DebsourcesTestCase(unittest.TestCase):
     ClassIsSetup = False
     
@@ -44,13 +44,13 @@ class DebsourcesTestCase(unittest.TestCase):
         if not self.ClassIsSetup:
             print "Initializing testing environment"
             # run the real setup
-            self.setupClass()
+            self.my_setupClass()
             # remember that it was setup already
             self.__class__.ClassIsSetup = True
     
-    def setupClass(self):
+    def my_setupClass(self):
         try:
-            sources2db(os.path.join(thisdir, "tests/sources.txt"),
+            sources2db("sources.txt",
                        app.config["SQLALCHEMY_DATABASE_URI_TESTING"],
                        drop=True, verbose=False)
         except Exception as e:
