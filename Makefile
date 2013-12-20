@@ -3,4 +3,4 @@ all:
 	@false
 
 test:
-	nosetests --all-modules python/
+	nosetests python/
