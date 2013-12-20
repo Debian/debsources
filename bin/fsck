@@ -19,6 +19,8 @@
 
 # Check for DB/FS inconsistencies
 
+import bininit
+
 import argparse
 import logging
 import os
@@ -101,12 +103,15 @@ def main(conf, session, fix):
 
 if __name__ == '__main__':
     cmdline = argparse.ArgumentParser(description='Debsources fsck')
+    cmdline.add_argument('--config', '-c', dest='conffile',
+                         default=bininit.DEFAULT_CONFFILE,
+                         help='alternate configuration file')
     cmdline.add_argument('--fix', '-f',
                          action='store_true',
                          help='fix errors')
     args = cmdline.parse_args()
 
-    conf = mainlib.load_configuration()
+    conf = mainlib.load_configuration(args.conffile)
     mainlib.init_logging(conf, logging.INFO)
     (_observers, exts)  = mainlib.load_hooks(conf)
     file_extensions.extend(exts.keys())

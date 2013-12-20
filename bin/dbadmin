@@ -25,9 +25,7 @@ import time
 from sqlalchemy import create_engine
 from sqlalchemy.sql import exists
 
-pydir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                     'python')
-sys.path.insert(0, pydir)
+import bininit
 
 from models import Base
 

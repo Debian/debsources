@@ -22,11 +22,6 @@ import os
 import sys
 
 
-BINDIR = os.path.dirname(os.path.abspath(__file__))
-ROOTDIR = os.path.dirname(BINDIR)
-PYDIR = os.path.join(ROOTDIR, 'python')
-ETCDIR = os.path.join(ROOTDIR, 'etc')
-sys.path.insert(0, PYDIR)
 
 
 DEFAULT_CONFIG = {
@@ -53,15 +48,9 @@ LOG_LEVELS = {	# XXX module logging has no built-in way to do this conversion
 KNOWN_EVENTS = [ 'add-package', 'rm-package' ]
 
 
-def load_configuration(conffile=None):
+def load_configuration(conffile):
     """load configuration from file and return it as a (typed) dictionary
     """
-    if not conffile:
-        conffile = os.path.join(ETCDIR, 'config.ini')
-        alt_conffile = os.path.join(ETCDIR, 'config.local.ini')
-        if os.path.exists(alt_conffile):
-            conffile = alt_conffile
-
     conf = configparser.SafeConfigParser(DEFAULT_CONFIG)
     conf.read(conffile)
 

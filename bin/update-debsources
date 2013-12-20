@@ -30,6 +30,8 @@ from email.utils import formatdate
 from sqlalchemy import create_engine, func as sql_func
 from sqlalchemy.orm import sessionmaker
 
+import bininit
+
 import mainlib
 import dbutils
 import fs_storage
@@ -249,6 +251,7 @@ def update(conf, session):
 if __name__ == '__main__':
     cmdline = argparse.ArgumentParser(description='Debsources updater')
     cmdline.add_argument('--config', '-c', dest='conffile',
+                         default=bininit.DEFAULT_CONFFILE,
                          help='alternate configuration file')
     cmdline.add_argument('--dry-run', '-d', dest='dry',
                          action='store_true',
