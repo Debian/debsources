@@ -45,8 +45,6 @@ LOG_LEVELS = {	# XXX module logging has no built-in way to do this conversion
     'critical': logging.CRITICAL,
 }
 
-KNOWN_EVENTS = [ 'add-package', 'rm-package' ]
-
 
 def load_configuration(conffile):
     """load configuration from file and return it as a (typed) dictionary
@@ -79,11 +77,11 @@ def load_hooks(conf):
     dictionary mapping per-package file extensions (to be found in the
     filesystem storage) to the owner plugin
     """
-    observers = dict( [ (e, []) for e in KNOWN_EVENTS ] )
+    observers = updater.NO_OBSERVERS
     file_exts = {}
 
     def subscribe_callback(event, action, title=""):
-        if not event in KNOWN_EVENTS:
+        if not event in updater.KNOWN_EVENTS:
             raise ValueError('unknown event type "%s"' % event)
         observers[event].append((title, action))
 

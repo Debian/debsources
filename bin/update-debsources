@@ -45,7 +45,7 @@ def main():
     cmdline.add_argument('--trigger', '-t',
                          metavar='EVENT/HOOK',
                          action='append',
-                         help='force trigger of (Python) HOOK for EVENT. By default all registered hooks are triggered for all changed packages. Event is one of: %s. Hook is one of the available hooks. Can be specified multiple times. Warning: if not used with "--pass none" it might lead to multiple execution of the same hook. E.g.: -t add-package/checksums' % string.join(mainlib.KNOWN_EVENTS, ', '),
+                         help='force trigger of (Python) HOOK for EVENT. By default all registered hooks are triggered for all changed packages. Event is one of: %s. Hook is one of the available hooks. Can be specified multiple times. Warning: if not used with "--pass none" it might lead to multiple execution of the same hook. E.g.: -t add-package/checksums' % string.join(updater.KNOWN_EVENTS, ', '),
                          dest='force_triggers')
     cmdline.add_argument('--verbose', '-v',
                          action='count',
