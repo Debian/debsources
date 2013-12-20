@@ -118,15 +118,24 @@ def init_logging(conf, console_verbosity=logging.ERROR):
 
     log everythong to logfile, log errors to stderr. stderr will be shown on
     console for interactive use, or mailed by cron.
-    """
-    logging.basicConfig(level=logging.DEBUG,	# log everything by default
-                        format=LOG_FMT_FILE,
-                        datefmt=LOG_DATE_FMT,
-                        filename=conf['log_file'])
-    logger = logging.getLogger()
-    logger.handlers[0].setLevel(conf['log_level'])	# logfile verbosity
-    stderr_log = logging.StreamHandler()
-    stderr_log.setLevel(console_verbosity)	# console verbosity
-    stderr_log.setFormatter(logging.Formatter(LOG_FMT_STDERR))
-    logger.addHandler(stderr_log)
 
+    to completely disable logging to file ensure that the 'log_file' key is not
+    defined in conf
+    """
+    logger = logging.getLogger()
+
+    if conf.has_key('log_file'): # log to file and stderr, w/ different settings
+        logging.basicConfig(level=logging.DEBUG,	# log everything by default
+                            format=LOG_FMT_FILE,
+                            datefmt=LOG_DATE_FMT,
+                            filename=conf['log_file'])
+        logger.handlers[0].setLevel(conf['log_level'])	# logfile verbosity
+
+        stderr_log = logging.StreamHandler()
+        stderr_log.setLevel(console_verbosity)	# console verbosity
+        stderr_log.setFormatter(logging.Formatter(LOG_FMT_STDERR))
+        logger.addHandler(stderr_log)
+    else:	# only log to stderr
+        logging.basicConfig(level=console_verbosity,
+                            format=LOG_FMT_STDERR,
+                            datefmt=LOG_DATE_FMT)
