@@ -1,29 +1,38 @@
 #    -*- mode: org -*-
 
-* TODO [#A] database schema refactoring				      :model:
+* TODO [#A] suite support					      :infra:
+  to be able to compute statistics on a per-release basis
+
+* TODO [#A] end-to-end test suite for the infrastructure	:tests:infra:
+  use update-debsources-ng with a small Sources.gz
+
+* TODO [#A] [0/4] new stats happy			:web:stats:rrd:infra:
+  depends: "suite support"
+** TODO programming languages breakdown
+** TODO postgres db size
+** TODO ctags symbols
+** TODO number of {source,binary} packages
+
+* TODO [#A] circular import models -> views -> models		 :bug:python:
+  Import models from within python/ should just work. Instead, it fails due to
+  the circular import above. Also, models shoudn't depend on views, to allow
+  running the updater without flask and other web dependencies. The current
+  workaround is as per commit aa087026c414cb91ae7ee596acdc029a8b079130,
+  i.e. `from app import views` before `import models`. The plan to fix this is
+  to factor out of the webapp a proper config (and session) manager. See branch
+  feature/configmanager for the work in progress on this.
+
+* TODO [#B] database schema refactoring				      :model:
   - merge package and version into one table
   - create table File and use foreignkey(file) in CheckSum and Ctags
   - (un)distinguish Source and Binary packages where it is necessary
   - uniform reference to version_id (currently it's sometime version_id,
     other sourceversion_id)
 
-* TODO [#A] end-to-end test suite for the infrastructure	:tests:infra:
-  use update-debsources-ng with a small Sources.gz
-
 * TODO [#B] file-level deduplication, using checksums		      :infra:
   depends (to be done properly) on "database schema refactoring"
 
-* TODO [#B] suite support					      :infra:
-  to be able to compute statistics on a per-release basis
-
 * TODO check-in derivatives from the census		  :infra:derivatives:
-
-* TODO [#C] [0/4] new stats happy			:web:stats:rrd:infra:
-  depends: "suite support"
-** TODO programming languages breakdown
-** TODO postgres db size
-** TODO ctags symbols
-** TODO number of {source,binary} packages
 
 * TODO missing test: `/api/checksum/foo/`		      :web:api:tests:
 
