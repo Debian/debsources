@@ -22,6 +22,8 @@ import os
 import sys
 
 
+from app import views	# XXX work around while we fix circular import
+
 import updater
 
 
