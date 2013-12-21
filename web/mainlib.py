@@ -22,6 +22,7 @@ import os
 import sys
 
 
+import updater
 
 
 DEFAULT_CONFIG = {
