@@ -17,21 +17,68 @@
 
 from app import views	# XXX work around while we fix circular import
 
+import logging
+import os
+import shutil
+import sqlalchemy
+import subprocess
+import tempfile
 import unittest
 
 from nose.tools import istest
 from nose.plugins.attrib import attr
+from os.path import abspath, dirname
 
 import mainlib
 import models
-import os
+import updater
 
-from dbhelpers import DbTestFixture
+from dbhelpers import DbTestFixture, pg_dump
 
 
+THIS_DIR = dirname(abspath(__file__))
 TEST_DB_NAME = 'debsources-test'
-TEST_DB_DUMP = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                            'data/db/pg-dump-custom')
+TEST_DB_DUMP = os.path.join(THIS_DIR, 'data/db/pg-dump-custom')
+
+
+def compare_dirs(dir1, dir2, exclude=[]):
+    """recursively compare dir1 with dir2
+
+    return (True, None) if they are the same or a (False, diff) where diff is a
+    textual list of files that differ (as per "diff --brief")
+
+    """
+    try:
+        subprocess.check_output(['diff', '-Naur', '--brief'] +
+                                [ '--exclude=' + pat for pat in exclude ] +
+                                [dir1, dir2])
+        return True, None
+    except subprocess.CalledProcessError, e:
+        return False, e.output
+
+
+def mk_conf(tmpdir):
+    """return a debsources updater configuration that works in a temp dir
+
+    for testing purposes
+
+    """
+    conf = {
+        'bin_dir': abspath(os.path.join(THIS_DIR, '../../bin')),
+        'cache_dir': os.path.join(tmpdir, 'cache'),
+        'db_uri': 'postgresql:///' + TEST_DB_NAME,
+        'dry_run': False,
+        'expire_days': 0,
+        'force_triggers': '',
+        'hooks': ['sloccount', 'checksums', 'ctags', 'metrics'],
+        'mirror_dir': os.path.join(THIS_DIR, 'data/mirror'),
+        'passes': set(['hooks.fs', 'hooks', 'fs', 'db', 'hooks.db']),
+        'python_dir': abspath(os.path.join(THIS_DIR, '..')),
+        'root_dir': abspath(os.path.join(THIS_DIR, '../..')),
+        'sources_dir': os.path.join(tmpdir, 'sources'),
+    }
+    return conf
+
 
 @attr('infra')
 @attr('postgres')
@@ -39,14 +86,57 @@ TEST_DB_DUMP = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 class Db(unittest.TestCase, DbTestFixture):
 
     def setUp(self):
-        self.db_setup(TEST_DB_NAME, TEST_DB_DUMP)
+        self.db_setup(TEST_DB_NAME, TEST_DB_DUMP, echo=True)
+        self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
 
     def tearDown(self):
         self.db_teardown()
+        shutil.rmtree(self.tmpdir)
 
-    def testDummy(self):
-        pass
+    @istest
+    def updaterProducesReferenceDb(self):
+        # move tables to reference schema 'ref' and recreate them under 'public'
+        self.session.execute('CREATE SCHEMA ref');
+        for tblname, table in models.Base.metadata.tables.items():
+            self.session.execute('ALTER TABLE %s SET SCHEMA ref' % tblname)
+            self.session.execute(sqlalchemy.schema.CreateTable(table))
 
-    # @istest
-    # def updaterProducesReferenceDb():
-    #     pass	# TODO
+        # do a full update run in a virtual test environment
+        conf = mk_conf(self.tmpdir)
+        mainlib.init_logging(conf, console_verbosity=logging.WARNING)
+        (observers, file_exts)  = mainlib.load_hooks(conf)
+        updater.update(conf, self.session, observers)
+
+        # sources/ dir comparison. Ignored patterns:
+        # - plugin result caches -> because most of them are in os.walk()
+        #   order, which is not stable
+        # - dpkg-source log stored in *.log
+        exclude_pat = [ '*' + ext for ext in file_exts ] + [ '*.log' ]
+        dir_eq, dir_diff = compare_dirs(os.path.join(self.tmpdir, 'sources'),
+                                        os.path.join(THIS_DIR, 'data/sources'),
+                                        exclude=exclude_pat)
+        if not dir_eq:
+            print dir_diff
+        self.assertTrue(dir_eq)
+
+        # DB comparison
+        for tblname in models.Base.metadata.tables.keys():
+            if tblname == 'metrics':	# metrics are not stable due to 'du'
+                continue
+            if tblname == 'ctags':	# XXX LargeBinary seem incomparable
+                continue
+            if tblname == 'checksums':	# XXX LargeBinary seem incomparable
+                continue
+            ref_tblname = 'ref.' + tblname
+            for (t1, t2) in [(tblname, ref_tblname), (ref_tblname, tblname)]:
+                diff = self.session.execute(
+                    'SELECT * FROM %s EXCEPT SELECT * FROM %s' % (t1, t2))
+                if diff.rowcount > 0:
+                    print 'row in %s but not %s db (sample):' % (t1, t2), \
+                        diff.fetchone()
+                    self.session.rollback()
+                    (_f, dumppath) = tempfile.mkstemp(suffix='.debsources-dump')
+                    pg_dump(TEST_DB_NAME, dumppath)
+                    print 'test db dump saved as %s' % dumppath
+                self.assertEqual(diff.rowcount, 0,
+                                 msg='%d rows in %s \ %s' % (diff.rowcount, t1, t2))

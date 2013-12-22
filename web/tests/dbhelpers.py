@@ -24,6 +24,10 @@ import subprocess
 def pg_restore(dbname, dumpfile):
     subprocess.check_call(['pg_restore', '--dbname', dbname, dumpfile])
 
+def pg_dump(dbname, dumpfile):
+    subprocess.check_call(['pg_dump', '--no-owner', '--no-privileges', '-Fc',
+                           '-f', dumpfile, dbname])
+
 
 class DbTestFixture(object):
 
