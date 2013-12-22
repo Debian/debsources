@@ -216,6 +216,9 @@ def update(conf, session, observers=NO_OBSERVERS):
     logging.info('list mirror packages...')
     mirror = SourceMirror(conf['mirror_dir'])
 
+    if not os.path.exists(conf['cache_dir']):
+        os.makedirs(conf['cache_dir'])
+
     extract_new(conf, session, mirror, observers, dry)		# phase 1
     garbage_collect(conf, session, mirror, observers, dry)	# phase 2
     update_metadata(conf, session, dry)				# phase 3
