@@ -27,13 +27,13 @@ import dbutils
 import fs_storage
 
 from debmirror import SourceMirror, SourcePackage
-from models import Metric, Version
+from models import Metric, SuitesMapping, Version
 
 KNOWN_EVENTS = [ 'add-package', 'rm-package' ]
 NO_OBSERVERS = dict( [ (e, []) for e in KNOWN_EVENTS ] )
 
 
-# TODO fill tables: BinaryPackage, BinaryVersion, SuitesMapping
+# TODO fill tables: BinaryPackage, BinaryVersion
 # TODO get rid of shell hooks; they shall die a horrible death
 
 def notify(observers, conf, event, session, pkg, pkgdir):
@@ -105,7 +105,7 @@ def notify_plugins(observers, event, session, pkg, pkgdir,
 
 
 def extract_new(conf, session, mirror, observers=NO_OBSERVERS, dry=False):
-    """update phase 1: list mirror and extract new packages
+    """update phase: list mirror and extract new packages
 
     """
     logging.info('add new packages...')
@@ -143,7 +143,7 @@ def extract_new(conf, session, mirror, observers=NO_OBSERVERS, dry=False):
 
 
 def garbage_collect(conf, session, mirror, observers=NO_OBSERVERS, dry=False):
-    """update phase 2: list db and remove disappeared and expired packages
+    """update phase: list db and remove disappeared and expired packages
 
     """
     logging.info('garbage collection...')
@@ -181,8 +181,28 @@ def garbage_collect(conf, session, mirror, observers=NO_OBSERVERS, dry=False):
                 logging.exception('trigger failure on %s' % pkg)
 
 
+def update_suites(conf, session, mirror, dry=False):
+    """update phase: sweep and recreate suite mappings
+
+    """
+    if not dry:
+        session.query(SuitesMapping).delete()
+    for (suite, pkgs) in mirror.suites.iteritems():
+        for (pkg, version) in pkgs:
+            version = dbutils.lookup_version(session, pkg, version)
+            if not version:
+                logging.warn('cannot find package %s/%s mentioned by suite %s, skipping'
+                             % (pkg, version, suite))
+            else:
+                logging.info('add suite mapping: %s/%s -> %s'
+                             % (pkg, version, suite))
+                if not dry:
+                    suite_entry = SuitesMapping(version, suite)
+                    session.add(suite_entry)
+
+
 def update_metadata(conf, session, dry=False):
-    """update phase 3: update metadata and cached values
+    """update phase: update metadata and cached values
 
     """
     # TODO 'dry' argument is currently unused in this function
@@ -221,6 +241,7 @@ def update(conf, session, observers=NO_OBSERVERS):
 
     extract_new(conf, session, mirror, observers, dry)		# phase 1
     garbage_collect(conf, session, mirror, observers, dry)	# phase 2
-    update_metadata(conf, session, dry)				# phase 3
+    update_suites(conf, session, mirror, dry)			# phase 3
+    update_metadata(conf, session, dry)				# phase 4
 
     logging.info('finish')

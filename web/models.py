@@ -138,6 +138,10 @@ class SuitesMapping(Base):
                               nullable=False)
     suite = Column(String, index=True)
     
+    def __init__(self, version, suite):
+        self.sourceversion_id = version.id
+        self.suite = suite
+
 
 class Checksum(Base):
     __tablename__ = 'checksums'
