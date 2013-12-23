@@ -233,3 +233,13 @@ Archived entries from file /srv/debian/debsources.bugs/BUGS
   :END:
   to be able to compute statistics on a per-release basis
 
+
+* TODO [#A] end-to-end test suite for the infrastructure	:tests:infra:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2013-12-23 Mon 14:25
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  use update-debsources-ng with a small Sources.gz
+

@@ -1,8 +1,5 @@
 #    -*- mode: org -*-
 
-* TODO [#A] end-to-end test suite for the infrastructure	:tests:infra:
-  use update-debsources-ng with a small Sources.gz
-
 * TODO [#A] [0/4] new stats happy			:web:stats:rrd:infra:
   depends: "suite support"
 ** TODO programming languages breakdown
