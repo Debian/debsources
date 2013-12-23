@@ -1,8 +1,5 @@
 #    -*- mode: org -*-
 
-* TODO [#A] suite support					      :infra:
-  to be able to compute statistics on a per-release basis
-
 * TODO [#A] end-to-end test suite for the infrastructure	:tests:infra:
   use update-debsources-ng with a small Sources.gz
 
