@@ -86,7 +86,7 @@ def mk_conf(tmpdir):
 class Db(unittest.TestCase, DbTestFixture):
 
     def setUp(self):
-        self.db_setup(TEST_DB_NAME, TEST_DB_DUMP, echo=True)
+        self.db_setup(TEST_DB_NAME, TEST_DB_DUMP)
         self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
 
     def tearDown(self):
