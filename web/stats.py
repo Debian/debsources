@@ -21,16 +21,14 @@ from models import Metric, SuitesMapping, Version
 
 
 def size(session, suite=None):
-    if not suite:
-        size = session.query(sql_func.sum(Metric.value)) \
-                      .filter_by(metric='size').first()[0]
-    else:
-        size = session.query(sql_func.sum(Metric.value)) \
-                      .join(Version) \
-                      .join(SuitesMapping) \
-                      .filter(SuitesMapping.suite == suite) \
-                      .first()[0]
+    q = session.query(sql_func.sum(Metric.value)) \
+               .filter(Metric.metric == 'size')
+    if suite:
+        q = q.join(Version) \
+             .join(SuitesMapping) \
+             .filter(SuitesMapping.suite == suite)
 
+    size = q.first()[0]
     if not size:
         size = 0
 
