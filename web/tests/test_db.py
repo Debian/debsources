@@ -33,12 +33,10 @@ import mainlib
 import models
 import updater
 
-from dbhelpers import DbTestFixture, pg_dump
+from dbhelpers import DbTestFixture, pg_dump, TEST_DB_NAME, TEST_DB_DUMP
 
 
 THIS_DIR = dirname(abspath(__file__))
-TEST_DB_NAME = 'debsources-test'
-TEST_DB_DUMP = os.path.join(THIS_DIR, 'data/db/pg-dump-custom')
 
 
 def compare_dirs(dir1, dir2, exclude=[]):

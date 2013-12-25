@@ -15,10 +15,19 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import models
 import os
 import sqlalchemy
 import subprocess
+
+from os.path import abspath, dirname
+
+import models
+
+
+THIS_DIR = dirname(abspath(__file__))
+
+TEST_DB_NAME = 'debsources-test'
+TEST_DB_DUMP = os.path.join(THIS_DIR, 'data/db/pg-dump-custom')
 
 
 def pg_restore(dbname, dumpfile):
