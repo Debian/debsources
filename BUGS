@@ -28,7 +28,11 @@
 
 * TODO check-in derivatives from the census		  :infra:derivatives:
 
-* TODO missing test: `/api/checksum/foo/`		      :web:api:tests:
+* TODO missing test: `/api/checksum/foo/`		       :web:api:test:
+
+* TODO suite test data: differentiate sid and jessie		       :test:
+  Currently, the set of packages in sid and jessie are exactly the same. Add
+  one or more packages which is in sid but not in jessie.
 
 * TODO tarball-in-tarball 					  :infra:web:
   Explode nested tarballs, partly for some packaging habits still present in
