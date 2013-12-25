@@ -21,13 +21,13 @@ import subprocess
 
 from datetime import datetime
 from email.utils import formatdate
-from sqlalchemy import func as sql_func
 
 import dbutils
 import fs_storage
+import stats
 
 from debmirror import SourceMirror, SourcePackage
-from models import Metric, SuitesMapping, Version
+from models import SuitesMapping, Version
 
 KNOWN_EVENTS = [ 'add-package', 'rm-package' ]
 NO_OBSERVERS = dict( [ (e, []) for e in KNOWN_EVENTS ] )
@@ -209,10 +209,7 @@ def update_metadata(conf, session, dry=False):
 
     # update global stats file (most notably: size info in it)
     stats_file = os.path.join(conf['cache_dir'], 'stats.data')
-    total_size = session.query(sql_func.sum(Metric.value)) \
-                        .filter_by(metric='size').first()[0]
-    if not total_size:
-        total_size = 0
+    total_size = stats.size(session)
     with open(stats_file, 'w') as out:
         out.write('%s\t%d\n' % ('size', total_size))
 
