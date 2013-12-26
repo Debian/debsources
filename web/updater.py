@@ -21,7 +21,9 @@ import subprocess
 
 from datetime import datetime
 from email.utils import formatdate
+from sqlalchemy import distinct
 
+import consts
 import dbutils
 import fs_storage
 import stats
@@ -216,11 +218,38 @@ def update_metadata(conf, session, dry=False):
 
     ensure_cache_dir(conf)
 
-    # update global stats file (most notably: size info in it)
+    def store_sloccount_stats(summary, d, prefix_fmt):
+        """Update stats dictionary d with per-language sloccount statistics available
+        in summary, using prefix_fmt as the format string to create dictionary
+        keys. %s in the format string will be replaced by the language name.
+        Missing languages in summary will be stored as 0-value entries.
+
+        """
+        for lang in consts.SLOCCOUNT_LANGUAGES:
+            k = prefix_fmt % lang
+            v = 0
+            if summary.has_key(lang):
+                v = summary[lang]
+            d[k] = v
+
+    # compute stats
+    stat = {}
+    stat['size'] = stats.size(session)
+    store_sloccount_stats(stats.sloccount_summary(session),
+                          stat, 'sloccount.%s')
+    for suite in session.query(distinct(SuitesMapping.suite)).all():
+        suite = suite[0]	# SQL projection of the only field
+        stat['size.debian_' + suite] = stats.size(session, suite)
+        slocs = stats.sloccount_summary(session, suite)
+        store_sloccount_stats(slocs, stat, 'sloccount.%s.debian_' + suite)
+        slocs_suite = reduce(lambda locs,acc: locs+acc, slocs.itervalues())
+        stat['sloccount.debian_' + suite] = slocs_suite
+
+    # cache computed stats to on-disk stats file
     stats_file = os.path.join(conf['cache_dir'], 'stats.data')
-    total_size = stats.size(session)
     with open(stats_file, 'w') as out:
-        out.write('%s\t%d\n' % ('size', total_size))
+        for k, v in sorted(stat.iteritems()):
+            out.write('%s\t%d\n' % (k, v))
 
     # update package prefixes list
     with open(os.path.join(conf['cache_dir'], 'pkg-prefixes'), 'w') as out:
