@@ -22,7 +22,7 @@ import unittest
 from nose.tools import istest
 from nose.plugins.attrib import attr
 
-import stats
+import statistics
 
 from dbhelpers import DbTestFixture, pg_dump
 
@@ -50,8 +50,8 @@ class Stats(unittest.TestCase, DbTestFixture):
         }
         total_size = 122628
         for suite, size in sizes.iteritems():
-            self.assertEqual(size, stats.size(self.session, suite=suite))
-        self.assertEqual(total_size, stats.size(self.session))
+            self.assertEqual(size, statistics.size(self.session, suite=suite))
+        self.assertEqual(total_size, statistics.size(self.session))
 
 
     @istest
@@ -77,9 +77,10 @@ class Stats(unittest.TestCase, DbTestFixture):
         slocs_python = 7760
         slocs_cpp_exp = 36755
         self.assertEqual(slocs_jessie,
-                         stats.sloccount_summary(self.session, suite='jessie'))
+                         statistics.sloccount_summary(self.session,
+                                                      suite='jessie'))
         self.assertEqual(slocs_python,
-                         stats.sloccount_lang(self.session, 'python'))
+                         statistics.sloccount_lang(self.session, 'python'))
         self.assertEqual(slocs_cpp_exp,
-                         stats.sloccount_lang(self.session, 'cpp',
+                         statistics.sloccount_lang(self.session, 'cpp',
                                               suite='experimental'))
