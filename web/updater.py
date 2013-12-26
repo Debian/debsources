@@ -210,11 +210,11 @@ def update_suites(conf, session, mirror, dry=False):
                     session.add(suite_entry)
 
 
-def update_metadata(conf, session, dry=False):
-    """update phase: update metadata and cached values
+def update_statistics(conf, session, dry=False):
+    """update phase: update statistics
 
     """
-    # TODO 'dry' argument is currently unused in this function
+    # TODO 'dry' argument unused in this function
 
     ensure_cache_dir(conf)
 
@@ -251,6 +251,15 @@ def update_metadata(conf, session, dry=False):
         for k, v in sorted(stats.iteritems()):
             out.write('%s\t%d\n' % (k, v))
 
+
+def update_metadata(conf, session, dry=False):
+    """update phase: update metadata
+
+    """
+    # TODO 'dry' argument unused in this function
+
+    ensure_cache_dir(conf)
+
     # update package prefixes list
     with open(os.path.join(conf['cache_dir'], 'pkg-prefixes'), 'w') as out:
         for prefix in SourceMirror(conf['mirror_dir']).pkg_prefixes():
@@ -274,6 +283,7 @@ def update(conf, session, observers=NO_OBSERVERS):
     extract_new(conf, session, mirror, observers, dry)		# phase 1
     garbage_collect(conf, session, mirror, observers, dry)	# phase 2
     update_suites(conf, session, mirror, dry)			# phase 3
-    update_metadata(conf, session, dry)				# phase 4
+    update_statistics(conf, session, dry)			# phase 4
+    update_metadata(conf, session, dry)				# phase 5
 
     logging.info('finish')

@@ -163,7 +163,7 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
         self.db_setup()
         self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
         self.conf = mk_conf(self.tmpdir)
-        updater.update_metadata(self.conf, self.session)
+        updater.update_statistics(self.conf, self.session)
         self.stats = self.parse_stats(
             os.path.join(self.conf['cache_dir'], 'stats.data'))
 
