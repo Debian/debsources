@@ -104,10 +104,17 @@ def notify_plugins(observers, event, session, pkg, pkgdir,
             raise
 
 
+def ensure_cache_dir(conf):
+    if not os.path.exists(conf['cache_dir']):
+        os.makedirs(conf['cache_dir'])
+
+
 def extract_new(conf, session, mirror, observers=NO_OBSERVERS, dry=False):
     """update phase: list mirror and extract new packages
 
     """
+    ensure_cache_dir(conf)
+
     logging.info('add new packages...')
     src_list_path = os.path.join(conf['cache_dir'], 'sources.txt')
     src_list = open(src_list_path + '.new', 'w')
@@ -207,6 +214,8 @@ def update_metadata(conf, session, dry=False):
     """
     # TODO 'dry' argument is currently unused in this function
 
+    ensure_cache_dir(conf)
+
     # update global stats file (most notably: size info in it)
     stats_file = os.path.join(conf['cache_dir'], 'stats.data')
     total_size = stats.size(session)
@@ -232,9 +241,6 @@ def update(conf, session, observers=NO_OBSERVERS):
     logging.info('start')
     logging.info('list mirror packages...')
     mirror = SourceMirror(conf['mirror_dir'])
-
-    if not os.path.exists(conf['cache_dir']):
-        os.makedirs(conf['cache_dir'])
 
     extract_new(conf, session, mirror, observers, dry)		# phase 1
     garbage_collect(conf, session, mirror, observers, dry)	# phase 2
