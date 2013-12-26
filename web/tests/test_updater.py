@@ -150,16 +150,6 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
 
     """
 
-    def setUp(self):
-        self.db_setup()
-        self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
-        self.conf = mk_conf(self.tmpdir)
-        updater.update_metadata(self.conf, self.session)
-
-    def tearDown(self):
-        self.db_teardown()
-        shutil.rmtree(self.tmpdir)
-
     @staticmethod
     def parse_stats(fname):
         """return the parsed content of stats.data as a dictionary"""
@@ -169,9 +159,36 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
             stats[k] = int(v)
         return stats
 
+    def setUp(self):
+        self.db_setup()
+        self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
+        self.conf = mk_conf(self.tmpdir)
+        updater.update_metadata(self.conf, self.session)
+        self.stats = self.parse_stats(
+            os.path.join(self.conf['cache_dir'], 'stats.data'))
+
+    def tearDown(self):
+        self.db_teardown()
+        shutil.rmtree(self.tmpdir)
+
     @istest
     def sizeMatchesReferenceDb(self):
         EXPECTED_SIZE = 122628
-        stats = self.parse_stats(
-            os.path.join(self.conf['cache_dir'], 'stats.data'))
-        self.assertEqual(EXPECTED_SIZE, stats['size'])
+        self.assertEqual(EXPECTED_SIZE, self.stats['size'])
+
+    @istest
+    def sloccountsMatchReferenceDb(self):
+        EXPECTED_STATS = {	# just a few samples
+            'size.debian_experimental': 6520,
+            'sloccount.awk.debian_sid': 25,
+            'sloccount.cpp.debian_sid': 41458,
+            'sloccount.cpp.debian_squeeze': 36508,
+            'sloccount.cpp.debian_wheezy': 37375,
+            'sloccount.perl': 1838,
+            'sloccount.python': 7760,
+            'sloccount.python.debian_wheezy': 2798,
+            'sloccount.ruby.debian_squeeze': 193,
+            'sloccount.ruby.debian_wheezy': 193,
+        }
+        for k, v in EXPECTED_STATS.iteritems():
+            self.assertEqual(EXPECTED_STATS[k], self.stats[k])
