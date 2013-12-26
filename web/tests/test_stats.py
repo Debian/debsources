@@ -30,11 +30,14 @@ from dbhelpers import DbTestFixture, pg_dump, TEST_DB_NAME, TEST_DB_DUMP
 @attr('infra')
 class Stats(unittest.TestCase, DbTestFixture):
 
+
     def setUp(self):
         self.db_setup(TEST_DB_NAME, TEST_DB_DUMP)
 
+
     def tearDown(self):
         self.db_teardown()
+
 
     @istest
     def sizeTotalsMatchReferenceDb(self):
@@ -49,3 +52,8 @@ class Stats(unittest.TestCase, DbTestFixture):
         for suite, size in sizes.iteritems():
             self.assertEqual(size, stats.size(self.session, suite=suite))
         self.assertEqual(total_size, stats.size(self.session))
+
+
+    @istest
+    def slocTotalsMatchReferenceDb(self):
+        pass	# TODO

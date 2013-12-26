@@ -17,7 +17,7 @@
 
 from sqlalchemy import func as sql_func
 
-from models import Metric, SuitesMapping, Version
+from models import Metric, SlocCount, SuitesMapping, Version
 
 
 def size(session, suite=None):
@@ -33,3 +33,39 @@ def size(session, suite=None):
         size = 0
 
     return size
+
+
+def sloccount_lang(session, language, suite=None):
+    """query the DB via session and return the LOCS written in language
+
+    return LOCS relative to suite, if given, or DB-wide if not
+
+    """
+    q = session.query(sql_func.sum(SlocCount.count)) \
+               .filter(SlocCount.language == language)
+    if suite:
+        q = q.join(Version) \
+             .join(SuitesMapping) \
+             .filter(SuitesMapping.suite == suite)
+
+    count = q.first()[0]
+    if not count:
+        count = 0
+
+    return count
+
+
+def sloccount_summary(session, suite=None):
+    """query the DB via session and return a per-language summary of LOCS
+
+    return summary relative to suite, if given, or DB-wide if not
+
+    """
+    q = session.query(SlocCount.language, sql_func.sum(SlocCount.count))
+    if suite:
+        q = q.join(Version) \
+             .join(SuitesMapping) \
+             .filter(SuitesMapping.suite == suite)
+    q = q.group_by(SlocCount.language)
+
+    return dict(q.all())
