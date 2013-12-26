@@ -81,7 +81,7 @@ def mk_conf(tmpdir):
 @attr('infra')
 @attr('postgres')
 @attr('slow')
-class Db(unittest.TestCase, DbTestFixture):
+class Updater(unittest.TestCase, DbTestFixture):
 
     def setUp(self):
         self.db_setup()
