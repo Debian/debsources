@@ -56,4 +56,30 @@ class Stats(unittest.TestCase, DbTestFixture):
 
     @istest
     def slocTotalsMatchReferenceDb(self):
-        pass	# TODO
+        slocs_jessie = {
+            'ansic': 140353,
+            'asm': 65,
+            'awk': 25,
+            'cpp': 41458,
+            'cs': 1213,
+            'java': 916,
+            'lex': 223,
+            'lisp': 2167,
+            'ml': 5044,
+            'objc': 836,
+            'perl': 64,
+            'python': 2916,
+            'ruby': 193,
+            'sh': 25022,
+            'xml': 14932,
+            'yacc': 312,
+        }
+        slocs_python = 7760
+        slocs_cpp_exp = 36755
+        self.assertEqual(slocs_jessie,
+                         stats.sloccount_summary(self.session, suite='jessie'))
+        self.assertEqual(slocs_python,
+                         stats.sloccount_lang(self.session, 'python'))
+        self.assertEqual(slocs_cpp_exp,
+                         stats.sloccount_lang(self.session, 'cpp',
+                                              suite='experimental'))
