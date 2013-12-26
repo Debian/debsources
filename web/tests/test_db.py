@@ -33,7 +33,7 @@ import mainlib
 import models
 import updater
 
-from dbhelpers import DbTestFixture, pg_dump, TEST_DB_NAME, TEST_DB_DUMP
+from dbhelpers import DbTestFixture, pg_dump, TEST_DB_NAME
 
 
 THIS_DIR = dirname(abspath(__file__))
@@ -84,7 +84,7 @@ def mk_conf(tmpdir):
 class Db(unittest.TestCase, DbTestFixture):
 
     def setUp(self):
-        self.db_setup(TEST_DB_NAME, TEST_DB_DUMP)
+        self.db_setup()
         self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
 
     def tearDown(self):

@@ -24,7 +24,7 @@ from nose.plugins.attrib import attr
 
 import stats
 
-from dbhelpers import DbTestFixture, pg_dump, TEST_DB_NAME, TEST_DB_DUMP
+from dbhelpers import DbTestFixture, pg_dump
 
 
 @attr('infra')
@@ -32,7 +32,7 @@ class Stats(unittest.TestCase, DbTestFixture):
 
 
     def setUp(self):
-        self.db_setup(TEST_DB_NAME, TEST_DB_DUMP)
+        self.db_setup()
 
 
     def tearDown(self):
