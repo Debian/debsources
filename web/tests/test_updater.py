@@ -138,3 +138,40 @@ class Updater(unittest.TestCase, DbTestFixture):
                     print 'test db dump saved as %s' % dumppath
                 self.assertEqual(diff.rowcount, 0,
                                  msg='%d rows in %s \ %s' % (diff.rowcount, t1, t2))
+
+
+@attr('infra')
+@attr('cache')
+@attr('metadata')
+class MetadataCache(unittest.TestCase, DbTestFixture):
+    """tests for on-disk cache of debsources metadata
+
+    usually stored in cache/stats.data
+
+    """
+
+    def setUp(self):
+        self.db_setup()
+        self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
+        self.conf = mk_conf(self.tmpdir)
+        updater.update_metadata(self.conf, self.session)
+
+    def tearDown(self):
+        self.db_teardown()
+        shutil.rmtree(self.tmpdir)
+
+    @staticmethod
+    def parse_stats(fname):
+        """return the parsed content of stats.data as a dictionary"""
+        stats = {}
+        for line in open(fname):
+            k, v = line.split()
+            stats[k] = int(v)
+        return stats
+
+    @istest
+    def sizeMatchesReferenceDb(self):
+        EXPECTED_SIZE = 122628
+        stats = self.parse_stats(
+            os.path.join(self.conf['cache_dir'], 'stats.data'))
+        self.assertEqual(EXPECTED_SIZE, stats['size'])
