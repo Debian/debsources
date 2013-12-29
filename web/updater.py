@@ -111,7 +111,7 @@ def ensure_cache_dir(conf):
         os.makedirs(conf['cache_dir'])
 
 
-def extract_new(conf, session, mirror, observers=NO_OBSERVERS, dry=False):
+def extract_new(conf, session, mirror, observers=NO_OBSERVERS):
     """update phase: list mirror and extract new packages
 
     """
@@ -125,15 +125,15 @@ def extract_new(conf, session, mirror, observers=NO_OBSERVERS, dry=False):
         if not dbutils.lookup_version(session, pkg['package'], pkg['version']):
             try:
                 logging.info('add %s...' % pkg)
-                if not dry and 'fs' in conf['passes']:
+                if not conf['dry_run'] and 'fs' in conf['passes']:
                     fs_storage.extract_package(pkg, pkgdir)
                 with session.begin_nested():
                     # single db session for package addition and hook
                     # execution: if the hooks fail, the package won't be
                     # added to the db (it will be tried again at next run)
-                    if not dry and 'db' in conf['passes']:
+                    if not conf['dry_run'] and 'db' in conf['passes']:
                         dbutils.add_package(session, pkg)
-                    if not dry and 'hooks' in conf['passes']:
+                    if not conf['dry_run'] and 'hooks' in conf['passes']:
                         notify(observers, conf,
                                'add-package', session, pkg, pkgdir)
             except:
@@ -141,7 +141,7 @@ def extract_new(conf, session, mirror, observers=NO_OBSERVERS, dry=False):
         if conf['force_triggers']:
             try:
                 notify_plugins(observers, 'add-package', session, pkg, pkgdir,
-                               triggers=conf['force_triggers'], dry=dry)
+                               triggers=conf['force_triggers'], dry=conf['dry_run'])
             except:
                 logging.exception('trigger failure on %s' % pkg)
         src_list.write('%s\t%s\t%s\t%s\t%s\n' %
@@ -151,7 +151,7 @@ def extract_new(conf, session, mirror, observers=NO_OBSERVERS, dry=False):
     os.rename(src_list_path + '.new', src_list_path)
 
 
-def garbage_collect(conf, session, mirror, observers=NO_OBSERVERS, dry=False):
+def garbage_collect(conf, session, mirror, observers=NO_OBSERVERS):
     """update phase: list db and remove disappeared and expired packages
 
     """
@@ -171,11 +171,11 @@ def garbage_collect(conf, session, mirror, observers=NO_OBSERVERS, dry=False):
                           - datetime.fromtimestamp(os.path.getmtime(pkgdir))
                 if not age or age.days >= expire_days:
                     logging.info("gc %s..." % pkg)
-                    if not dry and 'hooks' in conf['passes']:
+                    if not conf['dry_run'] and 'hooks' in conf['passes']:
                         notify(conf, 'rm-package', session, pkg, pkgdir)
-                    if not dry and 'fs' in conf['passes']:
+                    if not conf['dry_run'] and 'fs' in conf['passes']:
                         fs_storage.remove_package(pkg, pkgdir)
-                    if not dry and 'db' in conf['passes']:
+                    if not conf['dry_run'] and 'db' in conf['passes']:
                         with session.begin_nested():
                             dbutils.rm_package(session, pkg, version)
                 else:
@@ -185,16 +185,16 @@ def garbage_collect(conf, session, mirror, observers=NO_OBSERVERS, dry=False):
         if conf['force_triggers']:
             try:
                 notify_plugins(observers, 'rm-package', session, pkg, pkgdir,
-                               triggers=conf['force_triggers'], dry=dry)
+                               triggers=conf['force_triggers'], dry=conf['dry_run'])
             except:
                 logging.exception('trigger failure on %s' % pkg)
 
 
-def update_suites(conf, session, mirror, dry=False):
+def update_suites(conf, session, mirror):
     """update phase: sweep and recreate suite mappings
 
     """
-    if not dry:
+    if not conf['dry_run']:
         session.query(SuitesMapping).delete()
     for (suite, pkgs) in mirror.suites.iteritems():
         for (pkg, version) in pkgs:
@@ -205,16 +205,16 @@ def update_suites(conf, session, mirror, dry=False):
             else:
                 logging.info('add suite mapping: %s/%s -> %s'
                              % (pkg, version, suite))
-                if not dry:
+                if not conf['dry_run']:
                     suite_entry = SuitesMapping(version, suite)
                     session.add(suite_entry)
 
 
-def update_statistics(conf, session, dry=False):
+def update_statistics(conf, session):
     """update phase: update statistics
 
     """
-    # TODO 'dry' argument unused in this function
+    # TODO conf['dry_run'] unused in this function, should be used
 
     ensure_cache_dir(conf)
 
@@ -252,11 +252,11 @@ def update_statistics(conf, session, dry=False):
             out.write('%s\t%d\n' % (k, v))
 
 
-def update_metadata(conf, session, dry=False):
+def update_metadata(conf, session):
     """update phase: update metadata
 
     """
-    # TODO 'dry' argument unused in this function
+    # TODO conf['dry_run'] unused in this function, should be used
 
     ensure_cache_dir(conf)
 
@@ -274,16 +274,14 @@ def update_metadata(conf, session, dry=False):
 def update(conf, session, observers=NO_OBSERVERS):
     """do a full update run
     """
-    dry = conf['dry_run']
-
     logging.info('start')
     logging.info('list mirror packages...')
     mirror = SourceMirror(conf['mirror_dir'])
 
-    extract_new(conf, session, mirror, observers, dry)		# phase 1
-    garbage_collect(conf, session, mirror, observers, dry)	# phase 2
-    update_suites(conf, session, mirror, dry)			# phase 3
-    update_statistics(conf, session, dry)			# phase 4
-    update_metadata(conf, session, dry)				# phase 5
+    extract_new(conf, session, mirror, observers)	# phase 1
+    garbage_collect(conf, session, mirror, observers)	# phase 2
+    update_suites(conf, session, mirror)		# phase 3
+    update_statistics(conf, session)			# phase 4
+    update_metadata(conf, session)			# phase 5
 
     logging.info('finish')
