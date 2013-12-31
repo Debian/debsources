@@ -27,8 +27,6 @@ from sqlalchemy.sql import exists
 
 import bininit
 
-from app import views	# XXX work around while we fix circular import
-
 from models import Base
 
 

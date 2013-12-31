@@ -52,7 +52,9 @@ def skeleton_variables():
     except IOError:
         last_update = "unknown"
     
-    return dict(packages_prefixes = Package.get_packages_prefixes(),
+    packages_prefixes = Package.get_packages_prefixes(app.config["CACHE_DIR"])
+    
+    return dict(packages_prefixes=packages_prefixes,
                 searchform = SearchForm(),
                 last_update=last_update)
 
@@ -341,7 +343,7 @@ app.add_url_rule('/api/list/', view_func=ListpackagesView.as_view(
 class PrefixView(GeneralView):
     def get_objects(self, prefix='a'):
         """ returns the packages beginning with prefix """
-        if prefix in Package.get_packages_prefixes():
+        if prefix in Package.get_packages_prefixes(app.config["CACHE_DIR"]):
             try:
                 packages = (session.query(Package)
                             .filter(Package.name.startswith(prefix))
@@ -409,7 +411,7 @@ class SourceView(GeneralView):
         """
         # we list the versions
         try:
-            versions = Package.list_versions_from_name(packagename)
+            versions = Package.list_versions_from_name(session, packagename)
         except InvalidPackageOrVersionError:
             raise Http404Error("%s not found" % packagename)
             
@@ -426,7 +428,9 @@ class SourceView(GeneralView):
         renders a location page, can be a folder or a file
         """
         try:
-            location = Location(package, version, path)
+            location = Location(app.config["SOURCES_DIR"],
+                                app.config["SOURCES_STATIC"],
+                                package, version, path)
         except FileOrFolderNotFound as e:
             raise Http404Error(e)
         except InvalidPackageOrVersionError as e:
@@ -468,8 +472,8 @@ class SourceView(GeneralView):
         """
         file_ = SourceFile(location)
         
-        checksum = file_.get_sha256sum()
-        number_of_duplicates = Checksum.count_files_with_sum(checksum)
+        checksum = file_.get_sha256sum(session)
+        number_of_duplicates = Checksum.count_files_with_sum(session, checksum)
         
         return dict(type="file",
                     file=location.get_deepest_element(),
@@ -491,7 +495,7 @@ class SourceView(GeneralView):
         when 'latest' is provided instead of a version number
         """
         try:
-            versions = Package.list_versions_from_name(package)
+            versions = Package.list_versions_from_name(session, package)
         except InvalidPackageOrVersionError:
             raise Http404Error("%s not found" % package)
         # the latest version is the latest item in the
@@ -657,15 +661,15 @@ class ChecksumView(GeneralView):
             start = (page - 1) * offset
             end = start + offset
             slice_ = (start, end)
-            count = Checksum.count_files_with_sum(checksum, package=package)
+            count = Checksum.count_files_with_sum(session, checksum, package=package)
             pagination = Pagination(page, offset, count)
         else:
             pagination = None
             slice_ = None
         
-        results = Checksum.files_with_sum(checksum, slice_=slice_,
+        results = Checksum.files_with_sum(session, checksum, slice_=slice_,
                                               package=package)
-        count = Checksum.count_files_with_sum(checksum, package=package)
+        count = Checksum.count_files_with_sum(session, checksum, package=package)
         
         return dict(results=results,
                     sha256=checksum,

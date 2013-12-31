@@ -27,12 +27,6 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from debian.debian_support import version_compare
 
-from app import app, session
-# TODO: get rid of `from app import foo`
-# models.py must NOT depend on app
-# create config.py, and let it handle the configuration (instead of app/__init__)
-# and move session creation from app/__init__ to sqla_session
-
 from excepts import InvalidPackageOrVersionError, FileOrFolderNotFound
 from consts import MAX_KEY_LENGTH, VCS_TYPES, SLOCCOUNT_LANGUAGES, \
     CTAGS_LANGUAGES, METRIC_TYPES, AREAS, PREFIXES_DEFAULT
@@ -58,12 +52,13 @@ class Package(Base):
         return self.name
     
     @staticmethod
-    def get_packages_prefixes():
+    def get_packages_prefixes(cache_dir):
         """
         returns the packages prefixes (a, b, ..., liba, libb, ..., y, z)
+        cache_dir: the cache directory, usually comes from the app config
         """
         try:
-            with open(os.path.join(app.config['CACHE_DIR'], 'pkg-prefixes')) as f:
+            with open(os.path.join(cache_dir, 'pkg-prefixes')) as f:
                 prefixes = [ l.rstrip() for l in f ]
         except IOError:
             prefixes = PREFIXES_DEFAULT
@@ -71,7 +66,7 @@ class Package(Base):
 
     
     @staticmethod
-    def list_versions_from_name(packagename):
+    def list_versions_from_name(session, packagename):
          try:
              package_id = session.query(Package).filter(
                  Package.name==packagename).first().id
@@ -159,7 +154,7 @@ class Checksum(Base):
         self.sha256 = sha256
     
     @staticmethod
-    def _query_checksum(checksum, package=None):
+    def _query_checksum(session, checksum, package=None):
         """
         Returns the query used to retrieve checksums/count checksums.
         """
@@ -178,7 +173,7 @@ class Checksum(Base):
         
 
     @staticmethod
-    def files_with_sum(checksum, slice_=None, package=None):
+    def files_with_sum(session, checksum, slice_=None, package=None):
         """
         Returns a list of files whose hexdigest is checksum.
         You can slice the results, passing slice=(start, end).
@@ -186,7 +181,7 @@ class Checksum(Base):
         # here we use db.session.query() instead of Class.query,
         # because after all "pure" SQLAlchemy is better than the
         # Flask-SQLAlchemy plugin.
-        results = Checksum._query_checksum(checksum, package=package)
+        results = Checksum._query_checksum(session, checksum, package=package)
         
         if slice_ is not None:
             results = results.slice(slice_[0], slice_[1])
@@ -198,8 +193,9 @@ class Checksum(Base):
                 for res in results]
     
     @staticmethod
-    def count_files_with_sum(checksum, package=None):
-        count = Checksum._query_checksum(checksum, package=package).count()
+    def count_files_with_sum(session, checksum, package=None):
+        count = (Checksum._query_checksum(session, checksum, package=package)
+                 .count())
         
         return count
 
@@ -352,13 +348,15 @@ class Metric(Base):
 class Location(object):
     """ a location in a package, can be a directory or a file """
     
-    def _get_debian_path(self, package, version):
+    def _get_debian_path(self, package, version, sources_dir):
         """
         Returns the Debian path of a package version.
         For example: main/h
                      contrib/libz
         It's the path of a *version*, since a package can have multiple
         versions in multiple areas (ie main/contrib/nonfree).
+        
+        sources_dir: the sources directory, usually comes from the app config
         """
         if package[0:3] == "lib":
             prefix = package[0:4]
@@ -379,7 +377,7 @@ class Location(object):
             # Problem: we don't know the area of such a package
             # so we try in main, contrib and non-free.
             for area in AREAS:
-                if os.path.exists(os.path.join(app.config["SOURCES_DIR"],
+                if os.path.exists(os.path.join(sources_dir,
                                           area, prefix, package, version)):
                     return os.path.join(area, prefix)
             
@@ -387,16 +385,17 @@ class Location(object):
         
         return os.path.join(varea, prefix)
     
-    def __init__(self, package, version="", path=""):
+    def __init__(self, sources_dir, sources_static,
+                 package, version="", path=""):
         """ initialises useful attributes """
-        debian_path = self._get_debian_path(package, version)
+        debian_path = self._get_debian_path(package, version, sources_dir)
         self.package = package
         self.version = version
         self.path = path
         self.path_to = os.path.join(package, version, path)
         
         self.sources_path = os.path.join(
-            app.config['SOURCES_DIR'],
+            sources_dir,
             debian_path,
             self.path_to)
 
@@ -404,7 +403,7 @@ class Location(object):
             raise FileOrFolderNotFound("%s" % (self.path_to))
         
         self.sources_path_static = os.path.join(
-            app.config['SOURCES_STATIC'],
+            sources_static,
             debian_path,
             self.path_to)
     
@@ -512,7 +511,7 @@ class SourceFile(object):
     def get_mime(self):
         return self.mime
     
-    def get_sha256sum(self):
+    def get_sha256sum(self, session):
         """
         Queries the DB and returns the shasum of the file.
         """
@@ -531,7 +530,7 @@ class SourceFile(object):
                       .first()
                       )[0]
         except Exception as e:
-            app.logger.error(e)
+            #app.logger.error(e)
             shasum = None
         return shasum
     
