@@ -129,6 +129,8 @@
   see test_updater.py for reference
 
 * TODO evaluate the possibility of sources.d.o			  :infra:dsa:
+  conversation started by Zack with DSA
+  Message-ID: <20131229152159.GA8400@upsilon.cc>
 
 * TODO add binary->source redirection map			  :infra:web:
   Idea: http://sources.d.n/src/FOO -> http://sources.d.n/src/MAP[FOO], as long
