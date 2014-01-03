@@ -17,6 +17,7 @@
 
 import logging
 import os
+import string
 import subprocess
 
 from datetime import datetime
@@ -33,6 +34,27 @@ from models import SuitesMapping, Version
 
 KNOWN_EVENTS = [ 'add-package', 'rm-package' ]
 NO_OBSERVERS = dict( [ (e, []) for e in KNOWN_EVENTS ] )
+
+
+class UpdateStatus(object):
+    """store update status during update runs"""
+
+    def __init__(self):
+        self._sources = {}
+
+    @property
+    def sources(self):
+        """entries for the on-disk cache of source packages (AKA sources.txt)
+
+        sources is a dictionary from pairs <SRC_NAME, SRC_VERSION> to tuples
+        <AREA, DSC, UNPACK_DIR, SUITES>, where SUITES is a list of SUITE_NAMEs
+
+        """
+        return self._sources
+
+    @sources.setter
+    def sources(self, new_sources):
+        self._sources = new_sources
 
 
 # TODO fill tables: BinaryPackage, BinaryVersion
@@ -111,15 +133,13 @@ def ensure_cache_dir(conf):
         os.makedirs(conf['cache_dir'])
 
 
-def extract_new(conf, session, mirror, observers=NO_OBSERVERS):
+def extract_new(status, conf, session, mirror, observers=NO_OBSERVERS):
     """update phase: list mirror and extract new packages
 
     """
     ensure_cache_dir(conf)
 
     logging.info('add new packages...')
-    src_list_path = os.path.join(conf['cache_dir'], 'sources.txt')
-    src_list = open(src_list_path + '.new', 'w')
     for pkg in mirror.ls():
         pkgdir = pkg.extraction_dir(conf['sources_dir'])
         if not dbutils.lookup_version(session, pkg['package'], pkg['version']):
@@ -144,14 +164,12 @@ def extract_new(conf, session, mirror, observers=NO_OBSERVERS):
                                triggers=conf['force_triggers'], dry=conf['dry_run'])
             except:
                 logging.exception('trigger failure on %s' % pkg)
-        src_list.write('%s\t%s\t%s\t%s\t%s\n' %
-                       (pkg['package'], pkg['version'], pkg.archive_area(),
-                        pkg.dsc_path(), pkgdir))
-    src_list.close()
-    os.rename(src_list_path + '.new', src_list_path)
+        # add entry for sources.txt, temporarily with no suite associated
+        pkg_id = (pkg['package'], pkg['version'])
+        status.sources[pkg_id] = pkg.archive_area(), pkg.dsc_path(), pkgdir, []
 
 
-def garbage_collect(conf, session, mirror, observers=NO_OBSERVERS):
+def garbage_collect(status, conf, session, mirror, observers=NO_OBSERVERS):
     """update phase: list db and remove disappeared and expired packages
 
     """
@@ -190,14 +208,15 @@ def garbage_collect(conf, session, mirror, observers=NO_OBSERVERS):
                 logging.exception('trigger failure on %s' % pkg)
 
 
-def update_suites(conf, session, mirror):
+def update_suites(status, conf, session, mirror):
     """update phase: sweep and recreate suite mappings
 
     """
     if not conf['dry_run']:
         session.query(SuitesMapping).delete()
     for (suite, pkgs) in mirror.suites.iteritems():
-        for (pkg, version) in pkgs:
+        for pkg_id in pkgs:
+            (pkg, version) = pkg_id
             version = dbutils.lookup_version(session, pkg, version)
             if not version:
                 logging.warn('cannot find package %s/%s mentioned by suite %s, skipping'
@@ -208,9 +227,26 @@ def update_suites(conf, session, mirror):
                 if not conf['dry_run']:
                     suite_entry = SuitesMapping(version, suite)
                     session.add(suite_entry)
+                if status.sources.has_key(pkg_id):
+                    # fill-in incomplete suite information in status
+                    status.sources[pkg_id][-1].append(suite)
+                else:
+                    # defensive measure to make update_suites() more reusable
+                    logging.warn('cannot find package %s/%s in status during suite update'
+                                 % (pkg, version))
+
+    # update sources.txt, now that we know the suite mappings
+    src_list_path = os.path.join(conf['cache_dir'], 'sources.txt')
+    with open(src_list_path + '.new', 'w') as src_list:
+        for pkg_id, src_entry in status.sources.iteritems():
+            fields = list(pkg_id)
+            fields.extend(src_entry[:-1])	# all except suites
+            fields.append(string.join(src_entry[-1], ','))
+            src_list.write(string.join(fields, '\t') + '\n')
+    os.rename(src_list_path + '.new', src_list_path)
 
 
-def update_statistics(conf, session):
+def update_statistics(status, conf, session):
     """update phase: update statistics
 
     """
@@ -252,7 +288,7 @@ def update_statistics(conf, session):
             out.write('%s\t%d\n' % (k, v))
 
 
-def update_metadata(conf, session):
+def update_metadata(status, conf, session):
     """update phase: update metadata
 
     """
@@ -277,11 +313,12 @@ def update(conf, session, observers=NO_OBSERVERS):
     logging.info('start')
     logging.info('list mirror packages...')
     mirror = SourceMirror(conf['mirror_dir'])
+    status = UpdateStatus()
 
-    extract_new(conf, session, mirror, observers)	# phase 1
-    garbage_collect(conf, session, mirror, observers)	# phase 2
-    update_suites(conf, session, mirror)		# phase 3
-    update_statistics(conf, session)			# phase 4
-    update_metadata(conf, session)			# phase 5
+    extract_new(status, conf, session, mirror, observers)	# phase 1
+    update_suites(status, conf, session, mirror)		# phase 2
+    garbage_collect(status, conf, session, mirror, observers)	# phase 3
+    update_statistics(status, conf, session)			# phase 4
+    update_metadata(status, conf, session)			# phase 5
 
     logging.info('finish')

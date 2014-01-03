@@ -53,6 +53,20 @@ def compare_dirs(dir1, dir2, exclude=[]):
         return False, e.output
 
 
+def compare_files(file1, file2):
+    """compare file1 and file2 with diff
+
+    return (True, None) if they are the same or a (False, diff) where diff is a
+    textual diff between the two (as per "diff -u")
+
+    """
+    try:
+        subprocess.check_output(['diff', '-Nu', file1, file2])
+        return True, None
+    except subprocess.CalledProcessError, e:
+        return False, e.output
+
+
 def mk_conf(tmpdir):
     """return a debsources updater configuration that works in a temp dir
 
@@ -78,18 +92,19 @@ def mk_conf(tmpdir):
 
 @attr('infra')
 @attr('postgres')
-@attr('slow')
 class Updater(unittest.TestCase, DbTestFixture):
 
     def setUp(self):
         self.db_setup()
         self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
+        self.conf = mk_conf(self.tmpdir)
 
     def tearDown(self):
         self.db_teardown()
         shutil.rmtree(self.tmpdir)
 
     @istest
+    @attr('slow')
     def updaterProducesReferenceDb(self):
         # move tables to reference schema 'ref' and recreate them under 'public'
         self.session.execute('CREATE SCHEMA ref');
@@ -98,10 +113,9 @@ class Updater(unittest.TestCase, DbTestFixture):
             self.session.execute(sqlalchemy.schema.CreateTable(table))
 
         # do a full update run in a virtual test environment
-        conf = mk_conf(self.tmpdir)
-        mainlib.init_logging(conf, console_verbosity=logging.WARNING)
-        (observers, file_exts)  = mainlib.load_hooks(conf)
-        updater.update(conf, self.session, observers)
+        mainlib.init_logging(self.conf, console_verbosity=logging.WARNING)
+        (observers, file_exts)  = mainlib.load_hooks(self.conf)
+        updater.update(self.conf, self.session, observers)
 
         # sources/ dir comparison. Ignored patterns:
         # - plugin result caches -> because most of them are in os.walk()
@@ -137,6 +151,27 @@ class Updater(unittest.TestCase, DbTestFixture):
                 self.assertEqual(diff.rowcount, 0,
                                  msg='%d rows in %s \ %s' % (diff.rowcount, t1, t2))
 
+    @istest
+    def updaterProducesReferenceSourcesTxt(self):
+        def parse_sources_txt(fname):
+            for line in open(fname):
+                fields = line.split()
+                if fields[3].startswith('/'):
+                    fields[3] = os.path.relpath(fields[3], self.conf['mirror_dir'])
+                if fields[4].startswith('/'):
+                    fields[4] = os.path.relpath(fields[4], self.conf['sources_dir'])
+                yield fields
+
+        # do update run in a virtual test environment; given DB is pre-filled,
+        # it should be a "do-almost-nothing" update
+        mainlib.init_logging(self.conf, console_verbosity=logging.WARNING)
+        (observers, file_exts)  = mainlib.load_hooks(self.conf)
+        updater.update(self.conf, self.session, observers)
+        srctxt_path = 'cache/sources.txt'
+        actual_srctxt = list(parse_sources_txt(os.path.join(self.tmpdir, srctxt_path)))
+        expected_srctxt = list(parse_sources_txt(os.path.join(TEST_DATA_DIR, srctxt_path)))
+        self.assertItemsEqual(actual_srctxt, expected_srctxt)
+
 
 @attr('infra')
 @attr('cache')
@@ -161,7 +196,8 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
         self.db_setup()
         self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
         self.conf = mk_conf(self.tmpdir)
-        updater.update_statistics(self.conf, self.session)
+        dummy_status = updater.UpdateStatus()
+        updater.update_statistics(dummy_status, self.conf, self.session)
         self.stats = self.parse_stats(
             os.path.join(self.conf['cache_dir'], 'stats.data'))
 
