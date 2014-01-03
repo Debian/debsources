@@ -18,7 +18,15 @@
 import logging
 import os
 import shutil
+import signal
 import subprocess
+
+
+def _subprocess_setup():
+    """SIGPIPE handling work-around. See http://bugs.python.org/issue1652
+
+    """
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 
 def extract_package(pkg, destdir):
@@ -36,7 +44,8 @@ def extract_package(pkg, destdir):
     logfile = destdir + '.log'
     donefile = destdir + '.done'
     with open(logfile, 'w') as log:
-        subprocess.check_call(cmd, stdout=log, stderr=subprocess.STDOUT)
+        subprocess.check_call(cmd, stdout=log, stderr=subprocess.STDOUT,
+                              preexec_fn=_subprocess_setup)
     open(donefile, 'w').close()
 
 
