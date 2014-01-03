@@ -212,6 +212,7 @@ def update_suites(status, conf, session, mirror):
     """update phase: sweep and recreate suite mappings
 
     """
+    logging.info('update suites mappings...')
     if not conf['dry_run']:
         session.query(SuitesMapping).delete()
     for (suite, pkgs) in mirror.suites.iteritems():
@@ -222,8 +223,8 @@ def update_suites(status, conf, session, mirror):
                 logging.warn('cannot find package %s/%s mentioned by suite %s, skipping'
                              % (pkg, version, suite))
             else:
-                logging.info('add suite mapping: %s/%s -> %s'
-                             % (pkg, version, suite))
+                logging.debug('add suite mapping: %s/%s -> %s'
+                              % (pkg, version, suite))
                 if not conf['dry_run']:
                     suite_entry = SuitesMapping(version, suite)
                     session.add(suite_entry)
@@ -252,6 +253,7 @@ def update_statistics(status, conf, session):
     """
     # TODO conf['dry_run'] unused in this function, should be used
 
+    logging.info('update statistics...')
     ensure_cache_dir(conf)
 
     def store_sloccount_stats(summary, d, prefix_fmt):
@@ -294,6 +296,7 @@ def update_metadata(status, conf, session):
     """
     # TODO conf['dry_run'] unused in this function, should be used
 
+    logging.info('update metadata...')
     ensure_cache_dir(conf)
 
     # update package prefixes list
