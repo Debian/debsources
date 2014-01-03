@@ -16,7 +16,7 @@
   to factor out of the webapp a proper config (and session) manager. See branch
   feature/configmanager for the work in progress on this.
 
-* TODO [#B] database schema refactoring				      :model:
+* TODO [#B] database schema refactoring			  :model:refactoring:
   - merge package and version into one table
   - create table File and use foreignkey(file) in CheckSum and Ctags
   - (un)distinguish Source and Binary packages where it is necessary
