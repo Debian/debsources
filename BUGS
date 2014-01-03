@@ -123,6 +123,11 @@
 
  Debugging: maybe with inline-block and other css tricks
 
+* TODO use relative paths in sources.txt		  :infra:refactoring:
+  - 4th field should be relative to conf['mirror_dir']
+  - 5th field should be relative to conf['sources_dir']
+  see test_updater.py for reference
+
 * TODO evaluate the possibility of sources.d.o			  :infra:dsa:
 
 * TODO add binary->source redirection map			  :infra:web:
