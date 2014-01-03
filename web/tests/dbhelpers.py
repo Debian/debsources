@@ -23,11 +23,11 @@ from os.path import abspath, dirname
 
 import models
 
+from testdata import *
 
-THIS_DIR = dirname(abspath(__file__))
 
 TEST_DB_NAME = 'debsources-test'
-TEST_DB_DUMP = os.path.join(THIS_DIR, 'data/db/pg-dump-custom')
+TEST_DB_DUMP = os.path.join(TEST_DATA_DIR, 'db/pg-dump-custom')
 
 
 def pg_restore(dbname, dumpfile):

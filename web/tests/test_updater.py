@@ -34,9 +34,7 @@ import models
 import updater
 
 from dbhelpers import DbTestFixture, pg_dump, TEST_DB_NAME
-
-
-THIS_DIR = dirname(abspath(__file__))
+from testdata import *
 
 
 def compare_dirs(dir1, dir2, exclude=[]):
@@ -62,17 +60,17 @@ def mk_conf(tmpdir):
 
     """
     conf = {
-        'bin_dir': abspath(os.path.join(THIS_DIR, '../../bin')),
+        'bin_dir': abspath(os.path.join(TEST_DIR, '../../bin')),
         'cache_dir': os.path.join(tmpdir, 'cache'),
         'db_uri': 'postgresql:///' + TEST_DB_NAME,
         'dry_run': False,
         'expire_days': 0,
         'force_triggers': '',
         'hooks': ['sloccount', 'checksums', 'ctags', 'metrics'],
-        'mirror_dir': os.path.join(THIS_DIR, 'data/mirror'),
+        'mirror_dir': os.path.join(TEST_DATA_DIR, 'mirror'),
         'passes': set(['hooks.fs', 'hooks', 'fs', 'db', 'hooks.db']),
-        'python_dir': abspath(os.path.join(THIS_DIR, '..')),
-        'root_dir': abspath(os.path.join(THIS_DIR, '../..')),
+        'python_dir': abspath(os.path.join(TEST_DIR, '..')),
+        'root_dir': abspath(os.path.join(TEST_DIR, '../..')),
         'sources_dir': os.path.join(tmpdir, 'sources'),
     }
     return conf
@@ -111,7 +109,7 @@ class Updater(unittest.TestCase, DbTestFixture):
         # - dpkg-source log stored in *.log
         exclude_pat = [ '*' + ext for ext in file_exts ] + [ '*.log' ]
         dir_eq, dir_diff = compare_dirs(os.path.join(self.tmpdir, 'sources'),
-                                        os.path.join(THIS_DIR, 'data/sources'),
+                                        os.path.join(TEST_DATA_DIR, 'sources'),
                                         exclude=exclude_pat)
         if not dir_eq:
             print dir_diff
