@@ -3,4 +3,4 @@ all:
 	@false
 
 test:
-	nosetests python/
+	nosetests $(TESTFLAGS) -v python/
