@@ -190,7 +190,8 @@ def garbage_collect(status, conf, session, mirror, observers=NO_OBSERVERS):
                 if not age or age.days >= expire_days:
                     logging.info("gc %s..." % pkg)
                     if not conf['dry_run'] and 'hooks' in conf['passes']:
-                        notify(conf, 'rm-package', session, pkg, pkgdir)
+                        notify(observers, conf,
+                               'rm-package', session, pkg, pkgdir)
                     if not conf['dry_run'] and 'fs' in conf['passes']:
                         fs_storage.remove_package(pkg, pkgdir)
                     if not conf['dry_run'] and 'db' in conf['passes']:
