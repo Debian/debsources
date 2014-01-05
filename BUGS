@@ -7,15 +7,6 @@
 ** TODO ctags symbols
 ** TODO number of {source,binary} packages
 
-* TODO [#A] circular import models -> views -> models		 :bug:python:
-  Import models from within python/ should just work. Instead, it fails due to
-  the circular import above. Also, models shoudn't depend on views, to allow
-  running the updater without flask and other web dependencies. The current
-  workaround is as per commit aa087026c414cb91ae7ee596acdc029a8b079130,
-  i.e. `from app import views` before `import models`. The plan to fix this is
-  to factor out of the webapp a proper config (and session) manager. See branch
-  feature/configmanager for the work in progress on this.
-
 * TODO [#B] database schema refactoring			  :model:refactoring:
   - merge package and version into one table
   - create table File and use foreignkey(file) in CheckSum and Ctags
@@ -174,4 +165,8 @@
   test recipe (single file):
   - bin/bulk-insert-ctags -c etc/config.batch.ini 1.3.1-4.ctags
     (see attachment)
+
+* TODO move queries for the web app in a separate file 	    :web:refactoring:
+  SQLAlchemy queries in models.py should be in a new file,
+  e.g. webqueries.py.
 
