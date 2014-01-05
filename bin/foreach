@@ -37,16 +37,17 @@ if [ -z "$1" ] ; then
 fi
 
 cat $srclist | \
-while read package version area dsc dest ; do
-    if ! [ -d "$dest" ] ; then
+while read package version area dsc dir suites ; do
+    if ! [ -d "$dir" ] ; then
 	warn "directory for ${package}/${version} does not exist, skipping."
     else
-	(cd "$dest" && \
+	(cd "$dir" && \
 	    export DEBSOURCES_PACKAGE="$package" && \
 	    export DEBSOURCES_VERSION="$version" && \
 	    export DEBSOURCES_AREA="$area" &&
 	    export DEBSOURCES_DSC="$dsc" &&
-	    export DEBSOURCES_DEST="$dest" &&
+	    export DEBSOURCES_DIR="$dir" &&
+	    export DEBSOURCES_SUITES="$suites" &&
 	    eval "$@")
     fi
 done
