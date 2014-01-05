@@ -31,7 +31,8 @@ TEST_DB_DUMP = os.path.join(TEST_DATA_DIR, 'db/pg-dump-custom')
 
 
 def pg_restore(dbname, dumpfile):
-    subprocess.check_call(['pg_restore', '--dbname', dbname, dumpfile])
+    subprocess.check_call(['pg_restore', '--no-owner', '--no-privileges',
+                           '--dbname', dbname, dumpfile])
 
 def pg_dump(dbname, dumpfile):
     subprocess.check_call(['pg_dump', '--no-owner', '--no-privileges', '-Fc',
