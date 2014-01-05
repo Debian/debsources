@@ -33,7 +33,7 @@ import mainlib
 import models
 import updater
 
-from dbhelpers import DbTestFixture, pg_dump, TEST_DB_NAME
+from dbhelpers import DbTestFixture, pg_dump
 from testdata import *
 
 

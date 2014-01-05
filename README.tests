@@ -23,6 +23,18 @@ To get a list of available test attributes you might try something like:
 	$ rgrep -h @attr python/tests/ | sort -u
 
 
+Test Postgres DB
+================
+
+To be able to run the tests tagged with attribute 'postgres' you need to have a
+local PostgreSQL installation with an empty database called 'debsources-test'.
+On those database the user running the tests should have enough privileges to
+create/drop tables, and perform select/insert/delete queries.
+
+If needed, you can change the name of the test database by changing
+TEST_DB_NAME in the tesdata.py module.
+
+
 Test data
 =========
 

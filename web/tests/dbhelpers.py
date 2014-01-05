@@ -26,7 +26,6 @@ import models
 from testdata import *
 
 
-TEST_DB_NAME = 'debsources-test'
 TEST_DB_DUMP = os.path.join(TEST_DATA_DIR, 'db/pg-dump-custom')
 
 
