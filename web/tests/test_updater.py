@@ -142,7 +142,7 @@ class Updater(unittest.TestCase, DbTestFixture):
                 if diff.rowcount > 0:
                     print 'row in %s but not %s db (sample):' % (t1, t2), \
                         diff.fetchone()
-                    self.session.rollback()
+                    self.session.commit()
                     (_f, dumppath) = tempfile.mkstemp(suffix='.debsources-dump')
                     pg_dump(TEST_DB_NAME, dumppath)
                     print 'test db dump saved as %s' % dumppath
