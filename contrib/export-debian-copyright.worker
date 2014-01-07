@@ -1,0 +1,22 @@
+#!/bin/sh
+
+if [ -f debian/copyright ] ; then
+    destdir=$(echo "$DEBSOURCES_DIR" | sed "s%^${DEBSOURCES_ROOT}/sources%${COPYRIGHT_DIR}%")
+    if ! [ -d "$destdir" ] ; then
+	mkdir -p "$destdir"
+    fi
+    if head -n 10 debian/copyright | grep -q '^Format:' ; then	# DEP5 format
+	format=machine
+    else	# natural language format
+	format=legacy
+    fi
+    cp debian/copyright "${destdir}/copyright.${format}"
+    ln -s "copyright.${format}" "${destdir}/copyright"
+    for suite in $(echo "$DEBSOURCES_SUITES" | sed 's/,/ /g') ; do
+	suite_destdir=$(echo "$destdir" | sed "s%^${COPYRIGHT_DIR}%${COPYRIGHT_DIR}/SUITES/${suite}%")
+	if ! [ -d "$suite_destdir" ] ; then
+	    mkdir -p "$suite_destdir"
+	fi
+	ln -s "$destdir"/* "$suite_destdir"
+    done
+fi

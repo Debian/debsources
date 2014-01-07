@@ -1,0 +1,19 @@
+#!/bin/bash
+
+DEBSOURCES_ROOT=/srv/debsources
+COPYRIGHT_DIR="${HOME}/debian-copyright"
+
+if [ -f "${DEBSOURCES_ROOT}/ONGOING-UPDATE.pid" ] ; then
+    echo "ongoing debsources update; abort to avoid inconsistent data export."
+    exit 1
+fi
+if [ -d "$COPYRIGHT_DIR" ] ; then
+    rm -rf "$COPYRIGHT_DIR"	# start anew each time
+fi
+
+export DEBSOURCES_ROOT COPYRIGHT_DIR
+cd $DEBSOURCES_ROOT
+
+bin/foreach \
+    cache/sources.txt \
+    ${DEBSOURCES_ROOT}/contrib/export-debian-copyright.worker
