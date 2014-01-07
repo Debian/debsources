@@ -55,3 +55,4 @@ Debian packages:
 - rrdtool
 - sloccount
 - ctags
+- postgresql>=9.2
