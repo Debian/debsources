@@ -29,13 +29,22 @@ from testdata import *
 TEST_DB_DUMP = os.path.join(TEST_DATA_DIR, 'db/pg-dump-custom')
 
 
+def _subprocess_setup():
+    """SIGPIPE handling work-around. See http://bugs.python.org/issue1652
+
+    """
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+
+
 def pg_restore(dbname, dumpfile):
     subprocess.check_call(['pg_restore', '--no-owner', '--no-privileges',
-                           '--dbname', dbname, dumpfile])
+                           '--dbname', dbname, dumpfile],
+                          preexec_fn=_subprocess_setup))
 
 def pg_dump(dbname, dumpfile):
     subprocess.check_call(['pg_dump', '--no-owner', '--no-privileges', '-Fc',
-                           '-f', dumpfile, dbname])
+                           '-f', dumpfile, dbname],
+                          preexec_fn=_subprocess_setup))
 
 
 class DbTestFixture(object):
