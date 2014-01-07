@@ -27,9 +27,10 @@ Test Postgres DB
 ================
 
 To be able to run the tests tagged with attribute 'postgres' you need to have a
-local PostgreSQL installation with an empty database called 'debsources-test'.
-On those database the user running the tests should have enough privileges to
-create/drop tables, and perform select/insert/delete queries.
+local PostgreSQL installation with the ability for the user running the tests
+to create (and destroy) a database called 'debsources-test'.  On that database
+you should have enough privileges to create/drop tables, and perform
+select/insert/delete queries.
 
 If needed, you can change the name of the test database by changing
 TEST_DB_NAME in the tesdata.py module.

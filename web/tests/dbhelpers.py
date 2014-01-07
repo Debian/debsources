@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import signal
 import sqlalchemy
 import subprocess
 
@@ -39,25 +40,33 @@ def _subprocess_setup():
 def pg_restore(dbname, dumpfile):
     subprocess.check_call(['pg_restore', '--no-owner', '--no-privileges',
                            '--dbname', dbname, dumpfile],
-                          preexec_fn=_subprocess_setup))
+                          preexec_fn=_subprocess_setup)
 
 def pg_dump(dbname, dumpfile):
     subprocess.check_call(['pg_dump', '--no-owner', '--no-privileges', '-Fc',
                            '-f', dumpfile, dbname],
-                          preexec_fn=_subprocess_setup))
+                          preexec_fn=_subprocess_setup)
+
+def pg_createdb(dbname):
+    subprocess.check_call(['createdb', dbname],
+                          preexec_fn=_subprocess_setup)
+
+def pg_dropdb(dbname):
+    subprocess.check_call(['dropdb', '--if-exists', dbname],
+                          preexec_fn=_subprocess_setup)
 
 
 class DbTestFixture(object):
 
     def db_setup(self, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False):
+        pg_dropdb(dbname)
+        pg_createdb(dbname)
         self.db = sqlalchemy.create_engine('postgresql:///' + dbname, echo=echo)
-        models.Base.metadata.drop_all(self.db)	# just in case...
         pg_restore(dbname, dbdump)
-        self.Session = sqlalchemy.orm.sessionmaker()
-        self.session = self.Session(bind=self.db)
-        # models.Base.metadata.create_all(self.db)
+        Session = sqlalchemy.orm.sessionmaker()
+        self.session = Session(bind=self.db)
 
     def db_teardown(self):
         self.session.rollback()
         self.session.close()
-        models.Base.metadata.drop_all(self.db)
+        self.db.dispose()
