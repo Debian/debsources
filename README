@@ -38,10 +38,6 @@ Debian packages:
 - python-magic
 - tango-icon-theme
 
-Pip packages:
-
-- flask-sqlalchemy
-
 
 Infrastructure
 --------------
