@@ -31,6 +31,7 @@ import statistics
 
 from debmirror import SourceMirror, SourcePackage
 from models import SuitesMapping, Version
+from subprocess_workaround import subprocess_setup
 
 KNOWN_EVENTS = [ 'add-package', 'rm-package' ]
 NO_OBSERVERS = dict( [ (e, []) for e in KNOWN_EVENTS ] )
@@ -99,7 +100,8 @@ def notify(observers, conf, event, session, pkg, pkgdir):
 
     # fire shell hooks
     try:
-        subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+        subprocess.check_output(cmd, stderr=subprocess.STDOUT,
+                                preexec_fn=subprocess_setup)
     except subprocess.CalledProcessError, e:
         logging.error('shell hooks for %s on %s returned exit code %d. Output: %s'
                       % (event, pkg, e.returncode, e.output))

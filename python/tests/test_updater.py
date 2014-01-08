@@ -32,6 +32,7 @@ import models
 import updater
 
 from dbhelpers import DbTestFixture, pg_dump
+from subprocess_workaround import subprocess_setup
 from testdata import *
 
 
@@ -45,7 +46,8 @@ def compare_dirs(dir1, dir2, exclude=[]):
     try:
         subprocess.check_output(['diff', '-Naur', '--brief'] +
                                 [ '--exclude=' + pat for pat in exclude ] +
-                                [dir1, dir2])
+                                [dir1, dir2],
+                                preexec_fn=subprocess_setup)
         return True, None
     except subprocess.CalledProcessError, e:
         return False, e.output
@@ -59,7 +61,8 @@ def compare_files(file1, file2):
 
     """
     try:
-        subprocess.check_output(['diff', '-Nu', file1, file2])
+        subprocess.check_output(['diff', '-Nu', file1, file2],
+                                preexec_fn=subprocess_setup)
         return True, None
     except subprocess.CalledProcessError, e:
         return False, e.output
