@@ -1,4 +1,4 @@
-# Copyright (C) 2013  Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -31,7 +31,7 @@ import mainlib
 import models
 import updater
 
-from dbhelpers import DbTestFixture, pg_dump
+from db_testing import DbTestFixture, pg_dump
 from subprocess_workaround import subprocess_setup
 from testdata import *
 

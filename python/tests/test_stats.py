@@ -1,4 +1,4 @@
-# Copyright (C) 2013  Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -22,7 +22,7 @@ from nose.plugins.attrib import attr
 
 import statistics
 
-from dbhelpers import DbTestFixture, pg_dump
+from db_testing import DbTestFixture, pg_dump
 
 
 @attr('infra')
