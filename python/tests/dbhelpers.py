@@ -47,20 +47,24 @@ def pg_dump(dbname, dumpfile):
                            '-f', dumpfile, dbname],
                           preexec_fn=_subprocess_setup)
 
-def pg_createdb(dbname):
-    subprocess.check_call(['createdb', dbname],
+def pg_dropdb(dbname):
+    subprocess.check_call(['dropdb', dbname],
                           preexec_fn=_subprocess_setup)
 
-def pg_dropdb(dbname):
-    subprocess.check_call(['dropdb', '--if-exists', dbname],
+def pg_createdb(dbname):
+    subprocess.check_call(['createdb', dbname],
                           preexec_fn=_subprocess_setup)
 
 
 class DbTestFixture(object):
 
     def db_setup(self, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False):
-        pg_dropdb(dbname)
-        pg_createdb(dbname)
+        try:
+            pg_createdb(dbname)
+        except subprocess.CalledProcessError:	# try recovering once, in case
+            pg_dropdb(dbname)			# the db already existed
+            pg_createdb(dbname)
+        self.dbname = dbname
         self.db = sqlalchemy.create_engine('postgresql:///' + dbname, echo=echo)
         pg_restore(dbname, dbdump)
         Session = sqlalchemy.orm.sessionmaker()
@@ -70,3 +74,4 @@ class DbTestFixture(object):
         self.session.rollback()
         self.session.close()
         self.db.dispose()
+        pg_dropdb(self.dbname)
