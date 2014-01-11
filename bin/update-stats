@@ -56,7 +56,7 @@ update_rrd() {
 
 update_graphs() {
     local flags="--end now"
-    flags="$flags --width 600 --height 200 -v bytes"
+    flags="$flags --width 400 --height 150 -v bytes"
     flags="$flags DEF:kbytes=${rrd_data}:size:AVERAGE"
     flags="$flags CDEF:bytes=kbytes,1000,*"
     flags="$flags LINE2:bytes#FF0000"
@@ -76,6 +76,10 @@ update_graphs() {
 	$rrd graph ${statsdir}/size-5y.png \
 	    --title "disk usage for the last 5 years" \
 	    --start end-5y --step 432000 \
+	    ${flags}
+	$rrd graph ${statsdir}/size-20y.png \
+	    --title "disk usage for the last 20 years" \
+	    --start end-20y --step 1728000 \
 	    ${flags}
     fi
 }

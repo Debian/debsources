@@ -109,3 +109,11 @@ License: GNU Affero General Public License, version 3 or above.
     padding-top: 0;
     padding-bottom: 0;
 }
+
+table.rrd {
+    border: none;
+}
+
+table.rrd tr td {
+    border: none;
+}

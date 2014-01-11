@@ -13,16 +13,26 @@
 
 <h2>{{ self.title() }}</h2>
 
-
-<h3>Disk usage</h3>
-
-<ul style="list-style-type: none">
-  <li><img src="{{ url_for('static', filename='stats/size-1m.png') }}"
-	   alt="disk usage graph - last month" /></li>
-  <li><img src="{{ url_for('static', filename='stats/size-1y.png') }}"
-	   alt="disk usage graph - last year" /></li>
-  <li><img src="{{ url_for('static', filename='stats/size-5y.png') }}"
-	   alt="disk usage graph - last 5 years" /></li>
+<ul>
+  <li><a href="#du">disk usage</a></li>
 </ul>
+
+
+<h3><a name="du" />Disk usage</h3>
+
+<table class="rrd">
+  <tr>
+    <td><img src="{{ url_for('static', filename='stats/size-1m.png') }}"
+             alt="disk usage graph - last month" /></td>
+    <td><img src="{{ url_for('static', filename='stats/size-1y.png') }}"
+             alt="disk usage graph - last year" /></td>
+  </tr>
+  <tr>
+    <td><img src="{{ url_for('static', filename='stats/size-5y.png') }}"
+             alt="disk usage graph - last 5 years" /></td>
+    <td><img src="{{ url_for('static', filename='stats/size-20y.png') }}"
+             alt="disk usage graph - last 20 years" /></td>
+  </tr>
+</table>
 
 {% endblock %}
