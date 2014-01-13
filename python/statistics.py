@@ -1,4 +1,4 @@
-# Copyright (C) 2013  Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -22,6 +22,7 @@ from models import Metric, SlocCount, SuitesMapping, Version
 
 
 def size(session, suite=None):
+    """overall or per-suite disk usage"""
     q = session.query(sql_func.sum(Metric.value)) \
                .filter(Metric.metric == 'size')
     if suite:
@@ -34,6 +35,27 @@ def size(session, suite=None):
         size = 0
 
     return size
+
+
+def versions(session, suite=None):
+    """overall or per-suite count of versioned source packages
+
+    multiple versions of the same source package count adds up to the result of
+    this query. When doing per-suite queries that doesn't (shouldn't) happen,
+    as each suite is (usually) guaranteed to contain at most one version of
+    each packages
+
+    """
+    q = session.query(sql_func.count(Version.id))
+    if suite:
+        q = q.join(SuitesMapping) \
+            .filter(SuitesMapping.suite == suite)
+
+    count = q.first()[0]
+    if not count:
+        count = 0
+
+    return count
 
 
 def sloccount_lang(session, language, suite=None):

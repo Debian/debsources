@@ -53,6 +53,22 @@ class Stats(unittest.TestCase, DbTestFixture):
 
 
     @istest
+    def versionTotalsMatchReferenceDb(self):
+        versions = {
+            'squeeze': 13,
+            'wheezy': 12,
+            'jessie': 12,
+            'sid': 12,
+            'experimental': 1,
+        }
+        total_versions = 31
+        for suite, count in versions.iteritems():
+            self.assertEqual(count,
+                             statistics.versions(self.session, suite=suite))
+        self.assertEqual(total_versions, statistics.versions(self.session))
+
+
+    @istest
     def slocTotalsMatchReferenceDb(self):
         slocs_jessie = {
             'ansic': 140353,
