@@ -21,7 +21,7 @@ from sqlalchemy import func as sql_func
 from models import Checksum, Metric, SlocCount, SuitesMapping, Version
 
 
-def size(session, suite=None):
+def disk_usage(session, suite=None):
     """overall or per-suite disk usage"""
     q = session.query(sql_func.sum(Metric.value)) \
                .filter(Metric.metric == 'size')

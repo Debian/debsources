@@ -275,12 +275,12 @@ def update_statistics(status, conf, session):
 
     # compute stats
     stats = {}
-    stats['size.du'] = statistics.size(session)
+    stats['size.du'] = statistics.disk_usage(session)
     store_sloccount_stats(statistics.sloccount_summary(session),
                           stats, 'sloccount.%s')
     for suite in session.query(distinct(SuitesMapping.suite)).all():
         suite = suite[0]	# SQL projection of the only field
-        stats['size.du.debian_' + suite] = statistics.size(session, suite)
+        stats['size.du.debian_' + suite] = statistics.disk_usage(session, suite)
         slocs = statistics.sloccount_summary(session, suite)
         store_sloccount_stats(slocs, stats, 'sloccount.%s.debian_' + suite)
         slocs_suite = reduce(lambda locs,acc: locs+acc, slocs.itervalues())

@@ -46,7 +46,7 @@ class Stats(unittest.TestCase, DbTestFixture):
 
 
     @istest
-    def sizeTotalsMatchReferenceDb(self):
+    def diskUsagesMatchReferenceDb(self):
         sizes = {
             'squeeze': 44316,
             'wheezy': 39688,
@@ -55,12 +55,12 @@ class Stats(unittest.TestCase, DbTestFixture):
             'experimental': 6520,
         }
         total_size = 122628
-        self.assertSuiteCountsEqual(sizes, statistics.size)
-        self.assertEqual(total_size, statistics.size(self.session))
+        self.assertSuiteCountsEqual(sizes, statistics.disk_usage)
+        self.assertEqual(total_size, statistics.disk_usage(self.session))
 
 
     @istest
-    def versionTotalsMatchReferenceDb(self):
+    def versionCountsMatchReferenceDb(self):
         versions = {
             'squeeze': 13,
             'wheezy': 12,
@@ -74,7 +74,7 @@ class Stats(unittest.TestCase, DbTestFixture):
 
 
     @istest
-    def sourceFilesTotalsMatchReferenceDb(self):
+    def sourceFilesCountsMatchReferenceDb(self):
         source_files = {
             'squeeze': 2024,
             'wheezy': 1632,
@@ -88,7 +88,7 @@ class Stats(unittest.TestCase, DbTestFixture):
 
 
     @istest
-    def slocTotalsMatchReferenceDb(self):
+    def slocCountsMatchReferenceDb(self):
         slocs_jessie = {
             'ansic': 140353,
             'asm': 65,
