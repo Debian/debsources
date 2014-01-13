@@ -18,7 +18,7 @@
 from sqlalchemy import distinct
 from sqlalchemy import func as sql_func
 
-from models import Metric, SlocCount, SuitesMapping, Version
+from models import Checksum, Metric, SlocCount, SuitesMapping, Version
 
 
 def size(session, suite=None):
@@ -50,6 +50,27 @@ def versions(session, suite=None):
     if suite:
         q = q.join(SuitesMapping) \
             .filter(SuitesMapping.suite == suite)
+
+    count = q.first()[0]
+    if not count:
+        count = 0
+
+    return count
+
+
+def source_files(session, suite=None):
+    """overall or per-suite count of indexed source files
+
+    Return 0 if the checksum plugin is not enabled
+
+    """
+    # TODO when a separate File table will be present, this will need to be
+    # adapted to use that instead of Checksum
+    q = session.query(sql_func.count(Checksum.id))
+    if suite:
+        q = q.join(Version) \
+             .join(SuitesMapping) \
+             .filter(SuitesMapping.suite == suite)
 
     count = q.first()[0]
     if not count:

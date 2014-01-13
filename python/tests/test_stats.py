@@ -37,6 +37,14 @@ class Stats(unittest.TestCase, DbTestFixture):
         self.db_teardown()
 
 
+    def assertSuiteCountsEqual(self, expected, query_method):
+        for suite, expected_count in expected.iteritems():
+            actual_count = query_method(self.session, suite=suite)
+            self.assertEqual(expected_count, actual_count,
+                             '%d != %d for suite %s' %
+                             (expected_count, actual_count, suite))
+
+
     @istest
     def sizeTotalsMatchReferenceDb(self):
         sizes = {
@@ -47,8 +55,7 @@ class Stats(unittest.TestCase, DbTestFixture):
             'experimental': 6520,
         }
         total_size = 122628
-        for suite, size in sizes.iteritems():
-            self.assertEqual(size, statistics.size(self.session, suite=suite))
+        self.assertSuiteCountsEqual(sizes, statistics.size)
         self.assertEqual(total_size, statistics.size(self.session))
 
 
@@ -62,10 +69,22 @@ class Stats(unittest.TestCase, DbTestFixture):
             'experimental': 1,
         }
         total_versions = 31
-        for suite, count in versions.iteritems():
-            self.assertEqual(count,
-                             statistics.versions(self.session, suite=suite))
+        self.assertSuiteCountsEqual(versions, statistics.versions)
         self.assertEqual(total_versions, statistics.versions(self.session))
+
+
+    @istest
+    def sourceFilesTotalsMatchReferenceDb(self):
+        source_files = {
+            'squeeze': 2024,
+            'wheezy': 1632,
+            'jessie': 1677,
+            'sid': 1677,
+            'experimental': 645,
+        }
+        total_files = 5489
+        self.assertSuiteCountsEqual(source_files, statistics.source_files)
+        self.assertEqual(total_files, statistics.source_files(self.session))
 
 
     @istest
