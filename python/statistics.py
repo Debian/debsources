@@ -25,6 +25,13 @@ from sqlalchemy import func as sql_func
 from models import Checksum, Metric, SlocCount, SuitesMapping, Version
 
 
+def _count(query):
+    count = query.first()[0]
+    if not count:
+        count = 0
+    return count
+
+
 def disk_usage(session, suite=None):
     """disk space used by extracted source packages
 
@@ -37,12 +44,7 @@ def disk_usage(session, suite=None):
         q = q.join(Version) \
              .join(SuitesMapping) \
              .filter(SuitesMapping.suite == suite)
-
-    size = q.first()[0]
-    if not size:
-        size = 0
-
-    return size
+    return _count(q)
 
 
 def versions(session, suite=None):
@@ -60,12 +62,7 @@ def versions(session, suite=None):
     if suite:
         q = q.join(SuitesMapping) \
             .filter(SuitesMapping.suite == suite)
-
-    count = q.first()[0]
-    if not count:
-        count = 0
-
-    return count
+    return _count(q)
 
 
 def source_files(session, suite=None):
@@ -83,12 +80,7 @@ def source_files(session, suite=None):
         q = q.join(Version) \
              .join(SuitesMapping) \
              .filter(SuitesMapping.suite == suite)
-
-    count = q.first()[0]
-    if not count:
-        count = 0
-
-    return count
+    return _count(q)
 
 
 def sloccount_lang(session, language, suite=None):
@@ -103,12 +95,7 @@ def sloccount_lang(session, language, suite=None):
         q = q.join(Version) \
              .join(SuitesMapping) \
              .filter(SuitesMapping.suite == suite)
-
-    count = q.first()[0]
-    if not count:
-        count = 0
-
-    return count
+    return _count(q)
 
 
 def sloccount_summary(session, suite=None):
@@ -125,5 +112,4 @@ def sloccount_summary(session, suite=None):
              .join(SuitesMapping) \
              .filter(SuitesMapping.suite == suite)
     q = q.group_by(SlocCount.language)
-
     return dict(q.all())
