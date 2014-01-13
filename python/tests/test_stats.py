@@ -28,14 +28,11 @@ from db_testing import DbTestFixture, pg_dump
 @attr('infra')
 class Stats(unittest.TestCase, DbTestFixture):
 
-
     def setUp(self):
         self.db_setup()
 
-
     def tearDown(self):
         self.db_teardown()
-
 
     def assertSuiteCountsEqual(self, expected, query_method):
         for suite, expected_count in expected.iteritems():
@@ -43,7 +40,6 @@ class Stats(unittest.TestCase, DbTestFixture):
             self.assertEqual(expected_count, actual_count,
                              '%d != %d for suite %s' %
                              (expected_count, actual_count, suite))
-
 
     @istest
     def diskUsagesMatchReferenceDb(self):
@@ -58,7 +54,6 @@ class Stats(unittest.TestCase, DbTestFixture):
         self.assertSuiteCountsEqual(sizes, statistics.disk_usage)
         self.assertEqual(total_size, statistics.disk_usage(self.session))
 
-
     @istest
     def versionCountsMatchReferenceDb(self):
         versions = {
@@ -72,7 +67,6 @@ class Stats(unittest.TestCase, DbTestFixture):
         self.assertSuiteCountsEqual(versions, statistics.versions)
         self.assertEqual(total_versions, statistics.versions(self.session))
 
-
     @istest
     def sourceFilesCountsMatchReferenceDb(self):
         source_files = {
@@ -85,7 +79,6 @@ class Stats(unittest.TestCase, DbTestFixture):
         total_files = 5489
         self.assertSuiteCountsEqual(source_files, statistics.source_files)
         self.assertEqual(total_files, statistics.source_files(self.session))
-
 
     @istest
     def slocCountsMatchReferenceDb(self):
@@ -117,3 +110,16 @@ class Stats(unittest.TestCase, DbTestFixture):
         self.assertEqual(slocs_cpp_exp,
                          statistics.sloccount_lang(self.session, 'cpp',
                                               suite='experimental'))
+
+    @istest
+    def ctagsCountsMatchReferenceDb(self):
+        ctags = {
+            'squeeze': 30633,
+            'wheezy': 20139,
+            'jessie': 21395,
+            'sid': 21395,
+            'experimental': 4945,
+        }
+        total_ctags = 70166
+        self.assertSuiteCountsEqual(ctags, statistics.ctags)
+        self.assertEqual(total_ctags, statistics.ctags(self.session))

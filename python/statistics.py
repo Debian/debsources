@@ -22,7 +22,7 @@
 from sqlalchemy import distinct
 from sqlalchemy import func as sql_func
 
-from models import Checksum, Metric, SlocCount, SuitesMapping, Version
+from models import Checksum, Ctag, Metric, SlocCount, SuitesMapping, Version
 
 
 def _count(query):
@@ -113,3 +113,17 @@ def sloccount_summary(session, suite=None):
              .filter(SuitesMapping.suite == suite)
     q = q.group_by(SlocCount.language)
     return dict(q.all())
+
+
+def ctags(session, suite=None):
+    """ctags count
+
+    only count ctags in suite, if given
+
+    """
+    q = session.query(sql_func.count(Ctag.id))
+    if suite:
+        q = q.join(Version) \
+             .join(SuitesMapping) \
+             .filter(SuitesMapping.suite == suite)
+    return _count(q)
