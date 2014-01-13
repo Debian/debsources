@@ -212,9 +212,18 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
         self.assertEqual(EXPECTED_SIZE, self.stats['size.du'])
 
     @istest
-    def sloccountsMatchReferenceDb(self):
-        EXPECTED_STATS = {	# just a few samples
+    def statsMatchReferenceDb(self):
+        expected_stats = {	# just a few samples
+            'ctags': 70166,
+            'ctags.debian_sid': 21395,
+            'ctags.debian_squeeze': 30633,
             'size.du.debian_experimental': 6520,
+            'size.source_files': 5489,
+            'size.source_files.debian_experimental': 645,
+            'size.source_files.debian_jessie': 1677,
+            'size.versions': 31,
+            'size.versions.debian_squeeze': 13,
+            'size.versions.debian_wheezy': 12,
             'sloccount.awk.debian_sid': 25,
             'sloccount.cpp.debian_sid': 41458,
             'sloccount.cpp.debian_squeeze': 36508,
@@ -225,5 +234,4 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
             'sloccount.ruby.debian_squeeze': 193,
             'sloccount.ruby.debian_wheezy': 193,
         }
-        for k, v in EXPECTED_STATS.iteritems():
-            self.assertEqual(EXPECTED_STATS[k], self.stats[k])
+        self.assertDictContainsSubset(expected_stats, self.stats)

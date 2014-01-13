@@ -273,18 +273,28 @@ def update_statistics(status, conf, session):
                 v = summary[lang]
             d[k] = v
 
-    # compute stats
+    # compute overall stats
     stats = {}
     stats['size.du'] = statistics.disk_usage(session)
+    stats['size.versions'] = statistics.versions(session)
+    stats['size.source_files'] = statistics.source_files(session)
     store_sloccount_stats(statistics.sloccount_summary(session),
                           stats, 'sloccount.%s')
+    stats['ctags'] = statistics.ctags(session)
+
+    # compute per-suite stats
     for suite in session.query(distinct(SuitesMapping.suite)).all():
         suite = suite[0]	# SQL projection of the only field
         stats['size.du.debian_' + suite] = statistics.disk_usage(session, suite)
+        stats['size.versions.debian_' + suite] = \
+                                        statistics.versions(session, suite)
+        stats['size.source_files.debian_' + suite] = \
+                                        statistics.source_files(session, suite)
         slocs = statistics.sloccount_summary(session, suite)
         store_sloccount_stats(slocs, stats, 'sloccount.%s.debian_' + suite)
         slocs_suite = reduce(lambda locs,acc: locs+acc, slocs.itervalues())
         stats['sloccount.debian_' + suite] = slocs_suite
+        stats['ctags.debian_' + suite] = statistics.ctags(session, suite)
 
     # cache computed stats to on-disk stats file
     stats_file = os.path.join(conf['cache_dir'], 'stats.data')
