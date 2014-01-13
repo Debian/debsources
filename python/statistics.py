@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Compute several statistics about Debsouces content
+
+"""
+
 from sqlalchemy import distinct
 from sqlalchemy import func as sql_func
 
@@ -22,7 +26,11 @@ from models import Checksum, Metric, SlocCount, SuitesMapping, Version
 
 
 def disk_usage(session, suite=None):
-    """overall or per-suite disk usage"""
+    """disk space used by extracted source packages
+
+    only count disk usage relative to suite, if given
+
+    """
     q = session.query(sql_func.sum(Metric.value)) \
                .filter(Metric.metric == 'size')
     if suite:
@@ -38,7 +46,9 @@ def disk_usage(session, suite=None):
 
 
 def versions(session, suite=None):
-    """overall or per-suite count of versioned source packages
+    """(versioned) source package count
+
+    only count packages in suite, if given
 
     multiple versions of the same source package count adds up to the result of
     this query. When doing per-suite queries that doesn't (shouldn't) happen,
@@ -59,7 +69,9 @@ def versions(session, suite=None):
 
 
 def source_files(session, suite=None):
-    """overall or per-suite count of indexed source files
+    """source files count
+
+    only count source files in suite, if given
 
     Return 0 if the checksum plugin is not enabled
 
@@ -80,9 +92,9 @@ def source_files(session, suite=None):
 
 
 def sloccount_lang(session, language, suite=None):
-    """query the DB via session and return the LOCS written in language
+    """source lines of codes (SLOCs) written in a given programming language
 
-    return LOCS relative to suite, if given, or DB-wide if not
+    only count SLOCs relative to suite, if given
 
     """
     q = session.query(sql_func.sum(SlocCount.count)) \
@@ -100,9 +112,11 @@ def sloccount_lang(session, language, suite=None):
 
 
 def sloccount_summary(session, suite=None):
-    """query the DB via session and return a per-language summary of LOCS
+    """source lines of code (SLOCs), broken down per language
 
-    return summary relative to suite, if given, or DB-wide if not
+    return a language-indexed dictionary of SLOC counts
+
+    only count LOCs relative to suite, if given
 
     """
     q = session.query(SlocCount.language, sql_func.sum(SlocCount.count))
