@@ -209,12 +209,12 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
     @istest
     def sizeMatchesReferenceDb(self):
         EXPECTED_SIZE = 122628
-        self.assertEqual(EXPECTED_SIZE, self.stats['size'])
+        self.assertEqual(EXPECTED_SIZE, self.stats['size.du'])
 
     @istest
     def sloccountsMatchReferenceDb(self):
         EXPECTED_STATS = {	# just a few samples
-            'size.debian_experimental': 6520,
+            'size.du.debian_experimental': 6520,
             'sloccount.awk.debian_sid': 25,
             'sloccount.cpp.debian_sid': 41458,
             'sloccount.cpp.debian_squeeze': 36508,

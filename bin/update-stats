@@ -30,7 +30,7 @@ rrd_data="${cache_dir}/size.rrd"
 rrd_size_graph="${cache_dir}/size.png"
 
 update_rrd() {
-    size=$(grep '^size[[:blank:]]' $raw_stats | cut -f 2)
+    size=$(grep '^size.du[[:blank:]]' $raw_stats | cut -f 2)
 
     if ! which $rrd > /dev/null ; then
 	return
