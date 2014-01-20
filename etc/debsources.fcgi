@@ -14,7 +14,8 @@ WEB_DIR = os.path.join(PROJECT_DIR, "web")
 
 sys.path.append(WEB_DIR)
 
-from app import app
+from app import app_wrapper
 
 if __name__ == '__main__':
-    WSGIServer(app).run()
+    app_wrapper.go()
+    WSGIServer(app_wrapper.app).run()
