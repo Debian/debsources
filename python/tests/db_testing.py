@@ -48,23 +48,50 @@ def pg_createdb(dbname):
     subprocess.check_call(['createdb', dbname],
                           preexec_fn=subprocess_setup)
 
+def db_setup(obj_or_cls, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False):
+    """
+    Sets up the db.
+    obj_or_cls must be an instance of DbTestFixture (or inheritated class),
+    or the class itself. This allows using db_setup by
+    - unittest setUp (instance method), or
+    - unittest setUpClass (class method).
+    """
+    try:
+        pg_createdb(dbname)
+    except subprocess.CalledProcessError:	# try recovering once, in case
+        pg_dropdb(dbname)			# the db already existed
+        pg_createdb(dbname)
+    obj_or_cls.dbname = dbname
+    obj_or_cls.db = sqlalchemy.create_engine(
+        'postgresql:///' + dbname, echo=echo)
+    pg_restore(dbname, dbdump)
+    Session = sqlalchemy.orm.sessionmaker()
+    obj_or_cls.session = Session(bind=obj_or_cls.db)
+
+def db_teardown(obj_or_class):
+    """
+    Closes the db session and removes the db.
+    Same problematic with instance/class than for db_setup().
+    """
+    obj_or_class.session.rollback()
+    obj_or_class.session.close()
+    obj_or_class.db.dispose()
+    pg_dropdb(obj_or_class.dbname)
 
 class DbTestFixture(object):
 
     def db_setup(self, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False):
-        try:
-            pg_createdb(dbname)
-        except subprocess.CalledProcessError:	# try recovering once, in case
-            pg_dropdb(dbname)			# the db already existed
-            pg_createdb(dbname)
-        self.dbname = dbname
-        self.db = sqlalchemy.create_engine('postgresql:///' + dbname, echo=echo)
-        pg_restore(dbname, dbdump)
-        Session = sqlalchemy.orm.sessionmaker()
-        self.session = Session(bind=self.db)
+        db_setup(self, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False)
+
+    @classmethod
+    def db_setup(cls, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False):
+        db_setup(cls, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False)
 
     def db_teardown(self):
-        self.session.rollback()
-        self.session.close()
-        self.db.dispose()
-        pg_dropdb(self.dbname)
+        db_teardown(self)
+    
+    @classmethod
+    def db_teardown(cls):
+        db_teardown(cls)
+
+
