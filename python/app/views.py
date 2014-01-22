@@ -437,7 +437,8 @@ class SourceView(GeneralView):
         renders a location page, can be a folder or a file
         """
         try:
-            location = Location(app.config["SOURCES_DIR"],
+            location = Location(session,
+                                app.config["SOURCES_DIR"],
                                 app.config["SOURCES_STATIC"],
                                 package, version, path)
         except FileOrFolderNotFound as e:
