@@ -30,18 +30,28 @@ class AppWrapper(object):
     Contains an app and a session, and provides ways to drive all the init
     steps separately.
     """
-    def __init__(self):
-        """ Creates a Flask application and sets up its configuration."""
-        self.session = None
+    def __init__(self, config=None, session=None):
+        """
+        Creates a Flask application and sets up its configuration.
+        If config and/or session are provided, they will overload the
+        default behavior.
+        """
+        self.session = session
         self.app = Flask(__name__)
-        self.setup_conf()
+        
+        if config is None:
+            self.setup_conf()
+        else:
+            self.app.config = config
     
     def go(self):
         """
         Sets up SQLAlchemy, logging, and imports all the views.
         After creating an AppWrapper and calling this method, the app is ready.
         """
-        self.setup_sqlalchemy()
+        if self.session is None:
+            self.setup_sqlalchemy()
+        
         self.setup_logging()
         
         # importing the views creates all the routing for the app
