@@ -84,14 +84,14 @@ class DbTestFixture(object):
         db_setup(self, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False)
 
     @classmethod
-    def db_setup(cls, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False):
+    def db_setup_cls(cls, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False):
         db_setup(cls, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False)
 
     def db_teardown(self):
         db_teardown(self)
     
     @classmethod
-    def db_teardown(cls):
+    def db_teardown_cls(cls):
         db_teardown(cls)
 
 
