@@ -26,13 +26,21 @@ from nose.tools import istest, nottest
 from nose.plugins.attrib import attr
 
 from db_testing import DbTestFixture
-from app.app_factory import AppWrapper
 from testdata import TEST_DB_NAME
 
 @attr('webapp')
 class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
     @classmethod
     def setUpClass(cls):
+        """
+        We use the class method here. setUpClass is called at the class
+        creation, and tearDownClass at the class destruction (instead of
+        setUp and tearDown before and after each test). This is doable
+        here because the app never modifies the db (so it's useless to
+        create/destroy it many times), and this a big gain of time.
+        """
+        cls.db_setup_cls()
+        
         # creates an app object, which is used to run queries
         from app import app_wrapper
         
@@ -44,11 +52,12 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         app_wrapper.go()
         
         cls.app = app_wrapper.app.test_client()
-        cls.db_setup()
+        cls.app_wrapper = app_wrapper
     
     @classmethod
     def tearDownClass(cls):
-        cls.db_teardown()
+        cls.app_wrapper.engine.dispose()
+        cls.db_teardown_cls()
     
     def test_ping(self):
         rv = json.loads(self.app.get('/api/ping/').data)
@@ -93,12 +102,12 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         assert 'Statistics' in rv.data
         
     def test_packages_list(self):
-        rv = json.loads(self.__class__.app.get('/api/list/').data)
+        rv = json.loads(self.app.get('/api/list/').data)
         assert {'name': "libcaca"} in rv['packages']
         assert len(rv['packages']) == 14
     
     def test_by_prefix(self):
-        rv = json.loads(self.__class__.app.get('/api/prefix/libc/').data)
+        rv = json.loads(self.app.get('/api/prefix/libc/').data)
         assert {'name': "libcaca"} in rv['packages']
 
     def test_package(self):
