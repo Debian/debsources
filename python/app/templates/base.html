@@ -32,9 +32,9 @@
 	                         id="query-1") }}
 	    <form name="codesearch" method="get"
 		  action="http://codesearch.debian.net/search">
-	      <input name="q" 
-		     {%- if package %}value="package:{{ package }} "
-		     {%- else %}placeholder="code regex"
+	      <input name="q"
+		     {%- if package %} value="package:{{ package }} "
+		     {%- else %} placeholder="code regex"
 		     {%- endif %}
 		     type="text" />
 	      <input type="submit" value="Search code" />
