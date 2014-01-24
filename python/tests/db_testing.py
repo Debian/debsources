@@ -1,4 +1,5 @@
 # Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
+#                    2014  Matthieu Caneill <matthieu.caneill@gmail.com>
 #
 # This file is part of Debsources.
 #
