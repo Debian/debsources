@@ -49,37 +49,42 @@ def pg_createdb(dbname):
     subprocess.check_call(['createdb', dbname],
                           preexec_fn=subprocess_setup)
 
-def db_setup(obj_or_cls, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False):
-    """
-    Sets up the db.
-    obj_or_cls must be an instance of DbTestFixture (or inheritated class),
+def db_setup(test_subj, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False):
+    """Sets up the db for use by a given test subject.
+
+    test_subj must be an instance of DbTestFixture (or inheritated class),
     or the class itself. This allows using db_setup by
     - unittest setUp (instance method), or
     - unittest setUpClass (class method).
+
     """
     try:
         pg_createdb(dbname)
     except subprocess.CalledProcessError:	# try recovering once, in case
         pg_dropdb(dbname)			# the db already existed
         pg_createdb(dbname)
-    obj_or_cls.dbname = dbname
-    obj_or_cls.db = sqlalchemy.create_engine(
+    test_subj.dbname = dbname
+    test_subj.db = sqlalchemy.create_engine(
         'postgresql:///' + dbname, echo=echo)
     pg_restore(dbname, dbdump)
     Session = sqlalchemy.orm.sessionmaker()
-    obj_or_cls.session = Session(bind=obj_or_cls.db)
+    test_subj.session = Session(bind=test_subj.db)
 
-def db_teardown(obj_or_class):
+def db_teardown(test_subj):
+    """Tears down db support used by a given test subject.
+
+    test_subj must be an instance of DbTestFixture (or inheritated class), or
+    the class itself. See db_setup for further discussion
+
     """
-    Closes the db session and removes the db.
-    Same problematic with instance/class than for db_setup().
-    """
-    obj_or_class.session.rollback()
-    obj_or_class.session.close()
-    obj_or_class.db.dispose()
-    pg_dropdb(obj_or_class.dbname)
+    test_subj.session.rollback()
+    test_subj.session.close()
+    test_subj.db.dispose()
+    pg_dropdb(test_subj.dbname)
+
 
 class DbTestFixture(object):
+    """mix this in a given test subject to have DB fixture support"""
 
     def db_setup(self, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False):
         db_setup(self, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False)
@@ -94,5 +99,3 @@ class DbTestFixture(object):
     @classmethod
     def db_teardown_cls(cls):
         db_teardown(cls)
-
-
