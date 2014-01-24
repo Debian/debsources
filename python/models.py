@@ -348,7 +348,7 @@ class Metric(Base):
 class Location(object):
     """ a location in a package, can be a directory or a file """
     
-    def _get_debian_path(self, package, version, sources_dir):
+    def _get_debian_path(self, session, package, version, sources_dir):
         """
         Returns the Debian path of a package version.
         For example: main/h
@@ -385,10 +385,11 @@ class Location(object):
         
         return os.path.join(varea, prefix)
     
-    def __init__(self, sources_dir, sources_static,
+    def __init__(self, session, sources_dir, sources_static,
                  package, version="", path=""):
         """ initialises useful attributes """
-        debian_path = self._get_debian_path(package, version, sources_dir)
+        debian_path = self._get_debian_path(session,
+                                            package, version, sources_dir)
         self.package = package
         self.version = version
         self.path = path

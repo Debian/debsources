@@ -23,10 +23,15 @@ from flask import render_template, redirect, url_for, request, safe_join, \
 from flask.views import View
 from sqlalchemy import and_
 
+from sqla_session import _close_session
+
 from debian.debian_support import version_compare
 
 
-from app import app, session
+from app import app_wrapper
+app = app_wrapper.app
+session = app_wrapper.session
+
 from excepts import InvalidPackageOrVersionError, FileOrFolderNotFound, \
     Http500Error, Http404Error, Http403Error
 from models import Ctag, Package, Version, Checksum, Location, \
@@ -39,6 +44,10 @@ try:
     from werkzeug.urls import url_quote
 except ImportError:
     from urlparse import quote as url_quote
+
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    _close_session(session)
 
 
 # variables needed by "base.html" skeleton
@@ -428,7 +437,8 @@ class SourceView(GeneralView):
         renders a location page, can be a folder or a file
         """
         try:
-            location = Location(app.config["SOURCES_DIR"],
+            location = Location(session,
+                                app.config["SOURCES_DIR"],
                                 app.config["SOURCES_STATIC"],
                                 package, version, path)
         except FileOrFolderNotFound as e:

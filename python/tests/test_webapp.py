@@ -25,126 +25,192 @@ import json
 from nose.tools import istest, nottest
 from nose.plugins.attrib import attr
 
-# must be done before importig the app
-os.environ["DEBSOURCES_TESTING"] = "testing"
-from app import app
-
-from dbutils import sources2db
-
+from db_testing import DbTestFixture
+from testdata import TEST_DB_NAME
 
 @attr('webapp')
-class DebsourcesTestCase(unittest.TestCase):
-    ClassIsSetup = False
-    
-    def setUp(self):
-        # from http://stezz.blogspot.fr
-        # /2011/04/calling-only-once-setup-in-unittest-in.html
+class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
+    @classmethod
+    def setUpClass(cls):
+        """
+        We use the class method here. setUpClass is called at the class
+        creation, and tearDownClass at the class destruction (instead of
+        setUp and tearDown before and after each test). This is doable
+        here because the app never modifies the db (so it's useless to
+        create/destroy it many times), and this a big gain of time.
+        """
+        cls.db_setup_cls()
         
-        # If it was not setup yet, do it
-        if not self.ClassIsSetup:
-            print "Initializing testing environment"
-            # run the real setup
-            self.my_setupClass()
-            # remember that it was setup already
-            self.__class__.ClassIsSetup = True
-    
-    def my_setupClass(self):
-        try:
-            sources2db("sources.txt",
-                       app.config["SQLALCHEMY_DATABASE_URI_TESTING"],
-                       drop=True, verbose=False)
-        except Exception as e:
-            import logging
-            logging.exception(e)
+        # creates an app object, which is used to run queries
+        from app import app_wrapper
         
-        self.__class__.app = app.test_client()
+        # erases a few configuration parameters needed for testing:
+        uri = "postgresql:///" + TEST_DB_NAME
+        app_wrapper.app.config["SQLALCHEMY_DATABASE_URI"] = uri
+        app_wrapper.app.config['LIST_OFFSET'] = 5
+        
+        app_wrapper.go()
+        
+        cls.app = app_wrapper.app.test_client()
+        cls.app_wrapper = app_wrapper
     
-    def tearDown(self):
-        pass
+    @classmethod
+    def tearDownClass(cls):
+        cls.app_wrapper.engine.dispose()
+        cls.db_teardown_cls()
     
     def test_ping(self):
         rv = json.loads(self.app.get('/api/ping/').data)
         assert rv["status"] == "ok"
         assert rv["http_status_code"] == 200
     
-    @nottest	# XXX temporarily disable broken webapp tests
-    def test_search(self):        
-        rv = json.loads(self.app.get('/api/search/vcar/').data)
-        assert rv['query'] == 'vcar'
-        assert rv['results']['exact'] is None
-        assert {'name': "2vcard"} in rv['results']['other']
+    def test_package_search(self):
+        # exact search
+        rv = json.loads(self.app.get('/api/search/gnubg/').data)
+        assert rv['query'] == 'gnubg'
+        assert rv['results']['other'] == []
+        assert rv['results']['exact'] == {'name': "gnubg"}
         
+        # other results
+        rv = json.loads(self.app.get('/api/search/gnu/').data)
+        assert rv['query'] == 'gnu'
+        assert rv['results']['other'] == [{'name': "gnubg"}]
+        assert rv['results']['exact'] is None
+    
     def test_static_pages(self):
         rv = self.app.get('/')
         assert 'Debsources' in rv.data
+        
+        rv = self.app.get('/advancedsearch/')
+        assert 'Package search' in rv.data
+        assert 'File search' in rv.data
+        assert 'Code search' in rv.data
+
+        rv = self.app.get('/doc/overview/')
+        assert 'Debsources provides Web access' in rv.data
         
         rv = self.app.get('/doc/api/')
         assert 'API documentation' in rv.data
         
         rv = self.app.get('/doc/url/')
         assert 'URL scheme' in rv.data
-        
-    @nottest	# XXX temporarily disable broken webapp tests
-    def test_packages_list(self):
-        rv = json.loads(self.__class__.app.get('/api/list/').data)
-        assert {'name': "2vcard"} in rv['packages']
 
-    @nottest	# XXX temporarily disable broken webapp tests
+        rv = self.app.get('/about/')
+        assert 'source code is available' in rv.data
+
+        rv = self.app.get('/about/stats/')
+        assert 'Statistics' in rv.data
+        
+    def test_packages_list(self):
+        rv = json.loads(self.app.get('/api/list/').data)
+        assert {'name': "libcaca"} in rv['packages']
+        assert len(rv['packages']) == 14
+    
+    def test_by_prefix(self):
+        rv = json.loads(self.app.get('/api/prefix/libc/').data)
+        assert {'name': "libcaca"} in rv['packages']
+
     def test_package(self):
-        rv = json.loads(self.app.get('/api/src/0ad').data)
-        assert rv['path'] == "0ad"
-        assert rv['pts_link'] == "http://packages.qa.debian.org/0ad"
-        assert len(rv['versions']) == 2
+        rv = json.loads(self.app.get('/api/src/ledit').data)
+        assert rv['path'] == "ledit"
+        assert rv['pts_link'] == "http://packages.qa.debian.org/ledit"
+        assert len(rv['versions']) == 3
         assert rv['type'] == "package"
         
-    @nottest	# XXX temporarily disable broken webapp tests
     def test_folder(self):
-        rv = json.loads(self.app.get('/api/src/0ad/0.0.13-2').data)
+        rv = json.loads(self.app.get('/api/src/ledit/2.01-6').data)
         assert rv['type'] == "directory"
-        assert {'type': "file", 'name': "hello.c"} in rv['content']
+        assert rv['path'] == "ledit/2.01-6"
+        assert rv['package'] == "ledit"
+        assert rv['directory'] == "2.01-6"
+        assert rv['vcs']['type_'] == "git"
+        assert {'type': "file", 'name': "ledit.ml"} in rv['content']
         
-    @nottest	# XXX temporarily disable broken webapp tests
     def test_source_file(self):
-        rv = self.app.get('/src/0ad/0.0.13-2/NetStats.cpp')
-        assert '<code id="sourcecode" class="cpp">' in rv.data
-        assert 'size_t CNetStatsTable::GetNumberRows()' in rv.data
+        rv = self.app.get('/src/ledit/2.01-6/ledit.ml')
+        
+        # source code detection
+        assert '<code id="sourcecode" class="ocaml">' in rv.data
+        
+        # highlight.js present?
+        assert 'hljs.highlightBlock' in rv.data
+        assert ('<script src="/javascript/highlight/highlight.pack.js">'
+                '</script>') in rv.data
+        
+        # content of the file
+        assert 'Institut National de Recherche en Informatique' in rv.data
+        
+        # correct number of lines
+        assert '1506 lines' in rv.data
+        
+        # permissions of the file
+        assert 'permissions: rw-r--r--' in rv.data
+        
+        # raw file link
+        assert ('<a href="/data/main/l/ledit/2.01-6/ledit.ml">'
+                'download</a>') in rv.data
+        
+        # parent folder link
+        assert '<a href="/src/ledit/2.01-6">parent folder</a>' in rv.data
     
-    @nottest	# XXX temporarily disable broken webapp tests
     def test_source_file_text(self):
-        app.config['SOURCES_DIR'] = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "tests/sources")
-        rv = self.app.get('/src/0ad/0.0.13-2/simplefile')
+        rv = self.app.get('/src/ledit/2.01-6/README')
         assert '<code id="sourcecode" class="no-highlight">' in rv.data
         
-    @nottest	# XXX temporarily disable broken webapp tests
     def test_source_file_embedded(self):
-        rv = self.app.get('/embedded/0ad/0.0.13-2/NetStats.cpp')
-        assert '<code id="sourcecode" class="cpp">' in rv.data
-        assert 'size_t CNetStatsTable::GetNumberRows()' in rv.data
+        rv = self.app.get('/embedded/ledit/2.01-6/ledit.ml')
+        assert '<code id="sourcecode" class="ocaml">' in rv.data
+        assert 'Institut National de Recherche en Informatique' in rv.data
+        assert '<div id="logo">' not in rv.data
         
     def test_errors(self):
         rv = json.loads(self.app.get('/api/src/blablabla').data)
         assert rv['error'] == 404
         
-    @nottest	# XXX temporarily disable broken webapp tests
     def test_latest(self):
-        rv = json.loads(self.app.get('/api/src/0ad/latest',
+        rv = json.loads(self.app.get('/api/src/ledit/latest',
                                      follow_redirects=True).data)
-        assert "0.0.13-2" in rv['path']
+        assert "2.03-2" in rv['path']
     
-    @nottest	# XXX temporarily disable broken webapp tests
     def test_codesearch_box(self):
-        rv = self.app.get('/src/0ad/0.0.13-2/NetStats.cpp')
-        assert 'value="package:0ad "' in rv.data
+        rv = self.app.get('/src/ledit/2.03-2/ledit.ml')
+        assert 'value="package:ledit "' in rv.data
     
     def test_pagination(self):
-        app.config['LIST_OFFSET'] = 5
         rv = self.app.get('/list/2/')
         assert '<a href="/list/1/">&laquo; Previous</a>' in rv.data
         assert '<a href="/list/3/">Next &raquo;</a>' in rv.data
         assert '<strong>2</strong>' in rv.data
+    
+    def test_file_duplicates(self):
+        rv = json.loads(self.app.get('/api/src/bsdgames-nonfree/'
+                                     '2.17-3/COPYING').data)
+        assert rv["number_of_duplicates"] == 3
+        assert rv["checksum"] == ("be43f81c20961702327c10e9bd5f5a9a2b1cc"
+                                  "eea850402ea562a9a76abcfa4bf")
+    
+    def test_checksum_search(self):
+        rv = json.loads(self.app.get('/api/sha256/?checksum=be43f81c20961702327'
+                                     'c10e9bd5f5a9a2b1cceea850402ea562a9a76abcf'
+                                     'a4bf&page=1').data)
+        assert rv["count"] == 3
+        assert len(rv["results"]) == 3
+    
+    def test_checksum_search_within_package(self):
+        rv = json.loads(self.app.get('/api/sha256/?checksum=4f721b8e5b0add185d6'
+                                     'af7a93e577638d25eaa5c341297d95b4a27b7635b'
+                                     '4d3f&package=susv2').data)
+        assert rv["count"] == 1
+    
+    def test_search_ctag(self):
+        rv = json.loads(self.app.get('/api/ctag/?ctag=name').data)
+        assert rv["count"] == 88
+        assert len(rv["results"]) == 88
+    
+    def test_search_ctag_within_package(self):
+        rv = json.loads(self.app.get('/api/ctag/?ctag=name&package=ledger').data)
+        assert rv["count"] == 14
+        assert len(rv["results"]) == 14
 
 if __name__ == '__main__':
     unittest.main(exit=False)
-    del(os.environ["DEBSOURCES_TESTING"])
