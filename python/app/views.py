@@ -35,7 +35,7 @@ session = app_wrapper.session
 from excepts import InvalidPackageOrVersionError, FileOrFolderNotFound, \
     Http500Error, Http404Error, Http403Error
 from models import Ctag, Package, Version, Checksum, Location, \
-    Directory, SourceFile
+    Directory, SourceFile, SuitesMapping, SlocCount, Metric
 from sourcecode import SourceCodeIterator
 from forms import SearchForm
 
@@ -384,6 +384,73 @@ app.add_url_rule('/api/prefix/<prefix>/', view_func=PrefixView.as_view(
 ### SOURCE (packages, versions, folders, files) ###
 
 class SourceView(GeneralView):
+    def _get_package_infos(self, package, version):
+        """
+        Retrieves information about a package or version, for instance
+        - area
+        - size
+        - sloc
+        """
+        pkg_infos = dict()
+        
+        try: # information available directly in Version table
+            infos = (session.query(Version)
+                     .filter(Version.vnumber==version,
+                             Version.package_id==Package.id,
+                             Package.name==package)
+                     .first())
+            
+        except Exception as e:
+            raise Http500Error(e)
+        
+        pkg_infos["area"] = infos.area
+        
+        if infos.vcs_type and infos.vcs_browser:
+                pkg_infos['vcs_type'] = infos.vcs_type
+                pkg_infos['vcs_browser'] = infos.vcs_browser
+        
+        try: # associated suites, which come from SuitesMapping
+            suites = (session.query(SuitesMapping.suite)
+                      .filter(SuitesMapping.sourceversion_id==Version.id,
+                              Version.vnumber==version,
+                              Version.package_id==Package.id,
+                              Package.name==package)
+                      .all())
+        except Exception as e:
+            raise Http500Error(e)
+        
+        pkg_infos["suites"] = [x[0] for x in suites]
+
+        try: # sloccount
+            sloc = (session.query(SlocCount)
+                    .filter(SlocCount.sourceversion_id==Version.id,
+                            Version.vnumber==version,
+                            Version.package_id==Package.id,
+                            Package.name==package)
+                    .order_by(SlocCount.count.desc())
+                    .all())
+        except Exception as e:
+            raise Http500Error(e)
+        
+        pkg_infos["sloc"] = [(x.language, x.count) for x in sloc]
+
+        try: # metrics
+            metric = (session.query(Metric)
+                      .filter(Metric.sourceversion_id==Version.id,
+                              Version.vnumber==version,
+                              Version.package_id==Package.id,
+                              Package.name==package)
+                      .all())
+        except Exception as e:
+            raise Http500Error(e)
+
+        pkg_infos["metric"] = dict([(x.metric, x.value) for x in metric])
+        
+        # PTS
+        pkg_infos["pts_link"] = self._get_pts_link(package)
+        
+        return pkg_infos
+    
     def _get_pts_link(self, packagename):
         """
         returns an URL for packagename in the Debian Package Tracking System
@@ -392,28 +459,6 @@ class SourceView(GeneralView):
         pts_link = url_quote(pts_link) # for '+' symbol in Debian package names
         return pts_link
 
-    def _get_vcs(self, package, version):
-        """
-        returns a dictionary like::
-
-            { 'type_':   'git',
-              'browser': 'http://anonscm.debian.org/git/collab-maint/foo.git/',
-            }
-        """
-        try:
-            v = (session.query(Version)
-                 .filter(and_(Version.vnumber==version,
-                              Version.package_id==Package.id,
-                              Package.name==package))
-                 .first())
-            vcs = {}
-            if v.vcs_type and v.vcs_browser:
-                vcs['type_'] = v.vcs_type
-                vcs['browser'] = v.vcs_browser
-            return vcs
-        except Exception as e:
-            raise Http500Error(e)
-    
     def _render_package(self, packagename, path_to):
         """
         renders the package page (which lists available versions)
@@ -430,7 +475,8 @@ class SourceView(GeneralView):
                     package=packagename,
                     versions=versions,
                     path=path_to,
-                    pts_link=self._get_pts_link(packagename))
+                    #pts_link=self._get_pts_link(packagename),
+                    )
     
     def _render_location(self, package, version, path):
         """
@@ -472,9 +518,9 @@ class SourceView(GeneralView):
                     package=location.get_package(),
                     content=directory.get_listing(),
                     path=location.get_path_to(),
-                    pts_link=self._get_pts_link(location.get_package()),
-                    vcs=self._get_vcs(location.get_package(),
-                                      location.get_version()))
+                    pkg_infos=self._get_package_infos(location.get_package(),
+                                                      location.get_version())
+                    )
     
     def _render_file(self, location):
         """
@@ -492,12 +538,12 @@ class SourceView(GeneralView):
                     raw_url=file_.get_raw_url(),
                     path=location.get_path_to(),
                     text_file=file_.istextfile(),
-                    pts_link=self._get_pts_link(location.get_package()),
-                    vcs=self._get_vcs(location.get_package(),
-                                      location.get_version()),
                     permissions=file_.get_permissions(),
                     checksum=checksum,
-                    number_of_duplicates=number_of_duplicates)
+                    number_of_duplicates=number_of_duplicates,
+                    pkg_infos=self._get_package_infos(location.get_package(),
+                                                      location.get_version())
+                    )
     
     def _handle_latest_version(self, package, path):
         """

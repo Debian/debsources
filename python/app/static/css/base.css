@@ -6,10 +6,12 @@ License: GNU Affero General Public License, version 3 or above.
 
 /* Base (templates/base.html styles */
 
-#pkglinks {
+#pkginfobox {
     font-size: small;
     float: right;
     padding: 3px;
+    max-width: 200px;
+    border: 1px solid grey;
 }
 
 /* displayed on index.html */

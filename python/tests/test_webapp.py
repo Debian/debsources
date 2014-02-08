@@ -113,7 +113,6 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
     def test_package(self):
         rv = json.loads(self.app.get('/api/src/ledit').data)
         assert rv['path'] == "ledit"
-        assert rv['pts_link'] == "http://packages.qa.debian.org/ledit"
         assert len(rv['versions']) == 3
         assert rv['type'] == "package"
         
@@ -123,7 +122,6 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         assert rv['path'] == "ledit/2.01-6"
         assert rv['package'] == "ledit"
         assert rv['directory'] == "2.01-6"
-        assert rv['vcs']['type_'] == "git"
         assert {'type': "file", 'name': "ledit.ml"} in rv['content']
         
     def test_source_file(self):
@@ -211,6 +209,18 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         rv = json.loads(self.app.get('/api/ctag/?ctag=name&package=ledger').data)
         assert rv["count"] == 14
         assert len(rv["results"]) == 14
-
+    
+    def test_pkg_infobox(self):
+        rv = json.loads(self.app.get('/api/src/libcaca/0.99.beta17-1').data)
+        assert rv["pkg_infos"]["suites"] == ["squeeze"]
+        assert rv["pkg_infos"]["area"] == "main"
+        assert rv["pkg_infos"]["sloc"][0] == ["ansic", 22607]
+        assert rv["pkg_infos"]["metric"]["size"] == 6584
+        assert rv["pkg_infos"]["vcs_browser"] == (
+            "http://svn.debian.org/wsvn/sam-hocevar/pkg-misc/unstable/libcaca/")
+        assert rv["pkg_infos"]["vcs_type"] == "svn"
+        assert rv["pkg_infos"]["pts_link"] == (
+            "http://packages.qa.debian.org/libcaca")
+        
 if __name__ == '__main__':
     unittest.main(exit=False)
