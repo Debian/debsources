@@ -15,6 +15,11 @@
   </tr>
 </table>
 
+{% if pkg_infos %}
+{% import "infobox.inc.html" as infobox %}
+{{ infobox.render_infobox(pathl[0][0], pathl[1][0], pkg_infos) }}
+{% endif %}
+
 <table id="codetable">
   <tr>
     <td>

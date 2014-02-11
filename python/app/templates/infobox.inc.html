@@ -1,0 +1,42 @@
+{#
+  Copyright (C) 2014  Matthieu Caneill <matthieu.caneill@gmail.com>
+  License: GNU Affero General Public License, version 3 or above.
+#}
+
+{% macro render_infobox(package, version, pkg_infos) -%}
+  <script type="text/javascript">
+    function toggle(id)
+    {
+    var elem = document.getElementById(id);
+    if(elem.style.display == "none")
+      elem.style.display = "block";
+    else
+      elem.style.display = "none";
+    }
+  </script>
+
+<div id="pkginfobox">
+  <span onclick="toggle('infobox_content')">infobox (click to toggle)</span>
+  <div id="infobox_content">
+    <em>{{ package }} {{ version }}</em>
+    <ul>
+      <li>links:
+	<a href="{{ pkg_infos['pts_link'] }}"><abbr title="Debian Package Tracking
+							   System">PTS</abbr></a>
+	{% if pkg_infos['vcs_browser'] %},
+	<a href="{{ pkg_infos['vcs_browser'] }}"><abbr title="Version Control System">VCS</abbr></a>
+	{% endif %}</li>
+      <li>area: {{ pkg_infos['area'] }}</li>
+      <li>suites: {{ pkg_infos['suites']|join(', ') }}</li>
+      <li>size: {{ pkg_infos['metric']['size'] }} kB</li>
+      <li><abbr title="Source lines of code">sloc</abbr>:
+	{% for x in pkg_infos['sloc'] %}
+        {{ x[0] + " (" + "%s"|format(x[1]) + ")" }}{%
+        if not loop.last %}, {% endif %}
+	{% endfor %}
+      </li>
+    </ul>
+  </div>
+</div>
+
+{%- endmacro %}

@@ -11,29 +11,6 @@
 
 {% block content %}
 
-{% if pkg_infos %}
-<div id="pkginfobox">
-  <em>{{ pathl[0][0] }} {{ pathl[1][0] }}</em> infobox
-  <ul>
-    <li>links:
-  <a href="{{ pkg_infos['pts_link'] }}"><abbr title="Debian Package Tracking
-					System">PTS</abbr></a>
-  {% if pkg_infos['vcs_browser'] %},
-  <a href="{{ pkg_infos['vcs_browser'] }}"><abbr title="Version Control System">VCS</abbr></a>
-  {% endif %}</li>
-    <li>area: {{ pkg_infos['area'] }}</li>
-    <li>suites: {{ pkg_infos['suites']|join(', ') }}</li>
-    <li>size: {{ pkg_infos['metric']['size'] }} kB</li>
-    <li><abbr title="Source lines of code">sloc</abbr>:
-      {% for x in pkg_infos['sloc'] %}
-        {{ x[0] + " (" + "%s"|format(x[1]) + ")" }}{%
-        if not loop.last %}, {% endif %}
-      {% endfor %}
-    </li>
-  </ul>
-</div>
-{% endif %}
-
 {% block source_content %}{% endblock %}
 
 {% endblock %}
