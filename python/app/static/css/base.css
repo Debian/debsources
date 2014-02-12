@@ -6,18 +6,6 @@ License: GNU Affero General Public License, version 3 or above.
 
 /* Base (templates/base.html styles */
 
-/* infobox */
-
-#pkginfobox {
-    font-size: small;
-    position: fixed;
-    right: 20px;
-    top: 200px;
-    padding: 3px;
-    max-width: 200px;
-    border: 1px solid grey;
-}
-
 /* displayed on index.html */
 
 #indexmenu {
@@ -122,4 +110,21 @@ table.rrd {
 
 table.rrd tr td {
     border: none;
+}
+
+/* infobox */
+
+#pkginfobox {
+    font-size: small;
+    position: fixed;
+    right: 20px;
+    top: 200px;
+    padding: 3px;
+    max-width: 200px;
+    border: 1px solid #d2d3d7;
+}
+
+#infobox_content ul {
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
