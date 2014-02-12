@@ -16,7 +16,8 @@
   </script>
 
 <div id="pkginfobox">
-  <span onclick="toggle('infobox_content')">infobox (click to toggle)</span>
+  <span onclick="toggle('infobox_content')">package info
+    <small>(click to toggle)</small></span>
   <div id="infobox_content">
     <em>{{ package }} {{ version }}</em>
     <ul>
@@ -27,12 +28,12 @@
 	<a href="{{ pkg_infos['vcs_browser'] }}"><abbr title="Version Control System">VCS</abbr></a>
 	{% endif %}</li>
       <li>area: {{ pkg_infos['area'] }}</li>
-      <li>suites: {{ pkg_infos['suites']|join(', ') }}</li>
+      <li>in suites: {{ pkg_infos['suites']|join(', ') }}</li>
       <li>size: {{ pkg_infos['metric']['size'] }} kB</li>
-      <li><abbr title="Source lines of code">sloc</abbr>:
+      <li><abbr title="source lines of code">sloc</abbr>:
 	{% for x in pkg_infos['sloc'] %}
-        {{ x[0] + " (" + "%s"|format(x[1]) + ")" }}{%
-        if not loop.last %}, {% endif %}
+        {{ x[0] + ": %s"|format(x[1]) }}{%
+        if not loop.last %}; {% endif %}
 	{% endfor %}
       </li>
     </ul>
