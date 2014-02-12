@@ -29,13 +29,17 @@
 	{% endif %}</li>
       <li>area: {{ pkg_infos['area'] }}</li>
       <li>in suites: {{ pkg_infos['suites']|join(', ') }}</li>
-      <li>size: {{ pkg_infos['metric']['size'] }} kB</li>
-      <li><abbr title="source lines of code">sloc</abbr>:
-	{% for x in pkg_infos['sloc'] %}
-        {{ x[0] + ": %s"|format(x[1]) }}{%
-        if not loop.last %}; {% endif %}
-	{% endfor %}
-      </li>
+      {% if pkg_infos['metric']['size'] %}
+        <li>size: {{ pkg_infos['metric']['size'] }} kB</li>
+      {% endif %}
+      {% if pkg_infos['sloc'] %}
+        <li><abbr title="source lines of code">sloc</abbr>:
+	  {% for x in pkg_infos['sloc'] %}
+            {{ x[0] + ": %s"|format(x[1]) }}{%
+            if not loop.last %}; {% endif %}
+          {% endfor %}
+        </li>
+      {% endif %}
     </ul>
   </div>
 </div>
