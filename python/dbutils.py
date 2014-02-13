@@ -17,13 +17,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import os
 
 from sqlalchemy.sql import exists
 
-from models import Base, Package, Version, VCS_TYPES
+import fs_storage
+
+from models import Base, File, Package, Version, VCS_TYPES
 
 
-def add_package(session, pkg):
+def add_package(session, pkg, pkgdir):
     """Add a package (= debmirror.SourcePackage) to the Debsources db
     """
     logging.debug('add to db %s...' % pkg)
@@ -48,6 +51,13 @@ def add_package(session, pkg):
                 version.vcs_url = pkg[vcs_key]
         package.versions.append(version)
         session.add(version)
+        session.flush()	# to get a version.id, needed by File below
+
+        # add individual source files to the File table
+        for path in fs_storage.walk_pkg_files(pkgdir):
+            relpath = os.path.relpath(path, pkgdir)
+            file_ = File(version, relpath)
+            session.add(file_)
 
 
 def rm_package(session, pkg, db_version):

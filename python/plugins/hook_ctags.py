@@ -1,4 +1,4 @@
-# Copyright (C) 2013  Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -21,7 +21,7 @@ import subprocess
 
 import dbutils
 
-from models import Ctag, MAX_KEY_LENGTH
+from models import Ctag, File, MAX_KEY_LENGTH
 
 
 conf = None
@@ -113,8 +113,12 @@ def add_package(session, pkg, pkgdir):
             # the db in the past, then *all* of them have, as additions are
             # part of the same transaction
             for tag in parse_ctags(ctagsfile):
-                ctag = Ctag(version, **tag)
-                session.add(ctag)
+                file_ = session.query(File).filter_by(version_id=version.id,
+                                                      path=tag['path']).first()
+                if file_:
+                    ctag = Ctag(version, tag['tag'], file_, tag['line'],
+                                tag['kind'], tag['language'])
+                    session.add(ctag)
 
 
 def rm_package(session, pkg, pkgdir):

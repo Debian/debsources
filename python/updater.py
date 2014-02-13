@@ -154,7 +154,7 @@ def extract_new(status, conf, session, mirror, observers=NO_OBSERVERS):
                     # execution: if the hooks fail, the package won't be
                     # added to the db (it will be tried again at next run)
                     if not conf['dry_run'] and 'db' in conf['passes']:
-                        dbutils.add_package(session, pkg)
+                        dbutils.add_package(session, pkg, pkgdir)
                     if not conf['dry_run'] and 'hooks' in conf['passes']:
                         notify(observers, conf,
                                'add-package', session, pkg, pkgdir)

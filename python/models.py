@@ -1,5 +1,5 @@
-# Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
-#                     Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2013-2014  Matthieu Caneill <matthieu.caneill@gmail.com>
+#                          Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -138,33 +138,54 @@ class SuitesMapping(Base):
         self.suite = suite
 
 
-class Checksum(Base):
-    __tablename__ = 'checksums'
+class File(Base):
+    """source file table"""
+
+    __tablename__ = 'files'
     __table_args__ = (UniqueConstraint('version_id', 'path'),)
 
     id = Column(Integer, primary_key=True)
     version_id = Column(Integer, ForeignKey('versions.id', ondelete="CASCADE"),
                         nullable=False)
-    path = Column(LargeBinary, nullable=False)	# path/whitin/source/pkg
-    sha256 = Column(String(64), nullable=False, index=True)
+    path = Column(LargeBinary, index=True,	# path/whitin/source/pkg
+                  nullable=False)
 
-    def __init__(self, version, path, sha256):
+    def __init__(self, version, path):
         self.version_id = version.id
         self.path = path
+
+
+class Checksum(Base):
+    __tablename__ = 'checksums'
+    __table_args__ = (UniqueConstraint('version_id', 'file_id'),)
+
+    id = Column(Integer, primary_key=True)
+    version_id = Column(Integer, ForeignKey('versions.id', ondelete="CASCADE"),
+                        nullable=False)
+    file_id = Column(Integer, ForeignKey('files.id', ondelete="CASCADE"),
+                     nullable=False)
+    sha256 = Column(String(64), nullable=False, index=True)
+
+    def __init__(self, version, file_, sha256):
+        self.version_id = version.id
+        self.file_id = file_.id
         self.sha256 = sha256
     
+
     @staticmethod
     def _query_checksum(session, checksum, package=None):
         """
         Returns the query used to retrieve checksums/count checksums.
         """
         query = (session.query(Package.name.label("package"),
-                              Version.vnumber.label("version"),
-                              Checksum.path.label("path"))
-                .filter(Checksum.sha256 == checksum)
-                .filter(Checksum.version_id == Version.id)
-                .filter(Version.package_id == Package.id)
-                 )
+                               Version.vnumber.label("version"),
+                               Checksum.file_id.label("file_id"),
+                               File.path.label("path"))
+                 .filter(Checksum.sha256 == checksum)
+                 .filter(Checksum.version_id == Version.id)
+                 .filter(Checksum.file_id == File.id)
+                 .filter(Version.package_id == Package.id)
+             )
         if package is not None and package != "":
             query = query.filter(Package.name == package)
         
@@ -262,17 +283,18 @@ class Ctag(Base):
     version_id = Column(Integer, ForeignKey('versions.id', ondelete="CASCADE"),
                         nullable=False, index=True)
     tag = Column(String, nullable=False, index=True)
-    path = Column(LargeBinary, nullable=False)	# path/whitin/source/pkg
+    file_id = Column(Integer, ForeignKey('files.id', ondelete="CASCADE"),
+                     nullable=False)
     line = Column(Integer, nullable=False)
     kind = Column(String)	# see `ctags --list-kinds`; unfortunately ctags
         # gives no guarantee of uniformity in kinds, they might be one-lettered
         # or full names, sigh
     language = Column(Enum(*CTAGS_LANGUAGES, name="ctags_languages"))
 
-    def __init__(self, version, tag, path, line, kind, language):
+    def __init__(self, version, tag, file_, line, kind, language):
         self.version_id = version.id
         self.tag = tag
-        self.path = path
+        self.file_id = file_.id
         self.line = line
         self.kind = kind
         self.language = language
@@ -306,16 +328,18 @@ class Ctag(Base):
         
         results = (session.query(Package.name.label("package"),
                                  Version.vnumber.label("version"),
-                                 Ctag.path.label("path"),
+                                 Ctag.file_id.label("file_id"),
+                                 File.path.label("path"),
                                  Ctag.line.label("line"))
                    .filter(Ctag.tag == ctag)
                    .filter(Ctag.version_id == Version.id)
+                   .filter(Ctag.file_id == File.id)
                    .filter(Version.package_id == Package.id)
                    )
         if package is not None:
             results = results.filter(Package.name == package)
         
-        results = results.order_by(Ctag.version_id, Ctag.path)
+        results = results.order_by(Ctag.version_id, File.path)
         count = results.count()
         if slice_ is not None:
             results = results.slice(slice_[0], slice_[1])
@@ -325,7 +349,7 @@ class Ctag(Base):
                         line=res.line)
                    for res in results.all()]
         return (count, results)
-    
+
 
 
 class Metric(Base):
@@ -462,6 +486,8 @@ class Location(object):
                                      path_to='/'.join(path_dict[:i+1]))))
         return pathl
 
+
+
 class Directory(object):
     """ a folder in a package """
     
@@ -489,8 +515,10 @@ class Directory(object):
         return listing
     
 
+
 class SourceFile(object):
     """ a source file in a package """
+
     def __init__(self, location):
         self.location = location
         self.sources_path = location.sources_path

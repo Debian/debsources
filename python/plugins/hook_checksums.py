@@ -1,4 +1,4 @@
-# Copyright (C) 2013  Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -19,9 +19,10 @@ import logging
 import os
 
 import dbutils
+import fs_storage
 import hashutil
 
-from models import Checksum
+from models import Checksum, File
 
 
 conf = None
@@ -46,18 +47,6 @@ def parse_checksums(path):
             yield (sha256, path)
 
 
-def walk_pkg_files(pkgdir):
-    if isinstance(pkgdir, unicode):
-        # dumb down pkgdir to byte string. Whereas pkgdir comes from Sources
-        # and hence is ASCII clean, the paths that os.walk() will encounter
-        # might not even be UTF-8 clean. Using str() we ensure that path
-        # operations will happen between raw strings, avoding encoding issues.
-        pkgdir = str(pkgdir)
-    for root, dirs, files in os.walk(pkgdir):
-        for file in files:
-            yield os.path.join(root, file)
-
-
 def add_package(session, pkg, pkgdir):
     global conf
     logging.debug('add-package %s' % pkg)
@@ -68,7 +57,7 @@ def add_package(session, pkg, pkgdir):
     if 'hooks.fs' in conf['passes']:
         if not os.path.exists(sumsfile): # compute checksums only if needed
             with open(sumsfile_tmp, 'w') as out:
-                for path in walk_pkg_files(pkgdir):
+                for relpath in fs_storage.walk_pkg_files(pkgdir):
                     if os.path.islink(path):
                         # do not checksum symlinks, if they are not dangling /
                         # external we will checksum their target anyhow
@@ -85,8 +74,11 @@ def add_package(session, pkg, pkgdir):
             # been added to the db in the past, then *all* of them have,
             # as additions are part of the same transaction
             for (sha256, relpath) in parse_checksums(sumsfile):
-                checksum = Checksum(version, relpath, sha256)
-                session.add(checksum)
+                file_ = session.query(File).filter_by(version_id=version.id,
+                                                      path=relpath).first()
+                if file_:
+                    checksum = Checksum(version, file_, sha256)
+                    session.add(checksum)
 
 
 def rm_package(session, pkg, pkgdir):
