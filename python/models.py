@@ -544,23 +544,19 @@ class SourceFile(object):
         """
         Queries the DB and returns the shasum of the file.
         """
-        try:
-            shasum = (session.query(Checksum.sha256)
-                      .filter(Checksum.version_id==Version.id)
-                      .filter(Version.package_id==Package.id)
-                      .filter(Package.name==self.location.package)
-                      .filter(Version.vnumber==self.location.version)
-                      # WARNING:
-                      # in the DB path is binary,
-                      # and here location.path is unicode, because the path
-                      # comes from the URL.
-                      # TODO: check with non-unicode paths
-                      .filter(Checksum.path==str(self.location.path))
-                      .first()
-                      )[0]
-        except Exception as e:
-            #app.logger.error(e)
-            shasum = None
+        shasum = session.query(Checksum.sha256) \
+                        .filter(Checksum.version_id==Version.id) \
+                        .filter(Version.package_id==Package.id) \
+                        .filter(File.id==Checksum.file_id) \
+                        .filter(Package.name==self.location.package) \
+                        .filter(Version.vnumber==self.location.version) \
+                        .filter(File.path==str(self.location.path)) \
+                        .first()
+                        # WARNING: in the DB path is binary, and here
+                        # location.path is unicode, because the path comes from
+                        # the URL. TODO: check with non-unicode paths
+        if shasum:
+            shasum = shasum[0]
         return shasum
     
     def get_permissions(self):
