@@ -108,13 +108,21 @@ def add_package(session, pkg, pkgdir):
 
     if 'hooks.db' in conf['passes']:
         version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
+        curfile = {None: None}	# poor man's cache for last <relpath, File>;
+                             # rely on the fact that ctags file are path-sorted
         if not session.query(Ctag).filter_by(version_id=version.id).first():
             # ASSUMPTION: if *a* cta of this package has already been added to
             # the db in the past, then *all* of them have, as additions are
             # part of the same transaction
             for tag in parse_ctags(ctagsfile):
-                file_ = session.query(File).filter_by(version_id=version.id,
-                                                      path=tag['path']).first()
+                relpath = tag['path']
+                try:
+                    file_ = curfile[relpath]
+                except KeyError:
+                    file_ = session.query(File).filter_by(version_id=version.id,
+                                                          path=relpath).first()
+                    curfile = { relpath: file_ }
+
                 if file_:
                     ctag = Ctag(version, tag['tag'], file_, tag['line'],
                                 tag['kind'], tag['language'])
