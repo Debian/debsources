@@ -91,14 +91,83 @@ def mk_conf(tmpdir):
     return conf
 
 
+
 @attr('infra')
 @attr('postgres')
 class Updater(unittest.TestCase, DbTestFixture):
+
+    # queries to compare two DB schemas (usually "public.*" and "ref.*")
+    DB_COMPARE_QUERIES = {
+        "packages":
+        "SELECT name \
+         FROM %(schema)s.packages \
+         ORDER BY name \
+         LIMIT 100",
+
+        "versions":
+        "SELECT packages.name, vnumber, area, vcs_type, vcs_url, vcs_browser \
+         FROM %(schema)s.versions, %(schema)s.packages \
+         WHERE versions.package_id = packages.id \
+         ORDER BY packages.name, vnumber \
+         LIMIT 100",
+
+        "suitesmapping":
+        "SELECT packages.name, versions.vnumber, suite \
+         FROM %(schema)s.versions, %(schema)s.packages, %(schema)s.suitesmapping \
+         WHERE versions.package_id = packages.id \
+         AND suitesmapping.sourceversion_id = versions.id \
+         ORDER BY packages.name, versions.vnumber, suite \
+         LIMIT 100",
+
+        "files":
+        "SELECT packages.name, versions.vnumber, files.path \
+         FROM %(schema)s.files, %(schema)s.versions, %(schema)s.packages \
+         WHERE versions.package_id = packages.id \
+         AND files.version_id = versions.id \
+         ORDER BY packages.name, versions.vnumber, files.path \
+         LIMIT 100",
+
+        "checksums":
+        "SELECT packages.name, versions.vnumber, files.path, sha256 \
+         FROM %(schema)s.files, %(schema)s.versions, %(schema)s.packages, %(schema)s.checksums \
+         WHERE versions.package_id = packages.id \
+         AND checksums.version_id = versions.id \
+         AND checksums.file_id = files.id \
+         ORDER BY packages.name, versions.vnumber, files.path \
+         LIMIT 100",
+
+        "sloccounts":
+        "SELECT packages.name, versions.vnumber, language, count \
+         FROM %(schema)s.sloccounts, %(schema)s.versions, %(schema)s.packages \
+         WHERE versions.package_id = packages.id \
+         AND sloccounts.sourceversion_id = versions.id \
+         ORDER BY packages.name, versions.vnumber, language \
+         LIMIT 100",
+
+        "ctags":
+        "SELECT packages.name, versions.vnumber, files.path, tag, line, kind, language \
+         FROM %(schema)s.ctags, %(schema)s.files, %(schema)s.versions, %(schema)s.packages \
+         WHERE versions.package_id = packages.id \
+         AND ctags.version_id = versions.id \
+         AND ctags.file_id = files.id \
+         ORDER BY packages.name, versions.vnumber, files.path, tag, line, kind, language \
+         LIMIT 100",
+
+        "metric":
+        "SELECT packages.name, versions.vnumber, metric, value_ \
+         FROM %(schema)s.metrics, %(schema)s.versions, %(schema)s.packages \
+         WHERE versions.package_id = packages.id \
+         AND metrics.sourceversion_id = versions.id \
+         AND metric != 'size' \
+         ORDER BY packages.name, versions.vnumber, metric \
+         LIMIT 100",
+    }
 
     def setUp(self):
         self.db_setup()
         self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
         self.conf = mk_conf(self.tmpdir)
+        self.longMessage = True
 
     def tearDown(self):
         self.db_teardown()
@@ -130,27 +199,13 @@ class Updater(unittest.TestCase, DbTestFixture):
             print dir_diff
         self.assertTrue(dir_eq)
 
-        # DB comparison
-        for tblname in models.Base.metadata.tables.keys():
-            if tblname == 'metrics':	# metrics are not stable due to 'du'
-                continue
-            if tblname == 'ctags':	# XXX LargeBinary seem incomparable
-                continue
-            if tblname == 'checksums':	# XXX LargeBinary seem incomparable
-                continue
-            ref_tblname = 'ref.' + tblname
-            for (t1, t2) in [(tblname, ref_tblname), (ref_tblname, tblname)]:
-                diff = self.session.execute(
-                    'SELECT * FROM %s EXCEPT SELECT * FROM %s' % (t1, t2))
-                if diff.rowcount > 0:
-                    print 'row in %s but not %s db (sample):' % (t1, t2), \
-                        diff.fetchone()
-                    self.session.commit()
-                    (_f, dumppath) = tempfile.mkstemp(suffix='.debsources-dump')
-                    pg_dump(TEST_DB_NAME, dumppath)
-                    print 'test db dump saved as %s' % dumppath
-                self.assertEqual(diff.rowcount, 0,
-                                 msg='%d rows in %s \ %s' % (diff.rowcount, t1, t2))
+        # compare DBs
+        for tbl, q in self.DB_COMPARE_QUERIES.iteritems():
+            expected = [ dict(r.items()) for r in self.session.execute(q % { 'schema': 'ref' }) ]
+            actual = [ dict(r.items()) for r in self.session.execute(q % { 'schema': 'public' }) ]
+            self.assertSequenceEqual(expected, actual,
+                                     msg='table %s differs from reference' % tbl)
+
 
     @istest
     def updaterProducesReferenceSourcesTxt(self):
