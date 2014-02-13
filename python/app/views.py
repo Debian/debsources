@@ -303,12 +303,7 @@ class ListpackagesView(GeneralView):
         else: # we paginate
             # WARNING: not serializable (TODO: serialize Pagination obj)
             try:
-                try:
-                    offset = int(app.config.get("LIST_OFFSET"))
-                except:
-                    app.logger.warning("list_offset is not defined in the "
-                                       "configuration, or has a bad value")
-                    offset = 60
+                offset = int(app.config.get("LIST_OFFSET") or 60)
                 
                 # we calculate the range of results
                 start = (page - 1) * offset
@@ -667,7 +662,7 @@ class ChecksumView(GeneralView):
         
         # pagination:
         if not self.all_:
-            offset = int(app.config.get("LIST_OFFSET")) or 60
+            offset = int(app.config.get("LIST_OFFSET") or 60)
             start = (page - 1) * offset
             end = start + offset
             slice_ = (start, end)
