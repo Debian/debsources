@@ -57,7 +57,7 @@ def add_package(session, pkg, pkgdir):
     if 'hooks.fs' in conf['passes']:
         if not os.path.exists(sumsfile): # compute checksums only if needed
             with open(sumsfile_tmp, 'w') as out:
-                for relpath in fs_storage.walk_pkg_files(pkgdir):
+                for path in fs_storage.walk_pkg_files(pkgdir):
                     if os.path.islink(path):
                         # do not checksum symlinks, if they are not dangling /
                         # external we will checksum their target anyhow
