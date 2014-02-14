@@ -18,6 +18,8 @@
 import logging
 import os
 
+from sqlalchemy import sql
+
 import dbutils
 import fs_storage
 import hashutil
@@ -77,20 +79,28 @@ def add_package(session, pkg, pkgdir, file_table):
 
     if 'hooks.db' in conf['passes']:
         version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
+        insert_q = sql.insert(Checksum)
+        insert_params = []
         if not session.query(Checksum).filter_by(version_id=version.id).first():
             # ASSUMPTION: if *a* checksum of this package has already
             # been added to the db in the past, then *all* of them have,
             # as additions are part of the same transaction
             for (sha256, relpath) in parse_checksums(sumsfile):
+                params = {'version_id': version.id,
+                          'sha256': sha256,
+                      }
                 if file_table:
                     checksum = Checksum(version, file_table[relpath], sha256)
-                    session.add(checksum)
+                    params['file_id'] = file_table[relpath]
                 else:
                     file_ = session.query(File).filter_by(version_id=version.id,
                                                           path=relpath).first()
-                    if file_:
-                        checksum = Checksum(version, file_.id, sha256)
-                        session.add(checksum)
+                    if not file_:
+                        continue
+                    params['file_id'] = file_.id
+                insert_params.append(params)
+            if insert_params:	# source packages shouldn't be empty but...
+                session.execute(insert_q, insert_params)
 
 
 def rm_package(session, pkg, pkgdir, file_table):

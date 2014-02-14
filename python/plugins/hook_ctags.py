@@ -19,6 +19,8 @@ import logging
 import os
 import subprocess
 
+from sqlalchemy import sql
+
 import dbutils
 
 from models import Ctag, File, MAX_KEY_LENGTH
@@ -108,29 +110,38 @@ def add_package(session, pkg, pkgdir, file_table):
 
     if 'hooks.db' in conf['passes']:
         version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
-        curfile = {None: None}	# poor man's cache for last <relpath, File>;
+        curfile = {None: None}	# poor man's cache for last <relpath, file_id>;
                              # rely on the fact that ctags file are path-sorted
+        insert_q = sql.insert(Ctag)
+        insert_params = []
         if not session.query(Ctag).filter_by(version_id=version.id).first():
-            # ASSUMPTION: if *a* cta of this package has already been added to
+            # ASSUMPTION: if *a* ctag of this package has already been added to
             # the db in the past, then *all* of them have, as additions are
             # part of the same transaction
             for tag in parse_ctags(ctagsfile):
+                params = ({'version_id': version.id,
+                           'tag': tag['tag'],
+                           # 'file_id': 	# will be filled below
+                           'line': tag['line'],
+                           'kind': tag['kind'],
+                           'language': tag['language'],
+                       })
                 relpath = tag['path']
                 if file_table:
-                    ctag = Ctag(version, tag['tag'], file_table[relpath],
-                                tag['line'], tag['kind'], tag['language'])
-                    session.add(ctag)
+                    params['file_id'] = file_table[relpath]
                 else:
                     try:
-                        file_ = curfile[relpath]
+                        params['file_id'] = curfile[relpath]
                     except KeyError:
                         file_ = session.query(File).filter_by(version_id=version.id,
                                                               path=relpath).first()
-                        curfile = { relpath: file_ }
-                    if file_:
-                        ctag = Ctag(version, tag['tag'], file_.id, tag['line'],
-                                    tag['kind'], tag['language'])
-                        session.add(ctag)
+                        if not file_:
+                            continue
+                        curfile = { relpath: file_.id }
+                        params['file_id'] = file_.id
+                insert_params.append(params)
+            if insert_params:	# might be empty if there are no ctags at all!
+                session.execute(insert_q, insert_params)
 
 
 def rm_package(session, pkg, pkgdir, file_table):
