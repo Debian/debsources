@@ -33,6 +33,8 @@ MY_NAME = 'checksums'
 MY_EXT = '.' + MY_NAME
 sums_path = lambda pkgdir: pkgdir + MY_EXT
 
+# maximum number of ctags after which a (bulk) insert is sent to the DB
+BULK_FLUSH_THRESHOLD = 100000
 
 def parse_checksums(path):
     """parse sha256 checksums from a file in SHA256SUM(1) format
@@ -99,8 +101,13 @@ def add_package(session, pkg, pkgdir, file_table):
                         continue
                     params['file_id'] = file_.id
                 insert_params.append(params)
+                if len(insert_params) >= BULK_FLUSH_THRESHOLD:
+                    session.execute(insert_q, insert_params)
+                    session.flush()
+                    insert_params = []
             if insert_params:	# source packages shouldn't be empty but...
                 session.execute(insert_q, insert_params)
+                session.flush()
 
 
 def rm_package(session, pkg, pkgdir, file_table):

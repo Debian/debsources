@@ -38,6 +38,8 @@ MY_NAME = 'ctags'
 MY_EXT = '.' + MY_NAME
 ctags_path = lambda pkgdir: pkgdir + MY_EXT
 
+# maximum number of ctags after which a (bulk) insert is sent to the DB
+BULK_FLUSH_THRESHOLD = 20000
 
 def parse_ctags(path):
     """parse exuberant ctags tags file
@@ -140,8 +142,13 @@ def add_package(session, pkg, pkgdir, file_table):
                         curfile = { relpath: file_.id }
                         params['file_id'] = file_.id
                 insert_params.append(params)
+                if len(insert_params) >= BULK_FLUSH_THRESHOLD:
+                    session.execute(insert_q, insert_params)
+                    session.flush()
+                    insert_params = []
             if insert_params:	# might be empty if there are no ctags at all!
                 session.execute(insert_q, insert_params)
+                session.flush()
 
 
 def rm_package(session, pkg, pkgdir, file_table):
