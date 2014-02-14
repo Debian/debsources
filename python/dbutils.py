@@ -54,10 +54,15 @@ def add_package(session, pkg, pkgdir):
         session.flush()	# to get a version.id, needed by File below
 
         # add individual source files to the File table
+        file_table = {}
         for path in fs_storage.walk_pkg_files(pkgdir):
             relpath = os.path.relpath(path, pkgdir)
             file_ = File(version, relpath)
             session.add(file_)
+            session.flush()
+            file_table[relpath] = file_.id
+
+        return file_table
 
 
 def rm_package(session, pkg, db_version):

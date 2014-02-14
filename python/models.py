@@ -166,9 +166,9 @@ class Checksum(Base):
                      nullable=False)
     sha256 = Column(String(64), nullable=False, index=True)
 
-    def __init__(self, version, file_, sha256):
+    def __init__(self, version, file_id, sha256):
         self.version_id = version.id
-        self.file_id = file_.id
+        self.file_id = file_id
         self.sha256 = sha256
     
 
@@ -291,10 +291,10 @@ class Ctag(Base):
         # or full names, sigh
     language = Column(Enum(*CTAGS_LANGUAGES, name="ctags_languages"))
 
-    def __init__(self, version, tag, file_, line, kind, language):
+    def __init__(self, version, tag, file_id, line, kind, language):
         self.version_id = version.id
         self.tag = tag
-        self.file_id = file_.id
+        self.file_id = file_id
         self.line = line
         self.kind = kind
         self.language = language

@@ -47,24 +47,32 @@ def parse_checksums(path):
             yield (sha256, path)
 
 
-def add_package(session, pkg, pkgdir):
+def add_package(session, pkg, pkgdir, file_table):
     global conf
     logging.debug('add-package %s' % pkg)
 
     sumsfile = sums_path(pkgdir)
     sumsfile_tmp = sumsfile + '.new'
 
+    def emit_checksum(out, relpath, abspath):
+        if os.path.islink(abspath):
+            # do not checksum symlinks, if they are not dangling / external we
+            # will checksum their target anyhow
+            return
+        sha256 = hashutil.sha256sum(abspath)
+        out.write('%s  %s\n' % (sha256, relpath))
+
     if 'hooks.fs' in conf['passes']:
         if not os.path.exists(sumsfile): # compute checksums only if needed
             with open(sumsfile_tmp, 'w') as out:
-                for path in fs_storage.walk_pkg_files(pkgdir):
-                    if os.path.islink(path):
-                        # do not checksum symlinks, if they are not dangling /
-                        # external we will checksum their target anyhow
-                        continue
-                    sha256 = hashutil.sha256sum(path)
-                    relpath = os.path.relpath(path, pkgdir)
-                    out.write('%s  %s\n' % (sha256, relpath))
+                if file_table:
+                    for relpath in file_table.iterkeys():
+                        abspath = os.path.join(pkgdir, relpath)
+                        emit_checksum(out, relpath, abspath)
+                else:
+                    for abspath in fs_storage.walk_pkg_files(pkgdir):
+                        relpath = os.path.relpath(abspath, pkgdir)
+                        emit_checksum(out, relpath, abspath)
             os.rename(sumsfile_tmp, sumsfile)
 
     if 'hooks.db' in conf['passes']:
@@ -74,14 +82,18 @@ def add_package(session, pkg, pkgdir):
             # been added to the db in the past, then *all* of them have,
             # as additions are part of the same transaction
             for (sha256, relpath) in parse_checksums(sumsfile):
-                file_ = session.query(File).filter_by(version_id=version.id,
-                                                      path=relpath).first()
-                if file_:
-                    checksum = Checksum(version, file_, sha256)
+                if file_table:
+                    checksum = Checksum(version, file_table[relpath], sha256)
                     session.add(checksum)
+                else:
+                    file_ = session.query(File).filter_by(version_id=version.id,
+                                                          path=relpath).first()
+                    if file_:
+                        checksum = Checksum(version, file_.id, sha256)
+                        session.add(checksum)
 
 
-def rm_package(session, pkg, pkgdir):
+def rm_package(session, pkg, pkgdir, file_table):
     global conf
     logging.debug('rm-package %s' % pkg)
 

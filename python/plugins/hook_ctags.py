@@ -86,7 +86,7 @@ def parse_ctags(path):
                 logging.warn('ignore malformed tag "%s"' % line.rstrip())
 
 
-def add_package(session, pkg, pkgdir):
+def add_package(session, pkg, pkgdir, file_table):
     global conf
     logging.debug('add-package %s' % pkg)
 
@@ -116,20 +116,24 @@ def add_package(session, pkg, pkgdir):
             # part of the same transaction
             for tag in parse_ctags(ctagsfile):
                 relpath = tag['path']
-                try:
-                    file_ = curfile[relpath]
-                except KeyError:
-                    file_ = session.query(File).filter_by(version_id=version.id,
-                                                          path=relpath).first()
-                    curfile = { relpath: file_ }
-
-                if file_:
-                    ctag = Ctag(version, tag['tag'], file_, tag['line'],
-                                tag['kind'], tag['language'])
+                if file_table:
+                    ctag = Ctag(version, tag['tag'], file_table[relpath],
+                                tag['line'], tag['kind'], tag['language'])
                     session.add(ctag)
+                else:
+                    try:
+                        file_ = curfile[relpath]
+                    except KeyError:
+                        file_ = session.query(File).filter_by(version_id=version.id,
+                                                              path=relpath).first()
+                        curfile = { relpath: file_ }
+                    if file_:
+                        ctag = Ctag(version, tag['tag'], file_.id, tag['line'],
+                                    tag['kind'], tag['language'])
+                        session.add(ctag)
 
 
-def rm_package(session, pkg, pkgdir):
+def rm_package(session, pkg, pkgdir, file_table):
     global conf
     logging.debug('rm-package %s' % pkg)
 

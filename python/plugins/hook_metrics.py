@@ -1,4 +1,4 @@
-# Copyright (C) 2013  Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -40,7 +40,7 @@ def parse_metrics(path):
     return metrics
 
 
-def add_package(session, pkg, pkgdir):
+def add_package(session, pkg, pkgdir, file_table):
     global conf
     logging.debug('add-package %s' % pkg)
 
@@ -75,7 +75,7 @@ def add_package(session, pkg, pkgdir):
             session.add(metric)
 
 
-def rm_package(session, pkg, pkgdir):
+def rm_package(session, pkg, pkgdir, file_table):
     global conf
     logging.debug('rm-package %s' % pkg)
 
