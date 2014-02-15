@@ -36,11 +36,11 @@ ALTER TABLE checksums
     ON DELETE CASCADE NOT VALID;
 
 --- fill file_id fetching data from files.id
-UPDATE checksums SET file_id=files.id FROM
-  (SELECT files.id
-   FROM files
-   WHERE files.path=checksums.path)
-  AS files;
+UPDATE checksums
+  SET   file_id = files.id
+  FROM  files
+  WHERE checksums.version_id = files.version_id
+  AND   checksums.path = files.path;
 
 --- validate file_id and drop column path
 ALTER TABLE checksums
@@ -74,11 +74,11 @@ ALTER TABLE ctags
     ON DELETE CASCADE NOT VALID;
 
 --- fill file_id fetching data from files.id
-UPDATE ctags SET file_id=files.id FROM
-  (SELECT files.id
-   FROM files
-   WHERE files.path=ctags.path)
-  AS files;
+UPDATE ctags
+  SET   file_id = files.id
+  FROM  files
+  WHERE ctags.version_id = files.version_id
+  AND   ctags.path = files.path;
 
 --- validate file_id and drop column path
 ALTER TABLE ctags
