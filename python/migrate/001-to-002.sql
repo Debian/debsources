@@ -91,9 +91,8 @@ ALTER TABLE ctags
   ADD COLUMN line_new INTEGER,
   ADD COLUMN kind_new VARCHAR,
   ADD COLUMN language_new ctags_languages;
-UPDATE ctags SET line_new = line;
-UPDATE ctags SET kind_new = kind;
-UPDATE ctags SET language_new = language;
+UPDATE ctags
+  SET (line_new, kind_new, language_new) = (line, kind, language);
 ALTER TABLE ctags
   DROP COLUMN line,
   DROP COLUMN kind,
