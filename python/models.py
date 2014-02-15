@@ -35,6 +35,10 @@ import filetype
 Base = declarative_base()
 
 
+# used for migrations, see scripts under python/migrate/
+DB_SCHEMA_VERSION = 2
+
+
 class Package(Base):
     """ a source package """
     __tablename__ = 'packages'
