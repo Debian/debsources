@@ -81,7 +81,7 @@ def add_package(session, pkg, pkgdir, file_table):
 
     if 'hooks.db' in conf['passes']:
         version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
-        insert_q = sql.insert(Checksum)
+        insert_q = sql.insert(Checksum.__table__)
         insert_params = []
         if not session.query(Checksum).filter_by(version_id=version.id).first():
             # ASSUMPTION: if *a* checksum of this package has already

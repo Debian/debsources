@@ -124,7 +124,7 @@ def add_package(session, pkg, pkgdir, file_table):
         version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
         curfile = {None: None}	# poor man's cache for last <relpath, file_id>;
                              # rely on the fact that ctags file are path-sorted
-        insert_q = sql.insert(Ctag)
+        insert_q = sql.insert(Ctag.__table__)
         insert_params = []
         if not session.query(Ctag).filter_by(version_id=version.id).first():
             # ASSUMPTION: if *a* ctag of this package has already been added to
