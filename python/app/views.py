@@ -746,3 +746,29 @@ app.add_url_rule('/api/ctag/', view_func=CtagView.as_view(
         render_func=jsonify,
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
         ))
+
+
+### INFO PAGES ###
+
+class InfoPackageView(GeneralView):
+    def get_objects(self, package, version):
+        pkg_infos = Infobox(session, package, version).get_infos()
+        return dict(pkg_infos = pkg_infos,
+                    package = package,
+                    version = version)
+
+# INFO PER-VERSION (HTML)
+app.add_url_rule('/info/package/<package>/<version>/',
+                 view_func=InfoPackageView.as_view(
+        'info_package_html',
+        render_func=lambda **kwargs: render_template('infopackage.html', **kwargs),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+
+# INFO PER-VERSION (JSON)
+app.add_url_rule('/api/info/package/<package>/<version>/',
+                 view_func=InfoPackageView.as_view(
+        'info_package_json',
+        render_func=jsonify,
+        err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
+        ))

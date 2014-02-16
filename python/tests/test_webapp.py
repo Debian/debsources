@@ -221,6 +221,10 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         assert rv["pkg_infos"]["vcs_type"] == "svn"
         assert rv["pkg_infos"]["pts_link"] == (
             "http://packages.qa.debian.org/libcaca")
+    
+    def test_info_version(self):
+        rv = self.app.get('/info/package/libcaca/0.99.beta17-1/')
+        assert '<div id="pkginfobox">' in rv.data # without class="fixed"
         
 if __name__ == '__main__':
     unittest.main(exit=False)
