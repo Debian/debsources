@@ -3,7 +3,7 @@
   License: GNU Affero General Public License, version 3 or above.
 #}
 
-{% macro render_infobox(package, version, pkg_infos) -%}
+{% macro render_infobox(package, version, pkg_infos, position="fixed") -%}
   <script type="text/javascript">
     function toggle(id)
     {
@@ -15,7 +15,11 @@
     }
   </script>
 
+{% if position == "fixed" %}
+<div id="pkginfobox" class="pkginfobox_fixed">
+{% else %}
 <div id="pkginfobox">
+{% endif %}
   <span onclick="toggle('infobox_content')">package info
     <small>(click to toggle)</small></span>
   <div id="infobox_content">
@@ -43,6 +47,5 @@
     </ul>
   </div>
 </div>
-<div id="infobox_align"></div>
 
 {%- endmacro %}

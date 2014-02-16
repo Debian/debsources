@@ -116,22 +116,18 @@ table.rrd tr td {
 
 #pkginfobox {
     font-size: small;
-    position: fixed;
-    right: 20px;
-    top: 200px;
     padding: 3px;
     max-width: 200px;
     border: 1px solid #d2d3d7;
 }
 
+.pkginfobox_fixed {
+    position: fixed;
+    right: 20px;
+    top: 200px;
+}
+
 #infobox_content ul {
     margin-top: 0px;
     margin-bottom: 0px;
-}
-
-/* trick to be sure the infobox doesn't overlapse the footer */
-#infobox_align {
-    height: 300px;
-    width: 0px;
-    float: right;
 }
