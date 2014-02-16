@@ -128,3 +128,10 @@ table.rrd tr td {
     margin-top: 0px;
     margin-bottom: 0px;
 }
+
+/* trick to be sure the infobox doesn't overlapse the footer */
+#infobox_align {
+    height: 300px;
+    width: 0px;
+    float: right;
+}
