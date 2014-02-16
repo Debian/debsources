@@ -5,7 +5,7 @@ if [ -f debian/copyright ] ; then
     if ! [ -d "$destdir" ] ; then
 	mkdir -p "$destdir"
     fi
-    if head -n 10 debian/copyright | grep -q '^Format:' ; then	# DEP5 format
+    if head -n 10 debian/copyright | grep -Eiq '^Format(-Specification)?:' ; then	# DEP5 format
 	format=machine
     else	# natural language format
 	format=legacy
