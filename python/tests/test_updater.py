@@ -36,6 +36,74 @@ from subprocess_workaround import subprocess_setup
 from testdata import *
 
 
+# queries to compare two DB schemas (e.g. "public.*" and "ref.*")
+DB_COMPARE_QUERIES = {
+    "packages":
+    "SELECT name \
+     FROM %(schema)s.packages \
+     ORDER BY name \
+     LIMIT 100",
+
+    "versions":
+    "SELECT packages.name, vnumber, area, vcs_type, vcs_url, vcs_browser \
+     FROM %(schema)s.versions, %(schema)s.packages \
+     WHERE versions.package_id = packages.id \
+     ORDER BY packages.name, vnumber \
+     LIMIT 100",
+
+    "suitesmapping":
+    "SELECT packages.name, versions.vnumber, suite \
+     FROM %(schema)s.versions, %(schema)s.packages, %(schema)s.suitesmapping \
+     WHERE versions.package_id = packages.id \
+     AND suitesmapping.sourceversion_id = versions.id \
+     ORDER BY packages.name, versions.vnumber, suite \
+     LIMIT 100",
+
+    "files":
+    "SELECT packages.name, versions.vnumber, files.path \
+     FROM %(schema)s.files, %(schema)s.versions, %(schema)s.packages \
+     WHERE versions.package_id = packages.id \
+     AND files.version_id = versions.id \
+     ORDER BY packages.name, versions.vnumber, files.path \
+     LIMIT 100",
+
+    "checksums":
+    "SELECT packages.name, versions.vnumber, files.path, sha256 \
+     FROM %(schema)s.files, %(schema)s.versions, %(schema)s.packages, %(schema)s.checksums \
+     WHERE versions.package_id = packages.id \
+     AND checksums.version_id = versions.id \
+     AND checksums.file_id = files.id \
+     ORDER BY packages.name, versions.vnumber, files.path \
+     LIMIT 100",
+
+    "sloccounts":
+    "SELECT packages.name, versions.vnumber, language, count \
+     FROM %(schema)s.sloccounts, %(schema)s.versions, %(schema)s.packages \
+     WHERE versions.package_id = packages.id \
+     AND sloccounts.sourceversion_id = versions.id \
+     ORDER BY packages.name, versions.vnumber, language \
+     LIMIT 100",
+
+    "ctags":
+    "SELECT packages.name, versions.vnumber, files.path, tag, line, kind, language \
+     FROM %(schema)s.ctags, %(schema)s.files, %(schema)s.versions, %(schema)s.packages \
+     WHERE versions.package_id = packages.id \
+     AND ctags.version_id = versions.id \
+     AND ctags.file_id = files.id \
+     ORDER BY packages.name, versions.vnumber, files.path, tag, line, kind, language \
+     LIMIT 100",
+
+    "metric":
+    "SELECT packages.name, versions.vnumber, metric, value_ \
+     FROM %(schema)s.metrics, %(schema)s.versions, %(schema)s.packages \
+     WHERE versions.package_id = packages.id \
+     AND metrics.sourceversion_id = versions.id \
+     AND metric != 'size' \
+     ORDER BY packages.name, versions.vnumber, metric \
+     LIMIT 100",
+}
+
+
 def compare_dirs(dir1, dir2, exclude=[]):
     """recursively compare dir1 with dir2
 
@@ -91,77 +159,31 @@ def mk_conf(tmpdir):
     return conf
 
 
+def mv_to_schema(session, new_schema):
+    """move all debsources tables from the 'public' schema to new_schema
+
+    then recreate the corresponding (empty) tables under 'public'
+    """
+    session.execute('CREATE SCHEMA %s' % new_schema);
+    for tblname, table in models.Base.metadata.tables.items():
+        session.execute('ALTER TABLE %s SET SCHEMA %s' \
+                        % (tblname, new_schema))
+        session.execute(sqlalchemy.schema.CreateTable(table))
+
+
+def assert_db_schema_equal(test_subj, expected_schema, actual_schema):
+    for tbl, q in DB_COMPARE_QUERIES.iteritems():
+        expected = [ dict(r.items()) for r in \
+                     test_subj.session.execute(q % {'schema': expected_schema}) ]
+        actual = [ dict(r.items()) for r in \
+                   test_subj.session.execute(q % {'schema': actual_schema}) ]
+        test_subj.assertSequenceEqual(expected, actual,
+                        msg='table %s differs from reference' % tbl)
+
 
 @attr('infra')
 @attr('postgres')
 class Updater(unittest.TestCase, DbTestFixture):
-
-    # queries to compare two DB schemas (usually "public.*" and "ref.*")
-    DB_COMPARE_QUERIES = {
-        "packages":
-        "SELECT name \
-         FROM %(schema)s.packages \
-         ORDER BY name \
-         LIMIT 100",
-
-        "versions":
-        "SELECT packages.name, vnumber, area, vcs_type, vcs_url, vcs_browser \
-         FROM %(schema)s.versions, %(schema)s.packages \
-         WHERE versions.package_id = packages.id \
-         ORDER BY packages.name, vnumber \
-         LIMIT 100",
-
-        "suitesmapping":
-        "SELECT packages.name, versions.vnumber, suite \
-         FROM %(schema)s.versions, %(schema)s.packages, %(schema)s.suitesmapping \
-         WHERE versions.package_id = packages.id \
-         AND suitesmapping.sourceversion_id = versions.id \
-         ORDER BY packages.name, versions.vnumber, suite \
-         LIMIT 100",
-
-        "files":
-        "SELECT packages.name, versions.vnumber, files.path \
-         FROM %(schema)s.files, %(schema)s.versions, %(schema)s.packages \
-         WHERE versions.package_id = packages.id \
-         AND files.version_id = versions.id \
-         ORDER BY packages.name, versions.vnumber, files.path \
-         LIMIT 100",
-
-        "checksums":
-        "SELECT packages.name, versions.vnumber, files.path, sha256 \
-         FROM %(schema)s.files, %(schema)s.versions, %(schema)s.packages, %(schema)s.checksums \
-         WHERE versions.package_id = packages.id \
-         AND checksums.version_id = versions.id \
-         AND checksums.file_id = files.id \
-         ORDER BY packages.name, versions.vnumber, files.path \
-         LIMIT 100",
-
-        "sloccounts":
-        "SELECT packages.name, versions.vnumber, language, count \
-         FROM %(schema)s.sloccounts, %(schema)s.versions, %(schema)s.packages \
-         WHERE versions.package_id = packages.id \
-         AND sloccounts.sourceversion_id = versions.id \
-         ORDER BY packages.name, versions.vnumber, language \
-         LIMIT 100",
-
-        "ctags":
-        "SELECT packages.name, versions.vnumber, files.path, tag, line, kind, language \
-         FROM %(schema)s.ctags, %(schema)s.files, %(schema)s.versions, %(schema)s.packages \
-         WHERE versions.package_id = packages.id \
-         AND ctags.version_id = versions.id \
-         AND ctags.file_id = files.id \
-         ORDER BY packages.name, versions.vnumber, files.path, tag, line, kind, language \
-         LIMIT 100",
-
-        "metric":
-        "SELECT packages.name, versions.vnumber, metric, value_ \
-         FROM %(schema)s.metrics, %(schema)s.versions, %(schema)s.packages \
-         WHERE versions.package_id = packages.id \
-         AND metrics.sourceversion_id = versions.id \
-         AND metric != 'size' \
-         ORDER BY packages.name, versions.vnumber, metric \
-         LIMIT 100",
-    }
 
     def setUp(self):
         self.db_setup()
@@ -177,10 +199,7 @@ class Updater(unittest.TestCase, DbTestFixture):
     @attr('slow')
     def updaterProducesReferenceDb(self):
         # move tables to reference schema 'ref' and recreate them under 'public'
-        self.session.execute('CREATE SCHEMA ref');
-        for tblname, table in models.Base.metadata.tables.items():
-            self.session.execute('ALTER TABLE %s SET SCHEMA ref' % tblname)
-            self.session.execute(sqlalchemy.schema.CreateTable(table))
+        mv_to_schema(self.session, 'ref')
 
         # do a full update run in a virtual test environment
         mainlib.init_logging(self.conf, console_verbosity=logging.WARNING)
@@ -200,11 +219,7 @@ class Updater(unittest.TestCase, DbTestFixture):
         self.assertTrue(dir_eq)
 
         # compare DBs
-        for tbl, q in self.DB_COMPARE_QUERIES.iteritems():
-            expected = [ dict(r.items()) for r in self.session.execute(q % { 'schema': 'ref' }) ]
-            actual = [ dict(r.items()) for r in self.session.execute(q % { 'schema': 'public' }) ]
-            self.assertSequenceEqual(expected, actual,
-                                     msg='table %s differs from reference' % tbl)
+        assert_db_schema_equal(self, 'ref', 'public')
 
 
     @istest
