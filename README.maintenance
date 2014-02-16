@@ -1,13 +1,29 @@
-Add/remove hooks
-================
+Recreate the DB
+===============
 
-To add a hook:
+To recreate the DB using the current state of Debsources file storage as
+reference:
 
-1. add the hook as a Python plugin under `bin/plugins/hook_NAME.py`
+1. reset the current DB by either emptying all tables or simply recreating the
+   DB, e.g. with:
 
-2. trigger the `add-package` event for the new hook:
+     $ bin/dbadmin --dropdb --createdb postgresql:///debsources
 
-    $ bin/update-debsources(-ng) -vvv --pass none --trigger add-package/NAME
+2. redo all DB-related update passes, skipping the filesystem ones:
+
+     $ bin/update-debsources -p db -p hooks -p hooks.db
+
+
+Add/remove plugins
+==================
+
+To add a plugin:
+
+1. add the (Python) plugin under `bin/plugins/hook_NAME.py`
+
+2. trigger the `add-package` event:
+
+    $ bin/update-debsources -vvv --pass none --trigger add-package/NAME
 
 3. add the hook to the `hooks` configuration entry in config(.local).ini
 
