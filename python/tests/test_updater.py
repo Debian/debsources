@@ -216,7 +216,7 @@ class Updater(unittest.TestCase, DbTestFixture):
                                         exclude=exclude_pat)
         if not dir_eq:
             print dir_diff
-        self.assertTrue(dir_eq)
+        self.assertTrue(dir_eq, 'file system storages differ')
 
         # compare DBs
         assert_db_schema_equal(self, 'ref', 'public')
