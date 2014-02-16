@@ -41,6 +41,10 @@ ctags_path = lambda pkgdir: pkgdir + MY_EXT
 # maximum number of ctags after which a (bulk) insert is sent to the DB
 BULK_FLUSH_THRESHOLD = 20000
 
+# maximum number of detailed warnings for malformed tags that will be emitted.
+# used to avoid flooding logs
+BAD_TAGS_THRESHOLD = 5
+
 def parse_ctags(path):
     """parse exuberant ctags tags file
 
@@ -79,6 +83,7 @@ def parse_ctags(path):
         return tag
 
     with open(path) as ctags:
+        bad_tags = 0
         for line in ctags:
             # e.g. 'music\tsound.c\t13;"\tkind:v\tline:13\tlanguage:C\tfile:\n'
             # see CTAGS(1), section "TAG FILE FORMAT"
@@ -87,7 +92,12 @@ def parse_ctags(path):
             try:
                 yield parse_tag(line)
             except:
-                logging.warn('ignore malformed tag "%s"' % line.rstrip())
+                bad_tags += 1
+                if bad_tags <= BAD_TAGS_THRESHOLD:
+                    logging.warn('ignore malformed tag "%s"' % line.rstrip())
+        if bad_tags > BAD_TAGS_THRESHOLD:
+            logging.warn('%d extra malformed tag(s) ignored' %
+                         (bad_tags - BAD_TAGS_THRESHOLD))
 
 
 def add_package(session, pkg, pkgdir, file_table):
