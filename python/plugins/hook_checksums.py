@@ -93,7 +93,10 @@ def add_package(session, pkg, pkgdir, file_table):
                       }
                 if file_table:
                     checksum = Checksum(version, file_table[relpath], sha256)
-                    params['file_id'] = file_table[relpath]
+                    try:
+                        params['file_id'] = file_table[relpath]
+                    with KeyError:
+                        continue
                 else:
                     file_ = session.query(File).filter_by(version_id=version.id,
                                                           path=relpath).first()

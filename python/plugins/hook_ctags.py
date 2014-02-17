@@ -142,7 +142,10 @@ def add_package(session, pkg, pkgdir, file_table):
                        })
                 relpath = tag['path']
                 if file_table:
-                    params['file_id'] = file_table[relpath]
+                    try:
+                        params['file_id'] = file_table[relpath]
+                    with KeyError:
+                        continue
                 else:
                     try:
                         params['file_id'] = curfile[relpath]
