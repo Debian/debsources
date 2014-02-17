@@ -632,6 +632,15 @@ app.add_url_rule('/api/src/<path:path_to>', view_func=SourceView.as_view(
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
         ))
 
+# SOURCE FILE EMBEDDED ROUTING (HTML)
+app.add_url_rule('/embedded/<path:path_to>', view_func=SourceView.as_view(
+        'embedded_source_html',
+        render_func=lambda **kwargs:
+                render_source_file_html("source_file_embedded.html", **kwargs),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+
+
 ### CHECKSUM REQUEST ###
 
 class ChecksumView(GeneralView):
@@ -763,22 +772,3 @@ app.add_url_rule('/api/ctag/', view_func=CtagView.as_view(
         render_func=jsonify,
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
         ))
-
-
-### EMBEDDED PAGES ###
-
-# SOURCE FILE EMBEDDED ROUTING (HTML)
-app.add_url_rule('/embed/file/<path:path_to>', view_func=SourceView.as_view(
-        'embedded_source_html',
-        render_func=lambda **kwargs:
-                render_source_file_html("source_file_embedded.html", **kwargs),
-        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
-        ))
-
-# we redirect the old used embedded file page (/embedded/<path>)
-# to the new one (/embed/file/<path>)
-@app.route("/embedded/<path:path_to>")
-def old_embedded_file(path_to, **kwargs):
-    return redirect(url_for("embedded_source_html",
-                            path_to=path_to,
-                            **request.args))
