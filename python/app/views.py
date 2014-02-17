@@ -782,3 +782,11 @@ def old_embedded_file(path_to, **kwargs):
     return redirect(url_for("embedded_source_html",
                             path_to=path_to,
                             **request.args))
+
+# INFO PER-VERSION (EMBEDDED HTML)
+app.add_url_rule('/embed/pkginfo/<package>/<version>/',
+                 view_func=InfoPackageView.as_view(
+        'info_package_html',
+        render_func=lambda **kwargs: render_template('infopackage_embed.html', **kwargs),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
