@@ -31,7 +31,9 @@ conf = None
 CTAGS_FLAGS = [ '--recurse',
                 '--excmd=number',
                 '--fields=+lnz',
+                # '--extra=+q',
                 '--sort=no',
+                '--links=no',
 ]
                 
 MY_NAME = 'ctags'
