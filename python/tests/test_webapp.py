@@ -158,7 +158,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         assert '<code id="sourcecode" class="no-highlight">' in rv.data
         
     def test_source_file_embedded(self):
-        rv = self.app.get('/embedded/ledit/2.01-6/ledit.ml')
+        rv = self.app.get('/embed/file/ledit/2.01-6/ledit.ml')
         assert '<code id="sourcecode" class="ocaml">' in rv.data
         assert 'Institut National de Recherche en Informatique' in rv.data
         assert '<div id="logo">' not in rv.data
