@@ -144,7 +144,7 @@ def add_package(session, pkg, pkgdir, file_table):
                 if file_table:
                     try:
                         params['file_id'] = file_table[relpath]
-                    with KeyError:
+                    except KeyError:
                         continue
                 else:
                     try:
