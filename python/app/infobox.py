@@ -22,7 +22,7 @@ PTS_PREFIX = "http://packages.qa.debian.org/"
 
 
 from models import Package, Version, SuitesMapping, SlocCount, Metric
-from excepts import Http500Error
+from excepts import Http500Error, Http404Error
 
 # to generate PTS link safely (for internal links we use url_for)
 try:
@@ -117,6 +117,9 @@ class Infobox(object):
         pkg_infos = dict()
         
         infos = self._get_direct_infos()
+        if infos is None:
+            raise Http404Error()
+        
         pkg_infos["area"] = infos.area
         
         if infos.vcs_type and infos.vcs_browser:
