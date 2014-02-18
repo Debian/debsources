@@ -147,8 +147,7 @@ def extract_new(status, conf, session, mirror, observers=NO_OBSERVERS):
     """
     ensure_cache_dir(conf)
 
-    logging.info('add new packages...')
-    for pkg in mirror.ls():
+    def extract_package(pkg):
         pkgdir = pkg.extraction_dir(conf['sources_dir'])
         if not dbutils.lookup_version(session, pkg['package'], pkg['version']):
             try:
@@ -176,6 +175,14 @@ def extract_new(status, conf, session, mirror, observers=NO_OBSERVERS):
         # add entry for sources.txt, temporarily with no suite associated
         pkg_id = (pkg['package'], pkg['version'])
         status.sources[pkg_id] = pkg.archive_area(), pkg.dsc_path(), pkgdir, []
+
+    logging.info('add new packages...')
+    for pkg in mirror.ls():
+        if not conf['single_transaction']:
+            with session.begin():
+                extract_package(pkg)
+        else:
+            extract_package(pkg)
 
 
 def garbage_collect(status, conf, session, mirror, observers=NO_OBSERVERS):

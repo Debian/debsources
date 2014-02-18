@@ -146,6 +146,7 @@ def mk_conf(tmpdir):
         'bin_dir': abspath(os.path.join(TEST_DIR, '../../bin')),
         'cache_dir': os.path.join(tmpdir, 'cache'),
         'db_uri': 'postgresql:///' + TEST_DB_NAME,
+        'single_transaction': 'true',
         'dry_run': False,
         'expire_days': 0,
         'force_triggers': '',
