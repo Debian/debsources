@@ -92,9 +92,10 @@ def add_package(session, pkg, pkgdir, file_table):
                           'sha256': sha256,
                       }
                 if file_table:
-                    checksum = Checksum(version, file_table[relpath], sha256)
                     try:
-                        params['file_id'] = file_table[relpath]
+                        file_id = file_table[relpath]
+                        checksum = Checksum(version, file_id, sha256)
+                        params['file_id'] = file_id
                     except KeyError:
                         continue
                 else:
