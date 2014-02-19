@@ -116,7 +116,7 @@
 <p>
   If you want to embed a source code file in e.g. an iframe, use:
   <span class="url">{{ url_prefix
-  }}/embedded/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong>#L<strong>INT</strong></span>
+  }}/embed/file/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong>#L<strong>INT</strong></span>
 </p>
 
 <p>
@@ -134,4 +134,12 @@
 <p>
   <a href="{{ url_prefix }}/src/cowsay/3.03%2Bdfsg1-4/cowsay?hl=22:28&amp;msg=22:Cowsay:See?%20Cowsay%20variables%20are%20declared%20here.#L22">See complete example</a>
 </p>
+
+<h3>Infobox</h3>
+<p>You can embed an infobox about a particular version of a package
+  (the same infobox which appears when you browse a package) using:
+  <span class="url">{{ url_prefix
+  }}/embed/pkginfo/<strong>packagename</strong>/<strong>version</strong></span>
+</p>
+
 {% endblock %}

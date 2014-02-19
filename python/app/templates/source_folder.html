@@ -13,6 +13,12 @@
 
 {% block title %}Folder: {{ directory }}{% endblock %}
 {% block source_content %}
+
+{% if pkg_infos %}
+{% import "infobox.inc.html" as infobox %}
+{{ infobox.render_infobox(pathl[0][0], pathl[1][0], pkg_infos) }}
+{% endif %}
+
 <h2>{{ self.title() }}</h2>
 
 <ul id="ls">

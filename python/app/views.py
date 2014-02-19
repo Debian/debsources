@@ -35,15 +35,11 @@ session = app_wrapper.session
 from excepts import InvalidPackageOrVersionError, FileOrFolderNotFound, \
     Http500Error, Http404Error, Http403Error
 from models import Ctag, Package, Version, Checksum, Location, \
-    Directory, SourceFile
+    Directory, SourceFile, SuitesMapping, SlocCount, Metric
 from sourcecode import SourceCodeIterator
 from forms import SearchForm
+from infobox import Infobox
 
-# to generate PTS link safely (for internal links we use url_for)
-try:
-    from werkzeug.urls import url_quote
-except ImportError:
-    from urlparse import quote as url_quote
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
@@ -384,36 +380,6 @@ app.add_url_rule('/api/prefix/<prefix>/', view_func=PrefixView.as_view(
 ### SOURCE (packages, versions, folders, files) ###
 
 class SourceView(GeneralView):
-    def _get_pts_link(self, packagename):
-        """
-        returns an URL for packagename in the Debian Package Tracking System
-        """
-        pts_link = app.config['PTS_PREFIX'] + packagename
-        pts_link = url_quote(pts_link) # for '+' symbol in Debian package names
-        return pts_link
-
-    def _get_vcs(self, package, version):
-        """
-        returns a dictionary like::
-
-            { 'type_':   'git',
-              'browser': 'http://anonscm.debian.org/git/collab-maint/foo.git/',
-            }
-        """
-        try:
-            v = (session.query(Version)
-                 .filter(and_(Version.vnumber==version,
-                              Version.package_id==Package.id,
-                              Package.name==package))
-                 .first())
-            vcs = {}
-            if v.vcs_type and v.vcs_browser:
-                vcs['type_'] = v.vcs_type
-                vcs['browser'] = v.vcs_browser
-            return vcs
-        except Exception as e:
-            raise Http500Error(e)
-    
     def _render_package(self, packagename, path_to):
         """
         renders the package page (which lists available versions)
@@ -430,7 +396,7 @@ class SourceView(GeneralView):
                     package=packagename,
                     versions=versions,
                     path=path_to,
-                    pts_link=self._get_pts_link(packagename))
+                    )
     
     def _render_location(self, package, version, path):
         """
@@ -467,14 +433,18 @@ class SourceView(GeneralView):
         
         # (if path == "", then the dir is toplevel, and we don't want
         # the .pc directory)
+        
+        pkg_infos=Infobox(session,
+                          location.get_package(),
+                          location.get_version()).get_infos()
+        
         return dict(type="directory",
                     directory=location.get_deepest_element(),
                     package=location.get_package(),
                     content=directory.get_listing(),
                     path=location.get_path_to(),
-                    pts_link=self._get_pts_link(location.get_package()),
-                    vcs=self._get_vcs(location.get_package(),
-                                      location.get_version()))
+                    pkg_infos=pkg_infos
+                    )
     
     def _render_file(self, location):
         """
@@ -485,6 +455,11 @@ class SourceView(GeneralView):
         checksum = file_.get_sha256sum(session)
         number_of_duplicates = Checksum.count_files_with_sum(session, checksum)
         
+        pkg_infos=Infobox(session,
+                          location.get_package(),
+                          location.get_version()).get_infos()
+
+        
         return dict(type="file",
                     file=location.get_deepest_element(),
                     package=location.get_package(),
@@ -492,12 +467,11 @@ class SourceView(GeneralView):
                     raw_url=file_.get_raw_url(),
                     path=location.get_path_to(),
                     text_file=file_.istextfile(),
-                    pts_link=self._get_pts_link(location.get_package()),
-                    vcs=self._get_vcs(location.get_package(),
-                                      location.get_version()),
                     permissions=file_.get_permissions(),
                     checksum=checksum,
-                    number_of_duplicates=number_of_duplicates)
+                    number_of_duplicates=number_of_duplicates,
+                    pkg_infos=pkg_infos
+                    )
     
     def _handle_latest_version(self, package, path):
         """
@@ -632,15 +606,6 @@ app.add_url_rule('/api/src/<path:path_to>', view_func=SourceView.as_view(
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
         ))
 
-# SOURCE FILE EMBEDDED ROUTING (HTML)
-app.add_url_rule('/embedded/<path:path_to>', view_func=SourceView.as_view(
-        'embedded_source_html',
-        render_func=lambda **kwargs:
-                render_source_file_html("source_file_embedded.html", **kwargs),
-        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
-        ))
-
-
 ### CHECKSUM REQUEST ###
 
 class ChecksumView(GeneralView):
@@ -771,4 +736,57 @@ app.add_url_rule('/api/ctag/', view_func=CtagView.as_view(
         all_=True,
         render_func=jsonify,
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
+        ))
+
+
+### INFO PAGES ###
+
+class InfoPackageView(GeneralView):
+    def get_objects(self, package, version):
+        pkg_infos = Infobox(session, package, version).get_infos()
+        return dict(pkg_infos = pkg_infos,
+                    package = package,
+                    version = version)
+
+# INFO PER-VERSION (HTML)
+app.add_url_rule('/info/package/<package>/<version>/',
+                 view_func=InfoPackageView.as_view(
+        'info_package_html',
+        render_func=lambda **kwargs: render_template('infopackage.html', **kwargs),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+
+# INFO PER-VERSION (JSON)
+app.add_url_rule('/api/info/package/<package>/<version>/',
+                 view_func=InfoPackageView.as_view(
+        'info_package_json',
+        render_func=jsonify,
+        err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
+        ))
+
+
+### EMBEDDED PAGES ###
+
+# SOURCE FILE EMBEDDED ROUTING (HTML)
+app.add_url_rule('/embed/file/<path:path_to>', view_func=SourceView.as_view(
+        'embedded_source_html',
+        render_func=lambda **kwargs:
+                render_source_file_html("source_file_embedded.html", **kwargs),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+
+# we redirect the old used embedded file page (/embedded/<path>)
+# to the new one (/embed/file/<path>)
+@app.route("/embedded/<path:path_to>")
+def old_embedded_file(path_to, **kwargs):
+    return redirect(url_for("embedded_source_html",
+                            path_to=path_to,
+                            **request.args))
+
+# INFO PER-VERSION (EMBEDDED HTML)
+app.add_url_rule('/embed/pkginfo/<package>/<version>/',
+                 view_func=InfoPackageView.as_view(
+        'embedded_info_package_html',
+        render_func=lambda **kwargs: render_template('infopackage_embed.html', **kwargs),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
         ))
