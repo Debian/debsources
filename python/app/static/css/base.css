@@ -115,13 +115,16 @@ table.rrd tr td {
 /* infobox */
 
 #pkginfobox {
+}
+
+.pkginfobox_large {
+}
+
+.pkginfobox_fixed {
     font-size: small;
     padding: 3px;
     max-width: 200px;
     border: 1px solid #d2d3d7;
-}
-
-.pkginfobox_fixed {
     position: fixed;
     right: 20px;
     top: 200px;
