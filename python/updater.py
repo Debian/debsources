@@ -351,5 +351,6 @@ def update(conf, session, observers=NO_OBSERVERS):
     garbage_collect(status, conf, session, mirror, observers)	# phase 3
     update_statistics(status, conf, session)			# phase 4
     update_metadata(status, conf, session)			# phase 5
+    session.flush()
 
     logging.info('finish')
