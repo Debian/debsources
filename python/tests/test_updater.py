@@ -129,6 +129,7 @@ class Updater(unittest.TestCase, DbTestFixture):
         self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
         self.conf = mk_conf(self.tmpdir)
         self.longMessage = True
+        self.maxDiff = None
 
     def tearDown(self):
         self.db_teardown()
