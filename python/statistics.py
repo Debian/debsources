@@ -47,7 +47,7 @@ def disk_usage(session, suite=None):
     return _count(q)
 
 
-def versions(session, suite=None):
+def source_packages(session, suite=None):
     """(versioned) source package count
 
     only count packages in suite, if given

@@ -55,17 +55,18 @@ class Stats(unittest.TestCase, DbTestFixture):
         self.assertEqual(total_size, statistics.disk_usage(self.session))
 
     @istest
-    def versionCountsMatchReferenceDb(self):
-        versions = {
+    def sourcePackagesCountsMatchReferenceDb(self):
+        source_packages = {
             'squeeze': 13,
             'wheezy': 12,
             'jessie': 12,
             'sid': 12,
             'experimental': 1,
         }
-        total_versions = 31
-        self.assertSuiteCountsEqual(versions, statistics.versions)
-        self.assertEqual(total_versions, statistics.versions(self.session))
+        total_source_packages = 31
+        self.assertSuiteCountsEqual(source_packages, statistics.source_packages)
+        self.assertEqual(total_source_packages,
+                         statistics.source_packages(self.session))
 
     @istest
     def sourceFilesCountsMatchReferenceDb(self):
