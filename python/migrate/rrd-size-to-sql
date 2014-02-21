@@ -1,0 +1,43 @@
+#!/usr/bin/perl -w
+use strict;
+
+die "Usage: rrd-stats-to-sql RRD_FILE > SQL_FILE\n"
+    unless defined($ARGV[0]) && -f $ARGV[0];
+my $rrd_file = $ARGV[0];
+
+my %sizes;	# mapping UNIX time -> size
+
+open(DUMP, "rrdtool dump $rrd_file |");
+my $in_data = 0;
+my $last_update;
+while (my $line = <DUMP>) {
+    chomp $line;
+    if ($in_data) {
+	last if $line =~ /<\/database>/;
+	if ($line =~ /<!--.*\/\s+(\d+)\s+-->.*<v>(.*)<\/v><\/row>/) {
+	    next if $2 eq "NaN";
+	    $sizes{int($1)} = int($2);
+	}
+    } else {
+	if ($line =~ /<database>/) {
+	    $in_data = 1;
+	} elsif ($line =~ /<lastupdate>(.*)<\/lastupdate>/) {
+	    $last_update = int($1);
+	} elsif ($line =~ /<last_ds>(.*)<\/last_ds>/) {
+	    $sizes{$last_update} = int($1);
+	}
+    }
+}
+close(DUMP);
+
+print "INSERT INTO history_size (timestamp, suite, disk_usage)\n";
+print "VALUES\n";
+my $row = 0;
+my $rows = scalar keys %sizes;
+foreach my $ts (sort(keys %sizes)) {
+    $row++;
+    print "  (to_timestamp($ts), 'ALL', $sizes{$ts})";
+    print "," unless $row == $rows;
+    print "\n";
+}
+print ";\n";
