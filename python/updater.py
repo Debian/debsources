@@ -136,9 +136,15 @@ def notify_plugins(observers, event, session, pkg, pkgdir,
             raise
 
 
+def ensure_dir(dir):
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
 def ensure_cache_dir(conf):
-    if not os.path.exists(conf['cache_dir']):
-        os.makedirs(conf['cache_dir'])
+    ensure_dir(conf['cache_dir'])
+
+def ensure_stats_dir(conf):
+    ensure_dir(os.path.join(conf['cache_dir'], 'stats'))
 
 
 def extract_new(status, conf, session, mirror, observers=NO_OBSERVERS):
@@ -353,6 +359,7 @@ def update_charts(status, conf, session):
     """update phase: rebuild charts"""
 
     logging.info('update statistics...')
+    ensure_stats_dir(conf)
 
     CHARTS = [	# <period, granularity> paris
         ('1 month', 'full'),
