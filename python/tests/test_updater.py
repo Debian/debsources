@@ -299,29 +299,29 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
     @istest
     def sizeMatchesReferenceDb(self):
         EXPECTED_SIZE = 122628
-        self.assertEqual(EXPECTED_SIZE, self.stats['size.du'])
+        self.assertEqual(EXPECTED_SIZE, self.stats['total.disk_usage'])
 
     @istest
     def statsMatchReferenceDb(self):
         expected_stats = {	# just a few samples
-            'ctags': 70166,
-            'ctags.debian_sid': 21395,
-            'ctags.debian_squeeze': 30633,
-            'size.du.debian_experimental': 6520,
-            'size.source_files': 5489,
-            'size.source_files.debian_experimental': 645,
-            'size.source_files.debian_jessie': 1677,
-            'size.versions': 31,
-            'size.versions.debian_squeeze': 13,
-            'size.versions.debian_wheezy': 12,
-            'sloccount.awk.debian_sid': 25,
-            'sloccount.cpp.debian_sid': 41458,
-            'sloccount.cpp.debian_squeeze': 36508,
-            'sloccount.cpp.debian_wheezy': 37375,
-            'sloccount.perl': 1838,
-            'sloccount.python': 7760,
-            'sloccount.python.debian_wheezy': 2798,
-            'sloccount.ruby.debian_squeeze': 193,
-            'sloccount.ruby.debian_wheezy': 193,
+            'total.ctags': 70166,
+            'debian_sid.ctags': 21395,
+            'debian_squeeze.ctags': 30633,
+            'debian_experimental.disk_usage': 6520,
+            'total.source_files': 5489,
+            'debian_experimental.source_files': 645,
+            'debian_jessie.source_files': 1677,
+            'total.source_packages': 31,
+            'debian_squeeze.source_packages': 13,
+            'debian_wheezy.source_packages': 12,
+            'debian_sid.sloccount.awk': 25,
+            'debian_sid.sloccount.cpp': 41458,
+            'debian_squeeze.sloccount.cpp': 36508,
+            'debian_wheezy.sloccount.cpp': 37375,
+            'total.sloccount.perl': 1838,
+            'total.sloccount.python': 7760,
+            'debian_wheezy.sloccount.python': 2798,
+            'debian_squeeze.sloccount.ruby': 193,
+            'debian_wheezy.sloccount.ruby': 193,
         }
         self.assertDictContainsSubset(expected_stats, self.stats)

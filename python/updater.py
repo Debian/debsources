@@ -289,26 +289,27 @@ def update_statistics(status, conf, session):
 
     # compute overall stats
     stats = {}
-    stats['size.du'] = statistics.disk_usage(session)
-    stats['size.versions'] = statistics.versions(session)
-    stats['size.source_files'] = statistics.source_files(session)
+    stats['total.disk_usage'] = statistics.disk_usage(session)
+    stats['total.source_packages'] = statistics.versions(session)
+    stats['total.source_files'] = statistics.source_files(session)
     store_sloccount_stats(statistics.sloccount_summary(session),
-                          stats, 'sloccount.%s')
-    stats['ctags'] = statistics.ctags(session)
+                          stats, 'total.sloccount.%s')
+    stats['total.ctags'] = statistics.ctags(session)
 
     # compute per-suite stats
     for suite in session.query(distinct(SuitesMapping.suite)).all():
         suite = suite[0]	# SQL projection of the only field
-        stats['size.du.debian_' + suite] = statistics.disk_usage(session, suite)
-        stats['size.versions.debian_' + suite] = \
-                                        statistics.versions(session, suite)
-        stats['size.source_files.debian_' + suite] = \
+        suite_key = 'debian_' + suite + '.'
+        stats[suite_key + 'disk_usage'] = statistics.disk_usage(session, suite)
+        stats[suite_key + 'source_packages'] = \
+                                            statistics.versions(session, suite)
+        stats[suite_key + 'source_files'] = \
                                         statistics.source_files(session, suite)
         slocs = statistics.sloccount_summary(session, suite)
-        store_sloccount_stats(slocs, stats, 'sloccount.%s.debian_' + suite)
+        store_sloccount_stats(slocs, stats, suite_key + 'sloccount.%s')
         slocs_suite = reduce(lambda locs,acc: locs+acc, slocs.itervalues())
-        stats['sloccount.debian_' + suite] = slocs_suite
-        stats['ctags.debian_' + suite] = statistics.ctags(session, suite)
+        stats[suite_key + 'sloccount'] = slocs_suite
+        stats[suite_key + 'ctags'] = statistics.ctags(session, suite)
 
     # cache computed stats to on-disk stats file
     stats_file = os.path.join(conf['cache_dir'], 'stats.data')
