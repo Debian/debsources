@@ -32,6 +32,14 @@ def _count(query):
     return count
 
 
+def _time_series(query):
+    return [ (row['timestamp'], row['value']) for row in query ]
+
+
+def suites(session):
+    return [ row[0] for row in session.query(distinct(SuitesMapping.suite)) ]
+
+
 def disk_usage(session, suite=None):
     """disk space used by extracted source packages
 
@@ -127,3 +135,52 @@ def ctags(session, suite=None):
              .join(SuitesMapping) \
              .filter(SuitesMapping.suite == suite)
     return _count(q)
+
+
+def _hist_size_sample(session, metric, interval, projection, suite=None):
+    q = "\
+      SELECT DISTINCT ON (%(projection)s) timestamp, %(metric)s AS VALUE \
+      FROM history_size \
+      WHERE timestamp >= now() - interval '%(interval)s' \
+      %(filter)s \
+      ORDER BY %(projection)s DESC, timestamp DESC"
+    kw = { 'metric': metric,
+           'projection': projection,
+           'interval': interval,
+           'filter': '' }
+    if suite:
+        kw['filter'] = "AND suite = '%s'" % suite
+    return _time_series(session.execute(q % kw))
+
+
+def history_size_full(session, metric, interval, suite=None):
+    """return recent size history of `metric`, over the past `interval`
+
+    `interval` must a be a valid Postgre time interval, see
+    http://www.postgresql.org/docs/9.1/static/functions-datetime.html
+
+    """
+    return _hist_size_sample(session, metric, interval,
+                             projection="date_trunc('hour', timestamp)",
+                             suite=suite)
+
+
+def history_size_daily(session, metric, interval, suite=None):
+    """like `history_size_full`, but taking daily samples"""
+    return _hist_size_sample(session, metric, interval,
+                             projection="date_trunc('day', timestamp)",
+                             suite=suite)
+
+
+def history_size_weekly(session, metric, interval, suite=None):
+    """like `history_size_full`, but taking weekly samples"""
+    return _hist_size_sample(session, metric, interval,
+                             projection="date_trunc('week', timestamp)",
+                             suite=suite)
+
+
+def history_size_monthly(session, metric, interval, suite=None):
+    """like `history_size_full`, but taking monthly samples"""
+    return _hist_size_sample(session, metric, interval,
+                             projection="date_trunc('month', timestamp)",
+                             suite=suite)

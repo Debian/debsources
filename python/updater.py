@@ -22,8 +22,8 @@ import subprocess
 
 from datetime import datetime
 from email.utils import formatdate
-from sqlalchemy import distinct
 
+import charts
 import consts
 import dbutils
 import fs_storage
@@ -272,7 +272,6 @@ def update_statistics(status, conf, session):
 
     logging.info('update statistics...')
     ensure_cache_dir(conf)
-    session.flush()
 
     def store_sloccount_stats(summary, d, prefix_fmt, db_obj):
         """Update stats dictionary d with per-language sloccount statistics available
@@ -306,8 +305,7 @@ def update_statistics(status, conf, session):
     session.add(loc)
 
     # compute per-suite stats
-    for suite in session.query(distinct(SuitesMapping.suite)).all():
-        suite = suite[0]	# SQL projection of the only field
+    for suite in statistics.suites(session):
         siz = HistorySize(suite, timestamp=now)
         loc = HistorySlocCount(suite, timestamp=now)
 
@@ -321,6 +319,8 @@ def update_statistics(status, conf, session):
         logging.debug('XXX session.add %s', suite)
         session.add(siz)
         session.add(loc)
+
+    session.flush()
 
     # cache computed stats to on-disk stats file
     stats_file = os.path.join(conf['cache_dir'], 'stats.data')
@@ -349,6 +349,30 @@ def update_metadata(status, conf, session):
         out.write('%s\n' % formatdate())
 
 
+def update_charts(status, conf, session):
+    """update phase: rebuild charts"""
+
+    logging.info('update statistics...')
+
+    CHARTS = [	# <period, granularity> paris
+        ('1 month', 'full'),
+        ('1 year', 'daily'),
+        ('5 years', 'weekly'),
+        ('20 years', 'monthly'),
+    ]
+
+    for metric in ['source_packages', 'disk_usage', 'source_files', 'ctags']:
+        for (period, granularity) in CHARTS:
+            for suite in statistics.suites(session) + ['ALL']:
+                series = getattr(statistics, 'history_size_' + granularity) \
+                         (session, metric, interval=period, suite=suite)
+                chart_file = os.path.join(conf['cache_dir'], 'stats', \
+                        '%s-%s-%s.png' % \
+                            (suite, metric, period.replace(' ', '-')))
+                if not conf['dry_run']:
+                    charts.plot(series, chart_file)
+
+
 def update(conf, session, observers=NO_OBSERVERS):
     """do a full update run
     """
@@ -362,6 +386,6 @@ def update(conf, session, observers=NO_OBSERVERS):
     garbage_collect(status, conf, session, mirror, observers)	# phase 3
     update_statistics(status, conf, session)			# phase 4
     update_metadata(status, conf, session)			# phase 5
-    session.flush()
+    update_charts(status, conf, session)			# phase 6
 
     logging.info('finish')
