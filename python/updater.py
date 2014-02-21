@@ -30,7 +30,7 @@ import fs_storage
 import statistics
 
 from debmirror import SourceMirror, SourcePackage
-from models import SuitesMapping, Version
+from models import SuitesMapping, Version, HistorySize, HistorySlocCount
 from subprocess_workaround import subprocess_setup
 
 KNOWN_EVENTS = [ 'add-package', 'rm-package' ]
@@ -272,8 +272,9 @@ def update_statistics(status, conf, session):
 
     logging.info('update statistics...')
     ensure_cache_dir(conf)
+    session.flush()
 
-    def store_sloccount_stats(summary, d, prefix_fmt):
+    def store_sloccount_stats(summary, d, prefix_fmt, db_obj):
         """Update stats dictionary d with per-language sloccount statistics available
         in summary, using prefix_fmt as the format string to create dictionary
         keys. %s in the format string will be replaced by the language name.
@@ -286,30 +287,40 @@ def update_statistics(status, conf, session):
             if summary.has_key(lang):
                 v = summary[lang]
             d[k] = v
+            setattr(db_obj, 'lang_' + lang, v)
+
+    now = datetime.utcnow()
 
     # compute overall stats
+    suite = 'ALL'
+    siz = HistorySize(suite, timestamp=now)
+    loc = HistorySlocCount(suite, timestamp=now)
     stats = {}
-    stats['total.disk_usage'] = statistics.disk_usage(session)
-    stats['total.source_packages'] = statistics.versions(session)
-    stats['total.source_files'] = statistics.source_files(session)
+    for stat in ['disk_usage', 'source_packages', 'source_files', 'ctags']:
+        v = getattr(statistics, stat)(session)
+        stats['total.' + stat] = v
+        setattr(siz, stat, v)
     store_sloccount_stats(statistics.sloccount_summary(session),
-                          stats, 'total.sloccount.%s')
-    stats['total.ctags'] = statistics.ctags(session)
+                          stats, 'total.sloccount.%s', loc)
+    session.add(siz)
+    session.add(loc)
 
     # compute per-suite stats
     for suite in session.query(distinct(SuitesMapping.suite)).all():
         suite = suite[0]	# SQL projection of the only field
+        siz = HistorySize(suite, timestamp=now)
+        loc = HistorySlocCount(suite, timestamp=now)
+
         suite_key = 'debian_' + suite + '.'
-        stats[suite_key + 'disk_usage'] = statistics.disk_usage(session, suite)
-        stats[suite_key + 'source_packages'] = \
-                                            statistics.versions(session, suite)
-        stats[suite_key + 'source_files'] = \
-                                        statistics.source_files(session, suite)
-        slocs = statistics.sloccount_summary(session, suite)
-        store_sloccount_stats(slocs, stats, suite_key + 'sloccount.%s')
-        slocs_suite = reduce(lambda locs,acc: locs+acc, slocs.itervalues())
-        stats[suite_key + 'sloccount'] = slocs_suite
-        stats[suite_key + 'ctags'] = statistics.ctags(session, suite)
+        for stat in ['disk_usage', 'source_packages', 'source_files', 'ctags']:
+            v = getattr(statistics, stat)(session, suite)
+            stats[suite_key + stat] = v
+            setattr(siz, stat, v)
+        store_sloccount_stats(statistics.sloccount_summary(session, suite),
+                              stats, suite_key + 'sloccount.%s', loc)
+        logging.debug('XXX session.add %s', suite)
+        session.add(siz)
+        session.add(loc)
 
     # cache computed stats to on-disk stats file
     stats_file = os.path.join(conf['cache_dir'], 'stats.data')
