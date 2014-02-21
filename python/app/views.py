@@ -21,7 +21,7 @@ import os
 from flask import render_template, redirect, url_for, request, safe_join, \
     jsonify
 from flask.views import View
-from sqlalchemy import and_
+from sqlalchemy import and_, func as sql_func
 
 from sqla_session import _close_session
 
@@ -453,7 +453,9 @@ class SourceView(GeneralView):
         file_ = SourceFile(location)
         
         checksum = file_.get_sha256sum(session)
-        number_of_duplicates = Checksum.count_files_with_sum(session, checksum)
+        number_of_duplicates = (session.query(sql_func.count(Checksum.id))
+                                .filter(Checksum.sha256 == checksum)
+                                .first()[0])
         
         pkg_infos=Infobox(session,
                           location.get_package(),
@@ -630,22 +632,56 @@ class ChecksumView(GeneralView):
         checksum = request.args.get("checksum")
         package = request.args.get("package") or None
         
+        # we count the number of results:
+        count = (session.query(sql_func.count(Checksum.id))
+                 .filter(Checksum.sha256 == checksum))
+        if package is not None and package != "": # (only within the package)
+            count = (count.filter(Package.name == package)
+                     .filter(Checksum.version_id == Version.id)
+                     .filter(Version.package_id == Package.id))
+        count = count.first()[0]
+
+        
         # pagination:
         if not self.all_:
             offset = int(app.config.get("LIST_OFFSET")) or 60
             start = (page - 1) * offset
             end = start + offset
             slice_ = (start, end)
-            count = Checksum.count_files_with_sum(session, checksum, package=package)
             pagination = Pagination(page, offset, count)
         else:
             pagination = None
             slice_ = None
         
-        results = Checksum.files_with_sum(session, checksum, slice_=slice_,
-                                              package=package)
-        count = Checksum.count_files_with_sum(session, checksum, package=package)
+        def files_with_sum(checksum, slice_=None, package=None):
+            """
+            Returns a list of files whose hexdigest is checksum.
+            You can slice the results, passing slice=(start, end).
+            """
+            results = (session.query(Package.name.label("package"),
+                                     Version.vnumber.label("version"),
+                                     Checksum.path.label("path"))
+                       .filter(Checksum.sha256 == checksum)
+                       .filter(Checksum.version_id == Version.id)
+                       .filter(Version.package_id == Package.id)
+                       )
+            if package is not None and package != "":
+                results = results.filter(Package.name == package)
         
+            results = results.order_by("package", "version", "path")
+
+            if slice_ is not None:
+                results = results.slice(slice_[0], slice_[1])
+            results = results.all()
+        
+            return [dict(path=res.path,
+                         package=res.package,
+                         version=res.version)
+                    for res in results]
+        
+        # finally we get the files list
+        results = files_with_sum(checksum, slice_=slice_, package=package)
+
         return dict(results=results,
                     sha256=checksum,
                     count=count,

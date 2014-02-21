@@ -152,53 +152,6 @@ class Checksum(Base):
         self.version_id = version.id
         self.path = path
         self.sha256 = sha256
-    
-    @staticmethod
-    def _query_checksum(session, checksum, package=None):
-        """
-        Returns the query used to retrieve checksums/count checksums.
-        """
-        query = (session.query(Package.name.label("package"),
-                              Version.vnumber.label("version"),
-                              Checksum.path.label("path"))
-                .filter(Checksum.sha256 == checksum)
-                .filter(Checksum.version_id == Version.id)
-                .filter(Version.package_id == Package.id)
-                 )
-        if package is not None and package != "":
-            query = query.filter(Package.name == package)
-        
-        query = query.order_by("package", "version", "path")
-        return query
-        
-
-    @staticmethod
-    def files_with_sum(session, checksum, slice_=None, package=None):
-        """
-        Returns a list of files whose hexdigest is checksum.
-        You can slice the results, passing slice=(start, end).
-        """
-        # here we use db.session.query() instead of Class.query,
-        # because after all "pure" SQLAlchemy is better than the
-        # Flask-SQLAlchemy plugin.
-        results = Checksum._query_checksum(session, checksum, package=package)
-        
-        if slice_ is not None:
-            results = results.slice(slice_[0], slice_[1])
-        results = results.all()
-        
-        return [dict(path=res.path,
-                     package=res.package,
-                     version=res.version)
-                for res in results]
-    
-    @staticmethod
-    def count_files_with_sum(session, checksum, package=None):
-        count = (Checksum._query_checksum(session, checksum, package=package)
-                 .count())
-        
-        return count
-
 
 
 class BinaryPackage(Base):
