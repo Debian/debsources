@@ -30,6 +30,87 @@ from testdata import *
 
 TEST_DB_DUMP = os.path.join(TEST_DATA_DIR, 'db/pg-dump-custom')
 
+# queries to compare two DB schemas (e.g. "public.*" and "ref.*")
+DB_COMPARE_QUERIES = {
+    "packages":
+    "SELECT name \
+     FROM %(schema)s.packages \
+     ORDER BY name \
+     LIMIT 100",
+
+    "versions":
+    "SELECT packages.name, vnumber, area, vcs_type, vcs_url, vcs_browser \
+     FROM %(schema)s.versions, %(schema)s.packages \
+     WHERE versions.package_id = packages.id \
+     ORDER BY packages.name, vnumber \
+     LIMIT 100",
+
+    "suitesmapping":
+    "SELECT packages.name, versions.vnumber, suite \
+     FROM %(schema)s.versions, %(schema)s.packages, %(schema)s.suitesmapping \
+     WHERE versions.package_id = packages.id \
+     AND suitesmapping.sourceversion_id = versions.id \
+     ORDER BY packages.name, versions.vnumber, suite \
+     LIMIT 100",
+
+    "files":
+    "SELECT packages.name, versions.vnumber, files.path \
+     FROM %(schema)s.files, %(schema)s.versions, %(schema)s.packages \
+     WHERE versions.package_id = packages.id \
+     AND files.version_id = versions.id \
+     ORDER BY packages.name, versions.vnumber, files.path \
+     LIMIT 100",
+
+    "checksums":
+    "SELECT packages.name, versions.vnumber, files.path, sha256 \
+     FROM %(schema)s.files, %(schema)s.versions, %(schema)s.packages, %(schema)s.checksums \
+     WHERE versions.package_id = packages.id \
+     AND checksums.version_id = versions.id \
+     AND checksums.file_id = files.id \
+     ORDER BY packages.name, versions.vnumber, files.path \
+     LIMIT 100",
+
+    "sloccounts":
+    "SELECT packages.name, versions.vnumber, language, count \
+     FROM %(schema)s.sloccounts, %(schema)s.versions, %(schema)s.packages \
+     WHERE versions.package_id = packages.id \
+     AND sloccounts.sourceversion_id = versions.id \
+     ORDER BY packages.name, versions.vnumber, language \
+     LIMIT 100",
+
+    "ctags":
+    "SELECT packages.name, versions.vnumber, files.path, tag, line, kind, language \
+     FROM %(schema)s.ctags, %(schema)s.files, %(schema)s.versions, %(schema)s.packages \
+     WHERE versions.package_id = packages.id \
+     AND ctags.version_id = versions.id \
+     AND ctags.file_id = files.id \
+     ORDER BY packages.name, versions.vnumber, files.path, tag, line, kind, language \
+     LIMIT 100",
+
+    "metric":
+    "SELECT packages.name, versions.vnumber, metric, value_ \
+     FROM %(schema)s.metrics, %(schema)s.versions, %(schema)s.packages \
+     WHERE versions.package_id = packages.id \
+     AND metrics.sourceversion_id = versions.id \
+     AND metric != 'size' \
+     ORDER BY packages.name, versions.vnumber, metric \
+     LIMIT 100",
+
+    # XXX projecting also on the ctags column gives different result (by a few
+    # units), even if the actual ctags tables are identical. WTH ?!?!
+    "history_size":
+    "SELECT suite, source_packages, binary_packages, source_files \
+     FROM %(schema)s.history_size \
+     ORDER BY timestamp, suite",
+
+    "history_sloccount":
+    "SELECT suite, \
+       lang_ansic, lang_cpp, lang_lisp, lang_erlang, lang_python, lang_yacc \
+     FROM %(schema)s.history_sloccount \
+     ORDER BY timestamp, suite",
+}
+
+
 
 def pg_restore(dbname, dumpfile):
     subprocess.check_call(['pg_restore', '--no-owner', '--no-privileges',
