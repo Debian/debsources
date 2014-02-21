@@ -46,9 +46,10 @@ Infrastructure
 
 Debian packages:
 
-- apache2-utils
 - debmirror
-- rrdtool
-- sloccount
-- ctags
+- exuberant-ctags
 - postgresql >= 9.1
+- python-matplotlib
+- python-psycopg2
+- python-sqlalchemy
+- sloccount
