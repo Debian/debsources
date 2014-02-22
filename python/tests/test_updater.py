@@ -135,11 +135,13 @@ class Updater(unittest.TestCase, DbTestFixture):
         self.db_teardown()
         shutil.rmtree(self.tmpdir)
 
-    def do_update(self):
+    TEST_STAGES = updater.UPDATE_STAGES - set([updater.STAGE_CHARTS])
+
+    def do_update(self, stages=TEST_STAGES):
         """do a full update run in a virtual test environment"""
         mainlib.init_logging(self.conf, console_verbosity=logging.WARNING)
         (observers, file_exts)  = mainlib.load_hooks(self.conf)
-        updater.update(self.conf, self.session, observers)
+        updater.update(self.conf, self.session, observers, stages)
         return file_exts
 
     @istest
