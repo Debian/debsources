@@ -358,7 +358,7 @@ def update_metadata(status, conf, session):
 def update_charts(status, conf, session):
     """update stage: rebuild charts"""
 
-    logging.info('update statistics...')
+    logging.info('update charts...')
     ensure_stats_dir(conf)
 
     CHARTS = [	# <period, granularity> paris
