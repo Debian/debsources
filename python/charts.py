@@ -79,3 +79,15 @@ def sloc_plot(multiseries, fname):
 
     plt.savefig(fname, bbox_inches='tight')
     plt.close()
+
+
+def sloc_pie(slocs, fname):
+   """plot a pie chart of sloccount in `slocs`, a dictionary which maps language
+   names to slocs. Save the obtained chart to `fname`
+
+   """
+   plt.figure()
+   langs, slocs = _split_series(list(slocs.iteritems()))
+   plt.pie(slocs, labels=langs, autopct='%1.1f%%')
+   plt.savefig(fname)
+   plt.close()

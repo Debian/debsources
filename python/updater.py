@@ -380,15 +380,26 @@ def update_charts(status, conf, session):
                 if not conf['dry_run']:
                     charts.size_plot(series, chart_file)
 
-    # sloccount charts
+    # sloccount: historical histograms
     for (period, granularity) in CHARTS:
         for suite in statistics.suites(session) + ['ALL']:
+            # historical histogram
             mseries = getattr(statistics, 'history_sloc_' + granularity) \
                       (session, interval=period, suite=suite)
             chart_file = os.path.join(conf['cache_dir'], 'stats', \
                     '%s-sloc-%s.png' % (suite, period.replace(' ', '-')))
             if not conf['dry_run']:
                 charts.sloc_plot(mseries, chart_file)
+
+    # sloccount: current pie charts
+    for suite in statistics.suites(session) + ['ALL']:
+        sloc_suite = suite
+        if sloc_suite == 'ALL':
+            sloc_suite = None
+        slocs = statistics.sloccount_summary(session, suite=sloc_suite)
+        chart_file = os.path.join(conf['cache_dir'], 'stats', \
+                                  '%s-sloc_pie-current.png' % suite)
+        charts.sloc_pie(slocs, chart_file)
 
 
 (STAGE_EXTRACT,
