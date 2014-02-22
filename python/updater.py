@@ -148,7 +148,7 @@ def ensure_stats_dir(conf):
 
 
 def extract_new(status, conf, session, mirror, observers=NO_OBSERVERS):
-    """update phase: list mirror and extract new packages
+    """update stage: list mirror and extract new packages
 
     """
     ensure_cache_dir(conf)
@@ -192,7 +192,7 @@ def extract_new(status, conf, session, mirror, observers=NO_OBSERVERS):
 
 
 def garbage_collect(status, conf, session, mirror, observers=NO_OBSERVERS):
-    """update phase: list db and remove disappeared and expired packages
+    """update stage: list db and remove disappeared and expired packages
 
     """
     logging.info('garbage collection...')
@@ -232,7 +232,7 @@ def garbage_collect(status, conf, session, mirror, observers=NO_OBSERVERS):
 
 
 def update_suites(status, conf, session, mirror):
-    """update phase: sweep and recreate suite mappings
+    """update stage: sweep and recreate suite mappings
 
     """
     logging.info('update suites mappings...')
@@ -271,7 +271,7 @@ def update_suites(status, conf, session, mirror):
 
 
 def update_statistics(status, conf, session):
-    """update phase: update statistics
+    """update stage: update statistics
 
     """
     # TODO conf['dry_run'] unused in this function, should be used
@@ -336,7 +336,7 @@ def update_statistics(status, conf, session):
 
 
 def update_metadata(status, conf, session):
-    """update phase: update metadata
+    """update stage: update metadata
 
     """
     # TODO conf['dry_run'] unused in this function, should be used
@@ -356,7 +356,7 @@ def update_metadata(status, conf, session):
 
 
 def update_charts(status, conf, session):
-    """update phase: rebuild charts"""
+    """update stage: rebuild charts"""
 
     logging.info('update statistics...')
     ensure_stats_dir(conf)
@@ -391,7 +391,15 @@ def update_charts(status, conf, session):
                 charts.sloc_plot(mseries, chart_file)
 
 
-def update(conf, session, observers=NO_OBSERVERS):
+(STAGE_EXTRACT,
+ STAGE_SUITES,
+ STAGE_GC,
+ STAGE_STATS,
+ STAGE_CACHE,
+ STAGE_CHARTS,) = range(1, 7)
+UPDATE_STAGES = set(range(1, 7))
+
+def update(conf, session, observers=NO_OBSERVERS, stages=UPDATE_STAGES):
     """do a full update run
     """
     logging.info('start')
@@ -399,11 +407,17 @@ def update(conf, session, observers=NO_OBSERVERS):
     mirror = SourceMirror(conf['mirror_dir'])
     status = UpdateStatus()
 
-    extract_new(status, conf, session, mirror, observers)	# phase 1
-    update_suites(status, conf, session, mirror)		# phase 2
-    garbage_collect(status, conf, session, mirror, observers)	# phase 3
-    update_statistics(status, conf, session)			# phase 4
-    update_metadata(status, conf, session)			# phase 5
-    update_charts(status, conf, session)			# phase 6
+    if STAGE_EXTRACT in stages:
+        extract_new(status, conf, session, mirror, observers)	# stage 1
+    if STAGE_SUITES in stages:
+        update_suites(status, conf, session, mirror)		# stage 2
+    if STAGE_GC in stages:
+        garbage_collect(status, conf, session, mirror, observers)# stage 3
+    if STAGE_STATS in stages:
+        update_statistics(status, conf, session)		# stage 4
+    if STAGE_CACHE in stages:
+        update_metadata(status, conf, session)			# stage 5
+    if STAGE_CHARTS in stages:
+        update_charts(status, conf, session)			# stage 6
 
     logging.info('finish')
