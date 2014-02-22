@@ -17,21 +17,65 @@
 
 import matplotlib.pyplot as plt
 
+from itertools import cycle
 
-def plot(series, fname):
-    ts, values = [], []
-    for t, value in series:
-        if value is not None:
-            ts.append(t)
-            values.append(value)
+
+def _split_series(series):
+    """splite a time `series` (list of <x,y> points) into two lists --- one of x
+    and the other of y --- excluding y which are None
+
+    """
+    xs, ys = [], []
+
+    for x, y in series:
+        if y is not None:
+            xs.append(x)
+            ys.append(y)
+
+    return (xs, ys)
+
+
+def size_plot(series, fname):
+    """plot a single size metric from a time `series` and save it to file
+    `fname`
+
+    """
+    ts, values = _split_series(series)
 
     plt.figure()
     plt.plot(ts, values, linestyle='-', marker='o')
     plt.savefig(fname)
     plt.close()
 
-    # with open(fname, 'w') as f:
-    #     for (ts, v) in series:
-    #         if (v is None):
-    #             v = "None"
-    #         f.write('%s\t%s\n' % (ts, v))
+
+LINE_COLORS =  ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+LINE_MARKERS = ['o', '^', 's', '*', '+', 'x', 'v']
+LINE_STYLES =  [ c + m + '-' for m in LINE_MARKERS for c in LINE_COLORS ]
+
+
+def sloc_plot(multiseries, fname):
+    """plot multiple sloccount time series --- available from `multiseries` as a
+    dictionary mapping series name to list of <timestamp, value> paris --- and
+    save it to file `fname`
+
+    """
+    plt.figure()
+    plt.yscale('log')
+
+    by_value = lambda (x1, y1), (x2, y2): cmp(y1, y2)
+
+    styles = cycle(LINE_STYLES)
+    for name, series in sorted(multiseries.iteritems(),
+                               cmp=by_value, reverse=True):
+        ts, values = _split_series(series)
+        if filter(bool, values): # at least one value is != None and != 0
+            plt.plot(ts, values, styles.next(), label=name)
+
+    # plt.legend(bbox_to_anchor=(0., 1.02, 1., .102),
+    # plt.legend(bbox_to_anchor=(0, -0.04),
+    plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), mode='expand',
+               loc='lower left', ncol=7,
+               prop={'size': 8})
+
+    plt.savefig(fname, bbox_inches='tight')
+    plt.close()

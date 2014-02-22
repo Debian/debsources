@@ -362,12 +362,13 @@ def update_charts(status, conf, session):
     ensure_stats_dir(conf)
 
     CHARTS = [	# <period, granularity> paris
-        ('1 month', 'full'),
+        ('1 month', 'hourly'),
         ('1 year', 'daily'),
         ('5 years', 'weekly'),
         ('20 years', 'monthly'),
     ]
 
+    # size charts, various metrics
     for metric in ['source_packages', 'disk_usage', 'source_files', 'ctags']:
         for (period, granularity) in CHARTS:
             for suite in statistics.suites(session) + ['ALL']:
@@ -377,7 +378,17 @@ def update_charts(status, conf, session):
                         '%s-%s-%s.png' % \
                             (suite, metric, period.replace(' ', '-')))
                 if not conf['dry_run']:
-                    charts.plot(series, chart_file)
+                    charts.size_plot(series, chart_file)
+
+    # sloccount charts
+    for (period, granularity) in CHARTS:
+        for suite in statistics.suites(session) + ['ALL']:
+            mseries = getattr(statistics, 'history_sloc_' + granularity) \
+                      (session, interval=period, suite=suite)
+            chart_file = os.path.join(conf['cache_dir'], 'stats', \
+                    '%s-sloc-%s.png' % (suite, period.replace(' ', '-')))
+            if not conf['dry_run']:
+                charts.sloc_plot(mseries, chart_file)
 
 
 def update(conf, session, observers=NO_OBSERVERS):

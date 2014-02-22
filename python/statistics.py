@@ -22,6 +22,7 @@
 from sqlalchemy import distinct
 from sqlalchemy import func as sql_func
 
+from consts import SLOCCOUNT_LANGUAGES
 from models import Checksum, Ctag, Metric, SlocCount, SuitesMapping, Version
 
 
@@ -152,11 +153,10 @@ def _hist_size_sample(session, metric, interval, projection, suite=None):
         kw['filter'] = "AND suite = '%s'" % suite
     return _time_series(session.execute(q % kw))
 
-
-def history_size_full(session, metric, interval, suite=None):
+def history_size_hourly(session, metric, interval, suite):
     """return recent size history of `metric`, over the past `interval`
 
-    `interval` must a be a valid Postgre time interval, see
+    `interval` must be a valid Postgre time interval, see
     http://www.postgresql.org/docs/9.1/static/functions-datetime.html
 
     """
@@ -164,23 +164,72 @@ def history_size_full(session, metric, interval, suite=None):
                              projection="date_trunc('hour', timestamp)",
                              suite=suite)
 
-
-def history_size_daily(session, metric, interval, suite=None):
+def history_size_daily(session, metric, interval, suite):
     """like `history_size_full`, but taking daily samples"""
     return _hist_size_sample(session, metric, interval,
                              projection="date_trunc('day', timestamp)",
                              suite=suite)
 
-
-def history_size_weekly(session, metric, interval, suite=None):
+def history_size_weekly(session, metric, interval, suite):
     """like `history_size_full`, but taking weekly samples"""
     return _hist_size_sample(session, metric, interval,
                              projection="date_trunc('week', timestamp)",
                              suite=suite)
 
-
-def history_size_monthly(session, metric, interval, suite=None):
+def history_size_monthly(session, metric, interval, suite):
     """like `history_size_full`, but taking monthly samples"""
     return _hist_size_sample(session, metric, interval,
+                             projection="date_trunc('month', timestamp)",
+                             suite=suite)
+
+
+def _hist_sloc_sample(session, interval, projection, suite=None):
+    q = "\
+      SELECT DISTINCT ON (%(projection)s) * \
+      FROM history_sloccount \
+      WHERE timestamp >= now() - interval '%(interval)s' \
+      %(filter)s \
+      ORDER BY %(projection)s DESC, timestamp DESC"
+    kw = { 'projection': projection,
+           'interval': interval,
+           'filter': '' }
+    if suite:
+        kw['filter'] = "AND suite = '%s'" % suite
+
+    series = dict([ (lang, []) for lang in SLOCCOUNT_LANGUAGES ])
+    samples = session.execute(q % kw)
+    for row in samples:
+        for lang in SLOCCOUNT_LANGUAGES:
+            series[lang].append((row['timestamp'], row['lang_' + lang]))
+
+    return series
+
+def history_sloc_hourly(session, interval, suite):
+    """return recent sloccount history, over the past `interval`. Return a
+    dictionary, mapping language names (see `const.SLOCCOUNT_LANGUAGES`) to
+    time series, i.e. list of pairs <timestamp, slocs>
+
+    `interval` must be as per `history_size_full`
+
+    """
+    return _hist_sloc_sample(session, interval,
+                             projection="date_trunc('hour', timestamp)",
+                             suite=suite)
+
+def history_sloc_daily(session, interval, suite):
+    """like `history_sloc_full`, but taking daily samples"""
+    return _hist_sloc_sample(session, interval,
+                             projection="date_trunc('day', timestamp)",
+                             suite=suite)
+
+def history_sloc_weekly(session, interval, suite):
+    """like `history_sloc_full`, but taking weekly samples"""
+    return _hist_sloc_sample(session, interval,
+                             projection="date_trunc('week', timestamp)",
+                             suite=suite)
+
+def history_sloc_monthly(session, interval, suite):
+    """like `history_sloc_full`, but taking monthly samples"""
+    return _hist_sloc_sample(session, interval,
                              projection="date_trunc('month', timestamp)",
                              suite=suite)
