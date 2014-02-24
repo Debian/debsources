@@ -54,7 +54,7 @@ def main():
                          help='database URI, e.g. postgresql:///mydbname. Override configuration file setting "db_uri"')
     cmdline.add_argument('--single-transaction', dest='single_transaction',
                          choices=['yes', 'no'],
-                         help='use a single per-package DB transactions (default: yes)')
+                         help='use a single big DB transaction, instead of smaller per-package transactions (default: yes)')
     args = cmdline.parse_args()
 
     conf = mainlib.load_configuration(args.conffile)
