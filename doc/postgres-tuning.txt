@@ -1,0 +1,23 @@
+https://wiki.postgresql.org/wiki/Tuning_Your_PostgreSQL_Server
+
+buffers
+-------
+
+# sysctl -w kernel.shmmax=17179869184
+# sysctl -w kernel.shmall=4194304
+
+then save into /etc/sysctl.conf
+
+shared_buffers = 12 GB
+
+
+cache
+-----
+
+effective_cache_size = 16GB
+
+
+checkpoints
+-----------
+
+checkpoint_segments = 256	# i.e. every 4 GB
