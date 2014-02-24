@@ -134,3 +134,17 @@ table.rrd tr td {
     margin-top: 0px;
     margin-bottom: 0px;
 }
+
+div.stats {
+    width: 500px;
+    float: left;
+    text-align: center;
+}
+
+div.stats img {
+    width: 500px;
+}
+
+.clear_float {
+    clear: left;
+}
