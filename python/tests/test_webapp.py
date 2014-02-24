@@ -234,18 +234,18 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
     def test_stats_suite(self):
         rv = json.loads(self.app.get('/api/stats/jessie/').data)
         assert rv["suite"] == "jessie"
-        assert rv["stats"]["results"]["debian_jessie.ctags"] == 21767
-        assert rv["stats"]["results"]["debian_jessie.disk_usage"] == 43032
-        assert rv["stats"]["results"]["debian_jessie.source_files"] == 1677
-        assert rv["stats"]["results"]["debian_jessie.sloccount.python"] == 2916
+        assert rv["results"]["debian_jessie.ctags"] == 21767
+        assert rv["results"]["debian_jessie.disk_usage"] == 43032
+        assert rv["results"]["debian_jessie.source_files"] == 1677
+        assert rv["results"]["debian_jessie.sloccount.python"] == 2916
     
     def test_stats_all(self):
         rv = json.loads(self.app.get('/api/stats/').data)
-        assert sorted(rv["stats"]["suites"]) == (
+        assert sorted(rv["suites"]) == (
             ["debian_experimental", "debian_jessie", "debian_sid",
              "debian_squeeze", "debian_wheezy"])
-        assert "ansic" in rv["stats"]["languages"]
-        assert rv["stats"]["results"]["debian_sid.sloccount.ansic"] == 140353
+        assert "ansic" in rv["languages"]
+        assert rv["results"]["debian_sid.sloccount.ansic"] == 140353
         
 if __name__ == '__main__':
     unittest.main(exit=False)

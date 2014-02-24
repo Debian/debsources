@@ -40,6 +40,8 @@ from sourcecode import SourceCodeIterator
 from forms import SearchForm
 from infobox import Infobox
 from extract_stats import extract_stats
+from consts import SLOCCOUNT_LANGUAGES
+import statistics
 
 
 @app.teardown_appcontext
@@ -830,10 +832,11 @@ class StatsView(GeneralView):
     def get_objects(self, suite):
         filename=os.path.join(app.config["CACHE_DIR"],
                               "stats.data")
-        stats = extract_stats(filename=filename,
+        res = extract_stats(filename=filename,
                               filter_suites = ["debian_" + suite])
         
-        return dict(stats=stats,
+        return dict(results=res,
+                    languages=SLOCCOUNT_LANGUAGES,
                     suite=suite)
 
 # STATS FOR ONE SUITE (HTML)
@@ -856,9 +859,13 @@ class AllStatsView(GeneralView):
     def get_objects(self):
         filename=os.path.join(app.config["CACHE_DIR"],
                               "stats.data")
-        stats = extract_stats(filename=filename)
+        res = extract_stats(filename=filename)
         
-        return dict(stats=stats)
+        suites=["debian_" + x for x in statistics.suites(session)]
+        
+        return dict(results=res,
+                    languages=SLOCCOUNT_LANGUAGES,
+                    suites=suites)
 
 # STATS FOR ALL SUITES (HTML)
 app.add_url_rule('/stats/',

@@ -18,39 +18,39 @@
 <table>
   <tr>
     <th></th>
-    {% for suite in stats["suites"] %}
+    {% for suite in suites %}
       <th><a href="{{ url_for('stats_html', suite=suite[7:]) }}">
 	  {{ suite[7:] }}</a></th>
     {% endfor %}
   </tr>
   <tr>
     <th>Source files</th>
-    {% for suite in stats["suites"] %}
-      <td>{{ stats["results"][suite + ".source_files"] }}</td>
+    {% for suite in suites %}
+      <td>{{ results[suite + ".source_files"] }}</td>
     {% endfor %}
   </tr>
   <tr>
     <th>Source packages</th>
-    {% for suite in stats["suites"] %}
-      <td>{{ stats["results"][suite + ".source_packages"] }}</td>
+    {% for suite in suites %}
+      <td>{{ results[suite + ".source_packages"] }}</td>
     {% endfor %}
   </tr>
   <tr>
     <th>Disk usage (kB)</th>
-    {% for suite in stats["suites"] %}
-      <td>{{ stats["results"][suite + ".disk_usage"] }}</td>
+    {% for suite in suites %}
+      <td>{{ results[suite + ".disk_usage"] }}</td>
     {% endfor %}
   </tr>
   <tr>
     <th>Ctags</th>
-    {% for suite in stats["suites"] %}
-      <td>{{ stats["results"][suite + ".ctags"] }}</td>
+    {% for suite in suites %}
+      <td>{{ results[suite + ".ctags"] }}</td>
     {% endfor %}
   </tr>
   <tr>
     <th>SLOC</th>
-    {% for suite in stats["suites"] %}
-      <td>{{ stats["results"][suite + ".sloccount"] }}</td>
+    {% for suite in suites %}
+      <td>{{ results[suite + ".sloccount"] }}</td>
     {% endfor %}
   </tr>
 </table>
@@ -60,22 +60,22 @@
 <table>
   <tr>
     <th></th>
-    {% for suite in stats["suites"] %}
+    {% for suite in suites %}
       <th><a href="{{ url_for('stats_html', suite=suite[7:]) }}">
 	  {{ suite[7:] }}</a></th>
     {% endfor %}
   </tr>
   <tr>
     <th>Total</th>
-    {% for suite in stats["suites"] %}
-      <td>{{ stats["results"][suite + ".sloccount"] }}</td>
+    {% for suite in suites %}
+      <td>{{ results[suite + ".sloccount"] }}</td>
     {% endfor %}
   </tr>
-  {% for lang in stats["languages"]|sort %}
+  {% for lang in languages|sort %}
     <tr>
       <th>{{ lang }}</th>
-      {% for suite in stats["suites"] %}
-        <td>{{ stats["results"][suite + ".sloccount." + lang] }}</td>
+      {% for suite in suites %}
+        <td>{{ results[suite + ".sloccount." + lang] }}</td>
       {% endfor %}
     </tr>
   {% endfor %}
