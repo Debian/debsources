@@ -100,8 +100,9 @@ class Version(Base):
     
     id = Column(Integer, primary_key=True)
     vnumber = Column(String)
-    package_id = Column(Integer, ForeignKey('packages.id', ondelete="CASCADE"),
-                        nullable=False)
+    package_id = Column(Integer,
+                        ForeignKey('packages.id', ondelete="CASCADE"),
+                        index=True, nullable=False)
     area = Column(String(8), index=True)	# main, contrib, non-free
     vcs_type = Column(Enum(*VCS_TYPES, name="vcs_types"))
     vcs_url = Column(String)
@@ -134,7 +135,7 @@ class SuitesMapping(Base):
     id = Column(Integer, primary_key=True)
     sourceversion_id = Column(Integer,
                               ForeignKey('versions.id', ondelete="CASCADE"),
-                              nullable=False)
+                              index=True, nullable=False)
     suite = Column(String, index=True)
     
     def __init__(self, version, suite):
@@ -149,8 +150,9 @@ class File(Base):
     __table_args__ = (UniqueConstraint('version_id', 'path'),)
 
     id = Column(Integer, primary_key=True)
-    version_id = Column(Integer, ForeignKey('versions.id', ondelete="CASCADE"),
-                        nullable=False)
+    version_id = Column(Integer,
+                        ForeignKey('versions.id', ondelete="CASCADE"),
+                        index=True, nullable=False)
     path = Column(LargeBinary, index=True,	# path/whitin/source/pkg
                   nullable=False)
 
@@ -164,10 +166,12 @@ class Checksum(Base):
     __table_args__ = (UniqueConstraint('version_id', 'file_id'),)
 
     id = Column(Integer, primary_key=True)
-    version_id = Column(Integer, ForeignKey('versions.id', ondelete="CASCADE"),
-                        nullable=False)
-    file_id = Column(Integer, ForeignKey('files.id', ondelete="CASCADE"),
-                     nullable=False)
+    version_id = Column(Integer,
+                        ForeignKey('versions.id', ondelete="CASCADE"),
+                        index=True, nullable=False)
+    file_id = Column(Integer,
+                     ForeignKey('files.id', ondelete="CASCADE"),
+                     index=True, nullable=False)
     sha256 = Column(String(64), nullable=False, index=True)
 
     def __init__(self, version, file_id, sha256):
@@ -247,12 +251,12 @@ class BinaryVersion(Base):
     
     id = Column(Integer, primary_key=True)
     vnumber = Column(String)
-    binarypackage_id = Column(Integer, ForeignKey('binarypackages.id',
-                                                  ondelete="CASCADE"),
-                              nullable=False)
-    sourceversion_id = Column(Integer, ForeignKey('versions.id',
-                                                  ondelete="CASCADE"),
-                              nullable=False)
+    binarypackage_id = Column(Integer,
+                              ForeignKey('binarypackages.id', ondelete="CASCADE"),
+                              index=True, nullable=False)
+    sourceversion_id = Column(Integer,
+                              ForeignKey('versions.id', ondelete="CASCADE"),
+                              index=True, nullable=False)
     
     def __init__(self, vnumber, area="main"):
         self.vnumber = vnumber
@@ -268,7 +272,7 @@ class SlocCount(Base):
     id = Column(Integer, primary_key=True)
     sourceversion_id = Column(Integer,
                               ForeignKey('versions.id', ondelete="CASCADE"),
-                              nullable=False)
+                              index=True, nullable=False)
     language = Column(Enum(*SLOCCOUNT_LANGUAGES, name="language_names"),
                       # TODO rename enum s/language_names/sloccount/languages
                       nullable=False)
@@ -284,11 +288,13 @@ class Ctag(Base):
     __tablename__ = 'ctags'
 
     id = Column(Integer, primary_key=True)
-    version_id = Column(Integer, ForeignKey('versions.id', ondelete="CASCADE"),
-                        nullable=False, index=True)
+    version_id = Column(Integer,
+                        ForeignKey('versions.id', ondelete="CASCADE"),
+                        index=True, nullable=False)
     tag = Column(String, nullable=False, index=True)
-    file_id = Column(Integer, ForeignKey('files.id', ondelete="CASCADE"),
-                     nullable=False, index=True)
+    file_id = Column(Integer,
+                     ForeignKey('files.id', ondelete="CASCADE"),
+                     index=True, nullable=False)
     line = Column(Integer, nullable=False)
     kind = Column(String)	# see `ctags --list-kinds`; unfortunately ctags
         # gives no guarantee of uniformity in kinds, they might be one-lettered
@@ -363,7 +369,7 @@ class Metric(Base):
     id = Column(Integer, primary_key=True)
     sourceversion_id = Column(Integer,
                               ForeignKey('versions.id', ondelete="CASCADE"),
-                              nullable=False)
+                              index=True, nullable=False)
     metric = Column(Enum(*METRIC_TYPES, name="metric_types"), nullable=False)
     value = Column("value_", Integer, nullable=False)
 

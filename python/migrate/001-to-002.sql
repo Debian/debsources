@@ -101,3 +101,16 @@ ALTER TABLE ctags RENAME COLUMN line_new TO line;
 ALTER TABLE ctags RENAME COLUMN kind_new TO kind;
 ALTER TABLE ctags RENAME COLUMN language_new TO language;
 ALTER TABLE ctags ALTER COLUMN line SET NOT NULL;
+
+
+--- step 4: add missing foreign key indexes
+
+CREATE INDEX ix_versions_package_id ON versions (package_id);
+CREATE INDEX ix_suitesmapping_sourceversion_id ON suitesmapping (sourceversion_id);
+CREATE INDEX ix_files_version_id ON files (version_id);
+CREATE INDEX ix_checksums_version_id ON checksums (version_id);
+CREATE INDEX ix_checksums_file_id ON checksums (file_id);
+CREATE INDEX ix_binaryversions_binarypackage_id ON binaryversions (binarypackage_id);
+CREATE INDEX ix_binaryversions_sourceversion_id ON binaryversions (sourceversion_id);
+CREATE INDEX ix_sloccounts_sourceversion_id ON sloccounts (sourceversion_id);
+CREATE INDEX ix_metrics_sourceversion_id ON metrics (sourceversion_id);
