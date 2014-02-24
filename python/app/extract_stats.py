@@ -53,11 +53,3 @@ def extract_stats(filter_suites=None, filename="cache/stats.data"):
     
     # we use lists instead of sets, because they are JSON-serializable
     return dict(results=res, suites=list(suites), languages=list(languages))
-
-
-if __name__ == "__main__":
-    from pprint import pprint
-    pprint(extract_stats(filename="stats.data",
-                         filter_suites=["debian_wheezy", "total"]))
-
-                
