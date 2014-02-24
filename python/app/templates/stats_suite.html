@@ -1,0 +1,32 @@
+{#
+  Copyright (C) 2014  Matthieu Caneill <matthieu.caneill@gmail.com>
+  License: GNU Affero General Public License, version 3 or above.
+#}
+
+{% extends "base.html" %}
+
+{% block title %}Stats: {{ suite }}{% endblock %}
+
+{% block breadcrumbs %}<a href="{{ url_for('stats_all_html') }}">stats</a> / {{ suite }}{% endblock %}
+
+{% block content %}
+
+<h2>{{ self.title() }}</h2>
+
+{% set suite = "debian_" + suite %}
+
+<ul>
+  <li>Source files: {{ stats["results"][suite + ".source_files"] }}</li>
+  <li>Source packages: {{ stats["results"][suite + ".source_packages"] }}</li>
+  <li>Disk usage: {{ stats["results"][suite + ".disk_usage"] }} kB</li>
+  <li>Ctags: {{ stats["results"][suite + ".ctags"] }}</li>
+  <li>Source lines of code: {{ stats["results"][suite + ".sloccount"] }}
+    <ul>
+      {% for lang in stats["languages"]|sort %}
+        <li>{{ lang }}: {{ stats["results"][suite + ".sloccount." + lang] }}</li>
+      {% endfor %}
+    </ul>
+  </li>
+</ul>
+
+{% endblock %}

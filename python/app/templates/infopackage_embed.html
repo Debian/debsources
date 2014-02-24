@@ -1,0 +1,22 @@
+{#
+  Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
+  License: GNU Affero General Public License, version 3 or above.
+#}
+
+<!doctype html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css"
+          href="{{ url_for('static', filename='css/base.css') }}" />
+    <title>Info: {{ package }} {{ version }}</title>
+  </head>
+  
+  <body>
+
+{% if pkg_infos %}
+{% import "infobox.inc.html" as infobox %}
+{{ infobox.render_infobox(package, version, pkg_infos, position="not_fixed") }}
+{% endif %}
+
+  </body>
+</html>

@@ -21,6 +21,11 @@
 {% block source_content %}
 <h2>{{ self.title() }}</h2>
 
+{% if pkg_infos %}
+{% import "infobox.inc.html" as infobox %}
+{{ infobox.render_infobox(pathl[0][0], pathl[1][0], pkg_infos) }}
+{% endif %}
+
 {% include "source_file_code.inc.html" %}
 
 <script type="text/javascript">

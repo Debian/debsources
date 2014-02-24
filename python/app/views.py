@@ -1,4 +1,4 @@
-# Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
+# Copyright (C) 2013-2014  Matthieu Caneill <matthieu.caneill@gmail.com>
 #
 # This file is part of Debsources.
 #
@@ -21,7 +21,7 @@ import os
 from flask import render_template, redirect, url_for, request, safe_join, \
     jsonify
 from flask.views import View
-from sqlalchemy import and_
+from sqlalchemy import and_, func as sql_func
 
 from sqla_session import _close_session
 
@@ -35,15 +35,12 @@ session = app_wrapper.session
 from excepts import InvalidPackageOrVersionError, FileOrFolderNotFound, \
     Http500Error, Http404Error, Http403Error
 from models import Ctag, Package, Version, Checksum, Location, \
-    Directory, SourceFile
+    Directory, SourceFile, SuitesMapping, SlocCount, Metric, File
 from sourcecode import SourceCodeIterator
 from forms import SearchForm
+from infobox import Infobox
+from extract_stats import extract_stats
 
-# to generate PTS link safely (for internal links we use url_for)
-try:
-    from werkzeug.urls import url_quote
-except ImportError:
-    from urlparse import quote as url_quote
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
@@ -379,36 +376,6 @@ app.add_url_rule('/api/prefix/<prefix>/', view_func=PrefixView.as_view(
 ### SOURCE (packages, versions, folders, files) ###
 
 class SourceView(GeneralView):
-    def _get_pts_link(self, packagename):
-        """
-        returns an URL for packagename in the Debian Package Tracking System
-        """
-        pts_link = app.config['PTS_PREFIX'] + packagename
-        pts_link = url_quote(pts_link) # for '+' symbol in Debian package names
-        return pts_link
-
-    def _get_vcs(self, package, version):
-        """
-        returns a dictionary like::
-
-            { 'type_':   'git',
-              'browser': 'http://anonscm.debian.org/git/collab-maint/foo.git/',
-            }
-        """
-        try:
-            v = (session.query(Version)
-                 .filter(and_(Version.vnumber==version,
-                              Version.package_id==Package.id,
-                              Package.name==package))
-                 .first())
-            vcs = {}
-            if v.vcs_type and v.vcs_browser:
-                vcs['type_'] = v.vcs_type
-                vcs['browser'] = v.vcs_browser
-            return vcs
-        except Exception as e:
-            raise Http500Error(e)
-    
     def _render_package(self, packagename, path_to):
         """
         renders the package page (which lists available versions)
@@ -425,7 +392,7 @@ class SourceView(GeneralView):
                     package=packagename,
                     versions=versions,
                     path=path_to,
-                    pts_link=self._get_pts_link(packagename))
+                    )
     
     def _render_location(self, package, version, path):
         """
@@ -462,14 +429,18 @@ class SourceView(GeneralView):
         
         # (if path == "", then the dir is toplevel, and we don't want
         # the .pc directory)
+        
+        pkg_infos=Infobox(session,
+                          location.get_package(),
+                          location.get_version()).get_infos()
+        
         return dict(type="directory",
                     directory=location.get_deepest_element(),
                     package=location.get_package(),
                     content=directory.get_listing(),
                     path=location.get_path_to(),
-                    pts_link=self._get_pts_link(location.get_package()),
-                    vcs=self._get_vcs(location.get_package(),
-                                      location.get_version()))
+                    pkg_infos=pkg_infos
+                    )
     
     def _render_file(self, location):
         """
@@ -478,7 +449,14 @@ class SourceView(GeneralView):
         file_ = SourceFile(location)
         
         checksum = file_.get_sha256sum(session)
-        number_of_duplicates = Checksum.count_files_with_sum(session, checksum)
+        number_of_duplicates = (session.query(sql_func.count(Checksum.id))
+                                .filter(Checksum.sha256 == checksum)
+                                .first()[0])
+        
+        pkg_infos=Infobox(session,
+                          location.get_package(),
+                          location.get_version()).get_infos()
+
         
         return dict(type="file",
                     file=location.get_deepest_element(),
@@ -487,12 +465,11 @@ class SourceView(GeneralView):
                     raw_url=file_.get_raw_url(),
                     path=location.get_path_to(),
                     text_file=file_.istextfile(),
-                    pts_link=self._get_pts_link(location.get_package()),
-                    vcs=self._get_vcs(location.get_package(),
-                                      location.get_version()),
                     permissions=file_.get_permissions(),
                     checksum=checksum,
-                    number_of_duplicates=number_of_duplicates)
+                    number_of_duplicates=number_of_duplicates,
+                    pkg_infos=pkg_infos
+                    )
     
     def _handle_latest_version(self, package, path):
         """
@@ -627,15 +604,6 @@ app.add_url_rule('/api/src/<path:path_to>', view_func=SourceView.as_view(
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
         ))
 
-# SOURCE FILE EMBEDDED ROUTING (HTML)
-app.add_url_rule('/embedded/<path:path_to>', view_func=SourceView.as_view(
-        'embedded_source_html',
-        render_func=lambda **kwargs:
-                render_source_file_html("source_file_embedded.html", **kwargs),
-        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
-        ))
-
-
 ### CHECKSUM REQUEST ###
 
 class ChecksumView(GeneralView):
@@ -660,22 +628,57 @@ class ChecksumView(GeneralView):
         checksum = request.args.get("checksum")
         package = request.args.get("package") or None
         
+        # we count the number of results:
+        count = (session.query(sql_func.count(Checksum.id))
+                 .filter(Checksum.sha256 == checksum))
+        if package is not None and package != "": # (only within the package)
+            count = (count.filter(Package.name == package)
+                     .filter(Checksum.version_id == Version.id)
+                     .filter(Version.package_id == Package.id))
+        count = count.first()[0]
+
+        
         # pagination:
         if not self.all_:
             offset = int(app.config.get("LIST_OFFSET") or 60)
             start = (page - 1) * offset
             end = start + offset
             slice_ = (start, end)
-            count = Checksum.count_files_with_sum(session, checksum, package=package)
             pagination = Pagination(page, offset, count)
         else:
             pagination = None
             slice_ = None
         
-        results = Checksum.files_with_sum(session, checksum, slice_=slice_,
-                                              package=package)
-        count = Checksum.count_files_with_sum(session, checksum, package=package)
+        def files_with_sum(checksum, slice_=None, package=None):
+            """
+            Returns a list of files whose hexdigest is checksum.
+            You can slice the results, passing slice=(start, end).
+            """
+            results = (session.query(Package.name.label("package"),
+                                     Version.vnumber.label("version"),
+                                     File.path.label("path"))
+                       .filter(Checksum.sha256 == checksum)
+                       .filter(Checksum.version_id == Version.id)
+                       .filter(Version.package_id == Package.id)
+                       .filter(Checksum.file_id == File.id)
+                       )
+            if package is not None and package != "":
+                results = results.filter(Package.name == package)
         
+            results = results.order_by("package", "version", "path")
+
+            if slice_ is not None:
+                results = results.slice(slice_[0], slice_[1])
+            results = results.all()
+        
+            return [dict(path=res.path,
+                         package=res.package,
+                         version=res.version)
+                    for res in results]
+        
+        # finally we get the files list
+        results = files_with_sum(checksum, slice_=slice_, package=package)
+
         return dict(results=results,
                     sha256=checksum,
                     count=count,
@@ -764,6 +767,111 @@ app.add_url_rule('/ctag/',view_func=CtagView.as_view(
 app.add_url_rule('/api/ctag/', view_func=CtagView.as_view(
         'ctag_json',
         all_=True,
+        render_func=jsonify,
+        err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
+        ))
+
+
+### INFO PAGES ###
+
+class InfoPackageView(GeneralView):
+    def get_objects(self, package, version):
+        pkg_infos = Infobox(session, package, version).get_infos()
+        return dict(pkg_infos = pkg_infos,
+                    package = package,
+                    version = version)
+
+# INFO PER-VERSION (HTML)
+app.add_url_rule('/info/package/<package>/<version>/',
+                 view_func=InfoPackageView.as_view(
+        'info_package_html',
+        render_func=lambda **kwargs: render_template('infopackage.html', **kwargs),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+
+# INFO PER-VERSION (JSON)
+app.add_url_rule('/api/info/package/<package>/<version>/',
+                 view_func=InfoPackageView.as_view(
+        'info_package_json',
+        render_func=jsonify,
+        err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
+        ))
+
+
+### EMBEDDED PAGES ###
+
+# SOURCE FILE EMBEDDED ROUTING (HTML)
+app.add_url_rule('/embed/file/<path:path_to>', view_func=SourceView.as_view(
+        'embedded_source_html',
+        render_func=lambda **kwargs:
+                render_source_file_html("source_file_embedded.html", **kwargs),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+
+# we redirect the old used embedded file page (/embedded/<path>)
+# to the new one (/embed/file/<path>)
+@app.route("/embedded/<path:path_to>")
+def old_embedded_file(path_to, **kwargs):
+    return redirect(url_for("embedded_source_html",
+                            path_to=path_to,
+                            **request.args))
+
+# INFO PER-VERSION (EMBEDDED HTML)
+app.add_url_rule('/embed/pkginfo/<package>/<version>/',
+                 view_func=InfoPackageView.as_view(
+        'embedded_info_package_html',
+        render_func=lambda **kwargs: render_template('infopackage_embed.html', **kwargs),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+
+### STATISTICS ###
+
+class StatsView(GeneralView):
+    def get_objects(self, suite):
+        filename=os.path.join(app.config["CACHE_DIR"],
+                              "stats.data")
+        stats = extract_stats(filename=filename,
+                              filter_suites = ["debian_" + suite])
+        
+        return dict(stats=stats,
+                    suite=suite)
+
+# STATS FOR ONE SUITE (HTML)
+app.add_url_rule('/stats/<suite>/',
+                 view_func=StatsView.as_view(
+        'stats_html',
+        render_func=lambda **kwargs: render_template('stats_suite.html', **kwargs),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+
+# STATS FOR ONE SUITE (JSON)
+app.add_url_rule('/api/stats/<suite>/',
+                 view_func=StatsView.as_view(
+        'stats_json',
+        render_func=jsonify,
+        err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
+        ))
+
+class AllStatsView(GeneralView):
+    def get_objects(self):
+        filename=os.path.join(app.config["CACHE_DIR"],
+                              "stats.data")
+        stats = extract_stats(filename=filename)
+        
+        return dict(stats=stats)
+
+# STATS FOR ALL SUITES (HTML)
+app.add_url_rule('/stats/',
+                 view_func=AllStatsView.as_view(
+        'stats_all_html',
+        render_func=lambda **kwargs: render_template('stats_all_suites.html', **kwargs),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+
+# STATS FOR ALL SUITES (JSON)
+app.add_url_rule('/api/stats/',
+                 view_func=AllStatsView.as_view(
+        'stats_all_json',
         render_func=jsonify,
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
         ))
