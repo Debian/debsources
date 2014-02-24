@@ -288,7 +288,7 @@ class Ctag(Base):
                         nullable=False, index=True)
     tag = Column(String, nullable=False, index=True)
     file_id = Column(Integer, ForeignKey('files.id', ondelete="CASCADE"),
-                     nullable=False)
+                     nullable=False, index=True)
     line = Column(Integer, nullable=False)
     kind = Column(String)	# see `ctags --list-kinds`; unfortunately ctags
         # gives no guarantee of uniformity in kinds, they might be one-lettered
