@@ -29,4 +29,9 @@
   </li>
 </ul>
 
+<h3>Graphs</h3>
+
+{% import "stats_graphs.inc.html" as stats_graphs %}
+{{ stats_graphs.render_graphs(suite[7:]) }}
+
 {% endblock %}

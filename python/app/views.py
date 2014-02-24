@@ -830,6 +830,10 @@ app.add_url_rule('/embed/pkginfo/<package>/<version>/',
 
 class StatsView(GeneralView):
     def get_objects(self, suite):
+        if suite not in statistics.suites(session):
+            raise Http404Error() # security, to avoid suite='../../foo'
+                                 # to include <img>s, etc.
+        
         filename=os.path.join(app.config["CACHE_DIR"],
                               "stats.data")
         res = extract_stats(filename=filename,
