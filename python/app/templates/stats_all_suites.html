@@ -13,7 +13,21 @@
 
 <h2>{{ self.title() }}</h2>
 
-<h3>Size &mdash; current</h3>
+<ol>
+  <li><a href="#size_current">Size &mdash; current</a></li>
+  <li><a href="#sloc_current">Sloccount &mdash; current</a></li>
+  <li><a href="#hist_trends">Historical trends</a>
+    <ol>
+      <li><a href="#hist_disk_usage">Disk usage</li>
+      <li><a href="#hist_sloc">Source lines of code</li>
+      <li><a href="#hist_source_pkgs">Source packages</li>
+      <li><a href="#hist_source_files">Source files</li>
+      <li><a href="#hist_ctags">Ctags</li>
+    </ol>
+  </li>
+</ol>
+
+<h3><a name="size_current">Size &mdash; current</a></h3>
 
 <table>
   <tr>
@@ -55,7 +69,7 @@
   </tr>
 </table>
 
-<h3>Sloccount &mdash; current</h3>
+<h3><a name="sloc_current">Sloccount &mdash; current</a></h3>
 
 <div>
 <span class="sidechart">
@@ -90,7 +104,7 @@
 </table>
 </div>
 
-<h3>Historical trends</h3>
+<h3><a name="hist_trends">Historical trends</a></h3>
 
 {% import "stats_graphs.inc.html" as stats_graphs %}
 {{ stats_graphs.render_graphs("ALL") }}
