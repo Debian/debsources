@@ -22,6 +22,7 @@ import subprocess
 
 from datetime import datetime
 from email.utils import formatdate
+from sqlalchemy import sql
 
 import charts
 import consts
@@ -35,6 +36,9 @@ from subprocess_workaround import subprocess_setup
 
 KNOWN_EVENTS = [ 'add-package', 'rm-package' ]
 NO_OBSERVERS = dict( [ (e, []) for e in KNOWN_EVENTS ] )
+
+# maximum number of pending rows before performing a (bulk) insert
+BULK_FLUSH_THRESHOLD = 50000
 
 
 class UpdateStatus(object):
@@ -236,8 +240,12 @@ def update_suites(status, conf, session, mirror):
 
     """
     logging.info('update suites mappings...')
+
     if not conf['dry_run']:
         session.query(SuitesMapping).delete()
+
+    insert_q = sql.insert(SuitesMapping.__table__)
+    insert_params = []
     for (suite, pkgs) in mirror.suites.iteritems():
         for pkg_id in pkgs:
             (pkg, version) = pkg_id
@@ -249,8 +257,9 @@ def update_suites(status, conf, session, mirror):
                 logging.debug('add suite mapping: %s/%s -> %s'
                               % (pkg, version, suite))
                 if not conf['dry_run']:
-                    suite_entry = SuitesMapping(version, suite)
-                    session.add(suite_entry)
+                    params = { 'sourceversion_id': version.id,
+                               'suite': suite }
+                    insert_params.append(params)
                 if status.sources.has_key(pkg_id):
                     # fill-in incomplete suite information in status
                     status.sources[pkg_id][-1].append(suite)
@@ -258,6 +267,13 @@ def update_suites(status, conf, session, mirror):
                     # defensive measure to make update_suites() more reusable
                     logging.warn('cannot find package %s/%s in status during suite update'
                                  % (pkg, version))
+        if not conf['dry_run'] and len(insert_params) >= BULK_FLUSH_THRESHOLD:
+            session.execute(insert_q, insert_params)
+            session.flush()
+            insert_params = []
+    if not conf['dry_run'] and insert_params:
+        session.execute(insert_q, insert_params)
+        session.flush()
 
     # update sources.txt, now that we know the suite mappings
     src_list_path = os.path.join(conf['cache_dir'], 'sources.txt')
