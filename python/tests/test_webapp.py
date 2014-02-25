@@ -98,9 +98,6 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         rv = self.app.get('/about/')
         assert 'source code is available' in rv.data
 
-        rv = self.app.get('/about/stats/')
-        assert 'Statistics' in rv.data
-        
     def test_packages_list(self):
         rv = json.loads(self.app.get('/api/list/').data)
         assert {'name': "libcaca"} in rv['packages']

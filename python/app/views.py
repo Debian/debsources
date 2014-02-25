@@ -195,10 +195,6 @@ def doc_overview():
 def about():
     return render_template('about.html')
 
-@app.route('/about/stats/')
-def about_stats():
-    return render_template('stats.html')
-
 
 ### SEARCH ###
 
