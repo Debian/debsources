@@ -36,7 +36,7 @@ Base = declarative_base()
 
 
 # used for migrations, see scripts under python/migrate/
-DB_SCHEMA_VERSION = 3
+DB_SCHEMA_VERSION = 4
 
 
 class Package(Base):
@@ -99,7 +99,7 @@ class Version(Base):
     __tablename__ = 'versions'
     
     id = Column(Integer, primary_key=True)
-    vnumber = Column(String)
+    vnumber = Column(String, index=True)
     package_id = Column(Integer,
                         ForeignKey('packages.id', ondelete="CASCADE"),
                         index=True, nullable=False)
@@ -121,7 +121,6 @@ class Version(Base):
         aren't serializable
         """
         return dict(vnumber=self.vnumber, area=self.area)
-
 
 Index('ix_versions_package_id_vnumber', Version.package_id, Version.vnumber)
 
@@ -329,7 +328,6 @@ class Metric(Base):
         self.value = value
 
 
-
 class HistorySize(Base):
     """historical record of debsources size"""
 
@@ -338,7 +336,8 @@ class HistorySize(Base):
 
     timestamp = Column(DateTime(timezone=False),
                        index=True, nullable=False)
-    suite = Column(String, nullable=False)	# suite == "ALL" means totals
+    suite = Column(String,		# suite == "ALL" means totals
+                   index=True, nullable=False)
 
     source_packages = Column(Integer, nullable=True)
     binary_packages = Column(Integer, nullable=True)
@@ -354,7 +353,6 @@ class HistorySize(Base):
         self.timestamp = timestamp
 
 
-
 class HistorySlocCount(Base):
     """historical record of debsources languages"""
 
@@ -363,7 +361,8 @@ class HistorySlocCount(Base):
 
     timestamp = Column(DateTime(timezone=False),
                        index=True, nullable=False)
-    suite = Column(String, nullable=False)	# suite == "ALL" means totals
+    suite = Column(String,		# suite == "ALL" means totals
+                   index=True, nullable=False)
 
     # see consts.SLOCCOUNT_LANGUAGES for the language list rationale
     lang_ada = Column(Integer, nullable=True)
