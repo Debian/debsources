@@ -61,7 +61,7 @@ class UpdateStatus(object):
 # TODO fill tables: BinaryPackage, BinaryVersion
 # TODO get rid of shell hooks; they shall die a horrible death
 
-def notify(observers, conf, event, session, pkg, pkgdir):
+def notify(observers, conf, event, session, pkg, pkgdir, file_table=None):
     """notify (Python and shell) hooks of occurred events
 
     Currently supported events:
@@ -85,6 +85,11 @@ def notify(observers, conf, event, session, pkg, pkgdir):
 
     * pkgdir: path pointing to the package location in the file storage
 
+    * file_table: a dictionary mapping file names to DB file identifiers
+      (unique integers). If != None, the hook can rely on the file_table keys
+      to avoid re-scanning the file-system and use the corresponding file IDs.
+      If None, the hook will have to redo the scanning work.
+
     Shell hoks re invoked with the following arguments: pkgdir, package name,
     package version
 
@@ -107,11 +112,12 @@ def notify(observers, conf, event, session, pkg, pkgdir):
                       % (event, pkg, e.returncode, e.output))
         raise e
 
-    notify_plugins(observers, event, session, pkg, pkgdir)
+    notify_plugins(observers, event, session, pkg, pkgdir,
+                   file_table=file_table)
 
 
 def notify_plugins(observers, event, session, pkg, pkgdir,
-                   triggers=None, dry=False):
+                   triggers=None, dry=False, file_table=None):
     """notify Python hooks of occurred events
 
     If triggers is not None, only Python hooks whose names are listed in them
@@ -120,11 +126,11 @@ def notify_plugins(observers, event, session, pkg, pkgdir,
     for (title, action) in observers[event]:
         try:
             if triggers is None:
-                action(session, pkg, pkgdir)
+                action(session, pkg, pkgdir, file_table)
             elif (event, title) in triggers:
                 logging.info('notify (forced) %s/%s for %s' % (event, title, pkg))
                 if not dry:
-                    action(session, pkg, pkgdir)
+                    action(session, pkg, pkgdir, file_table)
         except:
             logging.error('plugin hooks for %s on %s failed' % (event, pkg))
             raise
@@ -141,8 +147,7 @@ def extract_new(status, conf, session, mirror, observers=NO_OBSERVERS):
     """
     ensure_cache_dir(conf)
 
-    logging.info('add new packages...')
-    for pkg in mirror.ls():
+    def extract_package(pkg):
         pkgdir = pkg.extraction_dir(conf['sources_dir'])
         if not dbutils.lookup_version(session, pkg['package'], pkg['version']):
             try:
@@ -153,11 +158,12 @@ def extract_new(status, conf, session, mirror, observers=NO_OBSERVERS):
                     # single db session for package addition and hook
                     # execution: if the hooks fail, the package won't be
                     # added to the db (it will be tried again at next run)
+                    file_table = None
                     if not conf['dry_run'] and 'db' in conf['passes']:
-                        dbutils.add_package(session, pkg)
+                        file_table = dbutils.add_package(session, pkg, pkgdir)
                     if not conf['dry_run'] and 'hooks' in conf['passes']:
                         notify(observers, conf,
-                               'add-package', session, pkg, pkgdir)
+                               'add-package', session, pkg, pkgdir, file_table)
             except:
                 logging.exception('failed to extract %s' % pkg)
         if conf['force_triggers']:
@@ -169,6 +175,14 @@ def extract_new(status, conf, session, mirror, observers=NO_OBSERVERS):
         # add entry for sources.txt, temporarily with no suite associated
         pkg_id = (pkg['package'], pkg['version'])
         status.sources[pkg_id] = pkg.archive_area(), pkg.dsc_path(), pkgdir, []
+
+    logging.info('add new packages...')
+    for pkg in mirror.ls():
+        if not conf['single_transaction']:
+            with session.begin():
+                extract_package(pkg)
+        else:
+            extract_package(pkg)
 
 
 def garbage_collect(status, conf, session, mirror, observers=NO_OBSERVERS):

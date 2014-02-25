@@ -1,4 +1,4 @@
-# Copyright (C) 2013  Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -29,6 +29,7 @@ DEFAULT_CONFIG = {
     'log_level':   'info',
     'expire_days': '0',
     'force_triggers': [],
+    'single_transaction': 'true',
 }
 
 LOG_FMT_FILE = '%(asctime)s %(module)s:%(levelname)s %(message)s'
@@ -64,6 +65,9 @@ def load_configuration(conffile):
             value = LOG_LEVELS[value]
         elif key == 'passes':
             value = set(value.split())
+        elif key == 'single_transaction':
+            assert value in ['true', 'false']
+            value = (value == 'true')
         typed_conf[key] = value
     return typed_conf
 

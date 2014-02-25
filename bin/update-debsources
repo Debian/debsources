@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright (C) 2013  Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -50,6 +50,11 @@ def main():
     cmdline.add_argument('--verbose', '-v',
                          action='count',
                          help='increase console verbosity')
+    cmdline.add_argument('--dburi', '-u', dest='dburi',
+                         help='database URI, e.g. postgresql:///mydbname. Override configuration file setting "db_uri"')
+    cmdline.add_argument('--single-transaction', dest='single_transaction',
+                         choices=['yes', 'no'],
+                         help='use a single per-package DB transactions (default: yes)')
     args = cmdline.parse_args()
 
     conf = mainlib.load_configuration(args.conffile)
@@ -66,6 +71,10 @@ def main():
             conf['force_triggers'].append((event, hook))
     if args.dry:
         conf['dry_run'] = True
+    if args.dburi:
+        conf['db_uri'] = args.dburi
+    if args.single_transaction:
+        conf['single_transaction'] = (args.single_transaction == 'yes')
 
     mainlib.init_logging(conf, mainlib.log_level_of_verbosity(args.verbose))
     logging.debug('loaded configuration from %s' % conf['conffile'])
@@ -81,9 +90,13 @@ def main():
     try:
         db = sqlalchemy.create_engine(conf['db_uri'])
         Session = sqlalchemy.orm.sessionmaker()
-        session = Session(bind=db)
-        updater.update(conf, session, observers)
-        session.commit()
+        if conf['single_transaction']:
+            session = Session(bind=db, autocommit=False)
+            updater.update(conf, session, observers)
+            session.commit()
+        else:
+            session = Session(bind=db, autocommit=True)
+            updater.update(conf, session, observers)
     except SystemExit:	# exit as requested
         raise
     except:	# store trace in log, then exit

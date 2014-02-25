@@ -1,4 +1,4 @@
-# Copyright (C) 2013  Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -18,10 +18,13 @@
 import logging
 import os
 
+from sqlalchemy import sql
+
 import dbutils
+import fs_storage
 import hashutil
 
-from models import Checksum
+from models import Checksum, File
 
 
 conf = None
@@ -30,6 +33,8 @@ MY_NAME = 'checksums'
 MY_EXT = '.' + MY_NAME
 sums_path = lambda pkgdir: pkgdir + MY_EXT
 
+# maximum number of ctags after which a (bulk) insert is sent to the DB
+BULK_FLUSH_THRESHOLD = 100000
 
 def parse_checksums(path):
     """parse sha256 checksums from a file in SHA256SUM(1) format
@@ -46,50 +51,70 @@ def parse_checksums(path):
             yield (sha256, path)
 
 
-def walk_pkg_files(pkgdir):
-    if isinstance(pkgdir, unicode):
-        # dumb down pkgdir to byte string. Whereas pkgdir comes from Sources
-        # and hence is ASCII clean, the paths that os.walk() will encounter
-        # might not even be UTF-8 clean. Using str() we ensure that path
-        # operations will happen between raw strings, avoding encoding issues.
-        pkgdir = str(pkgdir)
-    for root, dirs, files in os.walk(pkgdir):
-        for file in files:
-            yield os.path.join(root, file)
-
-
-def add_package(session, pkg, pkgdir):
+def add_package(session, pkg, pkgdir, file_table):
     global conf
     logging.debug('add-package %s' % pkg)
 
     sumsfile = sums_path(pkgdir)
     sumsfile_tmp = sumsfile + '.new'
 
+    def emit_checksum(out, relpath, abspath):
+        if os.path.islink(abspath):
+            # do not checksum symlinks, if they are not dangling / external we
+            # will checksum their target anyhow
+            return
+        sha256 = hashutil.sha256sum(abspath)
+        out.write('%s  %s\n' % (sha256, relpath))
+
     if 'hooks.fs' in conf['passes']:
         if not os.path.exists(sumsfile): # compute checksums only if needed
             with open(sumsfile_tmp, 'w') as out:
-                for path in walk_pkg_files(pkgdir):
-                    if os.path.islink(path):
-                        # do not checksum symlinks, if they are not dangling /
-                        # external we will checksum their target anyhow
-                        continue
-                    sha256 = hashutil.sha256sum(path)
-                    relpath = os.path.relpath(path, pkgdir)
-                    out.write('%s  %s\n' % (sha256, relpath))
+                if file_table:
+                    for relpath in file_table.iterkeys():
+                        abspath = os.path.join(pkgdir, relpath)
+                        emit_checksum(out, relpath, abspath)
+                else:
+                    for abspath in fs_storage.walk_pkg_files(pkgdir):
+                        relpath = os.path.relpath(abspath, pkgdir)
+                        emit_checksum(out, relpath, abspath)
             os.rename(sumsfile_tmp, sumsfile)
 
     if 'hooks.db' in conf['passes']:
         version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
+        insert_q = sql.insert(Checksum.__table__)
+        insert_params = []
         if not session.query(Checksum).filter_by(version_id=version.id).first():
             # ASSUMPTION: if *a* checksum of this package has already
             # been added to the db in the past, then *all* of them have,
             # as additions are part of the same transaction
             for (sha256, relpath) in parse_checksums(sumsfile):
-                checksum = Checksum(version, relpath, sha256)
-                session.add(checksum)
+                params = {'version_id': version.id,
+                          'sha256': sha256,
+                      }
+                if file_table:
+                    try:
+                        file_id = file_table[relpath]
+                        checksum = Checksum(version, file_id, sha256)
+                        params['file_id'] = file_id
+                    except KeyError:
+                        continue
+                else:
+                    file_ = session.query(File).filter_by(version_id=version.id,
+                                                          path=relpath).first()
+                    if not file_:
+                        continue
+                    params['file_id'] = file_.id
+                insert_params.append(params)
+                if len(insert_params) >= BULK_FLUSH_THRESHOLD:
+                    session.execute(insert_q, insert_params)
+                    session.flush()
+                    insert_params = []
+            if insert_params:	# source packages shouldn't be empty but...
+                session.execute(insert_q, insert_params)
+                session.flush()
 
 
-def rm_package(session, pkg, pkgdir):
+def rm_package(session, pkg, pkgdir, file_table):
     global conf
     logging.debug('rm-package %s' % pkg)
 

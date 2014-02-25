@@ -1,4 +1,4 @@
-# Copyright (C) 2013  Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -19,9 +19,11 @@ import logging
 import os
 import subprocess
 
+from sqlalchemy import sql
+
 import dbutils
 
-from models import Ctag, MAX_KEY_LENGTH
+from models import Ctag, File, MAX_KEY_LENGTH
 
 
 conf = None
@@ -29,13 +31,21 @@ conf = None
 CTAGS_FLAGS = [ '--recurse',
                 '--excmd=number',
                 '--fields=+lnz',
+                # '--extra=+q',
                 '--sort=no',
+                '--links=no',
 ]
                 
 MY_NAME = 'ctags'
 MY_EXT = '.' + MY_NAME
 ctags_path = lambda pkgdir: pkgdir + MY_EXT
 
+# maximum number of ctags after which a (bulk) insert is sent to the DB
+BULK_FLUSH_THRESHOLD = 20000
+
+# maximum number of detailed warnings for malformed tags that will be emitted.
+# used to avoid flooding logs
+BAD_TAGS_THRESHOLD = 5
 
 def parse_ctags(path):
     """parse exuberant ctags tags file
@@ -75,6 +85,7 @@ def parse_ctags(path):
         return tag
 
     with open(path) as ctags:
+        bad_tags = 0
         for line in ctags:
             # e.g. 'music\tsound.c\t13;"\tkind:v\tline:13\tlanguage:C\tfile:\n'
             # see CTAGS(1), section "TAG FILE FORMAT"
@@ -83,10 +94,15 @@ def parse_ctags(path):
             try:
                 yield parse_tag(line)
             except:
-                logging.warn('ignore malformed tag "%s"' % line.rstrip())
+                bad_tags += 1
+                if bad_tags <= BAD_TAGS_THRESHOLD:
+                    logging.warn('ignore malformed tag "%s"' % line.rstrip())
+        if bad_tags > BAD_TAGS_THRESHOLD:
+            logging.warn('%d extra malformed tag(s) ignored' %
+                         (bad_tags - BAD_TAGS_THRESHOLD))
 
 
-def add_package(session, pkg, pkgdir):
+def add_package(session, pkg, pkgdir, file_table):
     global conf
     logging.debug('add-package %s' % pkg)
 
@@ -108,16 +124,49 @@ def add_package(session, pkg, pkgdir):
 
     if 'hooks.db' in conf['passes']:
         version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
+        curfile = {None: None}	# poor man's cache for last <relpath, file_id>;
+                             # rely on the fact that ctags file are path-sorted
+        insert_q = sql.insert(Ctag.__table__)
+        insert_params = []
         if not session.query(Ctag).filter_by(version_id=version.id).first():
-            # ASSUMPTION: if *a* cta of this package has already been added to
+            # ASSUMPTION: if *a* ctag of this package has already been added to
             # the db in the past, then *all* of them have, as additions are
             # part of the same transaction
             for tag in parse_ctags(ctagsfile):
-                ctag = Ctag(version, **tag)
-                session.add(ctag)
+                params = ({'version_id': version.id,
+                           'tag': tag['tag'],
+                           # 'file_id': 	# will be filled below
+                           'line': tag['line'],
+                           'kind': tag['kind'],
+                           'language': tag['language'],
+                       })
+                relpath = tag['path']
+                if file_table:
+                    try:
+                        params['file_id'] = file_table[relpath]
+                    except KeyError:
+                        continue
+                else:
+                    try:
+                        params['file_id'] = curfile[relpath]
+                    except KeyError:
+                        file_ = session.query(File).filter_by(version_id=version.id,
+                                                              path=relpath).first()
+                        if not file_:
+                            continue
+                        curfile = { relpath: file_.id }
+                        params['file_id'] = file_.id
+                insert_params.append(params)
+                if len(insert_params) >= BULK_FLUSH_THRESHOLD:
+                    session.execute(insert_q, insert_params)
+                    session.flush()
+                    insert_params = []
+            if insert_params:	# might be empty if there are no ctags at all!
+                session.execute(insert_q, insert_params)
+                session.flush()
 
 
-def rm_package(session, pkg, pkgdir):
+def rm_package(session, pkg, pkgdir, file_table):
     global conf
     logging.debug('rm-package %s' % pkg)
 

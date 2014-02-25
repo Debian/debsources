@@ -1,5 +1,5 @@
-# Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
-#                     Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2013-2014  Matthieu Caneill <matthieu.caneill@gmail.com>
+#                          Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -33,6 +33,10 @@ from consts import MAX_KEY_LENGTH, VCS_TYPES, SLOCCOUNT_LANGUAGES, \
 import filetype
 
 Base = declarative_base()
+
+
+# used for migrations, see scripts under python/migrate/
+DB_SCHEMA_VERSION = 2
 
 
 class Package(Base):
@@ -96,8 +100,9 @@ class Version(Base):
     
     id = Column(Integer, primary_key=True)
     vnumber = Column(String)
-    package_id = Column(Integer, ForeignKey('packages.id', ondelete="CASCADE"),
-                        nullable=False)
+    package_id = Column(Integer,
+                        ForeignKey('packages.id', ondelete="CASCADE"),
+                        index=True, nullable=False)
     area = Column(String(8), index=True)	# main, contrib, non-free
     vcs_type = Column(Enum(*VCS_TYPES, name="vcs_types"))
     vcs_url = Column(String)
@@ -130,7 +135,7 @@ class SuitesMapping(Base):
     id = Column(Integer, primary_key=True)
     sourceversion_id = Column(Integer,
                               ForeignKey('versions.id', ondelete="CASCADE"),
-                              nullable=False)
+                              index=True, nullable=False)
     suite = Column(String, index=True)
     
     def __init__(self, version, suite):
@@ -138,19 +143,40 @@ class SuitesMapping(Base):
         self.suite = suite
 
 
-class Checksum(Base):
-    __tablename__ = 'checksums'
+class File(Base):
+    """source file table"""
+
+    __tablename__ = 'files'
     __table_args__ = (UniqueConstraint('version_id', 'path'),)
 
     id = Column(Integer, primary_key=True)
-    version_id = Column(Integer, ForeignKey('versions.id', ondelete="CASCADE"),
-                        nullable=False)
-    path = Column(LargeBinary, nullable=False)	# path/whitin/source/pkg
-    sha256 = Column(String(64), nullable=False, index=True)
+    version_id = Column(Integer,
+                        ForeignKey('versions.id', ondelete="CASCADE"),
+                        index=True, nullable=False)
+    path = Column(LargeBinary, index=True,	# path/whitin/source/pkg
+                  nullable=False)
 
-    def __init__(self, version, path, sha256):
+    def __init__(self, version, path):
         self.version_id = version.id
         self.path = path
+
+
+class Checksum(Base):
+    __tablename__ = 'checksums'
+    __table_args__ = (UniqueConstraint('version_id', 'file_id'),)
+
+    id = Column(Integer, primary_key=True)
+    version_id = Column(Integer,
+                        ForeignKey('versions.id', ondelete="CASCADE"),
+                        index=True, nullable=False)
+    file_id = Column(Integer,
+                     ForeignKey('files.id', ondelete="CASCADE"),
+                     index=True, nullable=False)
+    sha256 = Column(String(64), nullable=False, index=True)
+
+    def __init__(self, version, file_id, sha256):
+        self.version_id = version.id
+        self.file_id = file_id
         self.sha256 = sha256
 
 
@@ -175,12 +201,12 @@ class BinaryVersion(Base):
     
     id = Column(Integer, primary_key=True)
     vnumber = Column(String)
-    binarypackage_id = Column(Integer, ForeignKey('binarypackages.id',
-                                                  ondelete="CASCADE"),
-                              nullable=False)
-    sourceversion_id = Column(Integer, ForeignKey('versions.id',
-                                                  ondelete="CASCADE"),
-                              nullable=False)
+    binarypackage_id = Column(Integer,
+                              ForeignKey('binarypackages.id', ondelete="CASCADE"),
+                              index=True, nullable=False)
+    sourceversion_id = Column(Integer,
+                              ForeignKey('versions.id', ondelete="CASCADE"),
+                              index=True, nullable=False)
     
     def __init__(self, vnumber, area="main"):
         self.vnumber = vnumber
@@ -196,7 +222,7 @@ class SlocCount(Base):
     id = Column(Integer, primary_key=True)
     sourceversion_id = Column(Integer,
                               ForeignKey('versions.id', ondelete="CASCADE"),
-                              nullable=False)
+                              index=True, nullable=False)
     language = Column(Enum(*SLOCCOUNT_LANGUAGES, name="language_names"),
                       # TODO rename enum s/language_names/sloccount/languages
                       nullable=False)
@@ -212,20 +238,23 @@ class Ctag(Base):
     __tablename__ = 'ctags'
 
     id = Column(Integer, primary_key=True)
-    version_id = Column(Integer, ForeignKey('versions.id', ondelete="CASCADE"),
-                        nullable=False, index=True)
+    version_id = Column(Integer,
+                        ForeignKey('versions.id', ondelete="CASCADE"),
+                        index=True, nullable=False)
     tag = Column(String, nullable=False, index=True)
-    path = Column(LargeBinary, nullable=False)	# path/whitin/source/pkg
+    file_id = Column(Integer,
+                     ForeignKey('files.id', ondelete="CASCADE"),
+                     index=True, nullable=False)
     line = Column(Integer, nullable=False)
     kind = Column(String)	# see `ctags --list-kinds`; unfortunately ctags
         # gives no guarantee of uniformity in kinds, they might be one-lettered
         # or full names, sigh
     language = Column(Enum(*CTAGS_LANGUAGES, name="ctags_languages"))
 
-    def __init__(self, version, tag, path, line, kind, language):
+    def __init__(self, version, tag, file_id, line, kind, language):
         self.version_id = version.id
         self.tag = tag
-        self.path = path
+        self.file_id = file_id
         self.line = line
         self.kind = kind
         self.language = language
@@ -259,16 +288,18 @@ class Ctag(Base):
         
         results = (session.query(Package.name.label("package"),
                                  Version.vnumber.label("version"),
-                                 Ctag.path.label("path"),
+                                 Ctag.file_id.label("file_id"),
+                                 File.path.label("path"),
                                  Ctag.line.label("line"))
                    .filter(Ctag.tag == ctag)
                    .filter(Ctag.version_id == Version.id)
+                   .filter(Ctag.file_id == File.id)
                    .filter(Version.package_id == Package.id)
                    )
         if package is not None:
             results = results.filter(Package.name == package)
         
-        results = results.order_by(Ctag.version_id, Ctag.path)
+        results = results.order_by(Ctag.version_id, File.path)
         count = results.count()
         if slice_ is not None:
             results = results.slice(slice_[0], slice_[1])
@@ -278,7 +309,7 @@ class Ctag(Base):
                         line=res.line)
                    for res in results.all()]
         return (count, results)
-    
+
 
 
 class Metric(Base):
@@ -288,7 +319,7 @@ class Metric(Base):
     id = Column(Integer, primary_key=True)
     sourceversion_id = Column(Integer,
                               ForeignKey('versions.id', ondelete="CASCADE"),
-                              nullable=False)
+                              index=True, nullable=False)
     metric = Column(Enum(*METRIC_TYPES, name="metric_types"), nullable=False)
     value = Column("value_", Integer, nullable=False)
 
@@ -415,6 +446,8 @@ class Location(object):
                                      path_to='/'.join(path_dict[:i+1]))))
         return pathl
 
+
+
 class Directory(object):
     """ a folder in a package """
     
@@ -442,8 +475,10 @@ class Directory(object):
         return listing
     
 
+
 class SourceFile(object):
     """ a source file in a package """
+
     def __init__(self, location):
         self.location = location
         self.sources_path = location.sources_path
@@ -469,23 +504,19 @@ class SourceFile(object):
         """
         Queries the DB and returns the shasum of the file.
         """
-        try:
-            shasum = (session.query(Checksum.sha256)
-                      .filter(Checksum.version_id==Version.id)
-                      .filter(Version.package_id==Package.id)
-                      .filter(Package.name==self.location.package)
-                      .filter(Version.vnumber==self.location.version)
-                      # WARNING:
-                      # in the DB path is binary,
-                      # and here location.path is unicode, because the path
-                      # comes from the URL.
-                      # TODO: check with non-unicode paths
-                      .filter(Checksum.path==str(self.location.path))
-                      .first()
-                      )[0]
-        except Exception as e:
-            #app.logger.error(e)
-            shasum = None
+        shasum = session.query(Checksum.sha256) \
+                        .filter(Checksum.version_id==Version.id) \
+                        .filter(Version.package_id==Package.id) \
+                        .filter(File.id==Checksum.file_id) \
+                        .filter(Package.name==self.location.package) \
+                        .filter(Version.vnumber==self.location.version) \
+                        .filter(File.path==str(self.location.path)) \
+                        .first()
+                        # WARNING: in the DB path is binary, and here
+                        # location.path is unicode, because the path comes from
+                        # the URL. TODO: check with non-unicode paths
+        if shasum:
+            shasum = shasum[0]
         return shasum
     
     def get_permissions(self):

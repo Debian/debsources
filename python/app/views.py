@@ -35,7 +35,7 @@ session = app_wrapper.session
 from excepts import InvalidPackageOrVersionError, FileOrFolderNotFound, \
     Http500Error, Http404Error, Http403Error
 from models import Ctag, Package, Version, Checksum, Location, \
-    Directory, SourceFile, SuitesMapping, SlocCount, Metric
+    Directory, SourceFile, SuitesMapping, SlocCount, Metric, File
 from sourcecode import SourceCodeIterator
 from forms import SearchForm
 from infobox import Infobox
@@ -299,12 +299,7 @@ class ListpackagesView(GeneralView):
         else: # we paginate
             # WARNING: not serializable (TODO: serialize Pagination obj)
             try:
-                try:
-                    offset = int(app.config.get("LIST_OFFSET"))
-                except:
-                    app.logger.warning("list_offset is not defined in the "
-                                       "configuration, or has a bad value")
-                    offset = 60
+                offset = int(app.config.get("LIST_OFFSET") or 60)
                 
                 # we calculate the range of results
                 start = (page - 1) * offset
@@ -644,7 +639,7 @@ class ChecksumView(GeneralView):
         
         # pagination:
         if not self.all_:
-            offset = int(app.config.get("LIST_OFFSET")) or 60
+            offset = int(app.config.get("LIST_OFFSET") or 60)
             start = (page - 1) * offset
             end = start + offset
             slice_ = (start, end)
@@ -660,9 +655,11 @@ class ChecksumView(GeneralView):
             """
             results = (session.query(Package.name.label("package"),
                                      Version.vnumber.label("version"),
-                                     Checksum.path.label("path"))
+                                     Checksum.file_id.label("file_id"),
+                                     File.path.label("path"))
                        .filter(Checksum.sha256 == checksum)
                        .filter(Checksum.version_id == Version.id)
+                       .filter(Checksum.file_id == File.id)
                        .filter(Version.package_id == Package.id)
                        )
             if package is not None and package != "":

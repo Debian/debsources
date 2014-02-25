@@ -81,6 +81,19 @@ def walk(sources_dir, test=None):
             del(dirs[:])	# stop recursion
 
 
+def walk_pkg_files(pkgdir):
+    """walk through the source files in pkgdir, yielding one path at a time"""
+    if isinstance(pkgdir, unicode):
+        # dumb down pkgdir to byte string. Whereas pkgdir comes from Sources
+        # and hence is ASCII clean, the paths that os.walk() will encounter
+        # might not even be UTF-8 clean. Using str() we ensure that path
+        # operations will happen between raw strings, avoding encoding issues.
+        pkgdir = str(pkgdir)
+    for root, dirs, files in os.walk(pkgdir):
+        for file in files:
+            yield os.path.join(root, file)
+
+
 def parse_path(fname):
     """parse a path pointing into the FS storage
 

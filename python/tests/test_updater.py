@@ -36,6 +36,74 @@ from subprocess_workaround import subprocess_setup
 from testdata import *
 
 
+# queries to compare two DB schemas (e.g. "public.*" and "ref.*")
+DB_COMPARE_QUERIES = {
+    "packages":
+    "SELECT name \
+     FROM %(schema)s.packages \
+     ORDER BY name \
+     LIMIT 100",
+
+    "versions":
+    "SELECT packages.name, vnumber, area, vcs_type, vcs_url, vcs_browser \
+     FROM %(schema)s.versions, %(schema)s.packages \
+     WHERE versions.package_id = packages.id \
+     ORDER BY packages.name, vnumber \
+     LIMIT 100",
+
+    "suitesmapping":
+    "SELECT packages.name, versions.vnumber, suite \
+     FROM %(schema)s.versions, %(schema)s.packages, %(schema)s.suitesmapping \
+     WHERE versions.package_id = packages.id \
+     AND suitesmapping.sourceversion_id = versions.id \
+     ORDER BY packages.name, versions.vnumber, suite \
+     LIMIT 100",
+
+    "files":
+    "SELECT packages.name, versions.vnumber, files.path \
+     FROM %(schema)s.files, %(schema)s.versions, %(schema)s.packages \
+     WHERE versions.package_id = packages.id \
+     AND files.version_id = versions.id \
+     ORDER BY packages.name, versions.vnumber, files.path \
+     LIMIT 100",
+
+    "checksums":
+    "SELECT packages.name, versions.vnumber, files.path, sha256 \
+     FROM %(schema)s.files, %(schema)s.versions, %(schema)s.packages, %(schema)s.checksums \
+     WHERE versions.package_id = packages.id \
+     AND checksums.version_id = versions.id \
+     AND checksums.file_id = files.id \
+     ORDER BY packages.name, versions.vnumber, files.path \
+     LIMIT 100",
+
+    "sloccounts":
+    "SELECT packages.name, versions.vnumber, language, count \
+     FROM %(schema)s.sloccounts, %(schema)s.versions, %(schema)s.packages \
+     WHERE versions.package_id = packages.id \
+     AND sloccounts.sourceversion_id = versions.id \
+     ORDER BY packages.name, versions.vnumber, language \
+     LIMIT 100",
+
+    "ctags":
+    "SELECT packages.name, versions.vnumber, files.path, tag, line, kind, language \
+     FROM %(schema)s.ctags, %(schema)s.files, %(schema)s.versions, %(schema)s.packages \
+     WHERE versions.package_id = packages.id \
+     AND ctags.version_id = versions.id \
+     AND ctags.file_id = files.id \
+     ORDER BY packages.name, versions.vnumber, files.path, tag, line, kind, language \
+     LIMIT 100",
+
+    "metric":
+    "SELECT packages.name, versions.vnumber, metric, value_ \
+     FROM %(schema)s.metrics, %(schema)s.versions, %(schema)s.packages \
+     WHERE versions.package_id = packages.id \
+     AND metrics.sourceversion_id = versions.id \
+     AND metric != 'size' \
+     ORDER BY packages.name, versions.vnumber, metric \
+     LIMIT 100",
+}
+
+
 def compare_dirs(dir1, dir2, exclude=[]):
     """recursively compare dir1 with dir2
 
@@ -78,6 +146,7 @@ def mk_conf(tmpdir):
         'bin_dir': abspath(os.path.join(TEST_DIR, '../../bin')),
         'cache_dir': os.path.join(tmpdir, 'cache'),
         'db_uri': 'postgresql:///' + TEST_DB_NAME,
+        'single_transaction': 'true',
         'dry_run': False,
         'expire_days': 0,
         'force_triggers': '',
@@ -91,6 +160,34 @@ def mk_conf(tmpdir):
     return conf
 
 
+def db_mv_tables_to_schema(session, new_schema):
+    """move all debsources tables from the 'public' schema to new_schema
+
+    then recreate the corresponding (empty) tables under 'public'
+    """
+    session.execute('CREATE SCHEMA %s' % new_schema);
+    for tblname, table in models.Base.metadata.tables.items():
+        session.execute('ALTER TABLE %s SET SCHEMA %s' \
+                        % (tblname, new_schema))
+        session.execute(sqlalchemy.schema.CreateTable(table))
+
+
+def assert_db_schema_equal(test_subj, expected_schema, actual_schema):
+    for tbl, q in DB_COMPARE_QUERIES.iteritems():
+        expected = [ dict(r.items()) for r in \
+                     test_subj.session.execute(q % {'schema': expected_schema}) ]
+        actual = [ dict(r.items()) for r in \
+                   test_subj.session.execute(q % {'schema': actual_schema}) ]
+        test_subj.assertSequenceEqual(expected, actual,
+                        msg='table %s differs from reference' % tbl)
+
+def assert_dir_equal(test_subj, dir1, dir2, exclude=[]):
+    dir_eq, dir_diff = compare_dirs(dir1, dir2, exclude)
+    if not dir_eq:
+        print dir_diff
+    test_subj.assertTrue(dir_eq, 'file system storages differ')
+
+
 @attr('infra')
 @attr('postgres')
 class Updater(unittest.TestCase, DbTestFixture):
@@ -99,58 +196,37 @@ class Updater(unittest.TestCase, DbTestFixture):
         self.db_setup()
         self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
         self.conf = mk_conf(self.tmpdir)
+        self.longMessage = True
 
     def tearDown(self):
         self.db_teardown()
         shutil.rmtree(self.tmpdir)
 
-    @istest
-    @attr('slow')
-    def updaterProducesReferenceDb(self):
-        # move tables to reference schema 'ref' and recreate them under 'public'
-        self.session.execute('CREATE SCHEMA ref');
-        for tblname, table in models.Base.metadata.tables.items():
-            self.session.execute('ALTER TABLE %s SET SCHEMA ref' % tblname)
-            self.session.execute(sqlalchemy.schema.CreateTable(table))
-
-        # do a full update run in a virtual test environment
+    def do_update(self):
+        """do a full update run in a virtual test environment"""
         mainlib.init_logging(self.conf, console_verbosity=logging.WARNING)
         (observers, file_exts)  = mainlib.load_hooks(self.conf)
         updater.update(self.conf, self.session, observers)
+        return file_exts
+
+    @istest
+    @attr('slow')
+    def updaterProducesReferenceDb(self):
+        db_mv_tables_to_schema(self.session, 'ref')
+        file_exts = self.do_update()
 
         # sources/ dir comparison. Ignored patterns:
         # - plugin result caches -> because most of them are in os.walk()
         #   order, which is not stable
         # - dpkg-source log stored in *.log
         exclude_pat = [ '*' + ext for ext in file_exts ] + [ '*.log' ]
-        dir_eq, dir_diff = compare_dirs(os.path.join(self.tmpdir, 'sources'),
-                                        os.path.join(TEST_DATA_DIR, 'sources'),
-                                        exclude=exclude_pat)
-        if not dir_eq:
-            print dir_diff
-        self.assertTrue(dir_eq)
+        assert_dir_equal(self,
+                         os.path.join(self.tmpdir, 'sources'),
+                         os.path.join(TEST_DATA_DIR, 'sources'),
+                         exclude=exclude_pat)
 
-        # DB comparison
-        for tblname in models.Base.metadata.tables.keys():
-            if tblname == 'metrics':	# metrics are not stable due to 'du'
-                continue
-            if tblname == 'ctags':	# XXX LargeBinary seem incomparable
-                continue
-            if tblname == 'checksums':	# XXX LargeBinary seem incomparable
-                continue
-            ref_tblname = 'ref.' + tblname
-            for (t1, t2) in [(tblname, ref_tblname), (ref_tblname, tblname)]:
-                diff = self.session.execute(
-                    'SELECT * FROM %s EXCEPT SELECT * FROM %s' % (t1, t2))
-                if diff.rowcount > 0:
-                    print 'row in %s but not %s db (sample):' % (t1, t2), \
-                        diff.fetchone()
-                    self.session.commit()
-                    (_f, dumppath) = tempfile.mkstemp(suffix='.debsources-dump')
-                    pg_dump(TEST_DB_NAME, dumppath)
-                    print 'test db dump saved as %s' % dumppath
-                self.assertEqual(diff.rowcount, 0,
-                                 msg='%d rows in %s \ %s' % (diff.rowcount, t1, t2))
+        assert_db_schema_equal(self, 'ref', 'public')
+
 
     @istest
     def updaterProducesReferenceSourcesTxt(self):
@@ -163,15 +239,29 @@ class Updater(unittest.TestCase, DbTestFixture):
                     fields[4] = os.path.relpath(fields[4], self.conf['sources_dir'])
                 yield fields
 
-        # do update run in a virtual test environment; given DB is pre-filled,
-        # it should be a "do-almost-nothing" update
-        mainlib.init_logging(self.conf, console_verbosity=logging.WARNING)
-        (observers, file_exts)  = mainlib.load_hooks(self.conf)
-        updater.update(self.conf, self.session, observers)
+        # given DB is pre-filled, this should be a "do-almost-nothing" update
+        self.do_update()
         srctxt_path = 'cache/sources.txt'
         actual_srctxt = list(parse_sources_txt(os.path.join(self.tmpdir, srctxt_path)))
         expected_srctxt = list(parse_sources_txt(os.path.join(TEST_DATA_DIR, srctxt_path)))
         self.assertItemsEqual(actual_srctxt, expected_srctxt)
+
+
+    @istest
+    @attr('slow')
+    def updaterRecreatesDbFromFiles(self):
+        orig_sources = os.path.join(TEST_DATA_DIR, 'sources')
+        dest_sources = os.path.join(self.tmpdir, 'sources')
+        shutil.copytree(orig_sources, dest_sources)
+        db_mv_tables_to_schema(self.session, 'ref')
+
+        self.conf['passes'] = set(['db', 'hooks', 'hooks.db'])
+        self.do_update()
+
+        # check that the update didn't touch filesystem storage
+        assert_dir_equal(self, orig_sources, dest_sources)
+        # check that the update recreate an identical DB
+        assert_db_schema_equal(self, 'ref', 'public')
 
 
 @attr('infra')
