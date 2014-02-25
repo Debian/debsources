@@ -5,7 +5,7 @@
 
 {% extends "base.html" %}
 
-{% block title %}Stats: {{ suite }}{% endblock %}
+{% block title %}Statistics: {{ suite }}{% endblock %}
 
 {% block breadcrumbs %}<a href="{{ url_for('stats_all_html') }}">stats</a> / {{ suite }}{% endblock %}
 
@@ -21,6 +21,13 @@
   <li>Disk usage: {{ results[suite + ".disk_usage"] }} kB</li>
   <li>Ctags: {{ results[suite + ".ctags"] }}</li>
   <li>Source lines of code: {{ results[suite + ".sloccount"] }}
+    <span class="sidechart">
+    <a href="{{ url_for('static',
+	     filename='img/stats/' + suite[7:] + '-sloc_pie-current.png') }}">
+      <img src="{{ url_for('static',
+		filename='img/stats/' + suite[7:] + '-sloc_pie-current.png') }}" />
+    </a>
+    </span>
     <ul>
       {% for lang in languages|sort %}
         <li>{{ lang }}: {{ results[suite + ".sloccount." + lang] }}</li>
@@ -29,7 +36,8 @@
   </li>
 </ul>
 
-<h3>Graphs</h3>
+
+<h3>Historical trends</h3>
 
 {% import "stats_graphs.inc.html" as stats_graphs %}
 {{ stats_graphs.render_graphs(suite[7:]) }}

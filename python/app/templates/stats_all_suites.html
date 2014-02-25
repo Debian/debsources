@@ -57,6 +57,14 @@
 
 <h3>Sloccount &mdash; current</h3>
 
+<div>
+<span class="sidechart">
+  <a href="{{ url_for('static',
+	   filename='img/stats/ALL-sloc_pie-current.png') }}">
+    <img src="{{ url_for('static',
+	      filename='img/stats/ALL-sloc_pie-current.png') }}" />
+  </a>
+</span>
 <table>
   <tr>
     <th></th>
@@ -80,6 +88,7 @@
     </tr>
   {% endfor %}
 </table>
+</div>
 
 <h3>Historical trends</h3>
 

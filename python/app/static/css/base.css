@@ -136,15 +136,23 @@ table.rrd tr td {
 }
 
 div.stats {
-    width: 350px;
     float: left;
+    width: 400px;
     text-align: center;
 }
 
 div.stats img {
-    width: 350px;
+    width: 400px;
 }
 
 .clear_float {
     clear: left;
+}
+
+span.sidechart {
+    float: right;
+}
+
+span.sidechart img {
+    width: 500px;
 }
