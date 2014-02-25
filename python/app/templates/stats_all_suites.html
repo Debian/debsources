@@ -26,31 +26,31 @@
   <tr>
     <th>Source files</th>
     {% for suite in suites %}
-      <td>{{ results[suite + ".source_files"] }}</td>
+      <td>{{ results[suite + ".source_files"] | format_big_num }}</td>
     {% endfor %}
   </tr>
   <tr>
     <th>Source packages</th>
     {% for suite in suites %}
-      <td>{{ results[suite + ".source_packages"] }}</td>
+      <td>{{ results[suite + ".source_packages"] | format_big_num }}</td>
     {% endfor %}
   </tr>
   <tr>
     <th>Disk usage (kB)</th>
     {% for suite in suites %}
-      <td>{{ results[suite + ".disk_usage"] }}</td>
+      <td>{{ results[suite + ".disk_usage"] | format_big_num }}</td>
     {% endfor %}
   </tr>
   <tr>
     <th>Ctags</th>
     {% for suite in suites %}
-      <td>{{ results[suite + ".ctags"] }}</td>
+      <td>{{ results[suite + ".ctags"] | format_big_num }}</td>
     {% endfor %}
   </tr>
   <tr>
     <th>SLOC</th>
     {% for suite in suites %}
-      <td>{{ results[suite + ".sloccount"] }}</td>
+      <td>{{ results[suite + ".sloccount"] | format_big_num }}</td>
     {% endfor %}
   </tr>
 </table>
@@ -76,14 +76,14 @@
   <tr>
     <th>Total</th>
     {% for suite in suites %}
-      <td>{{ results[suite + ".sloccount"] }}</td>
+      <td>{{ results[suite + ".sloccount"] | format_big_num }}</td>
     {% endfor %}
   </tr>
   {% for lang in languages|sort %}
     <tr>
       <th>{{ lang }}</th>
       {% for suite in suites %}
-        <td>{{ results[suite + ".sloccount." + lang] }}</td>
+        <td>{{ results[suite + ".sloccount." + lang] | format_big_num }}</td>
       {% endfor %}
     </tr>
   {% endfor %}

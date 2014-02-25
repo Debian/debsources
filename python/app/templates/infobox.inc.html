@@ -37,19 +37,19 @@
       <li>area: {{ pkg_infos['area'] }}</li>
       <li>in suites: {{ pkg_infos['suites']|join(', ') }}</li>
       {% if pkg_infos['metric']['size'] %}
-        <li>size: {{ pkg_infos['metric']['size'] }} kB</li>
+        <li>size: {{ pkg_infos['metric']['size'] | format_big_num }} kB</li>
       {% endif %}
       {% if pkg_infos['sloc'] %}
         <li><abbr title="source lines of code">sloc</abbr>:
 	  {% if position == "fixed" %}
             {% for x in pkg_infos['sloc'] %}
-              {{ x[0] + ": %s"|format(x[1]) }}{%
+              {{ x[0] + ": " + x[1] | format_big_num }}{%
               if not loop.last %}; {% endif %}
             {% endfor %}
 	  {% else %}
 	  <ul>
             {% for x in pkg_infos['sloc'] %}
-	    <li>{{ x[0] + ": %s"|format(x[1]) }}</li>
+	    <li>{{ x[0] + ": " + x[1] | format_big_num }}</li>
             {% endfor %}
 	  </ul>
 	  {% endif %}

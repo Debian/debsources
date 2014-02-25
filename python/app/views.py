@@ -67,6 +67,15 @@ def skeleton_variables():
                 searchform = SearchForm(),
                 last_update=last_update)
 
+# jinja2 Filter to format big numbers
+def format_big_num(num):
+    try:
+        res = "{:,}".format(num)
+    except:
+        res = num
+    return res
+
+app.jinja_env.filters['format_big_num'] = format_big_num
 
 ### PAGINATION ###
 

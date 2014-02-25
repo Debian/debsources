@@ -16,11 +16,11 @@
 {% set suite = "debian_" + suite %}
 
 <ul>
-  <li>Source files: {{ results[suite + ".source_files"] }}</li>
-  <li>Source packages: {{ results[suite + ".source_packages"] }}</li>
-  <li>Disk usage: {{ results[suite + ".disk_usage"] }} kB</li>
-  <li>Ctags: {{ results[suite + ".ctags"] }}</li>
-  <li>Source lines of code: {{ results[suite + ".sloccount"] }}
+  <li>Source files: {{ results[suite + ".source_files"] | format_big_num }}</li>
+  <li>Source packages: {{ results[suite + ".source_packages"] | format_big_num }}</li>
+  <li>Disk usage: {{ results[suite + ".disk_usage"] | format_big_num }} kB</li>
+  <li>Ctags: {{ results[suite + ".ctags"] | format_big_num }}</li>
+  <li>Source lines of code: {{ results[suite + ".sloccount"] | format_big_num }}
     <span class="sidechart">
     <a href="{{ url_for('static',
 	     filename='img/stats/' + suite[7:] + '-sloc_pie-current.png') }}">
@@ -30,7 +30,7 @@
     </span>
     <ul>
       {% for lang in languages|sort %}
-        <li>{{ lang }}: {{ results[suite + ".sloccount." + lang] }}</li>
+        <li>{{ lang }}: {{ results[suite + ".sloccount." + lang] | format_big_num }}</li>
       {% endfor %}
     </ul>
   </li>
