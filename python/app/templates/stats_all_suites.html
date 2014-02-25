@@ -5,7 +5,7 @@
 
 {% extends "base.html" %}
 
-{% block title %}Stats{% endblock %}
+{% block title %}Statistics{% endblock %}
 
 {% block breadcrumbs %}stats{% endblock %}
 
@@ -13,7 +13,7 @@
 
 <h2>{{ self.title() }}</h2>
 
-<h3>Size</h3>
+<h3>Size &mdash; current</h3>
 
 <table>
   <tr>
@@ -55,7 +55,7 @@
   </tr>
 </table>
 
-<h3>Lines of code per language</h3>
+<h3>Sloccount &mdash; current</h3>
 
 <table>
   <tr>
@@ -81,7 +81,7 @@
   {% endfor %}
 </table>
 
-<h3>Graphs</h3>
+<h3>Historical trends</h3>
 
 {% import "stats_graphs.inc.html" as stats_graphs %}
 {{ stats_graphs.render_graphs("ALL") }}

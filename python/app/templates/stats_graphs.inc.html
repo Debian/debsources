@@ -6,162 +6,49 @@
 
 {% macro render_graphs(suite) %}
 
+{% set granularities = ['1-month', '1-year', '5-years', '20-years'] %}
+
+{% macro historical_trend(metric) -%}
+  {% for g in granularities %}
+  <div class="stats">
+    <a href="{{ url_for('static',
+	     filename='img/stats/' + suite + '-' + metric + '-' + g + '.png') }}">
+      <img src="{{ url_for('static',
+		filename='img/stats/' + suite + '-' + metric + '-' + g + '.png') }}" />
+    </a>
+    <span>{{ g }}</span>
+  </div>
+  {% endfor %}
+{%- endmacro %}
+
+
 <h4 class="clear_float">Ctags</h4>
+{{ historical_trend('ctags') }}
 
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-ctags-1-month.png') }}"
-       class="stats" />
-  <span>1 month</span>
-</div>
-
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-ctags-1-year.png') }}"
-       class="stats" />
-  <span>1 year</span>
-</div>
-
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-ctags-5-years.png') }}"
-       class="stats" />
-  <span>5 years</span>
-</div>
-
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-ctags-20-years.png') }}"
-       class="stats" />
-  <span>20 years</span>
-</div>
 
 <h4 class="clear_float">Disk usage</h4>
+{{ historical_trend('disk_usage') }}
 
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-disk_usage-1-month.png') }}"
-       class="stats" />
-  <span>1 month</span>
-</div>
-
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-disk_usage-1-year.png') }}"
-       class="stats" />
-  <span>1 year</span>
-</div>
-
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-disk_usage-5-years.png') }}"
-       class="stats" />
-  <span>5 years</span>
-</div>
-
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-disk_usage-20-years.png') }}"
-       class="stats" />
-  <span>20 years</span>
-</div>
 
 <h4 class="clear_float">Source lines of code</h4>
+{{ historical_trend('sloc') }}
 
 <div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-sloc-1-month.png') }}"
-       class="stats" />
-  <span>1 month</span>
-</div>
-
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-sloc-1-year.png') }}"
-       class="stats" />
-  <span>1 year</span>
-</div>
-
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-sloc-5-years.png') }}"
-       class="stats" />
-  <span>5 years</span>
-</div>
-
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-sloc-20-years.png') }}"
-       class="stats" />
-  <span>20 years</span>
-</div>
-
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-sloc_pie-current.png') }}"
-       class="stats" />
-  <span>Current pie</span>
+  <a href="{{ url_for('static',
+	   filename='img/stats/' + suite + '-sloc_pie-current.png') }}">
+    <img src="{{ url_for('static',
+	      filename='img/stats/' + suite + '-sloc_pie-current.png') }}" />
+  </a>
+  <span>Language breakdown</span>
 </div>
 
 
 <h4 class="clear_float">Source files</h4>
+{{ historical_trend('source_files') }}
 
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-source_files-1-month.png') }}"
-       class="stats" />
-  <span>1 month</span>
-</div>
-
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-source_files-1-year.png') }}"
-       class="stats" />
-  <span>1 year</span>
-</div>
-
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-source_files-5-years.png') }}"
-       class="stats" />
-  <span>5 years</span>
-</div>
-
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-source_files-20-years.png') }}"
-       class="stats" />
-  <span>20 years</span>
-</div>
 
 <h4 class="clear_float">Source packages</h4>
+{{ historical_trend('source_packages') }}
 
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-source_packages-1-month.png') }}"
-       class="stats" />
-  <span>1 month</span>
-</div>
-
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-source_packages-1-year.png') }}"
-       class="stats" />
-  <span>1 year</span>
-</div>
-
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-source_packages-5-years.png') }}"
-       class="stats" />
-  <span>5 years</span>
-</div>
-
-<div class="stats">
-  <img src="{{ url_for('static',
-	    filename='img/stats/' + suite + '-source_packages-20-years.png') }}"
-       class="stats" />
-  <span>20 years</span>
-</div>
 
 {% endmacro %}
