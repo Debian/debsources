@@ -322,7 +322,6 @@ def update_statistics(status, conf, session):
             setattr(siz, stat, v)
         store_sloccount_stats(statistics.sloccount_summary(session, suite),
                               stats, suite_key + 'sloccount.%s', loc)
-        logging.debug('XXX session.add %s', suite)
         session.add(siz)
         session.add(loc)
 
