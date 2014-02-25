@@ -22,10 +22,6 @@
 {%- endmacro %}
 
 
-<h4 class="clear_float">Ctags</h4>
-{{ historical_trend('ctags') }}
-
-
 <h4 class="clear_float">Disk usage</h4>
 {{ historical_trend('disk_usage') }}
 
@@ -39,16 +35,20 @@
     <img src="{{ url_for('static',
 	      filename='img/stats/' + suite + '-sloc_pie-current.png') }}" />
   </a>
-  <span>Language breakdown</span>
+  <span>Language breakdown &mdash; current</span>
 </div>
+
+
+<h4 class="clear_float">Source packages</h4>
+{{ historical_trend('source_packages') }}
 
 
 <h4 class="clear_float">Source files</h4>
 {{ historical_trend('source_files') }}
 
 
-<h4 class="clear_float">Source packages</h4>
-{{ historical_trend('source_packages') }}
+<h4 class="clear_float">Ctags</h4>
+{{ historical_trend('ctags') }}
 
 
 {% endmacro %}
