@@ -31,8 +31,7 @@
     <ul>
       <li>links:
 	<a href="{{ pkg_infos['pts_link'] }}"><abbr title="Debian Package Tracking
-							   System">PTS</abbr></a>
-	{% if pkg_infos['vcs_browser'] %},
+							   System">PTS</abbr></a>{% if pkg_infos['vcs_browser'] %},
 	<a href="{{ pkg_infos['vcs_browser'] }}"><abbr title="Version Control System">VCS</abbr></a>
 	{% endif %}</li>
       <li>area: {{ pkg_infos['area'] }}</li>
