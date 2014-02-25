@@ -37,8 +37,19 @@ def _time_series(query):
     return [ (row['timestamp'], row['value']) for row in query ]
 
 
+# known suites, not necessarily existing in the DB, sorted by release date
+__KNOWN_SUITES = [ 'buzz', 'rex', 'bo', 'hamm', 'slink', 'potato', 'woody',
+                 'sarge', 'etch', 'lenny', 'squeeze', 'wheezy', 'jessie',
+                 'sid', 'experimental' ]
+KNOWN_SUITES = [ s
+                 for suites in [ [s, s + '-updates', s + '-proposed-updates', s + '-backports'] for s in __KNOWN_SUITES ]
+                 for s in suites ]
+
 def suites(session):
-    return [ row[0] for row in session.query(distinct(SuitesMapping.suite)) ]
+    indexed_suites = [ row[0] for row in session.query(distinct(SuitesMapping.suite)) ]
+    indexed_suites = filter(lambda s: s in KNOWN_SUITES, indexed_suites)
+    by_release_date = lambda s1, s2: cmp(KNOWN_SUITES.index(s1), KNOWN_SUITES.index(s2))
+    return sorted(indexed_suites, cmp=by_release_date)
 
 
 def disk_usage(session, suite=None):
