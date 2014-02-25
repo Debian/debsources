@@ -1,0 +1,167 @@
+{#
+  Copyright (C) 2014  Matthieu Caneill <matthieu.caneill@gmail.com>
+  License: GNU Affero General Public License, version 3 or above.
+#}
+
+
+{% macro render_graphs(suite) %}
+
+<h4 class="clear_float">Ctags</h4>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-ctags-1-month.png') }}"
+       class="stats" />
+  <span>1 month</span>
+</div>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-ctags-1-year.png') }}"
+       class="stats" />
+  <span>1 year</span>
+</div>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-ctags-5-years.png') }}"
+       class="stats" />
+  <span>5 years</span>
+</div>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-ctags-20-years.png') }}"
+       class="stats" />
+  <span>20 years</span>
+</div>
+
+<h4 class="clear_float">Disk usage</h4>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-disk_usage-1-month.png') }}"
+       class="stats" />
+  <span>1 month</span>
+</div>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-disk_usage-1-year.png') }}"
+       class="stats" />
+  <span>1 year</span>
+</div>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-disk_usage-5-years.png') }}"
+       class="stats" />
+  <span>5 years</span>
+</div>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-disk_usage-20-years.png') }}"
+       class="stats" />
+  <span>20 years</span>
+</div>
+
+<h4 class="clear_float">Source lines of code</h4>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-sloc-1-month.png') }}"
+       class="stats" />
+  <span>1 month</span>
+</div>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-sloc-1-year.png') }}"
+       class="stats" />
+  <span>1 year</span>
+</div>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-sloc-5-years.png') }}"
+       class="stats" />
+  <span>5 years</span>
+</div>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-sloc-20-years.png') }}"
+       class="stats" />
+  <span>20 years</span>
+</div>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-sloc_pie-current.png') }}"
+       class="stats" />
+  <span>Current pie</span>
+</div>
+
+
+<h4 class="clear_float">Source files</h4>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-source_files-1-month.png') }}"
+       class="stats" />
+  <span>1 month</span>
+</div>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-source_files-1-year.png') }}"
+       class="stats" />
+  <span>1 year</span>
+</div>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-source_files-5-years.png') }}"
+       class="stats" />
+  <span>5 years</span>
+</div>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-source_files-20-years.png') }}"
+       class="stats" />
+  <span>20 years</span>
+</div>
+
+<h4 class="clear_float">Source packages</h4>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-source_packages-1-month.png') }}"
+       class="stats" />
+  <span>1 month</span>
+</div>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-source_packages-1-year.png') }}"
+       class="stats" />
+  <span>1 year</span>
+</div>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-source_packages-5-years.png') }}"
+       class="stats" />
+  <span>5 years</span>
+</div>
+
+<div class="stats">
+  <img src="{{ url_for('static',
+	    filename='img/stats/' + suite + '-source_packages-20-years.png') }}"
+       class="stats" />
+  <span>20 years</span>
+</div>
+
+{% endmacro %}

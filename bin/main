@@ -78,9 +78,6 @@ main () {
     # note: update-debsources does his own logging to $logfile
     sudo -u debsources ${bin_dir}/update-debsources
 
-    info "main: update statistics..."
-    sudo -u debsources ${bin_dir}/update-stats "$cache_dir" >> $logfile 2>&1
-
     rm -f "$lockfile"
     info "main: all done at $(date)\n"
 }

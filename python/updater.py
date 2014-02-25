@@ -22,15 +22,15 @@ import subprocess
 
 from datetime import datetime
 from email.utils import formatdate
-from sqlalchemy import distinct
 
+import charts
 import consts
 import dbutils
 import fs_storage
 import statistics
 
 from debmirror import SourceMirror, SourcePackage
-from models import SuitesMapping, Version
+from models import SuitesMapping, Version, HistorySize, HistorySlocCount
 from subprocess_workaround import subprocess_setup
 
 KNOWN_EVENTS = [ 'add-package', 'rm-package' ]
@@ -136,13 +136,19 @@ def notify_plugins(observers, event, session, pkg, pkgdir,
             raise
 
 
+def ensure_dir(dir):
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
 def ensure_cache_dir(conf):
-    if not os.path.exists(conf['cache_dir']):
-        os.makedirs(conf['cache_dir'])
+    ensure_dir(conf['cache_dir'])
+
+def ensure_stats_dir(conf):
+    ensure_dir(os.path.join(conf['cache_dir'], 'stats'))
 
 
 def extract_new(status, conf, session, mirror, observers=NO_OBSERVERS):
-    """update phase: list mirror and extract new packages
+    """update stage: list mirror and extract new packages
 
     """
     ensure_cache_dir(conf)
@@ -186,7 +192,7 @@ def extract_new(status, conf, session, mirror, observers=NO_OBSERVERS):
 
 
 def garbage_collect(status, conf, session, mirror, observers=NO_OBSERVERS):
-    """update phase: list db and remove disappeared and expired packages
+    """update stage: list db and remove disappeared and expired packages
 
     """
     logging.info('garbage collection...')
@@ -226,7 +232,7 @@ def garbage_collect(status, conf, session, mirror, observers=NO_OBSERVERS):
 
 
 def update_suites(status, conf, session, mirror):
-    """update phase: sweep and recreate suite mappings
+    """update stage: sweep and recreate suite mappings
 
     """
     logging.info('update suites mappings...')
@@ -265,7 +271,7 @@ def update_suites(status, conf, session, mirror):
 
 
 def update_statistics(status, conf, session):
-    """update phase: update statistics
+    """update stage: update statistics
 
     """
     # TODO conf['dry_run'] unused in this function, should be used
@@ -273,7 +279,7 @@ def update_statistics(status, conf, session):
     logging.info('update statistics...')
     ensure_cache_dir(conf)
 
-    def store_sloccount_stats(summary, d, prefix_fmt):
+    def store_sloccount_stats(summary, d, prefix_fmt, db_obj):
         """Update stats dictionary d with per-language sloccount statistics available
         in summary, using prefix_fmt as the format string to create dictionary
         keys. %s in the format string will be replaced by the language name.
@@ -286,29 +292,41 @@ def update_statistics(status, conf, session):
             if summary.has_key(lang):
                 v = summary[lang]
             d[k] = v
+            setattr(db_obj, 'lang_' + lang, v)
+
+    now = datetime.utcnow()
 
     # compute overall stats
+    suite = 'ALL'
+    siz = HistorySize(suite, timestamp=now)
+    loc = HistorySlocCount(suite, timestamp=now)
     stats = {}
-    stats['size.du'] = statistics.disk_usage(session)
-    stats['size.versions'] = statistics.versions(session)
-    stats['size.source_files'] = statistics.source_files(session)
+    for stat in ['disk_usage', 'source_packages', 'source_files', 'ctags']:
+        v = getattr(statistics, stat)(session)
+        stats['total.' + stat] = v
+        setattr(siz, stat, v)
     store_sloccount_stats(statistics.sloccount_summary(session),
-                          stats, 'sloccount.%s')
-    stats['ctags'] = statistics.ctags(session)
+                          stats, 'total.sloccount.%s', loc)
+    session.add(siz)
+    session.add(loc)
 
     # compute per-suite stats
-    for suite in session.query(distinct(SuitesMapping.suite)).all():
-        suite = suite[0]	# SQL projection of the only field
-        stats['size.du.debian_' + suite] = statistics.disk_usage(session, suite)
-        stats['size.versions.debian_' + suite] = \
-                                        statistics.versions(session, suite)
-        stats['size.source_files.debian_' + suite] = \
-                                        statistics.source_files(session, suite)
-        slocs = statistics.sloccount_summary(session, suite)
-        store_sloccount_stats(slocs, stats, 'sloccount.%s.debian_' + suite)
-        slocs_suite = reduce(lambda locs,acc: locs+acc, slocs.itervalues())
-        stats['sloccount.debian_' + suite] = slocs_suite
-        stats['ctags.debian_' + suite] = statistics.ctags(session, suite)
+    for suite in statistics.suites(session):
+        siz = HistorySize(suite, timestamp=now)
+        loc = HistorySlocCount(suite, timestamp=now)
+
+        suite_key = 'debian_' + suite + '.'
+        for stat in ['disk_usage', 'source_packages', 'source_files', 'ctags']:
+            v = getattr(statistics, stat)(session, suite)
+            stats[suite_key + stat] = v
+            setattr(siz, stat, v)
+        store_sloccount_stats(statistics.sloccount_summary(session, suite),
+                              stats, suite_key + 'sloccount.%s', loc)
+        logging.debug('XXX session.add %s', suite)
+        session.add(siz)
+        session.add(loc)
+
+    session.flush()
 
     # cache computed stats to on-disk stats file
     stats_file = os.path.join(conf['cache_dir'], 'stats.data')
@@ -318,7 +336,7 @@ def update_statistics(status, conf, session):
 
 
 def update_metadata(status, conf, session):
-    """update phase: update metadata
+    """update stage: update metadata
 
     """
     # TODO conf['dry_run'] unused in this function, should be used
@@ -337,7 +355,62 @@ def update_metadata(status, conf, session):
         out.write('%s\n' % formatdate())
 
 
-def update(conf, session, observers=NO_OBSERVERS):
+def update_charts(status, conf, session):
+    """update stage: rebuild charts"""
+
+    logging.info('update charts...')
+    ensure_stats_dir(conf)
+
+    CHARTS = [	# <period, granularity> paris
+        ('1 month', 'hourly'),
+        ('1 year', 'daily'),
+        ('5 years', 'weekly'),
+        ('20 years', 'monthly'),
+    ]
+
+    # size charts, various metrics
+    for metric in ['source_packages', 'disk_usage', 'source_files', 'ctags']:
+        for (period, granularity) in CHARTS:
+            for suite in statistics.suites(session) + ['ALL']:
+                series = getattr(statistics, 'history_size_' + granularity) \
+                         (session, metric, interval=period, suite=suite)
+                chart_file = os.path.join(conf['cache_dir'], 'stats', \
+                        '%s-%s-%s.png' % \
+                            (suite, metric, period.replace(' ', '-')))
+                if not conf['dry_run']:
+                    charts.size_plot(series, chart_file)
+
+    # sloccount: historical histograms
+    for (period, granularity) in CHARTS:
+        for suite in statistics.suites(session) + ['ALL']:
+            # historical histogram
+            mseries = getattr(statistics, 'history_sloc_' + granularity) \
+                      (session, interval=period, suite=suite)
+            chart_file = os.path.join(conf['cache_dir'], 'stats', \
+                    '%s-sloc-%s.png' % (suite, period.replace(' ', '-')))
+            if not conf['dry_run']:
+                charts.sloc_plot(mseries, chart_file)
+
+    # sloccount: current pie charts
+    for suite in statistics.suites(session) + ['ALL']:
+        sloc_suite = suite
+        if sloc_suite == 'ALL':
+            sloc_suite = None
+        slocs = statistics.sloccount_summary(session, suite=sloc_suite)
+        chart_file = os.path.join(conf['cache_dir'], 'stats', \
+                                  '%s-sloc_pie-current.png' % suite)
+        charts.sloc_pie(slocs, chart_file)
+
+
+(STAGE_EXTRACT,
+ STAGE_SUITES,
+ STAGE_GC,
+ STAGE_STATS,
+ STAGE_CACHE,
+ STAGE_CHARTS,) = range(1, 7)
+UPDATE_STAGES = set(range(1, 7))
+
+def update(conf, session, observers=NO_OBSERVERS, stages=UPDATE_STAGES):
     """do a full update run
     """
     logging.info('start')
@@ -345,10 +418,17 @@ def update(conf, session, observers=NO_OBSERVERS):
     mirror = SourceMirror(conf['mirror_dir'])
     status = UpdateStatus()
 
-    extract_new(status, conf, session, mirror, observers)	# phase 1
-    update_suites(status, conf, session, mirror)		# phase 2
-    garbage_collect(status, conf, session, mirror, observers)	# phase 3
-    update_statistics(status, conf, session)			# phase 4
-    update_metadata(status, conf, session)			# phase 5
+    if STAGE_EXTRACT in stages:
+        extract_new(status, conf, session, mirror, observers)	# stage 1
+    if STAGE_SUITES in stages:
+        update_suites(status, conf, session, mirror)		# stage 2
+    if STAGE_GC in stages:
+        garbage_collect(status, conf, session, mirror, observers)# stage 3
+    if STAGE_STATS in stages:
+        update_statistics(status, conf, session)		# stage 4
+    if STAGE_CACHE in stages:
+        update_metadata(status, conf, session)			# stage 5
+    if STAGE_CHARTS in stages:
+        update_charts(status, conf, session)			# stage 6
 
     logging.info('finish')

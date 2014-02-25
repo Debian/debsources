@@ -31,77 +31,9 @@ import mainlib
 import models
 import updater
 
-from db_testing import DbTestFixture, pg_dump
+from db_testing import DbTestFixture, pg_dump, DB_COMPARE_QUERIES
 from subprocess_workaround import subprocess_setup
 from testdata import *
-
-
-# queries to compare two DB schemas (e.g. "public.*" and "ref.*")
-DB_COMPARE_QUERIES = {
-    "packages":
-    "SELECT name \
-     FROM %(schema)s.packages \
-     ORDER BY name \
-     LIMIT 100",
-
-    "versions":
-    "SELECT packages.name, vnumber, area, vcs_type, vcs_url, vcs_browser \
-     FROM %(schema)s.versions, %(schema)s.packages \
-     WHERE versions.package_id = packages.id \
-     ORDER BY packages.name, vnumber \
-     LIMIT 100",
-
-    "suitesmapping":
-    "SELECT packages.name, versions.vnumber, suite \
-     FROM %(schema)s.versions, %(schema)s.packages, %(schema)s.suitesmapping \
-     WHERE versions.package_id = packages.id \
-     AND suitesmapping.sourceversion_id = versions.id \
-     ORDER BY packages.name, versions.vnumber, suite \
-     LIMIT 100",
-
-    "files":
-    "SELECT packages.name, versions.vnumber, files.path \
-     FROM %(schema)s.files, %(schema)s.versions, %(schema)s.packages \
-     WHERE versions.package_id = packages.id \
-     AND files.version_id = versions.id \
-     ORDER BY packages.name, versions.vnumber, files.path \
-     LIMIT 100",
-
-    "checksums":
-    "SELECT packages.name, versions.vnumber, files.path, sha256 \
-     FROM %(schema)s.files, %(schema)s.versions, %(schema)s.packages, %(schema)s.checksums \
-     WHERE versions.package_id = packages.id \
-     AND checksums.version_id = versions.id \
-     AND checksums.file_id = files.id \
-     ORDER BY packages.name, versions.vnumber, files.path \
-     LIMIT 100",
-
-    "sloccounts":
-    "SELECT packages.name, versions.vnumber, language, count \
-     FROM %(schema)s.sloccounts, %(schema)s.versions, %(schema)s.packages \
-     WHERE versions.package_id = packages.id \
-     AND sloccounts.sourceversion_id = versions.id \
-     ORDER BY packages.name, versions.vnumber, language \
-     LIMIT 100",
-
-    "ctags":
-    "SELECT packages.name, versions.vnumber, files.path, tag, line, kind, language \
-     FROM %(schema)s.ctags, %(schema)s.files, %(schema)s.versions, %(schema)s.packages \
-     WHERE versions.package_id = packages.id \
-     AND ctags.version_id = versions.id \
-     AND ctags.file_id = files.id \
-     ORDER BY packages.name, versions.vnumber, files.path, tag, line, kind, language \
-     LIMIT 100",
-
-    "metric":
-    "SELECT packages.name, versions.vnumber, metric, value_ \
-     FROM %(schema)s.metrics, %(schema)s.versions, %(schema)s.packages \
-     WHERE versions.package_id = packages.id \
-     AND metrics.sourceversion_id = versions.id \
-     AND metric != 'size' \
-     ORDER BY packages.name, versions.vnumber, metric \
-     LIMIT 100",
-}
 
 
 def compare_dirs(dir1, dir2, exclude=[]):
@@ -197,16 +129,19 @@ class Updater(unittest.TestCase, DbTestFixture):
         self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
         self.conf = mk_conf(self.tmpdir)
         self.longMessage = True
+        self.maxDiff = None
 
     def tearDown(self):
         self.db_teardown()
         shutil.rmtree(self.tmpdir)
 
-    def do_update(self):
+    TEST_STAGES = updater.UPDATE_STAGES - set([updater.STAGE_CHARTS])
+
+    def do_update(self, stages=TEST_STAGES):
         """do a full update run in a virtual test environment"""
         mainlib.init_logging(self.conf, console_verbosity=logging.WARNING)
         (observers, file_exts)  = mainlib.load_hooks(self.conf)
-        updater.update(self.conf, self.session, observers)
+        updater.update(self.conf, self.session, observers, stages)
         return file_exts
 
     @istest
@@ -299,29 +234,29 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
     @istest
     def sizeMatchesReferenceDb(self):
         EXPECTED_SIZE = 122628
-        self.assertEqual(EXPECTED_SIZE, self.stats['size.du'])
+        self.assertEqual(EXPECTED_SIZE, self.stats['total.disk_usage'])
 
     @istest
     def statsMatchReferenceDb(self):
         expected_stats = {	# just a few samples
-            'ctags': 70166,
-            'ctags.debian_sid': 21395,
-            'ctags.debian_squeeze': 30633,
-            'size.du.debian_experimental': 6520,
-            'size.source_files': 5489,
-            'size.source_files.debian_experimental': 645,
-            'size.source_files.debian_jessie': 1677,
-            'size.versions': 31,
-            'size.versions.debian_squeeze': 13,
-            'size.versions.debian_wheezy': 12,
-            'sloccount.awk.debian_sid': 25,
-            'sloccount.cpp.debian_sid': 41458,
-            'sloccount.cpp.debian_squeeze': 36508,
-            'sloccount.cpp.debian_wheezy': 37375,
-            'sloccount.perl': 1838,
-            'sloccount.python': 7760,
-            'sloccount.python.debian_wheezy': 2798,
-            'sloccount.ruby.debian_squeeze': 193,
-            'sloccount.ruby.debian_wheezy': 193,
+            'total.ctags': 70166,
+            'debian_sid.ctags': 21395,
+            'debian_squeeze.ctags': 30633,
+            'debian_experimental.disk_usage': 6520,
+            'total.source_files': 5489,
+            'debian_experimental.source_files': 645,
+            'debian_jessie.source_files': 1677,
+            'total.source_packages': 31,
+            'debian_squeeze.source_packages': 13,
+            'debian_wheezy.source_packages': 12,
+            'debian_sid.sloccount.awk': 25,
+            'debian_sid.sloccount.cpp': 41458,
+            'debian_squeeze.sloccount.cpp': 36508,
+            'debian_wheezy.sloccount.cpp': 37375,
+            'total.sloccount.perl': 1838,
+            'total.sloccount.python': 7760,
+            'debian_wheezy.sloccount.python': 2798,
+            'debian_squeeze.sloccount.ruby': 193,
+            'debian_wheezy.sloccount.ruby': 193,
         }
         self.assertDictContainsSubset(expected_stats, self.stats)

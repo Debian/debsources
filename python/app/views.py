@@ -1,4 +1,4 @@
-# Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
+# Copyright (C) 2013-2014  Matthieu Caneill <matthieu.caneill@gmail.com>
 #
 # This file is part of Debsources.
 #
@@ -39,6 +39,10 @@ from models import Ctag, Package, Version, Checksum, Location, \
 from sourcecode import SourceCodeIterator
 from forms import SearchForm
 from infobox import Infobox
+
+from extract_stats import extract_stats
+from consts import SLOCCOUNT_LANGUAGES
+import statistics
 
 
 @app.teardown_appcontext
@@ -822,4 +826,65 @@ app.add_url_rule('/embed/pkginfo/<package>/<version>/',
         'embedded_info_package_html',
         render_func=lambda **kwargs: render_template('infopackage_embed.html', **kwargs),
         err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+
+### STATISTICS ###
+
+class StatsView(GeneralView):
+    def get_objects(self, suite):
+        if suite not in statistics.suites(session):
+            raise Http404Error() # security, to avoid suite='../../foo'
+                                 # to include <img>s, etc.
+        
+        filename=os.path.join(app.config["CACHE_DIR"],
+                              "stats.data")
+        res = extract_stats(filename=filename,
+                              filter_suites = ["debian_" + suite])
+        
+        return dict(results=res,
+                    languages=SLOCCOUNT_LANGUAGES,
+                    suite=suite)
+
+# STATS FOR ONE SUITE (HTML)
+app.add_url_rule('/stats/<suite>/',
+                 view_func=StatsView.as_view(
+        'stats_html',
+        render_func=lambda **kwargs: render_template('stats_suite.html', **kwargs),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+
+# STATS FOR ONE SUITE (JSON)
+app.add_url_rule('/api/stats/<suite>/',
+                 view_func=StatsView.as_view(
+        'stats_json',
+        render_func=jsonify,
+        err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
+        ))
+
+class AllStatsView(GeneralView):
+    def get_objects(self):
+        filename=os.path.join(app.config["CACHE_DIR"],
+                              "stats.data")
+        res = extract_stats(filename=filename)
+        
+        suites=["debian_" + x for x in statistics.suites(session)]
+        
+        return dict(results=res,
+                    languages=SLOCCOUNT_LANGUAGES,
+                    suites=suites)
+
+# STATS FOR ALL SUITES (HTML)
+app.add_url_rule('/stats/',
+                 view_func=AllStatsView.as_view(
+        'stats_all_html',
+        render_func=lambda **kwargs: render_template('stats_all_suites.html', **kwargs),
+        err_func=lambda e, **kwargs: deal_error(e, mode='html', **kwargs)
+        ))
+
+# STATS FOR ALL SUITES (JSON)
+app.add_url_rule('/api/stats/',
+                 view_func=AllStatsView.as_view(
+        'stats_all_json',
+        render_func=jsonify,
+        err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
         ))

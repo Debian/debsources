@@ -19,8 +19,8 @@
 import os, magic, stat
 
 from sqlalchemy import func as sql_func
-from sqlalchemy import Column, ForeignKey, UniqueConstraint
-from sqlalchemy import Integer, String, Index, Enum, LargeBinary
+from sqlalchemy import Column, ForeignKey, UniqueConstraint, PrimaryKeyConstraint
+from sqlalchemy import DateTime, Integer, String, Index, Enum, LargeBinary
 from sqlalchemy import and_
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -36,7 +36,7 @@ Base = declarative_base()
 
 
 # used for migrations, see scripts under python/migrate/
-DB_SCHEMA_VERSION = 2
+DB_SCHEMA_VERSION = 3
 
 
 class Package(Base):
@@ -327,6 +327,84 @@ class Metric(Base):
         self.sourceversion_id = version.id
         self.metric = metric
         self.value = value
+
+
+
+class HistorySize(Base):
+    """historical record of debsources size"""
+
+    __tablename__ = 'history_size'
+    __table_args__ = (PrimaryKeyConstraint('timestamp', 'suite'),)
+
+    timestamp = Column(DateTime(timezone=False),
+                       index=True, nullable=False)
+    suite = Column(String, nullable=False)	# suite == "ALL" means totals
+
+    source_packages = Column(Integer, nullable=True)
+    binary_packages = Column(Integer, nullable=True)
+
+    disk_usage = Column(Integer, nullable=True)
+    source_files = Column(Integer, nullable=True)
+
+    ctags = Column(Integer, nullable=True)
+
+
+    def __init__(self, suite, timestamp):
+        self.suite = suite
+        self.timestamp = timestamp
+
+
+
+class HistorySlocCount(Base):
+    """historical record of debsources languages"""
+
+    __tablename__ = 'history_sloccount'
+    __table_args__ = (PrimaryKeyConstraint('timestamp', 'suite'),)
+
+    timestamp = Column(DateTime(timezone=False),
+                       index=True, nullable=False)
+    suite = Column(String, nullable=False)	# suite == "ALL" means totals
+
+    # see consts.SLOCCOUNT_LANGUAGES for the language list rationale
+    lang_ada = Column(Integer, nullable=True)
+    lang_ansic = Column(Integer, nullable=True)
+    lang_asm = Column(Integer, nullable=True)
+    lang_awk = Column(Integer, nullable=True)
+    lang_cobol = Column(Integer, nullable=True)
+    lang_cpp = Column(Integer, nullable=True)
+    lang_cs = Column(Integer, nullable=True)
+    lang_csh = Column(Integer, nullable=True)
+    lang_erlang = Column(Integer, nullable=True)
+    lang_exp = Column(Integer, nullable=True)
+    lang_f90 = Column(Integer, nullable=True)
+    lang_fortran = Column(Integer, nullable=True)
+    lang_haskell = Column(Integer, nullable=True)
+    lang_java = Column(Integer, nullable=True)
+    lang_jsp = Column(Integer, nullable=True)
+    lang_lex = Column(Integer, nullable=True)
+    lang_lisp = Column(Integer, nullable=True)
+    lang_makefile = Column(Integer, nullable=True)
+    lang_ml = Column(Integer, nullable=True)
+    lang_modula3 = Column(Integer, nullable=True)
+    lang_objc = Column(Integer, nullable=True)
+    lang_pascal = Column(Integer, nullable=True)
+    lang_perl = Column(Integer, nullable=True)
+    lang_php = Column(Integer, nullable=True)
+    lang_python = Column(Integer, nullable=True)
+    lang_ruby = Column(Integer, nullable=True)
+    lang_sed = Column(Integer, nullable=True)
+    lang_sh = Column(Integer, nullable=True)
+    lang_sql = Column(Integer, nullable=True)
+    lang_tcl = Column(Integer, nullable=True)
+    lang_vhdl = Column(Integer, nullable=True)
+    lang_xml = Column(Integer, nullable=True)
+    lang_yacc = Column(Integer, nullable=True)
+
+
+    def __init__(self, suite, timestamp):
+        self.suite = suite
+        self.timestamp = timestamp
+
 
 
 class Location(object):
