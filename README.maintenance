@@ -23,9 +23,12 @@ To add a plugin:
 
 2. trigger the `add-package` event:
 
-    $ bin/update-debsources -vvv --pass none --trigger add-package/NAME
+    $ bin/update-debsources -vvv --pass hooks.fs --pass hooks.db --trigger add-package/NAME
 
 3. add the hook to the `hooks` configuration entry in config(.local).ini
 
 To remove a hook follow the reverse process, but trigger the `rm-package` event
 instead.
+
+To rerun a plugin (e.g. if you change its logic), you can follow the above
+recipes and do a full rm+add cycle.
