@@ -241,7 +241,7 @@ def update_suites(status, conf, session, mirror):
     """
     logging.info('update suites mappings...')
 
-    if not conf['dry_run']:
+    if not conf['dry_run'] and 'db' in conf['passes']:
         session.query(SuitesMapping).delete()
 
     insert_q = sql.insert(SuitesMapping.__table__)
@@ -256,10 +256,9 @@ def update_suites(status, conf, session, mirror):
             else:
                 logging.debug('add suite mapping: %s/%s -> %s'
                               % (pkg, version, suite))
-                if not conf['dry_run']:
-                    params = { 'sourceversion_id': version.id,
-                               'suite': suite }
-                    insert_params.append(params)
+                params = { 'sourceversion_id': version.id,
+                           'suite': suite }
+                insert_params.append(params)
                 if status.sources.has_key(pkg_id):
                     # fill-in incomplete suite information in status
                     status.sources[pkg_id][-1].append(suite)
@@ -267,11 +266,13 @@ def update_suites(status, conf, session, mirror):
                     # defensive measure to make update_suites() more reusable
                     logging.warn('cannot find package %s/%s in status during suite update'
                                  % (pkg, version))
-        if not conf['dry_run'] and len(insert_params) >= BULK_FLUSH_THRESHOLD:
+        if not conf['dry_run'] and 'db' in conf['passes'] \
+           and len(insert_params) >= BULK_FLUSH_THRESHOLD:
             session.execute(insert_q, insert_params)
             session.flush()
             insert_params = []
-    if not conf['dry_run'] and insert_params:
+    if not conf['dry_run'] and 'db' in conf['passes'] \
+       and insert_params:
         session.execute(insert_q, insert_params)
         session.flush()
 
