@@ -27,6 +27,8 @@ from models import SlocCount
 
 conf = None
 
+SLOCCOUNT_FLAGS = [ '--addlangall' ]
+
 MY_NAME = 'sloccount'
 MY_EXT = '.' + MY_NAME
 slocfile_path = lambda pkgdir: pkgdir + MY_EXT
@@ -78,7 +80,7 @@ def add_package(session, pkg, pkgdir, file_table):
     if 'hooks.fs' in conf['passes']:
         if not os.path.exists(slocfile):	# run sloccount only if needed
             try:
-                cmd = [ 'sloccount', pkgdir ]
+                cmd = [ 'sloccount' ] + SLOCCOUNT_FLAGS + [ pkgdir ]
                 with open(slocfile_tmp, 'w') as out:
                     subprocess.check_call(cmd, stdout=out, stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError:

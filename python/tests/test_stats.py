@@ -30,6 +30,7 @@ class Stats(unittest.TestCase, DbTestFixture):
 
     def setUp(self):
         self.db_setup()
+        self.maxDiff = None
 
     def tearDown(self):
         self.db_teardown()
@@ -92,12 +93,14 @@ class Stats(unittest.TestCase, DbTestFixture):
             'java': 916,
             'lex': 223,
             'lisp': 2167,
+            'makefile': 1924,
             'ml': 5044,
             'objc': 836,
             'perl': 64,
             'python': 2916,
             'ruby': 193,
             'sh': 25022,
+            'sql': 237,
             'xml': 14932,
             'yacc': 312,
         }
