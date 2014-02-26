@@ -235,6 +235,28 @@
   - bin/bulk-insert-ctags -c etc/config.batch.ini 1.3.1-4.ctags
     (see attachment)
 
+* TODO package iausofa-c in wrong section		:bug:sourcesdn:infra:
+  it is reported to be in main, but files are looked for in non-free
+
+  e.g. traceback during last sloccount recalculation
+
+  updater:ERROR trigger failure on iausofa-c/2013.12.02-1
+  Traceback (most recent call last):
+    File "/space/debsources/python/updater.py", line 182, in extract_package
+      triggers=conf['force_triggers'], dry=conf['dry_run'])
+    File "/space/debsources/python/updater.py", line 137, in notify_plugins
+      action(session, pkg, pkgdir, file_table)
+    File "/space/debsources/python/plugins/hook_sloccount.py", line 94, in add_package
+      slocs = parse_sloccount(slocfile)
+    File "/space/debsources/python/plugins/hook_sloccount.py", line 57, in parse_sloccount
+      with open(path) as sloccount:
+  IOError: [Errno 2] No such file or directory: u'/srv/debsources/sources/non-free/i/iausofa-c/2013.12.02-1.sloccount'
+
+  and the same for version
+  /srv/debsources/sources/non-free/i/iausofa-c/2013.12.02-1.sloccount
+
+  did the package change section and that causes problem?
+
 * TODO move queries for the web app in a separate file 	    :web:refactoring:
   SQLAlchemy queries in models.py should be in a new file,
   e.g. webqueries.py.
