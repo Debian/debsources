@@ -1,7 +1,6 @@
 #    -*- mode: org -*-
 
 * TODO [#A] [0/2] new stats happy			    :web:stats:infra:
-  depends: "suite support"
 ** TODO postgres db size
 ** TODO number of binary packages
    depends: "inject binary<->source mappings in DB"
@@ -26,6 +25,16 @@
 
 * TODO stats: injection of arbitrary data point			:infra:stats:
   e.g. to inject sloccount of past releases
+
+* TODO stats: add totals (i.e. non per-suite)			  :web:stats:
+  to all tables listed at http://sources.debian.net/stats/
+
+* TODO stats: make pie charts more readable	     :infra:stats:matplotlib:
+  e.g. by /not/ listing languages below a given thresholds, and aggregating
+  them into a "other" pseudo-language
+
+* TODO stats: make trend charts more readable	     :infra:stats:matplotlib:
+  e.g. avoid overlapping labels, remove/customize + delta on Y axes, etc.
 
 * TODO check-in derivatives from the census		  :infra:derivatives:
 
