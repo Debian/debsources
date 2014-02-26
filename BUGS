@@ -26,14 +26,14 @@
 * TODO stats: injection of arbitrary data point			:infra:stats:
   e.g. to inject sloccount of past releases
 
-* TODO stats: add totals (i.e. non per-suite)			  :web:stats:
+* TODO stats: add totals (i.e. non per-suite)		     :web:stats:easy:
   to all tables listed at http://sources.debian.net/stats/
 
-* TODO stats: make pie charts more readable	     :infra:stats:matplotlib:
+* TODO stats: make pie charts more readable	:infra:stats:matplotlib:easy:
   e.g. by /not/ listing languages below a given thresholds, and aggregating
   them into a "other" pseudo-language
 
-* TODO stats: make trend charts more readable	     :infra:stats:matplotlib:
+* TODO stats: make trend charts more readable	:infra:stats:matplotlib:easy:
   e.g. avoid overlapping labels, remove/customize + delta on Y axes, etc.
 
 * TODO check-in derivatives from the census		  :infra:derivatives:
@@ -69,7 +69,7 @@
 
   the above need CREATE EXTENSION 'trgm';
 
-* TODO missing test: `/api/checksum/foo/`		       :web:api:test:
+* TODO missing test: `/api/checksum/foo/`		  :web:api:test:easy:
 
 * TODO suite test data: differentiate sid and jessie		       :test:
   Currently, the set of packages in sid and jessie are exactly the same. Add
@@ -134,7 +134,7 @@
   packages. (Not to mention the risk of cross-referincing across different
   languages; although we should have the info to avoid that...)
 
-* TODO highlight #Lxxx lines by default 			     :web:ui:
+* TODO highlight #Lxxx lines by default		     :web:ui:javascript:easy:
   On Thu, Jun 13, 2013 at 12:19:58AM +0200, Joachim Breitner wrote:
   > An URL like
   > http://sources.debian.net/src/cairo/1.12.14-4/boilerplate/cairo-boilerplate-xcb.c#L395
@@ -174,7 +174,7 @@
 
  Debugging: maybe with inline-block and other css tricks
 
-* TODO use relative paths in sources.txt		  :infra:refactoring:
+* TODO use relative paths in sources.txt	     :infra:refactoring:easy:
   - 4th field should be relative to conf['mirror_dir']
   - 5th field should be relative to conf['sources_dir']
   see test_updater.py for reference
