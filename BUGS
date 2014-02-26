@@ -1,23 +1,64 @@
 #    -*- mode: org -*-
 
-* TODO [#A] [0/4] new stats happy			:web:stats:rrd:infra:
+* TODO [#A] [0/2] new stats happy			    :web:stats:infra:
   depends: "suite support"
-** TODO programming languages breakdown
 ** TODO postgres db size
-** TODO ctags symbols
-** TODO number of {source,binary} packages
+** TODO number of binary packages
+   depends: "inject binary<->source mappings in DB"
 
-* TODO [#B] database schema refactoring			  :model:refactoring:
-  - merge package and version into one table
-  - create table File and use foreignkey(file) in CheckSum and Ctags
-  - (un)distinguish Source and Binary packages where it is necessary
-  - uniform reference to version_id (currently it's sometime version_id,
-    other sourceversion_id)
+* TODO [#B] [0/3] database schema refactoring	       :model:refactoring:cb:
+** TODO merge package and version into one table
+** TODO (un)distinguish Source and Binary packages where it is necessary
+** TODO  uniform reference to version_id
+   currently it's sometime version_id, other sourceversion_id
 
 * TODO [#B] file-level deduplication, using checksums		      :infra:
   depends (to be done properly) on "database schema refactoring"
 
+* TODO inject binary<->source mappings in DB			   :infra:db:
+
+* TODO [0/2] multiple archive support 				      :infra:
+  to do so, we need to do a separate debmirror run, as the security archive is
+  not hosted on the regular mirror network
+** TODO add debian-security
+** TODO add (some of) archive.debian.org releases
+   these are now currently mirrored on tytso:/srv/debian-archive
+
+* TODO stats: injection of arbitrary data point			:infra:stats:
+  e.g. to inject sloccount of past releases
+
 * TODO check-in derivatives from the census		  :infra:derivatives:
+
+* TODO file name search 					 :web:search:
+** benchmark
+   too slow without decent index:
+     debsources=> select count(*) from files where path like '%stdio%';
+     count
+    -------
+      9643
+    (1 row)
+
+    Time: 7736,861 ms
+
+   but OK with trigram indexing:
+
+    debsources=> \d ix_files_path_trgm
+          Index "public.ix_files_path_trgm"
+     Column |  Type   |          Definition
+    --------+---------+------------------------------
+     encode | integer | encode(path, 'escape'::text)
+    gin, for table "public.files"
+
+    debsources=> select count(*) from files where encode(path, 'escape') like
+  '%stdio%';
+     count
+    -------
+      9643
+    (1 row)
+
+    Time: 77,558 ms
+
+  the above need CREATE EXTENSION 'trgm';
 
 * TODO missing test: `/api/checksum/foo/`		       :web:api:test:
 
@@ -55,13 +96,27 @@
 * TODO multiple popup messages					  :web:popup:
   to be able to show multiple error( location)s on the same source file
 
-* TODO file name search 					 :web:search:
-  depends: "database schema refactoring"
-
 * TODO qualified ctags					 :plugin:ctags:infra:
   Add --extra=+q to ctags invocation. "However, that this could potentially
   more than double the size of the tag file". Bug report by Olly Betts
   on #debian-devel.
+** benchmarks
+*** computation time is ~10-15% slower with +q
+*** size
+    - libreoffice (C++)
+      zack@tytso:~/ctags-bench/libreoffice-4.1.5$ wc ../libreoffice*ctags
+      561396   3872260  61123731 ../libreoffice-4.1.5.ctags
+      972942   6799455 117133590 ../libreoffice-4.1.5.extra+q.ctags
+    - chromium-browser (C/C++)
+      zack@tytso:~/ctags-bench/chromium-browser-32.0.1700.123$ wc ../chromium-browser*ctags
+      1618199  10931585 205005488 ../chromium-browser-32.0.1700.123.ctags
+      2472627  17064351 342772532 ../chromium-browser-32.0.1700.123.extra+q.ctags
+    - linux (C)
+      zack@tytso:~/ctags-bench/linux-3.12.9$ wc ../linux*ctags
+      2146431  14340875 208057034 ../linux-3.12.9.ctags
+      2610525  17780208 269391932 ../linux-3.12.9.extra+q.ctags
+*** bottom line
+    it's doable, but will need to rerun all ctags indexing
 
 * TODO debian cross reference (lxr.debian.net)			  :web:ctags:
   A-la http://lxr.linux.no/ . Suggested by Pierre Habouzit. Main problem is of
@@ -84,10 +139,6 @@
   ..in a more general configuration variable in etc/webconfig.py. Similar to
   HIGHLIGHT_CLASSES, although we probably don't need regex for exclusions. See
   http://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=web/flask/app/models_app.py;hb=HEAD#l166
-
-* TODO add security archive (?)					      :infra:
-  to do so, we need to do a separate debmirror run, as the security archive is
-  not hosted on the regular mirror network
 
 * TODO package debsources with python distribute 	      :web:packaging:
   it will simple things like imports and the deployment would be easier
@@ -119,7 +170,7 @@
   - 5th field should be relative to conf['sources_dir']
   see test_updater.py for reference
 
-* TODO evaluate the possibility of sources.d.o			  :infra:dsa:
+* TODO migrate to sources.debian.org				  :infra:dsa:
   conversation started by Zack with DSA
   Message-ID: <20131229152159.GA8400@upsilon.cc>
 
@@ -127,6 +178,7 @@
   Idea: http://sources.d.n/src/FOO -> http://sources.d.n/src/MAP[FOO], as long
   as FOO _does not exists_ as a source package.  Feature suggested in response
   to Selim T. Erdogan, Message-ID: <20130712112459.GA3156@cs.utexas.edu>
+** depends: "inject binary<->source mappings in DB"
 
 * TODO /latest redirection for /data URLs		       :infra:apache:
   [ bug report from Simon Paillard, Message-Id: <20130907214628.GY17455@mraw.org> ]
