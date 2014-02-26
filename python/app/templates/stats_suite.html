@@ -39,7 +39,7 @@
 
 <h3>Historical trends</h3>
 
-{% import "stats_graphs.inc.html" as stats_graphs %}
-{{ stats_graphs.render_graphs(suite[7:]) }}
+{% import "stats_trends.inc.html" as stats_trends %}
+{{ stats_trends.render_trends(suite[7:]) }}
 
 {% endblock %}
