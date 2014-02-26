@@ -20,7 +20,8 @@ import os, magic, stat
 
 from sqlalchemy import func as sql_func
 from sqlalchemy import Column, ForeignKey, UniqueConstraint, PrimaryKeyConstraint
-from sqlalchemy import DateTime, Integer, String, Index, Enum, LargeBinary
+from sqlalchemy import Index
+from sqlalchemy import DateTime, Integer, String, Enum, LargeBinary, Boolean
 from sqlalchemy import and_
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -36,7 +37,7 @@ Base = declarative_base()
 
 
 # used for migrations, see scripts under python/migrate/
-DB_SCHEMA_VERSION = 4
+DB_SCHEMA_VERSION = 5
 
 
 class Package(Base):
@@ -107,10 +108,14 @@ class Version(Base):
     vcs_type = Column(Enum(*VCS_TYPES, name="vcs_types"))
     vcs_url = Column(String)
     vcs_browser = Column(String)
+
+    # whether this package should survive GC no matter what
+    sticky = Column(Boolean, nullable=False)
     
-    def __init__(self, version, package):
+    def __init__(self, version, package, sticky=False):
         self.vnumber = version
         self.package_id = package.id
+        self.sticky = sticky
 
     def __repr__(self):
         return self.vnumber

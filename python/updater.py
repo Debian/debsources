@@ -22,7 +22,7 @@ import subprocess
 
 from datetime import datetime
 from email.utils import formatdate
-from sqlalchemy import sql
+from sqlalchemy import sql, not_
 
 import charts
 import consts
@@ -200,7 +200,7 @@ def garbage_collect(status, conf, session, mirror, observers=NO_OBSERVERS):
 
     """
     logging.info('garbage collection...')
-    for version in session.query(Version).all():
+    for version in session.query(Version).filter(not_(Version.sticky)):
         pkg = SourcePackage.from_db_model(version)
         pkg_id = (pkg['package'], pkg['version'])
         pkgdir = pkg.extraction_dir(conf['sources_dir'])
