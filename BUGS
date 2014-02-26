@@ -36,6 +36,9 @@
 * TODO stats: make trend charts more readable	:infra:stats:matplotlib:easy:
   e.g. avoid overlapping labels, remove/customize + delta on Y axes, etc.
 
+* TODO "update statistics" stage is too slow		   :infra:stats:perf:
+  currently, it takes about 12 minutes on tytso
+
 * TODO check-in derivatives from the census		  :infra:derivatives:
 
 * TODO mention suite(s) when listing versions 		:web:navigation:easy:
