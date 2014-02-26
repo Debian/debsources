@@ -77,6 +77,11 @@
 
   the above need CREATE EXTENSION 'trgm';
 
+* TODO update-debsources --trigger should skip update stages	      :infra:
+  At the very least it should skip: update statistics, update charts, update
+  suites mappings. Should it become a separate tool? Or should we expose on the
+  cmdline the support to select individual update stages? (see updater.py)
+
 * TODO missing test: `/api/checksum/foo/`		  :web:api:test:easy:
 
 * TODO suite test data: differentiate sid and jessie		       :test:
