@@ -38,7 +38,15 @@
 
 * TODO check-in derivatives from the census		  :infra:derivatives:
 
-* TODO file name search 					 :web:search:
+* TODO mention suite(s) when listing versions 		:web:navigation:easy:
+  e.g. when visiting http://sources.debian.net/src/linux, one should see which
+  version is in which suite. Note that one version might be in multiple suites.
+
+* TODO suite-based navigation				:web:navigation:easy:
+  add the ability to browse available packages per suite, e.g. with URLs like
+  http://sources.debian.net/suite/jessie/prefix/d/
+
+* TODO file name search					      :web:search:db:
 ** benchmark
    too slow without decent index:
      debsources=> select count(*) from files where path like '%stdio%';
