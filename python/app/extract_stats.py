@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import statistics
+
 
 def extract_stats(filter_suites=None, filename="cache/stats.data"):
     """
@@ -24,22 +26,12 @@ def extract_stats(filter_suites=None, filename="cache/stats.data"):
     e.g. extract_stats(filter_suites=["total", "debian_wheezy"])
     """
     res = dict()
-    
-    with open(filename) as f:
-        for line in f:
-            try:
-                (key, value) = line.split()
-            except:
-                continue
-            try:
-                value = int(value)
-            except:
-                pass
-            
-            splits = key.split(".")
-            
-            # if this key/value is in the required suites, we add it
-            if filter_suites is None or splits[0] in filter_suites:
-                res[key] = value
-    
+
+    stats = statistics.parse_metadata_cache(filename)
+    for (key, value) in stats.iteritems():
+        splits = key.split(".")
+        # if this key/value is in the required suites, we add it
+        if filter_suites is None or splits[0] in filter_suites:
+            res[key] = value
+
     return res

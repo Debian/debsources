@@ -296,20 +296,23 @@ def update_statistics(status, conf, session):
     logging.info('update statistics...')
     ensure_cache_dir(conf)
 
-    def store_sloccount_stats(summary, d, prefix_fmt, db_obj):
-        """Update stats dictionary d with per-language sloccount statistics available
-        in summary, using prefix_fmt as the format string to create dictionary
-        keys. %s in the format string will be replaced by the language name.
-        Missing languages in summary will be stored as 0-value entries.
+    def store_sloccount_stats(summary, d, prefix, db_obj):
+        """Update stats dictionary `d`, and DB object `db_obj`, with per-language
+        sloccount statistics available in `summary`, generating dictionary keys
+        that start with `prefix`. Missing languages in summary will be stored
+        as 0-value entries.
 
         """
+        total_slocs = 0
         for lang in consts.SLOCCOUNT_LANGUAGES:
-            k = prefix_fmt % lang
+            k = prefix + '.' +  lang
             v = 0
             if summary.has_key(lang):
                 v = summary[lang]
             d[k] = v
             setattr(db_obj, 'lang_' + lang, v)
+            total_slocs += v
+        d[prefix] = total_slocs
 
     now = datetime.utcnow()
 
@@ -323,7 +326,7 @@ def update_statistics(status, conf, session):
         stats['total.' + stat] = v
         setattr(siz, stat, v)
     store_sloccount_stats(statistics.sloccount_summary(session),
-                          stats, 'total.sloccount.%s', loc)
+                          stats, 'total.sloccount', loc)
     session.add(siz)
     session.add(loc)
 
@@ -338,7 +341,7 @@ def update_statistics(status, conf, session):
             stats[suite_key + stat] = v
             setattr(siz, stat, v)
         store_sloccount_stats(statistics.sloccount_summary(session, suite),
-                              stats, suite_key + 'sloccount.%s', loc)
+                              stats, suite_key + 'sloccount', loc)
         session.add(siz)
         session.add(loc)
 

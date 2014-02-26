@@ -29,6 +29,7 @@ from os.path import abspath, dirname
 
 import mainlib
 import models
+import statistics
 import updater
 
 from db_testing import DbTestFixture, pg_dump, DB_COMPARE_QUERIES
@@ -209,23 +210,17 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
 
     """
 
-    @staticmethod
-    def parse_stats(fname):
-        """return the parsed content of stats.data as a dictionary"""
-        stats = {}
-        for line in open(fname):
-            k, v = line.split()
-            stats[k] = int(v)
-        return stats
-
     def setUp(self):
         self.db_setup()
         self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
         self.conf = mk_conf(self.tmpdir)
         dummy_status = updater.UpdateStatus()
+
         updater.update_statistics(dummy_status, self.conf, self.session)
-        self.stats = self.parse_stats(
-            os.path.join(self.conf['cache_dir'], 'stats.data'))
+
+        stats_data = os.path.join(self.conf['cache_dir'], 'stats.data')
+        self.stats = statistics.parse_metadata_cache(stats_data)
+
 
     def tearDown(self):
         self.db_teardown()
@@ -258,5 +253,7 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
             'debian_wheezy.sloccount.python': 2798,
             'debian_squeeze.sloccount.ruby': 193,
             'debian_wheezy.sloccount.ruby': 193,
+            'total.sloccount': 759354,
+            'debian_squeeze.sloccount': 315750,
         }
         self.assertDictContainsSubset(expected_stats, self.stats)

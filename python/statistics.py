@@ -244,3 +244,16 @@ def history_sloc_monthly(session, interval, suite):
     return _hist_sloc_sample(session, interval,
                              projection="date_trunc('month', timestamp)",
                              suite=suite)
+
+
+def parse_metadata_cache(fname):
+    """parse a `stats.data`-like file and return its content as an integer-valued
+    dictionary
+
+    """
+    stats = {}
+    with open(fname) as f:
+        for line in open(fname):
+            k, v = line.split(None, 1)
+            stats[k] = int(v)
+    return stats
