@@ -280,3 +280,8 @@
   order for all routes which use pagination (ctags, checksums, etc) to
   automatically have these features. In this case, the json view is
   not paginated but the html view is.
+
+* TODO multiple ctags search 					    :web:sql:
+  A search which returns *files* (and not a line in a file), which
+  contain all searched ctags.
+  See TODO in python/models.py.
