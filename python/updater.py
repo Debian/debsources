@@ -418,7 +418,8 @@ def update_charts(status, conf, session):
         slocs = statistics.sloccount_summary(session, suite=sloc_suite)
         chart_file = os.path.join(conf['cache_dir'], 'stats', \
                                   '%s-sloc_pie-current.png' % suite)
-        charts.sloc_pie(slocs, chart_file)
+        if not conf['dry_run']:
+            charts.sloc_pie(slocs, chart_file)
 
 
 (STAGE_EXTRACT,
