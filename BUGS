@@ -36,6 +36,8 @@
 * TODO stats: make trend charts more readable	:infra:stats:matplotlib:easy:
   e.g. avoid overlapping labels, remove/customize + delta on Y axes, etc.
 
+* TODO infobox: add ctags count				   :web:easy:infobox:
+
 * TODO "update statistics" stage is too slow		   :infra:stats:perf:
   currently, it takes about 12 minutes on tytso
 
