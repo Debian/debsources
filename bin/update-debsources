@@ -31,17 +31,22 @@ import updater
 
 def main():
     cmdline = argparse.ArgumentParser(description='Debsources updater')
-    cmdline.add_argument('--config', '-c', dest='conffile',
-                         default=bininit.DEFAULT_CONFFILE,
-                         help='alternate configuration file')
-    cmdline.add_argument('--dry-run', '-d', dest='dry',
-                         action='store_true',
-                         help='enable dry run mode')
     cmdline.add_argument('--backend', '-b',
                          metavar='BACKEND',
                          action='append',
                          help='only affect a specific backend (one of: db, fs, hooks, hooks.db, hooks.fs). By default all backends are enabled; the special value "none" disables all backends. Can be specified multiple times. Warning: using this you can mess up the update logic, use at your own risk.',
                          dest='backends')
+    cmdline.add_argument('--config', '-c', dest='conffile',
+                         default=bininit.DEFAULT_CONFFILE,
+                         help='alternate configuration file')
+    cmdline.add_argument('--dburi', '-u', dest='dburi',
+                         help='database URI, e.g. postgresql:///mydbname. Override configuration file setting "db_uri"')
+    cmdline.add_argument('--dry-run', '-d', dest='dry',
+                         action='store_true',
+                         help='enable dry run mode')
+    cmdline.add_argument('--single-transaction', dest='single_transaction',
+                         choices=['yes', 'no'],
+                         help='use a single big DB transaction, instead of smaller per-package transactions (default: yes)')
     cmdline.add_argument('--trigger', '-t',
                          metavar='EVENT/HOOK',
                          action='append',
@@ -50,11 +55,6 @@ def main():
     cmdline.add_argument('--verbose', '-v',
                          action='count',
                          help='increase console verbosity')
-    cmdline.add_argument('--dburi', '-u', dest='dburi',
-                         help='database URI, e.g. postgresql:///mydbname. Override configuration file setting "db_uri"')
-    cmdline.add_argument('--single-transaction', dest='single_transaction',
-                         choices=['yes', 'no'],
-                         help='use a single big DB transaction, instead of smaller per-package transactions (default: yes)')
     args = cmdline.parse_args()
 
     conf = mainlib.load_configuration(args.conffile)
@@ -64,15 +64,15 @@ def main():
             conf['backends'] = set()
         else:
             conf['backends'] = set(args.backends)
+    if args.dburi:
+        conf['db_uri'] = args.dburi
+    if args.dry:
+        conf['dry_run'] = True
     if args.force_triggers:
         conf['force_triggers'] = []
         for trigger in args.force_triggers:
             (event, hook) = trigger.split('/')
             conf['force_triggers'].append((event, hook))
-    if args.dry:
-        conf['dry_run'] = True
-    if args.dburi:
-        conf['db_uri'] = args.dburi
     if args.single_transaction:
         conf['single_transaction'] = (args.single_transaction == 'yes')
 
