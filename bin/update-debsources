@@ -37,15 +37,15 @@ def main():
     cmdline.add_argument('--dry-run', '-d', dest='dry',
                          action='store_true',
                          help='enable dry run mode')
-    cmdline.add_argument('--pass', '-p',
-                         metavar='PASS',
+    cmdline.add_argument('--backend', '-b',
+                         metavar='BACKEND',
                          action='append',
-                         help='only perform a specific update pass (one of: db, fs, hooks, hooks.db, hooks.fs). By default all passes are enabled; the special value "none" disables all passes. Can be specified multiple times. Warning: you will mess up update logic, use at your own risk.',
-                         dest='passes')
+                         help='only affect a specific backend (one of: db, fs, hooks, hooks.db, hooks.fs). By default all backends are enabled; the special value "none" disables all backends. Can be specified multiple times. Warning: using this you can mess up the update logic, use at your own risk.',
+                         dest='backends')
     cmdline.add_argument('--trigger', '-t',
                          metavar='EVENT/HOOK',
                          action='append',
-                         help='force trigger of (Python) HOOK for EVENT. By default all registered hooks are triggered for all changed packages. Event is one of: %s. Hook is one of the available hooks. Can be specified multiple times. Warning: if not used with "--pass none" it might lead to multiple execution of the same hook. E.g.: -t add-package/checksums' % string.join(updater.KNOWN_EVENTS, ', '),
+                         help='force trigger of (Python) HOOK for EVENT. By default all registered hooks are triggered for all changed packages. Event is one of: %s. Hook is one of the available hooks. Can be specified multiple times. Warning: if not used with "--backend none" it might lead to multiple execution of the same hook. E.g.: -t add-package/checksums' % string.join(updater.KNOWN_EVENTS, ', '),
                          dest='force_triggers')
     cmdline.add_argument('--verbose', '-v',
                          action='count',
@@ -59,11 +59,11 @@ def main():
 
     conf = mainlib.load_configuration(args.conffile)
     # override configuration from cmdline args
-    if args.passes:
-        if 'none' in args.passes:
-            conf['passes'] = set()
+    if args.backends:
+        if 'none' in args.backends:
+            conf['backends'] = set()
         else:
-            conf['passes'] = set(args.passes)
+            conf['backends'] = set(args.backends)
     if args.force_triggers:
         conf['force_triggers'] = []
         for trigger in args.force_triggers:
@@ -82,8 +82,8 @@ def main():
 
     if conf['dry_run']:
         logging.warn('note: DRY RUN mode is enabled')
-    if conf['passes'] != set(mainlib.DEFAULT_CONFIG['passes'].split()):
-        logging.warn('only doing passes: %s' % list(conf['passes']))
+    if conf['backends'] != set(mainlib.DEFAULT_CONFIG['backends'].split()):
+        logging.warn('only using backends: %s' % list(conf['backends']))
     if conf['force_triggers']:
         logging.warn('forcing triggers: %s' % conf['force_triggers'])
 

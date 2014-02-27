@@ -162,16 +162,16 @@ def extract_new(status, conf, session, mirror, observers=NO_OBSERVERS):
         if not dbutils.lookup_version(session, pkg['package'], pkg['version']):
             try:
                 logging.info('add %s...' % pkg)
-                if not conf['dry_run'] and 'fs' in conf['passes']:
+                if not conf['dry_run'] and 'fs' in conf['backends']:
                     fs_storage.extract_package(pkg, pkgdir)
                 with session.begin_nested():
                     # single db session for package addition and hook
                     # execution: if the hooks fail, the package won't be
                     # added to the db (it will be tried again at next run)
                     file_table = None
-                    if not conf['dry_run'] and 'db' in conf['passes']:
+                    if not conf['dry_run'] and 'db' in conf['backends']:
                         file_table = dbutils.add_package(session, pkg, pkgdir)
-                    if not conf['dry_run'] and 'hooks' in conf['passes']:
+                    if not conf['dry_run'] and 'hooks' in conf['backends']:
                         notify(observers, conf,
                                'add-package', session, pkg, pkgdir, file_table)
             except:
@@ -215,12 +215,12 @@ def garbage_collect(status, conf, session, mirror, observers=NO_OBSERVERS):
                           - datetime.fromtimestamp(os.path.getmtime(pkgdir))
                 if not age or age.days >= expire_days:
                     logging.info("gc %s..." % pkg)
-                    if not conf['dry_run'] and 'hooks' in conf['passes']:
+                    if not conf['dry_run'] and 'hooks' in conf['backends']:
                         notify(observers, conf,
                                'rm-package', session, pkg, pkgdir)
-                    if not conf['dry_run'] and 'fs' in conf['passes']:
+                    if not conf['dry_run'] and 'fs' in conf['backends']:
                         fs_storage.remove_package(pkg, pkgdir)
-                    if not conf['dry_run'] and 'db' in conf['passes']:
+                    if not conf['dry_run'] and 'db' in conf['backends']:
                         with session.begin_nested():
                             dbutils.rm_package(session, pkg, version)
                 else:
@@ -241,7 +241,7 @@ def update_suites(status, conf, session, mirror):
     """
     logging.info('update suites mappings...')
 
-    if not conf['dry_run'] and 'db' in conf['passes']:
+    if not conf['dry_run'] and 'db' in conf['backends']:
         session.query(SuitesMapping).delete()
 
     insert_q = sql.insert(SuitesMapping.__table__)
@@ -266,12 +266,12 @@ def update_suites(status, conf, session, mirror):
                     # defensive measure to make update_suites() more reusable
                     logging.warn('cannot find package %s/%s in status during suite update'
                                  % (pkg, version))
-        if not conf['dry_run'] and 'db' in conf['passes'] \
+        if not conf['dry_run'] and 'db' in conf['backends'] \
            and len(insert_params) >= BULK_FLUSH_THRESHOLD:
             session.execute(insert_q, insert_params)
             session.flush()
             insert_params = []
-    if not conf['dry_run'] and 'db' in conf['passes'] \
+    if not conf['dry_run'] and 'db' in conf['backends'] \
        and insert_params:
         session.execute(insert_q, insert_params)
         session.flush()

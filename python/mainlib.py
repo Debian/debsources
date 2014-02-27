@@ -25,7 +25,7 @@ import updater
 
 DEFAULT_CONFIG = {
     'dry_run':     'false',
-    'passes':      'db fs hooks hooks.db hooks.fs',
+    'backends':    'db fs hooks hooks.db hooks.fs',
     'log_level':   'info',
     'expire_days': '0',
     'force_triggers': [],
@@ -63,7 +63,7 @@ def load_configuration(conffile):
             value = value.split()
         elif key == 'log_level':
             value = LOG_LEVELS[value]
-        elif key == 'passes':
+        elif key == 'backends':
             value = set(value.split())
         elif key == 'single_transaction':
             assert value in ['true', 'false']

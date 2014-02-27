@@ -66,7 +66,7 @@ def add_package(session, pkg, pkgdir, file_table):
         sha256 = hashutil.sha256sum(abspath)
         out.write('%s  %s\n' % (sha256, relpath))
 
-    if 'hooks.fs' in conf['passes']:
+    if 'hooks.fs' in conf['backends']:
         if not os.path.exists(sumsfile): # compute checksums only if needed
             with open(sumsfile_tmp, 'w') as out:
                 if file_table:
@@ -79,7 +79,7 @@ def add_package(session, pkg, pkgdir, file_table):
                         emit_checksum(out, relpath, abspath)
             os.rename(sumsfile_tmp, sumsfile)
 
-    if 'hooks.db' in conf['passes']:
+    if 'hooks.db' in conf['backends']:
         version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
         insert_q = sql.insert(Checksum.__table__)
         insert_params = []
@@ -118,12 +118,12 @@ def rm_package(session, pkg, pkgdir, file_table):
     global conf
     logging.debug('rm-package %s' % pkg)
 
-    if 'hooks.fs' in conf['passes']:
+    if 'hooks.fs' in conf['backends']:
         sumsfile = sums_path(pkgdir)
         if os.path.exists(sumsfile):
             os.unlink(sumsfile)
 
-    if 'hooks.db' in conf['passes']:
+    if 'hooks.db' in conf['backends']:
         version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
         session.query(Checksum) \
                .filter_by(version_id=version.id) \

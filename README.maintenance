@@ -9,9 +9,9 @@ reference:
 
      $ bin/dbadmin --dropdb --createdb postgresql:///debsources
 
-2. redo all DB-related update passes, skipping the filesystem ones:
+2. refill DB backend(s), skipping filesystem:
 
-     $ bin/update-debsources -p db -p hooks -p hooks.db
+     $ bin/update-debsources --backend db --backend hooks --backend hooks.db
 
 
 Add/remove plugins
@@ -23,7 +23,8 @@ To add a plugin:
 
 2. trigger the `add-package` event:
 
-    $ bin/update-debsources -vvv --pass hooks.fs --pass hooks.db --trigger add-package/NAME
+    $ bin/update-debsources -vvv --backend hooks.fs --backend hooks.db \
+                                 --trigger add-package/NAME
 
 3. add the hook to the `hooks` configuration entry in config(.local).ini
 

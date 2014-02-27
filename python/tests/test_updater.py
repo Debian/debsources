@@ -85,7 +85,7 @@ def mk_conf(tmpdir):
         'force_triggers': '',
         'hooks': ['sloccount', 'checksums', 'ctags', 'metrics'],
         'mirror_dir': os.path.join(TEST_DATA_DIR, 'mirror'),
-        'passes': set(['hooks.fs', 'hooks', 'fs', 'db', 'hooks.db']),
+        'backends': set(['hooks.fs', 'hooks', 'fs', 'db', 'hooks.db']),
         'python_dir': abspath(os.path.join(TEST_DIR, '..')),
         'root_dir': abspath(os.path.join(TEST_DIR, '../..')),
         'sources_dir': os.path.join(tmpdir, 'sources'),
@@ -191,7 +191,7 @@ class Updater(unittest.TestCase, DbTestFixture):
         shutil.copytree(orig_sources, dest_sources)
         db_mv_tables_to_schema(self.session, 'ref')
 
-        self.conf['passes'] = set(['db', 'hooks', 'hooks.db'])
+        self.conf['backends'] = set(['db', 'hooks', 'hooks.db'])
         self.do_update()
 
         # check that the update didn't touch filesystem storage
