@@ -422,13 +422,39 @@ def update_charts(status, conf, session):
             charts.sloc_pie(slocs, chart_file)
 
 
+# update stages
 (STAGE_EXTRACT,
  STAGE_SUITES,
  STAGE_GC,
  STAGE_STATS,
  STAGE_CACHE,
  STAGE_CHARTS,) = range(1, 7)
-UPDATE_STAGES = set(range(1, 7))
+__STAGES = {
+    'extract': STAGE_EXTRACT,
+    'suites': STAGE_SUITES,
+    'gc': STAGE_GC,
+    'stats': STAGE_STATS,
+    'cache': STAGE_CACHE,
+    'charts': STAGE_CHARTS,
+}
+__STAGE2STR = { v:k for k,v in __STAGES.items() }
+UPDATE_STAGES = set(__STAGES.values())
+
+
+def parse_stage(s):
+    try:
+        return __STAGES[s]
+    except KeyError:
+        raise ValueError, 'unknown update stage %s' % s
+
+parse_stages = lambda s: set(map(parse_stage, s.split()))
+
+def pp_stage(stage):
+    try:
+        return __STAGE2STR[stage]
+    except KeyError:
+        raise ValueError, 'unknown update stage %s' % s
+
 
 def update(conf, session, observers=NO_OBSERVERS, stages=UPDATE_STAGES):
     """do a full update run

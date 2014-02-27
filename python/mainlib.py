@@ -26,6 +26,7 @@ import updater
 DEFAULT_CONFIG = {
     'dry_run':     'false',
     'backends':    'db fs hooks hooks.db hooks.fs',
+    'stages':      'extract suites gc stats cache charts',
     'log_level':   'info',
     'expire_days': '0',
     'force_triggers': [],
@@ -65,6 +66,8 @@ def load_configuration(conffile):
             value = LOG_LEVELS[value]
         elif key == 'backends':
             value = set(value.split())
+        elif key == 'stages':
+            value = updater.parse_stages(value)
         elif key == 'single_transaction':
             assert value in ['true', 'false']
             value = (value == 'true')

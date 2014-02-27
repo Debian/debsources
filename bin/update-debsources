@@ -47,6 +47,11 @@ def main():
     cmdline.add_argument('--single-transaction', dest='single_transaction',
                          choices=['yes', 'no'],
                          help='use a single big DB transaction, instead of smaller per-package transactions (default: yes)')
+    cmdline.add_argument('--stage', '-s',
+                         metavar='STAGE',
+                         action='append',
+                         help='only perform a specific update stage (one of: %s). By default all update stages are performed. Can be specified multiple times. Warning: using this you can mess up the update logic, use at your own risk.' % map(updater.pp_stage, updater.UPDATE_STAGES),
+                         dest='stages')
     cmdline.add_argument('--trigger', '-t',
                          metavar='EVENT/HOOK',
                          action='append',
@@ -64,6 +69,8 @@ def main():
             conf['backends'] = set()
         else:
             conf['backends'] = set(args.backends)
+    if args.stages:
+        conf['stages'] = set(map(updater.parse_stage, args.stages))
     if args.dburi:
         conf['db_uri'] = args.dburi
     if args.dry:
@@ -84,6 +91,9 @@ def main():
         logging.warn('note: DRY RUN mode is enabled')
     if conf['backends'] != set(mainlib.DEFAULT_CONFIG['backends'].split()):
         logging.warn('only using backends: %s' % list(conf['backends']))
+    if conf['stages'] != updater.UPDATE_STAGES:
+        logging.warn('only doing stages: %s' % \
+                     map(updater.pp_stage, conf['stages']))
     if conf['force_triggers']:
         logging.warn('forcing triggers: %s' % conf['force_triggers'])
 
@@ -92,7 +102,7 @@ def main():
         Session = sqlalchemy.orm.sessionmaker()
         if conf['single_transaction']:
             session = Session(bind=db, autocommit=False)
-            updater.update(conf, session, observers)
+            updater.update(conf, session, observers, stages=conf['stages'])
             session.commit()
         else:
             session = Session(bind=db, autocommit=True)
