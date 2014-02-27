@@ -81,17 +81,29 @@ def walk(sources_dir, test=None):
             del(dirs[:])	# stop recursion
 
 
-def walk_pkg_files(pkgdir):
-    """walk through the source files in pkgdir, yielding one path at a time"""
+def walk_pkg_files(pkgdir, file_table=None):
+    """walk through the source files in pkgdir, yielding a pair <relpath, abspath>
+    a time. `relpath` is a path relative to `pkgdir`, whereas `abspath` is an
+    absolute path (as long as `pkgdir` is absolute as well; otherwise it is "as
+    absolute" as `pkgdir` is)
+
+    """
     if isinstance(pkgdir, unicode):
         # dumb down pkgdir to byte string. Whereas pkgdir comes from Sources
         # and hence is ASCII clean, the paths that os.walk() will encounter
         # might not even be UTF-8 clean. Using str() we ensure that path
         # operations will happen between raw strings, avoding encoding issues.
         pkgdir = str(pkgdir)
-    for root, dirs, files in os.walk(pkgdir):
-        for file in files:
-            yield os.path.join(root, file)
+    if file_table:
+        for relpath in file_table.iterkeys():
+            abspath = os.path.join(pkgdir, relpath)
+            yield (relpath, abspath)
+    else:
+        for root, dirs, files in os.walk(pkgdir):
+            for f in files:
+                abspath = os.path.join(root, f)
+                relpath = os.path.relpath(abspath, pkgdir)
+                yield (relpath, abspath)
 
 
 def parse_path(fname):

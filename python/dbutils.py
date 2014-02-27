@@ -55,8 +55,7 @@ def add_package(session, pkg, pkgdir):
 
         # add individual source files to the File table
         file_table = {}
-        for path in fs_storage.walk_pkg_files(pkgdir):
-            relpath = os.path.relpath(path, pkgdir)
+        for (relpath, _abspath) in fs_storage.walk_pkg_files(pkgdir):
             file_ = File(version, relpath)
             session.add(file_)
             session.flush()

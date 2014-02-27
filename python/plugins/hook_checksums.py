@@ -69,14 +69,8 @@ def add_package(session, pkg, pkgdir, file_table):
     if 'hooks.fs' in conf['passes']:
         if not os.path.exists(sumsfile): # compute checksums only if needed
             with open(sumsfile_tmp, 'w') as out:
-                if file_table:
-                    for relpath in file_table.iterkeys():
-                        abspath = os.path.join(pkgdir, relpath)
-                        emit_checksum(out, relpath, abspath)
-                else:
-                    for abspath in fs_storage.walk_pkg_files(pkgdir):
-                        relpath = os.path.relpath(abspath, pkgdir)
-                        emit_checksum(out, relpath, abspath)
+                for (relpath, abspath) in fs_storage.walk_pkg_files(pkgdir, file_table):
+                    emit_checksum(out, relpath, abspath)
             os.rename(sumsfile_tmp, sumsfile)
 
     if 'hooks.db' in conf['passes']:
