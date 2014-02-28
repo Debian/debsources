@@ -26,8 +26,11 @@ import fs_storage
 from models import Base, File, Package, Version, VCS_TYPES
 
 
-def add_package(session, pkg, pkgdir):
-    """Add a package (= debmirror.SourcePackage) to the Debsources db
+def add_package(session, pkg, pkgdir, sticky=False):
+    """Add `pkg` (a `debmirror.SourcePackage`) to the DB.
+
+    If `sticky` is set, also set the corresponding bit in the versions table.
+
     """
     logging.debug('add to db %s...' % pkg)
     package = session.query(Package).filter_by(name=pkg['package']).first()
@@ -40,7 +43,7 @@ def add_package(session, pkg, pkgdir):
                                 package_id=package.id)\
                      .first()
     if not version:
-        version = Version(pkg['version'], package)
+        version = Version(pkg['version'], package, sticky)
         version.area = pkg.archive_area()
         if pkg.has_key('vcs-browser'):
             version.vcs_browser = pkg['vcs-browser']
