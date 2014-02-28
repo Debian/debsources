@@ -87,38 +87,3 @@ def lookup_version(session, package, version):
                   .filter(Package.name==package) \
                   .first()
 
-
-# TODO get rid of this function. With sources2sqlite (soon) gone, the only
-# remaining client code is web/flask/tests.py
-def sources2db(sources, url, drop=False, verbose=True):
-    engine, session = _get_engine_session(url, verbose)
-
-    if drop:
-        Base.metadata.drop_all(engine)
-        Base.metadata.create_all(engine)
-
-    # v2
-    # first we create the set of all packages and the list of (pack, vers)
-    packages = set()
-    versions = []
-    with open(sources) as sfile:
-        for line in sfile:
-            cols = line.split() # package, version, area, other stuff
-            packages.add(cols[0])
-            versions.append((cols[0], cols[1], cols[2]))
-    # now the associated dict to work with execute
-    Package.__table__.insert(bind=engine).execute(
-        [dict(name=p) for p in packages]
-        )
-    # we get the packages list along with their ids(without the joined versions)
-    packages = session.query(Package).enable_eagerloads(False).all()
-    # we build the dict (package1: id1, ...)
-    packids = dict()
-    for p in packages:
-        packids[p.name] = p.id
-    # finally the versions dict to work with execute
-    Version.__table__.insert(bind=engine).execute(
-        [dict(vnumber=b, package_id=packids[a], area=c) for a, b, c in versions]
-        )
-
-    _close_session(session)
