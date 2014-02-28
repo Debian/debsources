@@ -1,0 +1,76 @@
+#!/usr/bin/python
+
+# Copyright (C) 2014  Stefano Zacchiroli <zack@upsilon.cc>
+#
+# This file is part of Debsources.
+#
+# Debsources is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import logging
+import sqlalchemy
+import sys
+
+import bininit
+
+import archiver
+import debmirror
+import mainlib
+
+
+def main():
+    cmdline = argparse.ArgumentParser(description='Debsources suite archive manager')
+    cmdline.add_argument('action', metavar='ACTION',
+                         choices=['add', 'list', 'remove'],
+                         help='action to perform on the archive of sticky suites')
+    cmdline.add_argument('suite', metavar='SUITE', nargs='?', default=None,
+                         help='name of the suite to act upon (for "add" and "remove")')
+    mainlib.add_arguments(cmdline)
+    args = cmdline.parse_args()
+    if args.action in ['add', 'remove'] and args.suite is None:
+        cmdline.error('%s requires a suite name' % args.action)
+
+    conf = mainlib.load_conf(args.conffile or bininit.DEFAULT_CONFFILE)
+    mainlib.override_conf(conf, args)
+    mainlib.init_logging(conf, mainlib.log_level_of_verbosity(args.verbose))
+    logging.debug('loaded configuration from %s' % conf['conffile'])
+    conf['observers'], conf['file_exts'] = mainlib.load_hooks(conf)
+    mainlib.conf_warnings(conf)
+
+    if conf['dry_run']:
+        logging.warn('note: DRY RUN mode is enabled')
+
+    try:
+        db = sqlalchemy.create_engine(conf['db_uri'])
+        Session = sqlalchemy.orm.sessionmaker()
+        session = Session(bind=db, autocommit=False)
+        archive = debmirror.SourceMirrorArchive(conf['mirror_archive_dir'])
+        if args.action == 'add':
+            archiver.add_suite(conf, session, args.suite, archive)
+        elif args.action == 'list':
+            print "# name\tindexed\tavailable"
+            for (suite, present) in archiver.list_suites(conf, session, archive).items():
+                print '%s\t%s\t%s' % (suite, present['db'], present['archive'])
+        elif args.action == 'remove':
+            archiver.remove_suite(conf, session, args.suite)
+        session.commit()
+    except SystemExit:	# exit as requested
+        raise
+    except:	# store trace in log, then exit
+        logging.exception('unhandled exception. Abort')
+        sys.exit(2)
+
+
+if __name__ == '__main__':
+    main()
