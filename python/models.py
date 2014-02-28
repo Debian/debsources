@@ -135,6 +135,7 @@ class SuitesMapping(Base):
     Debian suites (squeeze, wheezy, etc) mapping with source package versions
     """
     __tablename__ = 'suitesmapping'
+    __table_args__ = (UniqueConstraint('sourceversion_id', 'suite'),)
     
     id = Column(Integer, primary_key=True)
     sourceversion_id = Column(Integer,
