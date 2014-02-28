@@ -21,7 +21,7 @@ import os, magic, stat
 from sqlalchemy import func as sql_func
 from sqlalchemy import Column, ForeignKey, UniqueConstraint, PrimaryKeyConstraint
 from sqlalchemy import Index
-from sqlalchemy import DateTime, Integer, String, Enum, LargeBinary, Boolean
+from sqlalchemy import DateTime, Date, Integer, String, Enum, LargeBinary, Boolean
 from sqlalchemy import and_
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -146,6 +146,27 @@ class SuitesMapping(Base):
     def __init__(self, version, suite):
         self.sourceversion_id = version.id
         self.suite = suite
+
+
+class Suite(Base):
+    """static information about known suites
+
+    Note: currently used only for sticky suites.
+    """
+    # TODO fill and maintain this table for non-sticky suites
+    # TODO cross-reference SuitesMapping to this table
+
+    __tablename__ = 'suites'
+
+    name = Column(String, primary_key=True)
+    release_date = Column(Date, nullable=True)
+    sticky = Column(Boolean, nullable=False)
+
+    def __init__(self, name, sticky=False, release_date=None):
+        self.name = name
+        if release_date:
+            self.release_date = release_date
+        self.sticky = sticky
 
 
 class File(Base):
