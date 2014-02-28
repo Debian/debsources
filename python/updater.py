@@ -65,7 +65,7 @@ class UpdateStatus(object):
 # TODO fill tables: BinaryPackage, BinaryVersion
 # TODO get rid of shell hooks; they shall die a horrible death
 
-def notify(observers, conf, event, session, pkg, pkgdir, file_table=None):
+def notify(conf, event, session, pkg, pkgdir, file_table=None):
     """notify (Python and shell) hooks of occurred events
 
     Currently supported events:
@@ -116,7 +116,7 @@ def notify(observers, conf, event, session, pkg, pkgdir, file_table=None):
                       % (event, pkg, e.returncode, e.output))
         raise e
 
-    notify_plugins(observers, event, session, pkg, pkgdir,
+    notify_plugins(conf['observers'], event, session, pkg, pkgdir,
                    file_table=file_table)
 
 
@@ -151,51 +151,85 @@ def ensure_stats_dir(conf):
     ensure_dir(os.path.join(conf['cache_dir'], 'stats'))
 
 
-def extract_new(status, conf, session, mirror, observers=NO_OBSERVERS):
+def _add_package(pkg, conf, session, sticky=False):
+    """add package `pkg` to both FS and DB storage, and notify plugins
+
+    handles and logs exceptions
+    """
+    logging.info('add %s...' % pkg)
+    pkgdir = pkg.extraction_dir(conf['sources_dir'])
+    try:
+        if not conf['dry_run'] and 'fs' in conf['backends']:
+            fs_storage.extract_package(pkg, pkgdir)
+        with session.begin_nested():
+            # single db session for package addition and hook execution: if the
+            # hooks fail, the package won't be added to the db (it will be
+            # tried again at next run)
+            file_table = None
+            if not conf['dry_run'] and 'db' in conf['backends']:
+                file_table = dbutils.add_package(session, pkg, pkgdir, sticky)
+            if not conf['dry_run'] and 'hooks' in conf['backends']:
+                notify(conf, 'add-package', session, pkg, pkgdir, file_table)
+    except:
+        logging.exception('failed to add %s' % pkg)
+
+
+def _rm_package(pkg, conf, session, db_version=None):
+    """remove package `pkg` from both FS and DB storage, and notify plugins
+
+    handles and logs exceptions
+    """
+    logging.info("remove %s..." % pkg)
+    pkgdir = pkg.extraction_dir(conf['sources_dir'])
+    if not db_version:
+        db_version = lookup_version(session, pkg['package'], pkg['version'])
+        if not db_version:
+            logging.warn('cannot find package %s, not removing' % pkg)
+            return
+    try:
+        if not conf['dry_run'] and 'hooks' in conf['backends']:
+            notify(conf, 'rm-package', session, pkg, pkgdir)
+        if not conf['dry_run'] and 'fs' in conf['backends']:
+            fs_storage.remove_package(pkg, pkgdir)
+        if not conf['dry_run'] and 'db' in conf['backends']:
+            with session.begin_nested():
+                dbutils.rm_package(session, pkg, db_version)
+    except:
+        logging.exception('failed to remove %s' % pkg)
+
+
+def extract_new(status, conf, session, mirror):
     """update stage: list mirror and extract new packages
 
     """
     ensure_cache_dir(conf)
 
-    def extract_package(pkg):
-        pkgdir = pkg.extraction_dir(conf['sources_dir'])
+    def add_package(pkg):
         if not dbutils.lookup_version(session, pkg['package'], pkg['version']):
-            try:
-                logging.info('add %s...' % pkg)
-                if not conf['dry_run'] and 'fs' in conf['backends']:
-                    fs_storage.extract_package(pkg, pkgdir)
-                with session.begin_nested():
-                    # single db session for package addition and hook
-                    # execution: if the hooks fail, the package won't be
-                    # added to the db (it will be tried again at next run)
-                    file_table = None
-                    if not conf['dry_run'] and 'db' in conf['backends']:
-                        file_table = dbutils.add_package(session, pkg, pkgdir)
-                    if not conf['dry_run'] and 'hooks' in conf['backends']:
-                        notify(observers, conf,
-                               'add-package', session, pkg, pkgdir, file_table)
-            except:
-                logging.exception('failed to extract %s' % pkg)
+            _add_package(pkg, conf, session)
         if conf['force_triggers']:
             try:
-                notify_plugins(observers, 'add-package', session, pkg, pkgdir,
-                               triggers=conf['force_triggers'], dry=conf['dry_run'])
+                notify_plugins(conf['observers'], 'add-package',
+                               session, pkg, pkgdir,
+                               triggers=conf['force_triggers'],
+                               dry=conf['dry_run'])
             except:
                 logging.exception('trigger failure on %s' % pkg)
         # add entry for sources.txt, temporarily with no suite associated
         pkg_id = (pkg['package'], pkg['version'])
+        pkgdir = pkg.extraction_dir(conf['sources_dir'])
         status.sources[pkg_id] = pkg.archive_area(), pkg.dsc_path(), pkgdir, []
 
     logging.info('add new packages...')
     for pkg in mirror.ls():
         if not conf['single_transaction']:
             with session.begin():
-                extract_package(pkg)
+                add_package(pkg)
         else:
-            extract_package(pkg)
+            add_package(pkg)
 
 
-def garbage_collect(status, conf, session, mirror, observers=NO_OBSERVERS):
+def garbage_collect(status, conf, session, mirror):
     """update stage: list db and remove disappeared and expired packages
 
     """
@@ -207,30 +241,22 @@ def garbage_collect(status, conf, session, mirror, observers=NO_OBSERVERS):
         if not pkg_id in mirror.packages:
             # package is in in Debsources db, but gone from mirror: we
             # might have to garbage collect it (depending on expiry)
-            try:
-                expire_days = conf['expire_days']
-                age = None
-                if os.path.exists(pkgdir):
-                    age = datetime.now() \
-                          - datetime.fromtimestamp(os.path.getmtime(pkgdir))
-                if not age or age.days >= expire_days:
-                    logging.info("gc %s..." % pkg)
-                    if not conf['dry_run'] and 'hooks' in conf['backends']:
-                        notify(observers, conf,
-                               'rm-package', session, pkg, pkgdir)
-                    if not conf['dry_run'] and 'fs' in conf['backends']:
-                        fs_storage.remove_package(pkg, pkgdir)
-                    if not conf['dry_run'] and 'db' in conf['backends']:
-                        with session.begin_nested():
-                            dbutils.rm_package(session, pkg, version)
-                else:
-                    logging.debug('not removing %s as it is too young' % pkg)
-            except:
-                logging.exception('failed to remove %s' % pkg)
+            expire_days = conf['expire_days']
+            age = None
+            if os.path.exists(pkgdir):
+                age = datetime.now() \
+                      - datetime.fromtimestamp(os.path.getmtime(pkgdir))
+            if not age or age.days >= expire_days:
+                _rm_package(pkg, conf, session, db_version=version)
+            else:
+                logging.debug('not removing %s as it is too young' % pkg)
+
         if conf['force_triggers']:
             try:
-                notify_plugins(observers, 'rm-package', session, pkg, pkgdir,
-                               triggers=conf['force_triggers'], dry=conf['dry_run'])
+                notify_plugins(conf['observers'], 'rm-package',
+                               session, pkg, pkgdir,
+                               triggers=conf['force_triggers'],
+                               dry=conf['dry_run'])
             except:
                 logging.exception('trigger failure on %s' % pkg)
 
@@ -241,17 +267,16 @@ def update_suites(status, conf, session, mirror):
     """
     logging.info('update suites mappings...')
 
-    if not conf['dry_run'] and 'db' in conf['backends']:
-        session.query(SuitesMapping).delete()
-
     insert_q = sql.insert(SuitesMapping.__table__)
     insert_params = []
     for (suite, pkgs) in mirror.suites.iteritems():
+        if not conf['dry_run'] and 'db' in conf['backends']:
+            session.query(SuitesMapping).filter_by(suite=suite).delete()
         for pkg_id in pkgs:
             (pkg, version) = pkg_id
             version = dbutils.lookup_version(session, pkg, version)
             if not version:
-                logging.warn('cannot find package %s/%s mentioned by suite %s, skipping'
+                logging.warn('package %s/%s not found in suite %s, skipping'
                              % (pkg, version, suite))
             else:
                 logging.debug('add suite mapping: %s/%s -> %s'
@@ -456,7 +481,7 @@ def pp_stage(stage):
         raise ValueError, 'unknown update stage %s' % s
 
 
-def update(conf, session, observers=NO_OBSERVERS, stages=UPDATE_STAGES):
+def update(conf, session, stages=UPDATE_STAGES):
     """do a full update run
     """
     logging.info('start')
@@ -465,16 +490,16 @@ def update(conf, session, observers=NO_OBSERVERS, stages=UPDATE_STAGES):
     status = UpdateStatus()
 
     if STAGE_EXTRACT in stages:
-        extract_new(status, conf, session, mirror, observers)	# stage 1
+        extract_new(status, conf, session, mirror)	# stage 1
     if STAGE_SUITES in stages:
-        update_suites(status, conf, session, mirror)		# stage 2
+        update_suites(status, conf, session, mirror)	# stage 2
     if STAGE_GC in stages:
-        garbage_collect(status, conf, session, mirror, observers)# stage 3
+        garbage_collect(status, conf, session, mirror)	# stage 3
     if STAGE_STATS in stages:
-        update_statistics(status, conf, session)		# stage 4
+        update_statistics(status, conf, session)	# stage 4
     if STAGE_CACHE in stages:
-        update_metadata(status, conf, session)			# stage 5
+        update_metadata(status, conf, session)		# stage 5
     if STAGE_CHARTS in stages:
-        update_charts(status, conf, session)			# stage 6
+        update_charts(status, conf, session)		# stage 6
 
     logging.info('finish')
