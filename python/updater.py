@@ -390,7 +390,7 @@ def update_metadata(status, conf, session):
 
     # update package prefixes list
     with open(os.path.join(conf['cache_dir'], 'pkg-prefixes'), 'w') as out:
-        for prefix in SourceMirror(conf['mirror_dir']).pkg_prefixes():
+        for prefix in dbutils.pkg_prefixes(session):
             out.write('%s\n' % prefix)
 
     # update timestamp

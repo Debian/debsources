@@ -87,3 +87,16 @@ def lookup_version(session, package, version):
                   .filter(Package.name==package) \
                   .first()
 
+
+def pkg_prefixes(session):
+    """extract Debian package prefixes from DB via `session`
+
+    package prefixes are either the first 4 letters of the name (for packages
+    starting with "lib") or the first letter
+
+    """
+    q = """SELECT DISTINCT(substring(name from 1 for 1)) FROM PACKAGES \
+           UNION \
+           SELECT DISTINCT(substring(name from 1 for 4)) FROM PACKAGES
+           WHERE substring(name from 1 for 3) = 'lib'"""
+    return sorted([ row[0] for row in session.execute(q) ])
