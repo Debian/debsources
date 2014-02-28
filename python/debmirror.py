@@ -1,4 +1,4 @@
-# Copyright (C) 2013  Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -29,10 +29,11 @@ class SourcePackage(deb822.Sources):
     def from_db_model(cls, db_version):
         """build a (mock) SourcePackage object from a models.Version instance
 
-        note that the build object will not contain all the needed source
+        note that the built object will not contain all the needed source
         package information, but only those that can be reconstructed using
         information available in the Debsources db.  That, however, should be
         enough for the purposes of Debsources' needs.
+
         """
         meta = {}
         meta['package'] = db_version.package.name
@@ -129,6 +130,7 @@ class SourceMirror(object):
         self.mirror_root = path
         self._suites = None	# dict: suite name -> [<package, version>]
         self._packages = None	# set(<package, version>)
+        self._dists_dir = os.path.join(path, 'dists')
 
 
     @property
@@ -164,8 +166,7 @@ class SourceMirror(object):
 
         return them as <suite, path> pairs
         """
-        dists_dir = os.path.join(self.mirror_root, 'dists')
-        for root, dirs, files in os.walk(dists_dir):
+        for root, dirs, files in os.walk(self._dists_dir):
             src_indexes = [ os.path.join(root, file)
                             for file in files
                             if file == "Sources.gz" ]
@@ -194,24 +195,59 @@ class SourceMirror(object):
         return sorted(list(prefixes))
 
 
-    def ls(self):
-        """List SourcePackages instances of packages available in the mirror
+    def ls(self, suite=None):
+        """List SourcePackages instances of packages available in the mirror. If
+        `suite` is given, ignore all other suites.
 
-        Side effect: populate the properties suites and packages
+        Side effect: populate the properties suites and packages (beware of the
+        interaction between this and passing `suite`: other suites will not be
+        considered at all!)
+
         """
         self._suites = {}
         self._packages = set()
 
-        for suite, src_index in self.__find_Sources_gz():
+        for cursuite, src_index in self.__find_Sources_gz():
+            if suite is not None and cursuite != suite:
+                continue
             with open(src_index) as i:
                 for pkg in SourcePackage.iter_paragraphs(i):
                     pkg_id = (pkg['package'], pkg['version'])
 
-                    if not self._suites.has_key(suite):
-                        self._suites[suite] = []
-                    self._suites[suite].append(pkg_id)
+                    if not self._suites.has_key(cursuite):
+                        self._suites[cursuite] = []
+                    self._suites[cursuite].append(pkg_id)
 
                     if not pkg_id in self._packages:
                         self._packages.add(pkg_id)
                         pkg['x-debsources-mirror-root'] = self.mirror_root
                         yield pkg
+
+
+    def ls_suites(self, aliases=False):
+        """list suites available in the archive
+
+        if `aliases` is True (default is False) also includes aliased suite
+        names, e.g.: "Debian-1.3.1" -> "bo", or "testing" -> "jessie"
+
+        """
+        suites = []
+        for f in os.listdir(self._dists_dir):
+            path = os.path.join(self._dists_dir, f)
+            if os.path.islink(path) and not aliases:
+                continue
+            if os.path.isdir(path):
+                suites.append(f)
+
+        return suites
+
+
+
+class SourceMirrorArchive(SourceMirror):
+    """Handle for a local Debian source mirror archive, i.e. a mirror of
+    archive.debian.org content, where different suites might have different
+    archive formats
+
+    """
+
+    pass
