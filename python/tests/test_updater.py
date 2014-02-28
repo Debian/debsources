@@ -33,6 +33,7 @@ import statistics
 import updater
 
 from db_testing import DbTestFixture, pg_dump, DB_COMPARE_QUERIES
+from updater_testing import mk_conf
 from subprocess_workaround import subprocess_setup
 from testdata import *
 
@@ -67,30 +68,6 @@ def compare_files(file1, file2):
         return True, None
     except subprocess.CalledProcessError, e:
         return False, e.output
-
-
-def mk_conf(tmpdir):
-    """return a debsources updater configuration that works in a temp dir
-
-    for testing purposes
-
-    """
-    conf = {
-        'bin_dir': abspath(os.path.join(TEST_DIR, '../../bin')),
-        'cache_dir': os.path.join(tmpdir, 'cache'),
-        'db_uri': 'postgresql:///' + TEST_DB_NAME,
-        'single_transaction': 'true',
-        'dry_run': False,
-        'expire_days': 0,
-        'force_triggers': '',
-        'hooks': ['sloccount', 'checksums', 'ctags', 'metrics'],
-        'mirror_dir': os.path.join(TEST_DATA_DIR, 'mirror'),
-        'backends': set(['hooks.fs', 'hooks', 'fs', 'db', 'hooks.db']),
-        'python_dir': abspath(os.path.join(TEST_DIR, '..')),
-        'root_dir': abspath(os.path.join(TEST_DIR, '../..')),
-        'sources_dir': os.path.join(tmpdir, 'sources'),
-    }
-    return conf
 
 
 def db_mv_tables_to_schema(session, new_schema):
@@ -141,21 +118,22 @@ class Updater(unittest.TestCase, DbTestFixture):
     def do_update(self, stages=TEST_STAGES):
         """do a full update run in a virtual test environment"""
         mainlib.init_logging(self.conf, console_verbosity=logging.WARNING)
-        (observers, file_exts)  = mainlib.load_hooks(self.conf)
-        updater.update(self.conf, self.session, observers, stages)
-        return file_exts
+        obs, exts = mainlib.load_hooks(self.conf)
+        self.conf['observers'], self.conf['file_exts'] = obs, exts
+        updater.update(self.conf, self.session, stages)
 
     @istest
     @attr('slow')
     def updaterProducesReferenceDb(self):
         db_mv_tables_to_schema(self.session, 'ref')
-        file_exts = self.do_update()
+        self.do_update()
 
         # sources/ dir comparison. Ignored patterns:
         # - plugin result caches -> because most of them are in os.walk()
         #   order, which is not stable
         # - dpkg-source log stored in *.log
-        exclude_pat = [ '*' + ext for ext in file_exts ] + [ '*.log' ]
+        exclude_pat = [ '*' + ext for ext in self.conf['file_exts'] ] \
+                      + ['*.log']
         assert_dir_equal(self,
                          os.path.join(self.tmpdir, 'sources'),
                          os.path.join(TEST_DATA_DIR, 'sources'),
