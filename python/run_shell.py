@@ -22,5 +22,5 @@ if os.path.exists(__alt_conffile):
 readline.parse_and_bind("tab: complete")
 os.environ['PYTHONINSPECT'] = 'True'
 
-conf = mainlib.load_configuration(CONFFILE)
+conf = mainlib.load_conf(CONFFILE)
 engine, session = sqla_session._get_engine_session(conf['db_uri'])

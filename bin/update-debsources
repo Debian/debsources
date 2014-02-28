@@ -20,7 +20,6 @@
 import argparse
 import logging
 import sqlalchemy
-import string
 import sys
 
 import bininit
@@ -31,82 +30,26 @@ import updater
 
 def main():
     cmdline = argparse.ArgumentParser(description='Debsources updater')
-    cmdline.add_argument('--backend', '-b',
-                         metavar='BACKEND',
-                         action='append',
-                         help='only affect a specific backend (one of: db, fs, hooks, hooks.db, hooks.fs). By default all backends are enabled; the special value "none" disables all backends. Can be specified multiple times. Warning: using this you can mess up the update logic, use at your own risk.',
-                         dest='backends')
-    cmdline.add_argument('--config', '-c', dest='conffile',
-                         default=bininit.DEFAULT_CONFFILE,
-                         help='alternate configuration file')
-    cmdline.add_argument('--dburi', '-u', dest='dburi',
-                         help='database URI, e.g. postgresql:///mydbname. Override configuration file setting "db_uri"')
-    cmdline.add_argument('--dry-run', '-d', dest='dry',
-                         action='store_true',
-                         help='enable dry run mode')
-    cmdline.add_argument('--single-transaction', dest='single_transaction',
-                         choices=['yes', 'no'],
-                         help='use a single big DB transaction, instead of smaller per-package transactions (default: yes)')
-    cmdline.add_argument('--stage', '-s',
-                         metavar='STAGE',
-                         action='append',
-                         help='only perform a specific update stage (one of: %s). By default all update stages are performed. Can be specified multiple times. Warning: using this you can mess up the update logic, use at your own risk.' % map(updater.pp_stage, updater.UPDATE_STAGES),
-                         dest='stages')
-    cmdline.add_argument('--trigger', '-t',
-                         metavar='EVENT/HOOK',
-                         action='append',
-                         help='force trigger of (Python) HOOK for EVENT. By default all registered hooks are triggered for all changed packages. Event is one of: %s. Hook is one of the available hooks. Can be specified multiple times. Warning: if not used with "--backend none" it might lead to multiple execution of the same hook. E.g.: -t add-package/checksums' % string.join(updater.KNOWN_EVENTS, ', '),
-                         dest='force_triggers')
-    cmdline.add_argument('--verbose', '-v',
-                         action='count',
-                         help='increase console verbosity')
+    mainlib.add_arguments(cmdline)
     args = cmdline.parse_args()
 
-    conf = mainlib.load_configuration(args.conffile)
-    # override configuration from cmdline args
-    if args.backends:
-        if 'none' in args.backends:
-            conf['backends'] = set()
-        else:
-            conf['backends'] = set(args.backends)
-    if args.stages:
-        conf['stages'] = set(map(updater.parse_stage, args.stages))
-    if args.dburi:
-        conf['db_uri'] = args.dburi
-    if args.dry:
-        conf['dry_run'] = True
-    if args.force_triggers:
-        conf['force_triggers'] = []
-        for trigger in args.force_triggers:
-            (event, hook) = trigger.split('/')
-            conf['force_triggers'].append((event, hook))
-    if args.single_transaction:
-        conf['single_transaction'] = (args.single_transaction == 'yes')
-
+    conf = mainlib.load_conf(args.conffile or bininit.DEFAULT_CONFFILE)
+    mainlib.override_conf(conf, args)
     mainlib.init_logging(conf, mainlib.log_level_of_verbosity(args.verbose))
     logging.debug('loaded configuration from %s' % conf['conffile'])
-    (observers, _file_exts)  = mainlib.load_hooks(conf)
-
-    if conf['dry_run']:
-        logging.warn('note: DRY RUN mode is enabled')
-    if conf['backends'] != set(mainlib.DEFAULT_CONFIG['backends'].split()):
-        logging.warn('only using backends: %s' % list(conf['backends']))
-    if conf['stages'] != updater.UPDATE_STAGES:
-        logging.warn('only doing stages: %s' % \
-                     map(updater.pp_stage, conf['stages']))
-    if conf['force_triggers']:
-        logging.warn('forcing triggers: %s' % conf['force_triggers'])
+    conf['observers'], conf['file_exts'] = mainlib.load_hooks(conf)
+    mainlib.conf_warnings(conf)
 
     try:
         db = sqlalchemy.create_engine(conf['db_uri'])
         Session = sqlalchemy.orm.sessionmaker()
         if conf['single_transaction']:
             session = Session(bind=db, autocommit=False)
-            updater.update(conf, session, observers, stages=conf['stages'])
+            updater.update(conf, session, stages=conf['stages'])
             session.commit()
         else:
             session = Session(bind=db, autocommit=True)
-            updater.update(conf, session, observers)
+            updater.update(conf, session)
     except SystemExit:	# exit as requested
         raise
     except:	# store trace in log, then exit
