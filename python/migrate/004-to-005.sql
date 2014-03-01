@@ -9,3 +9,10 @@ ALTER TABLE versions
 ALTER TABLE suitesmapping
   ADD CONSTRAINT suitesmapping_sourceversion_id_suite_key
     UNIQUE (sourceversion_id, suite);
+
+CREATE TABLE suites (
+  name VARCHAR NOT NULL,
+  release_date DATE,
+  sticky BOOLEAN NOT NULL,
+  PRIMARY KEY (name)
+);
