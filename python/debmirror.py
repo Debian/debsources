@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import os
 
 from debian import deb822
@@ -78,13 +79,29 @@ class SourcePackage(deb822.Sources):
 
         one of: main, contrib, non-free
         """
-        sec = self['section']
-        if sec.startswith('contrib'):
-            return 'contrib'
-        elif sec.startswith('non-free'):
-            return 'non-free'
-        else:
-            return 'main'
+        area = None
+        try:
+            sec = self['section']
+            if sec.startswith('contrib'):
+                area = 'contrib'
+            elif sec.startswith('non-free'):
+                area = 'non-free'
+            else:
+                area = 'main'
+        except KeyError:	# section not found, might happen in some old
+                                # buggy packages; try an heuristic
+            directory = self['directory']
+            steps = directory.split('/')
+            if 'non-free' in steps:
+                area = 'non-free'
+            elif 'contrib' in steps:
+                area = 'contrib'
+            else:
+                area = 'main'
+            logging.warn('guessed archive area %s for section-less package %s'
+                         % (area, self))
+
+        return area
 
     def prefix(self):
         """compute package prefix in the pool structure

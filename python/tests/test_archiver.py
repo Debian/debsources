@@ -149,3 +149,13 @@ class Archiver(unittest.TestCase, DbTestFixture):
 
         archiver.remove_suite(self.conf, self.session, 'lenny')
         self.assertHasLivePackage(*DUP_PKG)
+
+
+    @istest
+    @attr('slow')
+    def guessAreaForSectionlessPkgs(self):
+        sectionless_pkg = ('tripwire', '1.2-15')
+
+        archiver.add_suite(self.conf, self.session, 'slink', self.archive)
+        v = dbutils.lookup_version(self.session, *sectionless_pkg)
+        self.assertEqual('non-free', v.area)
