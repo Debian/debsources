@@ -74,7 +74,8 @@ def add_suite(conf, session, suite, archive):
     db_suite = _lookup_db_suite(session, suite)
     if not db_suite:
         db_suite = Suite(suite, sticky=True)
-        session.add(db_suite)
+        if not conf['dry_run']:
+            session.add(db_suite)
     else:
         logging.warn('sticky suite %s already present, looking for new packages'
                      % suite)
@@ -82,7 +83,7 @@ def add_suite(conf, session, suite, archive):
     for pkg in archive.ls(suite):
         version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
         if version:	# avoid GC upon removal from a non-sticky suite
-            if not version.sticky:
+            if not version.sticky and not conf['dry_run']:
                 logging.debug('setting sticky bit on %s' % pkg)
                 version.sticky = True
         else:
@@ -100,7 +101,7 @@ def add_suite(conf, session, suite, archive):
         if not _lookup_suitemapping(session, db_version, suite):
             suitemaps.append({'sourceversion_id': db_version.id,
                               'suite': suite })
-    if suitemaps:
+    if suitemaps and not conf['dry_run']:
         session.execute(suitemap_q, suitemaps)
 
 
@@ -124,21 +125,20 @@ def remove_suite(conf, session, suite):
                    .filter(SuitesMapping.sourceversion_id == version.id) \
                    .filter(SuitesMapping.suite != suite)
         other_suites = [ row[0] for row in other_suites ]
-        print 'XXX other_suites', other_suites
 
         if not other_suites:
             updater._rm_package(pkg, conf, session, db_version=version)
         else:
             other_sticky_suites = filter(lambda s: s in sticky_suites,
                                          other_suites)
-            print 'XXX other_sticky_suites', other_sticky_suites
-            if not other_sticky_suites:
+            if not other_sticky_suites and not conf['dry_run']:
                 # package is only listed in "live" suites, drop sticky flag
                 logging.debug('clearing sticky bit on %s' % pkg)
                 version.sticky = False
 
         suitemap = _lookup_suitemapping(session, version, suite)
-        if suitemap:
+        if suitemap and not conf['dry_run']:
             session.delete(suitemap)
 
-    session.delete(db_suite)
+    if not conf['dry_run']:
+        session.delete(db_suite)
