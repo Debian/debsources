@@ -94,7 +94,7 @@ class Archiver(unittest.TestCase, DbTestFixture):
 
     @istest
     @attr('slow')
-    def archiverAddsStickySuite(self):
+    def addsStickySuite(self):
         HAMM_PACKAGES = [ ('3dchess', '0.8.1-3'), ('ed', '0.2-16') ]
 
         archiver.add_suite(self.conf, self.session, 'hamm', self.archive)
@@ -106,7 +106,7 @@ class Archiver(unittest.TestCase, DbTestFixture):
 
     @istest
     @attr('slow')
-    def archiverRemovesStickySuite(self):
+    def removesStickySuite(self):
         SARGE_PACKAGES = [ ('asm', '1.5.2-1'), ('zziplib', '0.12.83-4') ]
 
         archiver.add_suite(self.conf, self.session, 'sarge', self.archive)
@@ -122,7 +122,7 @@ class Archiver(unittest.TestCase, DbTestFixture):
 
     @istest
     @attr('slow')
-    def archiverCountsReferences(self):
+    def countsReferences(self):
         DUP_PKG = ('2utf', '1.04')	# in both hamm and slink
 
         archiver.add_suite(self.conf, self.session, 'hamm', self.archive)
@@ -140,7 +140,7 @@ class Archiver(unittest.TestCase, DbTestFixture):
 
     @istest
     @attr('slow')
-    def archiverStayClearOfLiveSuites(self):
+    def stayClearOfLiveSuites(self):
         DUP_PKG = ('libcaca', '0.99.beta17-1')	# in both lenny (sticky) and squeeze (live)
         self.assertHasLivePackage(*DUP_PKG)
 

@@ -124,7 +124,7 @@ class Updater(unittest.TestCase, DbTestFixture):
 
     @istest
     @attr('slow')
-    def updaterProducesReferenceDb(self):
+    def producesReferenceDb(self):
         db_mv_tables_to_schema(self.session, 'ref')
         self.do_update()
 
@@ -143,7 +143,7 @@ class Updater(unittest.TestCase, DbTestFixture):
 
 
     @istest
-    def updaterProducesReferenceSourcesTxt(self):
+    def producesReferenceSourcesTxt(self):
         def parse_sources_txt(fname):
             for line in open(fname):
                 fields = line.split()
@@ -163,7 +163,7 @@ class Updater(unittest.TestCase, DbTestFixture):
 
     @istest
     @attr('slow')
-    def updaterRecreatesDbFromFiles(self):
+    def recreatesDbFromFiles(self):
         orig_sources = os.path.join(TEST_DATA_DIR, 'sources')
         dest_sources = os.path.join(self.tmpdir, 'sources')
         shutil.copytree(orig_sources, dest_sources)
