@@ -32,7 +32,7 @@ def _list_db_suites(session):
     """list sticky suites currently present in Debsources DB
 
     """
-    q = session.query(Suite.name).filter(Suite.sticky)
+    q = session.query(Suite.name).filter(Suite.sticky == True)
     return [ row[0] for row in q ]
 
 
