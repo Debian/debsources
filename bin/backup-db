@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -16,9 +16,6 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-# Driver for update runs, both synchronous (e.g. cmdline) and asynchronous
-# (e.g. cron and pushes)
 
 # will be overridden by config.local.ini in the same dir, if present
 CONFFILE="/srv/debsources/etc/config.ini"
@@ -45,55 +42,37 @@ conf_get () {
 }
 
 bin_dir=$( conf_get "bin_dir" )
-cache_dir=$( conf_get "cache_dir" )
-disabler="${root_dir}/UPDATE-DISABLED"
-lockfile="${root_dir}/ONGOING-UPDATE.pid"
 logfile=$( conf_get "log_file" )
+backup_dir=$( conf_get "backup_dir" )
+
+db_uri=$( conf_get "db_uri" )
 
 # uses $logfile global
 source "${bin_dir}/lib.sh"
 
+PG_DUMP="pg_dump"
+PG_DUMP_FLAGS="-Fc --no-password --schema public"
+DUMP="debsources.dump"
+
+# db_uri parsing, e.g. "postgresql://username:password@host/dbname"
+pg_uri=${db_uri#postgresql://}	# e.g. username:password@host/dbname
+pg_userpass=${pg_uri%@*}	# e.g. username:password
+pg_user=${pg_userpass%:*}
+pg_pass=${pg_userpass#*:}
+pg_hostdbname=${pg_uri#*@}	# e.g. host/dbname
+pg_host=${pg_hostdbname%/*}
+pg_dbname=${pg_hostdbname#*/}
+
 main () {
     info "starting at $(date)"
-    if [ -f "$disabler" ] ; then
-	info "updates disabled by ${disabler}: skipping update run.\n"
-	exit 2
-    fi
-    if [ -f "$lockfile" ] ; then
-	pid=$(head "$lockfile")
-	if ! ps "$pid" > /dev/null ; then
-	    info "remove stale lockfile for pid '$pid'"
-	    rm -f "$lockfile"
-	else
-	    err "lockfile found. Abort" 2
-	fi
-    fi
-    echo $$ > "$lockfile"
+    info "dumping DB to ${backup_dir}/${DUMP} ..."
 
-    info "update source mirror..."
-    ${bin_dir}/debian-source-mirror "$conffile" >> $logfile 2>&1
+    export PGPASSWORD="$pg_pass"
+    $PG_DUMP $PG_DUMP_FLAGS --host $pg_host --username $pg_user \
+	$pg_dbname > ${backup_dir}/${DUMP}.1
+    mv ${backup_dir}/${DUMP}.1 ${backup_dir}/${DUMP}
 
-    info "update-debsources..."
-    # note: update-debsources does his own logging to $logfile
-    sudo -u debsources ${bin_dir}/update-debsources
-
-    rm -f "$lockfile"
     info "all done at $(date)\n"
 }
 
-case "$1" in
-    disable)
-	echo -e "Updates are currently disabled.\nUse '${bin_dir}/main enable' to enable." > "$disabler"
-	echo "Updates are now disabled."
-	;;
-    enable)
-	rm -f "$disabler"
-	echo "Updates are now enabled."
-	;;
-    update)
-	main
-	;;
-    *)
-	echo "Usage: main { update | enable | disable }"
-	;;
-esac
+main

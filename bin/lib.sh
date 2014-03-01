@@ -20,18 +20,18 @@ verbose="1"
 info() {
     local msg="$1"
     if [ "$verbose" = "1" ] ; then
-	echo -e "I: $msg" >> $logfile
+	echo -e "$0: I: $msg" >> $logfile
     fi
 }
 
 warn() {
     local msg="$1"
-    echo -e "W: $msg" >> $logfile
+    echo -e "$0: W: $msg" >> $logfile
 }
 
 err() {
     local msg="$1"
     local code="$2"
-    echo -e "E: $msg" >> $logfile
+    echo -e "$0: E: $msg" >> $logfile
     exit $code
 }
