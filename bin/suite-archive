@@ -48,9 +48,6 @@ def main():
     conf['observers'], conf['file_exts'] = mainlib.load_hooks(conf)
     mainlib.conf_warnings(conf)
 
-    if conf['dry_run']:
-        logging.warn('note: DRY RUN mode is enabled')
-
     try:
         db = sqlalchemy.create_engine(conf['db_uri'])
         Session = sqlalchemy.orm.sessionmaker()

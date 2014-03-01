@@ -104,6 +104,8 @@ def add_suite(conf, session, suite, archive):
     if suitemaps and not conf['dry_run']:
         session.execute(suitemap_q, suitemaps)
 
+    logging.info('sticky suite %s added to the archive.' % suite)
+
 
 def remove_suite(conf, session, suite):
     logging.info('remove sticky suite %s from the archive...' % suite)
@@ -142,3 +144,5 @@ def remove_suite(conf, session, suite):
 
     if not conf['dry_run']:
         session.delete(db_suite)
+
+    logging.info('sticky suite %s removed from the archive.' % suite)
