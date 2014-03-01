@@ -109,7 +109,7 @@ def add_package(session, pkg, pkgdir, file_table):
     ctagsfile = ctags_path(pkgdir)
     ctagsfile_tmp = ctagsfile + '.new'
 
-    if 'hooks.fs' in conf['passes']:
+    if 'hooks.fs' in conf['backends']:
         if not os.path.exists(ctagsfile): # extract tags only if needed
             workdir = os.getcwd()
             try:
@@ -122,7 +122,7 @@ def add_package(session, pkg, pkgdir, file_table):
             finally:
                 os.chdir(workdir)
 
-    if 'hooks.db' in conf['passes']:
+    if 'hooks.db' in conf['backends']:
         version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
         curfile = {None: None}	# poor man's cache for last <relpath, file_id>;
                              # rely on the fact that ctags file are path-sorted
@@ -170,12 +170,12 @@ def rm_package(session, pkg, pkgdir, file_table):
     global conf
     logging.debug('rm-package %s' % pkg)
 
-    if 'hooks.fs' in conf['passes']:
+    if 'hooks.fs' in conf['backends']:
         ctagsfile = ctags_path(pkgdir)
         if os.path.exists(ctagsfile):
             os.unlink(ctagsfile)
 
-    if 'hooks.db' in conf['passes']:
+    if 'hooks.db' in conf['backends']:
         version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
         session.query(Ctag) \
                .filter_by(version_id=version.id) \

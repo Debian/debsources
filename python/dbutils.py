@@ -26,8 +26,11 @@ import fs_storage
 from models import Base, File, Package, Version, VCS_TYPES
 
 
-def add_package(session, pkg, pkgdir):
-    """Add a package (= debmirror.SourcePackage) to the Debsources db
+def add_package(session, pkg, pkgdir, sticky=False):
+    """Add `pkg` (a `debmirror.SourcePackage`) to the DB.
+
+    If `sticky` is set, also set the corresponding bit in the versions table.
+
     """
     logging.debug('add to db %s...' % pkg)
     package = session.query(Package).filter_by(name=pkg['package']).first()
@@ -40,7 +43,7 @@ def add_package(session, pkg, pkgdir):
                                 package_id=package.id)\
                      .first()
     if not version:
-        version = Version(pkg['version'], package)
+        version = Version(pkg['version'], package, sticky)
         version.area = pkg.archive_area()
         if pkg.has_key('vcs-browser'):
             version.vcs_browser = pkg['vcs-browser']
@@ -84,37 +87,15 @@ def lookup_version(session, package, version):
                   .first()
 
 
-# TODO get rid of this function. With sources2sqlite (soon) gone, the only
-# remaining client code is web/flask/tests.py
-def sources2db(sources, url, drop=False, verbose=True):
-    engine, session = _get_engine_session(url, verbose)
+def pkg_prefixes(session):
+    """extract Debian package prefixes from DB via `session`
 
-    if drop:
-        Base.metadata.drop_all(engine)
-        Base.metadata.create_all(engine)
+    package prefixes are either the first 4 letters of the name (for packages
+    starting with "lib") or the first letter
 
-    # v2
-    # first we create the set of all packages and the list of (pack, vers)
-    packages = set()
-    versions = []
-    with open(sources) as sfile:
-        for line in sfile:
-            cols = line.split() # package, version, area, other stuff
-            packages.add(cols[0])
-            versions.append((cols[0], cols[1], cols[2]))
-    # now the associated dict to work with execute
-    Package.__table__.insert(bind=engine).execute(
-        [dict(name=p) for p in packages]
-        )
-    # we get the packages list along with their ids(without the joined versions)
-    packages = session.query(Package).enable_eagerloads(False).all()
-    # we build the dict (package1: id1, ...)
-    packids = dict()
-    for p in packages:
-        packids[p.name] = p.id
-    # finally the versions dict to work with execute
-    Version.__table__.insert(bind=engine).execute(
-        [dict(vnumber=b, package_id=packids[a], area=c) for a, b, c in versions]
-        )
-
-    _close_session(session)
+    """
+    q = """SELECT DISTINCT(substring(name from 1 for 1)) FROM PACKAGES \
+           UNION \
+           SELECT DISTINCT(substring(name from 1 for 4)) FROM PACKAGES
+           WHERE substring(name from 1 for 3) = 'lib'"""
+    return sorted([ row[0] for row in session.execute(q) ])

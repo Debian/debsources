@@ -49,7 +49,7 @@ def add_package(session, pkg, pkgdir, file_table):
     metricsfile = metricsfile_path(pkgdir)
     metricsfile_tmp = metricsfile + '.new'
 
-    if 'hooks.fs' in conf['passes']:
+    if 'hooks.fs' in conf['backends']:
         if not os.path.exists(metricsfile):	# run du only if needed
             cmd = [ 'du', '--summarize', pkgdir ]
             metric_value = int(subprocess.check_output(cmd).split()[0])
@@ -57,7 +57,7 @@ def add_package(session, pkg, pkgdir, file_table):
                 out.write('%s\t%d\n' % (metric_type, metric_value))
             os.rename(metricsfile_tmp, metricsfile)
 
-    if 'hooks.db' in conf['passes']:
+    if 'hooks.db' in conf['backends']:
         if metric_value is None:
             # hooks.db is enabled but hooks.fs is not, so we don't have a
             # metric_value handy. Parse it from metrics file, hoping it exists
@@ -79,12 +79,12 @@ def rm_package(session, pkg, pkgdir, file_table):
     global conf
     logging.debug('rm-package %s' % pkg)
 
-    if 'hooks.fs' in conf['passes']:
+    if 'hooks.fs' in conf['backends']:
         metricsfile = metricsfile_path(pkgdir)
         if os.path.exists(metricsfile):
             os.unlink(metricsfile)
 
-    if 'hooks.db' in conf['passes']:
+    if 'hooks.db' in conf['backends']:
         version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
         session.query(Metric) \
                .filter_by(sourceversion_id=version.id) \

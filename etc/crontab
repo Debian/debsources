@@ -12,3 +12,6 @@ DEBSRC=/srv/debsources
 # Extra run on Friday, for synchronization with codesearch.d.n, just in case
 # they grabbed versions we don't have yet.
 1   8          *   *   5   debsources  $DEBSRC/bin/main
+
+# daily DB dump
+13  20         *   *   *   debsources  $DEBSRC/bin/backup-db

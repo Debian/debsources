@@ -77,7 +77,7 @@ def add_package(session, pkg, pkgdir, file_table):
     slocfile = slocfile_path(pkgdir)
     slocfile_tmp = slocfile + '.new'
 
-    if 'hooks.fs' in conf['passes']:
+    if 'hooks.fs' in conf['backends']:
         if not os.path.exists(slocfile):	# run sloccount only if needed
             try:
                 cmd = [ 'sloccount' ] + SLOCCOUNT_FLAGS + [ pkgdir ]
@@ -90,7 +90,7 @@ def add_package(session, pkg, pkgdir, file_table):
             finally:
                 os.rename(slocfile_tmp, slocfile)
 
-    if 'hooks.db' in conf['passes']:
+    if 'hooks.db' in conf['backends']:
         slocs = parse_sloccount(slocfile)
         version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
         if not session.query(SlocCount).filter_by(sourceversion_id=version.id)\
@@ -107,12 +107,12 @@ def rm_package(session, pkg, pkgdir, file_table):
     global conf
     logging.debug('rm-package %s' % pkg)
 
-    if 'hooks.fs' in conf['passes']:
+    if 'hooks.fs' in conf['backends']:
         slocfile = slocfile_path(pkgdir)
         if os.path.exists(slocfile):
             os.unlink(slocfile)
 
-    if 'hooks.db' in conf['passes']:
+    if 'hooks.db' in conf['backends']:
         version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
         session.query(SlocCount) \
                .filter_by(sourceversion_id=version.id) \

@@ -20,7 +20,8 @@ import os, magic, stat
 
 from sqlalchemy import func as sql_func
 from sqlalchemy import Column, ForeignKey, UniqueConstraint, PrimaryKeyConstraint
-from sqlalchemy import DateTime, Integer, String, Index, Enum, LargeBinary
+from sqlalchemy import Index
+from sqlalchemy import DateTime, Date, Integer, String, Enum, LargeBinary, Boolean
 from sqlalchemy import and_
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -36,7 +37,7 @@ Base = declarative_base()
 
 
 # used for migrations, see scripts under python/migrate/
-DB_SCHEMA_VERSION = 4
+DB_SCHEMA_VERSION = 5
 
 
 class Package(Base):
@@ -107,10 +108,14 @@ class Version(Base):
     vcs_type = Column(Enum(*VCS_TYPES, name="vcs_types"))
     vcs_url = Column(String)
     vcs_browser = Column(String)
+
+    # whether this package should survive GC no matter what
+    sticky = Column(Boolean, nullable=False)
     
-    def __init__(self, version, package):
+    def __init__(self, version, package, sticky=False):
         self.vnumber = version
         self.package_id = package.id
+        self.sticky = sticky
 
     def __repr__(self):
         return self.vnumber
@@ -130,6 +135,7 @@ class SuitesMapping(Base):
     Debian suites (squeeze, wheezy, etc) mapping with source package versions
     """
     __tablename__ = 'suitesmapping'
+    __table_args__ = (UniqueConstraint('sourceversion_id', 'suite'),)
     
     id = Column(Integer, primary_key=True)
     sourceversion_id = Column(Integer,
@@ -140,6 +146,27 @@ class SuitesMapping(Base):
     def __init__(self, version, suite):
         self.sourceversion_id = version.id
         self.suite = suite
+
+
+class Suite(Base):
+    """static information about known suites
+
+    Note: currently used only for sticky suites.
+    """
+    # TODO fill and maintain this table for non-sticky suites
+    # TODO cross-reference SuitesMapping to this table
+
+    __tablename__ = 'suites'
+
+    name = Column(String, primary_key=True)
+    release_date = Column(Date, nullable=True)
+    sticky = Column(Boolean, nullable=False)
+
+    def __init__(self, name, sticky=False, release_date=None):
+        self.name = name
+        if release_date:
+            self.release_date = release_date
+        self.sticky = sticky
 
 
 class File(Base):
