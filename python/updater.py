@@ -316,8 +316,6 @@ def update_statistics(status, conf, session):
     """update stage: update statistics
 
     """
-    # TODO conf['dry_run'] unused in this function, should be used
-
     logging.info('update statistics...')
     ensure_cache_dir(conf)
 
@@ -352,8 +350,9 @@ def update_statistics(status, conf, session):
         setattr(siz, stat, v)
     store_sloccount_stats(statistics.sloccount_summary(session),
                           stats, 'total.sloccount', loc)
-    session.add(siz)
-    session.add(loc)
+    if not conf['dry_run'] and 'db' in conf['backends']:
+        session.add(siz)
+        session.add(loc)
 
     # compute per-suite stats
     for suite in statistics.suites(session, suites='all'):
@@ -367,40 +366,42 @@ def update_statistics(status, conf, session):
             setattr(siz, stat, v)
         store_sloccount_stats(statistics.sloccount_summary(session, suite),
                               stats, suite_key + 'sloccount', loc)
-        session.add(siz)
-        session.add(loc)
+        if not conf['dry_run'] and 'db' in conf['backends']:
+            session.add(siz)
+            session.add(loc)
 
     session.flush()
 
     # cache computed stats to on-disk stats file
-    stats_file = os.path.join(conf['cache_dir'], 'stats.data')
-    with open(stats_file + '.new', 'w') as out:
-        for k, v in sorted(stats.iteritems()):
-            out.write('%s\t%d\n' % (k, v))
-    os.rename(stats_file + '.new', stats_file)
+    if not conf['dry_run'] and 'fs' in conf['backends']:
+        stats_file = os.path.join(conf['cache_dir'], 'stats.data')
+        with open(stats_file + '.new', 'w') as out:
+            for k, v in sorted(stats.iteritems()):
+                out.write('%s\t%d\n' % (k, v))
+        os.rename(stats_file + '.new', stats_file)
 
 
 def update_metadata(status, conf, session):
     """update stage: update metadata
 
     """
-    # TODO conf['dry_run'] unused in this function, should be used
-
     logging.info('update metadata...')
     ensure_cache_dir(conf)
 
     # update package prefixes list
-    prefix_path = os.path.join(conf['cache_dir'], 'pkg-prefixes')
-    with open(prefix_path + '.new', 'w') as out:
-        for prefix in dbutils.pkg_prefixes(session):
-            out.write('%s\n' % prefix)
-    os.rename(prefix_path + '.new', prefix_path)
+    if not conf['dry_run'] and 'fs' in conf['backends']:
+        prefix_path = os.path.join(conf['cache_dir'], 'pkg-prefixes')
+        with open(prefix_path + '.new', 'w') as out:
+            for prefix in dbutils.pkg_prefixes(session):
+                out.write('%s\n' % prefix)
+        os.rename(prefix_path + '.new', prefix_path)
 
     # update timestamp
-    timestamp_file = os.path.join(conf['cache_dir'], 'last-update')
-    with open(timestamp_file + '.new', 'w') as out:
-        out.write('%s\n' % formatdate())
-    os.rename(timestamp_file + '.new', timestamp_file)
+    if not conf['dry_run'] and 'fs' in conf['backends']:
+        timestamp_file = os.path.join(conf['cache_dir'], 'last-update')
+        with open(timestamp_file + '.new', 'w') as out:
+            out.write('%s\n' % formatdate())
+        os.rename(timestamp_file + '.new', timestamp_file)
 
 
 def update_charts(status, conf, session):
