@@ -312,12 +312,14 @@ def update_suites(status, conf, session, mirror):
     os.rename(src_list_path + '.new', src_list_path)
 
 
-def update_statistics(status, conf, session):
+def update_statistics(status, conf, session, suites=None):
     """update stage: update statistics
 
     """
     logging.info('update statistics...')
     ensure_cache_dir(conf)
+    if not suites:
+        suites = statistics.suites(session, suites='all')
 
     def store_sloccount_stats(summary, d, prefix, db_obj):
         """Update stats dictionary `d`, and DB object `db_obj`, with per-language
@@ -355,7 +357,7 @@ def update_statistics(status, conf, session):
         session.add(loc)
 
     # compute per-suite stats
-    for suite in statistics.suites(session, suites='all'):
+    for suite in suites:
         siz = HistorySize(suite, timestamp=now)
         loc = HistorySlocCount(suite, timestamp=now)
 
@@ -404,11 +406,13 @@ def update_metadata(status, conf, session):
         os.rename(timestamp_file + '.new', timestamp_file)
 
 
-def update_charts(status, conf, session):
+def update_charts(status, conf, session, suites=None):
     """update stage: rebuild charts"""
 
     logging.info('update charts...')
     ensure_stats_dir(conf)
+    if not suites:
+        suites = statistics.suites(session, suites='all')
 
     CHARTS = [	# <period, granularity> paris
         ('1 month', 'hourly'),
@@ -420,7 +424,7 @@ def update_charts(status, conf, session):
     # size charts, various metrics
     for metric in ['source_packages', 'disk_usage', 'source_files', 'ctags']:
         for (period, granularity) in CHARTS:
-            for suite in statistics.suites(session, suites='all') + ['ALL']:
+            for suite in suites + ['ALL']:
                 series = getattr(statistics, 'history_size_' + granularity) \
                          (session, metric, interval=period, suite=suite)
                 chart_file = os.path.join(conf['cache_dir'], 'stats', \
@@ -431,7 +435,7 @@ def update_charts(status, conf, session):
 
     # sloccount: historical histograms
     for (period, granularity) in CHARTS:
-        for suite in statistics.suites(session, suites='all') + ['ALL']:
+        for suite in suites + ['ALL']:
             # historical histogram
             mseries = getattr(statistics, 'history_sloc_' + granularity) \
                       (session, interval=period, suite=suite)
@@ -441,7 +445,7 @@ def update_charts(status, conf, session):
                 charts.sloc_plot(mseries, chart_file)
 
     # sloccount: current pie charts
-    for suite in statistics.suites(session, suites='all') + ['ALL']:
+    for suite in suites + ['ALL']:
         sloc_suite = suite
         if sloc_suite == 'ALL':
             sloc_suite = None
