@@ -37,19 +37,39 @@ def _time_series(query):
     return [ (row['timestamp'], row['value']) for row in query ]
 
 
-# known suites, not necessarily existing in the DB, sorted by release date
-__KNOWN_SUITES = [ 'buzz', 'rex', 'bo', 'hamm', 'slink', 'potato', 'woody',
-                 'sarge', 'etch', 'lenny', 'squeeze', 'wheezy', 'jessie',
-                 'sid', 'experimental' ]
-KNOWN_SUITES = [ s
-                 for suites in [ [s, s + '-updates', s + '-proposed-updates', s + '-backports'] for s in __KNOWN_SUITES ]
-                 for s in suites ]
+SUITES = {
+    'major': [	# known releases sorted by release date
+        'buzz', 'rex', 'bo', 'hamm', 'slink', 'potato', 'woody', 'sarge',
+        'etch', 'lenny', 'squeeze', 'wheezy', 'jessie', 'sid', 'experimental'
+    ],
+    'minor': [], # known release variants; filled below
+    'all': [],	 # all known releases + variants; filled below
+}
+SUITE_VARIANTS = [ '%s-updates', '%s-proposed-updates', '%s-backports' ]
+for s in SUITES['major']:
+    SUITES['all'].append(s)
+    for v in SUITE_VARIANTS:
+        variant = v % s
+        SUITES['all'].append(variant)
+        SUITES['minor'].append(variant)
 
-def suites(session):
-    indexed_suites = [ row[0] for row in session.query(distinct(SuitesMapping.suite)) ]
-    indexed_suites = filter(lambda s: s in KNOWN_SUITES, indexed_suites)
-    by_release_date = lambda s1, s2: cmp(KNOWN_SUITES.index(s1), KNOWN_SUITES.index(s2))
-    return sorted(indexed_suites, cmp=by_release_date)
+
+def suites(session, suites='major'):
+    """return a list of known suites present in the DB, sorted by release date
+
+    `suites` can be used to request a subset of all known suites. "major" (the
+    default) returns only release names (e.g. buzz, lenny, sid), "minor"
+    returns only release name variants (e.g. slink-proposed-updates,
+    wheezy-backports), "all" returns all of them
+
+    """
+    if not suites in SUITES.keys():
+        raise ValueError, 'unknown set of suites: %s' % suites
+
+    db_suites = [ row[0] for row in session.query(distinct(SuitesMapping.suite)) ]
+    db_suites = filter(lambda s: s in SUITES[suites], db_suites)
+    by_release_date = lambda s1, s2: cmp(SUITES[suites].index(s1), SUITES[suites].index(s2))
+    return sorted(db_suites, cmp=by_release_date)
 
 
 def disk_usage(session, suite=None):

@@ -356,7 +356,7 @@ def update_statistics(status, conf, session):
     session.add(loc)
 
     # compute per-suite stats
-    for suite in statistics.suites(session):
+    for suite in statistics.suites(session, suites='all'):
         siz = HistorySize(suite, timestamp=now)
         loc = HistorySlocCount(suite, timestamp=now)
 
@@ -415,7 +415,7 @@ def update_charts(status, conf, session):
     # size charts, various metrics
     for metric in ['source_packages', 'disk_usage', 'source_files', 'ctags']:
         for (period, granularity) in CHARTS:
-            for suite in statistics.suites(session) + ['ALL']:
+            for suite in statistics.suites(session, suites='all') + ['ALL']:
                 series = getattr(statistics, 'history_size_' + granularity) \
                          (session, metric, interval=period, suite=suite)
                 chart_file = os.path.join(conf['cache_dir'], 'stats', \
@@ -426,7 +426,7 @@ def update_charts(status, conf, session):
 
     # sloccount: historical histograms
     for (period, granularity) in CHARTS:
-        for suite in statistics.suites(session) + ['ALL']:
+        for suite in statistics.suites(session, suites='all') + ['ALL']:
             # historical histogram
             mseries = getattr(statistics, 'history_sloc_' + granularity) \
                       (session, interval=period, suite=suite)
@@ -436,7 +436,7 @@ def update_charts(status, conf, session):
                 charts.sloc_plot(mseries, chart_file)
 
     # sloccount: current pie charts
-    for suite in statistics.suites(session) + ['ALL']:
+    for suite in statistics.suites(session, suites='all') + ['ALL']:
         sloc_suite = suite
         if sloc_suite == 'ALL':
             sloc_suite = None
