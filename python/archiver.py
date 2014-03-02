@@ -87,7 +87,11 @@ def add_suite(conf, session, suite, archive):
                 logging.debug('setting sticky bit on %s' % pkg)
                 version.sticky = True
         else:
-            updater._add_package(pkg, conf, session, sticky=True)
+            if not conf['single_transaction']:
+                with session.begin():
+                    updater._add_package(pkg, conf, session, sticky=True)
+            else:
+                updater._add_package(pkg, conf, session, sticky=True)
     session.flush()	# to fill Version.id-s
 
     suitemap_q = sql.insert(SuitesMapping.__table__)
@@ -129,7 +133,11 @@ def remove_suite(conf, session, suite):
         other_suites = [ row[0] for row in other_suites ]
 
         if not other_suites:
-            updater._rm_package(pkg, conf, session, db_version=version)
+            if not conf['single_transaction']:
+                with session.begin():
+                    updater._rm_package(pkg, conf, session, db_version=version)
+            else:
+                updater._rm_package(pkg, conf, session, db_version=version)
         else:
             other_sticky_suites = filter(lambda s: s in sticky_suites,
                                          other_suites)

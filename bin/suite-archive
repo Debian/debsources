@@ -51,7 +51,7 @@ def main():
     try:
         db = sqlalchemy.create_engine(conf['db_uri'])
         Session = sqlalchemy.orm.sessionmaker()
-        session = Session(bind=db, autocommit=False)
+        session = Session(bind=db, autocommit = not conf['single_transaction'])
         archive = debmirror.SourceMirrorArchive(conf['mirror_archive_dir'])
         if args.action == 'add':
             archiver.add_suite(conf, session, args.suite, archive)
@@ -61,7 +61,8 @@ def main():
                 print '%s\t%s\t%s' % (suite, present['db'], present['archive'])
         elif args.action == 'remove':
             archiver.remove_suite(conf, session, args.suite)
-        session.commit()
+        if conf['single_transaction']:
+            session.commit()
     except SystemExit:	# exit as requested
         raise
     except:	# store trace in log, then exit
