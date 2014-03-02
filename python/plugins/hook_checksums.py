@@ -59,9 +59,11 @@ def add_package(session, pkg, pkgdir, file_table):
     sumsfile_tmp = sumsfile + '.new'
 
     def emit_checksum(out, relpath, abspath):
-        if os.path.islink(abspath):
-            # do not checksum symlinks, if they are not dangling / external we
-            # will checksum their target anyhow
+        if os.path.islink(abspath) or not os.path.isfile(abspath):
+            # Do not checksum symlinks, if they are not dangling / external we
+            # will checksum their target anyhow. Do not check special files
+            # either; they shouldn't be there per policy, but they might be
+            # (and they are in old releases)
             return
         sha256 = hashutil.sha256sum(abspath)
         out.write('%s  %s\n' % (sha256, relpath))

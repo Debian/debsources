@@ -159,3 +159,12 @@ class Archiver(unittest.TestCase, DbTestFixture):
         archiver.add_suite(self.conf, self.session, 'slink', self.archive)
         v = dbutils.lookup_version(self.session, *sectionless_pkg)
         self.assertEqual('non-free', v.area)
+
+
+    @istest
+    @attr('slow')
+    def canAddPkgsWSpecialFiles(self):
+        pkg_w_pipe = ('freewrl', '0.20.a1-3')
+
+        archiver.add_suite(self.conf, self.session, 'potato', self.archive)
+        self.assertHasStickyPackage(*pkg_w_pipe)
