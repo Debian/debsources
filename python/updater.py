@@ -390,14 +390,17 @@ def update_metadata(status, conf, session):
     ensure_cache_dir(conf)
 
     # update package prefixes list
-    with open(os.path.join(conf['cache_dir'], 'pkg-prefixes'), 'w') as out:
+    prefix_path = os.path.join(conf['cache_dir'], 'pkg-prefixes')
+    with open(prefix_path + '.new', 'w') as out:
         for prefix in dbutils.pkg_prefixes(session):
             out.write('%s\n' % prefix)
+    os.rename(prefix_path + '.new', prefix_path)
 
     # update timestamp
     timestamp_file = os.path.join(conf['cache_dir'], 'last-update')
-    with open(timestamp_file, 'w') as out:
+    with open(timestamp_file + '.new', 'w') as out:
         out.write('%s\n' % formatdate())
+    os.rename(timestamp_file + '.new', timestamp_file)
 
 
 def update_charts(status, conf, session):
