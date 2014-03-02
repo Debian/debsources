@@ -49,7 +49,7 @@ def main():
             session.commit()
         else:
             session = Session(bind=db, autocommit=True)
-            updater.update(conf, session)
+            updater.update(conf, session, stage=conf['stages'])
     except SystemExit:	# exit as requested
         raise
     except:	# store trace in log, then exit
