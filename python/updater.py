@@ -376,11 +376,7 @@ def update_statistics(status, conf, session, suites=None):
 
     # cache computed stats to on-disk stats file
     if not conf['dry_run'] and 'fs' in conf['backends']:
-        stats_file = os.path.join(conf['cache_dir'], 'stats.data')
-        with open(stats_file + '.new', 'w') as out:
-            for k, v in sorted(stats.iteritems()):
-                out.write('%s\t%d\n' % (k, v))
-        os.rename(stats_file + '.new', stats_file)
+        statistics.save_metadata_cache(stats, stats_file)
 
 
 def update_metadata(status, conf, session):

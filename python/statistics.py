@@ -287,8 +287,8 @@ def history_sloc_monthly(session, interval, suite):
                              suite=suite)
 
 
-def parse_metadata_cache(fname):
-    """parse a `stats.data`-like file and return its content as an integer-valued
+def load_metadata_cache(fname):
+    """load a `stats.data` file and return its content as an integer-valued
     dictionary
 
     """
@@ -298,3 +298,14 @@ def parse_metadata_cache(fname):
             k, v = line.split(None, 1)
             stats[k] = int(v)
     return stats
+
+
+def save_metadata_cache(stats, fname):
+    """save a `stats.data` file, atomically, reading values from an integer-valued
+    dictionary
+
+    """
+    with open(fname + '.new', 'w') as out:
+        for k, v in sorted(stats.iteritems()):
+            out.write('%s\t%d\n' % (k, v))
+    os.rename(fname + '.new', fname)

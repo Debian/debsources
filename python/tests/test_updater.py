@@ -197,7 +197,7 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
         updater.update_statistics(dummy_status, self.conf, self.session)
 
         stats_data = os.path.join(self.conf['cache_dir'], 'stats.data')
-        self.stats = statistics.parse_metadata_cache(stats_data)
+        self.stats = statistics.load_metadata_cache(stats_data)
 
 
     def tearDown(self):

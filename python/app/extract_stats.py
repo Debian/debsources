@@ -27,7 +27,7 @@ def extract_stats(filter_suites=None, filename="cache/stats.data"):
     """
     res = dict()
 
-    stats = statistics.parse_metadata_cache(filename)
+    stats = statistics.load_metadata_cache(filename)
     for (key, value) in stats.iteritems():
         splits = key.split(".")
         # if this key/value is in the required suites, we add it
