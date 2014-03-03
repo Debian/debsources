@@ -41,7 +41,7 @@ def main():
     mainlib.conf_warnings(conf)
 
     try:
-        db = sqlalchemy.create_engine(conf['db_uri'])
+        db = sqlalchemy.create_engine(conf['db_uri'], echo = args.verbose >= 4)
         Session = sqlalchemy.orm.sessionmaker()
         if conf['single_transaction']:
             session = Session(bind=db, autocommit=False)

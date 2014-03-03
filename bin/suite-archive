@@ -49,7 +49,7 @@ def main():
     mainlib.conf_warnings(conf)
 
     try:
-        db = sqlalchemy.create_engine(conf['db_uri'])
+        db = sqlalchemy.create_engine(conf['db_uri'], echo = args.verbose >= 4)
         Session = sqlalchemy.orm.sessionmaker()
         session = Session(bind=db, autocommit = not conf['single_transaction'])
         archive = debmirror.SourceMirrorArchive(conf['mirror_archive_dir'])
