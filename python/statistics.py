@@ -19,6 +19,9 @@
 
 """
 
+import logging
+import os
+
 from sqlalchemy import distinct
 from sqlalchemy import func as sql_func
 
@@ -78,6 +81,7 @@ def disk_usage(session, suite=None):
     only count disk usage relative to suite, if given
 
     """
+    logging.debug('compute disk usage for suite %s...' % suite)
     q = session.query(sql_func.sum(Metric.value)) \
                .filter(Metric.metric == 'size')
     if suite:
@@ -98,6 +102,7 @@ def source_packages(session, suite=None):
     each packages
 
     """
+    logging.debug('count source packages for suite %s...' % suite)
     q = session.query(sql_func.count(Version.id))
     if suite:
         q = q.join(SuitesMapping) \
@@ -115,6 +120,7 @@ def source_files(session, suite=None):
     """
     # TODO when a separate File table will be present, this will need to be
     # adapted to use that instead of Checksum
+    logging.debug('count source files for suite %s...' % suite)
     q = session.query(sql_func.count(Checksum.id))
     if suite:
         q = q.join(Version) \
@@ -129,6 +135,7 @@ def sloccount_lang(session, language, suite=None):
     only count SLOCs relative to suite, if given
 
     """
+    logging.debug('sloccount for language %s, suite %s...' % (language, suite))
     q = session.query(sql_func.sum(SlocCount.count)) \
                .filter(SlocCount.language == language)
     if suite:
@@ -146,6 +153,7 @@ def sloccount_summary(session, suite=None):
     only count LOCs relative to suite, if given
 
     """
+    logging.debug('sloccount summary for suite %s...' % suite)
     q = session.query(SlocCount.language, sql_func.sum(SlocCount.count))
     if suite:
         q = q.join(Version) \
@@ -161,6 +169,7 @@ def ctags(session, suite=None):
     only count ctags in suite, if given
 
     """
+    logging.debug('count ctags for suite %s...' % suite)
     q = session.query(sql_func.count(Ctag.id))
     if suite:
         q = q.join(Version) \
@@ -191,24 +200,32 @@ def history_size_hourly(session, metric, interval, suite):
     http://www.postgresql.org/docs/9.1/static/functions-datetime.html
 
     """
+    logging.debug('take hourly %s sample of %s for suite %s'
+                  % (metric, interval, suite))
     return _hist_size_sample(session, metric, interval,
                              projection="date_trunc('hour', timestamp)",
                              suite=suite)
 
 def history_size_daily(session, metric, interval, suite):
     """like `history_size_full`, but taking daily samples"""
+    logging.debug('take daily %s sample of %s for suite %s'
+                  % (metric, interval, suite))
     return _hist_size_sample(session, metric, interval,
                              projection="date_trunc('day', timestamp)",
                              suite=suite)
 
 def history_size_weekly(session, metric, interval, suite):
     """like `history_size_full`, but taking weekly samples"""
+    logging.debug('take weekly %s sample of %s for suite %s'
+                  % (metric, interval, suite))
     return _hist_size_sample(session, metric, interval,
                              projection="date_trunc('week', timestamp)",
                              suite=suite)
 
 def history_size_monthly(session, metric, interval, suite):
     """like `history_size_full`, but taking monthly samples"""
+    logging.debug('take monthly %s sample of %s for suite %s'
+                  % (metric, interval, suite))
     return _hist_size_sample(session, metric, interval,
                              projection="date_trunc('month', timestamp)",
                              suite=suite)
@@ -243,24 +260,28 @@ def history_sloc_hourly(session, interval, suite):
     `interval` must be as per `history_size_full`
 
     """
+    logging.debug('take hourly sloccount sample for suite %s' % suite)
     return _hist_sloc_sample(session, interval,
                              projection="date_trunc('hour', timestamp)",
                              suite=suite)
 
 def history_sloc_daily(session, interval, suite):
     """like `history_sloc_full`, but taking daily samples"""
+    logging.debug('take daily sloccount sample for suite %s' % suite)
     return _hist_sloc_sample(session, interval,
                              projection="date_trunc('day', timestamp)",
                              suite=suite)
 
 def history_sloc_weekly(session, interval, suite):
     """like `history_sloc_full`, but taking weekly samples"""
+    logging.debug('take weekly sloccount sample for suite %s' % suite)
     return _hist_sloc_sample(session, interval,
                              projection="date_trunc('week', timestamp)",
                              suite=suite)
 
 def history_sloc_monthly(session, interval, suite):
     """like `history_sloc_full`, but taking monthly samples"""
+    logging.debug('take monthly sloccount sample for suite %s' % suite)
     return _hist_sloc_sample(session, interval,
                              projection="date_trunc('month', timestamp)",
                              suite=suite)

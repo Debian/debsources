@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import matplotlib
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
@@ -42,6 +44,7 @@ def size_plot(series, fname):
     `fname`
 
     """
+    logging.debug('generate size plot to %s...' % fname)
     ts, values = _split_series(series)
 
     plt.figure()
@@ -61,6 +64,7 @@ def sloc_plot(multiseries, fname):
     save it to file `fname`
 
     """
+    logging.debug('generate sloccount plot to %s...' % fname)
     plt.figure()
     plt.yscale('log')
 
@@ -88,6 +92,7 @@ def sloc_pie(slocs, fname):
    names to slocs. Save the obtained chart to `fname`
 
    """
+   logging.debug('generate sloccount pie chart to %s...' % fname)
    plt.figure()
    langs, slocs = _split_series(list(slocs.iteritems()))
    plt.pie(slocs, labels=langs, autopct='%1.1f%%')
