@@ -312,14 +312,36 @@ def update_suites(status, conf, session, mirror):
     os.rename(src_list_path + '.new', src_list_path)
 
 
+def __target_suites(session, suites=None):
+    if not suites:
+        sticky_suites = statistics.sticky_suites(session)
+        suites = [ suite
+                   for suite in statistics.suites(session, suites='all')
+                   if suite not in sticky_suites ]
+    return suites
+
+
 def update_statistics(status, conf, session, suites=None):
     """update stage: update statistics
+
+    by default act on all non-sticky, major suites present in the DB. Pass
+    `suites` to override
 
     """
     logging.info('update statistics...')
     ensure_cache_dir(conf)
-    if not suites:
-        suites = statistics.suites(session, suites='all')
+    suites = __target_suites(session, suites)
+
+    now = datetime.utcnow()
+    stats_file = os.path.join(conf['cache_dir'], 'stats.data')
+    if os.path.exists(stats_file):
+        # If stats.data exists, load and update it, otherwise start from
+        # scratch. Note: this means that we need to be careful about changing
+        # stats keys, to avoid orphans.
+        # TODO: add a check about orphan stats.data entries to bin/fsck
+        stats = statistics.load_metadata_cache(stats_file)
+    else:
+        stats = {}
 
     def store_sloccount_stats(summary, d, prefix, db_obj):
         """Update stats dictionary `d`, and DB object `db_obj`, with per-language
@@ -339,13 +361,10 @@ def update_statistics(status, conf, session, suites=None):
             total_slocs += v
         d[prefix] = total_slocs
 
-    now = datetime.utcnow()
-
     # compute overall stats
     suite = 'ALL'
     siz = HistorySize(suite, timestamp=now)
     loc = HistorySlocCount(suite, timestamp=now)
-    stats = {}
     for stat in ['disk_usage', 'source_packages', 'source_files', 'ctags']:
         v = getattr(statistics, stat)(session)
         stats['total.' + stat] = v
@@ -407,8 +426,7 @@ def update_charts(status, conf, session, suites=None):
 
     logging.info('update charts...')
     ensure_stats_dir(conf)
-    if not suites:
-        suites = statistics.suites(session, suites='all')
+    suites = __target_suites(session, suites)
 
     CHARTS = [	# <period, granularity> paris
         ('1 month', 'hourly'),

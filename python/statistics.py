@@ -26,7 +26,8 @@ from sqlalchemy import distinct
 from sqlalchemy import func as sql_func
 
 from consts import SLOCCOUNT_LANGUAGES
-from models import Checksum, Ctag, Metric, SlocCount, SuitesMapping, Version
+from models import Checksum, Ctag, Metric, SlocCount
+from models import Suite, SuitesMapping, Version
 
 
 def _count(query):
@@ -58,7 +59,8 @@ for s in SUITES['major']:
 
 
 def suites(session, suites='major'):
-    """return a list of known suites present in the DB, sorted by release date
+    """return a list of known suites (both sticky and live) present in the DB,
+    sorted by release date
 
     `suites` can be used to request a subset of all known suites. "major" (the
     default) returns only release names (e.g. buzz, lenny, sid), "minor"
@@ -73,6 +75,14 @@ def suites(session, suites='major'):
     db_suites = filter(lambda s: s in SUITES[suites], db_suites)
     by_release_date = lambda s1, s2: cmp(SUITES[suites].index(s1), SUITES[suites].index(s2))
     return sorted(db_suites, cmp=by_release_date)
+
+
+def sticky_suites(session):
+    """list sticky suites currently present in Debsources DB
+
+    """
+    q = session.query(Suite.name).filter(Suite.sticky == True)
+    return [ row[0] for row in q ]
 
 
 def disk_usage(session, suite=None):
