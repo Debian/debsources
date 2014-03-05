@@ -42,30 +42,33 @@ def _time_series(query):
 
 
 SUITES = {
-    'major': [	# known releases sorted by release date
+    'release': [# known releases sorted by release date
         'buzz', 'rex', 'bo', 'hamm', 'slink', 'potato', 'woody', 'sarge',
-        'etch', 'lenny', 'squeeze', 'wheezy', 'jessie', 'sid', 'experimental'
+        'etch', 'lenny', 'squeeze', 'wheezy', 'jessie', 'sid'
     ],
-    'minor': [], # known release variants; filled below
+    'devel': [], # known release variants; filled below
     'all': [],	 # all known releases + variants; filled below
 }
 SUITE_VARIANTS = [ '%s-updates', '%s-proposed-updates', '%s-backports' ]
-for s in SUITES['major']:
+for s in SUITES['release']:
     SUITES['all'].append(s)
     for v in SUITE_VARIANTS:
         variant = v % s
         SUITES['all'].append(variant)
-        SUITES['minor'].append(variant)
+        SUITES['devel'].append(variant)
+SUITES['devel'].append('experimental')
+SUITES['all'].append('experimental')
 
 
-def suites(session, suites='major'):
+def suites(session, suites='release'):
     """return a list of known suites (both sticky and live) present in the DB,
     sorted by release date
 
-    `suites` can be used to request a subset of all known suites. "major" (the
-    default) returns only release names (e.g. buzz, lenny, sid), "minor"
-    returns only release name variants (e.g. slink-proposed-updates,
-    wheezy-backports), "all" returns all of them
+    `suites` can be used to request a subset of all known suites. "release"
+    (the default) returns release names (e.g. buzz, lenny, sid), "devel"
+    returns only development release name variants (e.g. *-proposed-updates,
+    *-updates, *-backports, plus experimental), "all" returns the union of the
+    two sets
 
     """
     if not suites in SUITES.keys():
