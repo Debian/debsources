@@ -29,6 +29,7 @@
 
 <h3><a name="size_current">Size (current)</a></h3>
 
+{% macro size_table(suites) -%}
 <table>
   <tr>
     <th></th>
@@ -68,17 +69,17 @@
     {% endfor %}
   </tr>
 </table>
+{% endmacro -%}
+
+<h4><a name="size_cur_releases" />Releases</h4>
+{{ size_table(release_suites) }}
+
+<h4><a name="size_cur_devel" />Development suites</h4>
+{{ size_table(devel_suites) }}
 
 <h3><a name="sloc_current">Source lines of code (current)</a></h3>
 
-<div>
-<span class="sidechart">
-  <a href="{{ url_for('static',
-	   filename='img/stats/ALL-sloc_pie-current.png') }}">
-    <img src="{{ url_for('static',
-	      filename='img/stats/ALL-sloc_pie-current.png') }}" />
-  </a>
-</span>
+{% macro sloccount_table(suites) -%}
 <table>
   <tr>
     <th></th>
@@ -102,6 +103,20 @@
     </tr>
   {% endfor %}
 </table>
+{% endmacro -%}
+
+<div>
+<span class="sidechart">
+  <a href="{{ url_for('static',
+	   filename='img/stats/ALL-sloc_pie-current.png') }}">
+    <img src="{{ url_for('static',
+	      filename='img/stats/ALL-sloc_pie-current.png') }}" />
+  </a>
+</span>
+<h4>Releases</h4>
+{{ sloccount_table(release_suites) }}
+<h4>Development suites</h4>
+{{ sloccount_table(devel_suites) }}
 </div>
 
 <h3><a name="hist_trends">Historical trends</a></h3>

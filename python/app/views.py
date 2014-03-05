@@ -872,11 +872,15 @@ class AllStatsView(GeneralView):
                               "stats.data")
         res = extract_stats(filename=filename)
         
-        suites=["debian_" + x for x in statistics.suites(session)]
+        all_suites=["debian_" + x for x in statistics.suites(session, suites='all')]
+        release_suites=["debian_" + x for x in statistics.suites(session, suites='release')]
+        devel_suites=["debian_" + x for x in statistics.suites(session, suites='devel')]
         
         return dict(results=res,
                     languages=SLOCCOUNT_LANGUAGES,
-                    suites=suites)
+                    all_suites=all_suites,
+                    release_suites=release_suites,
+                    devel_suites=devel_suites)
 
 # STATS FOR ALL SUITES (HTML)
 app.add_url_rule('/stats/',
