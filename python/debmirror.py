@@ -77,7 +77,9 @@ class SourcePackage(deb822.Sources):
     def archive_area(self):
         """return package are in the debian achive
 
-        one of: main, contrib, non-free
+        one of: main, contrib, non-free. Return `None` if the archive area
+        cannot be figured out
+
         """
         area = None
         try:
@@ -90,16 +92,19 @@ class SourcePackage(deb822.Sources):
                 area = 'main'
         except KeyError:	# section not found, might happen in some old
                                 # buggy packages; try an heuristic
-            directory = self['directory']
-            steps = directory.split('/')
-            if 'non-free' in steps:
-                area = 'non-free'
-            elif 'contrib' in steps:
-                area = 'contrib'
-            else:
-                area = 'main'
-            logging.warn('guessed archive area %s for section-less package %s'
-                         % (area, self))
+            try:
+                directory = self['directory']
+                steps = directory.split('/')
+                if 'non-free' in steps:
+                    area = 'non-free'
+                elif 'contrib' in steps:
+                    area = 'contrib'
+                else:
+                    area = 'main'
+                logging.warn('guessed archive area %s for section-less package %s'
+                             % (area, self))
+            except KeyError:
+                area = None
 
         return area
 
@@ -126,9 +131,15 @@ class SourcePackage(deb822.Sources):
     def extraction_dir(self, basedir=None):
         """return package extraction dir, relative to debsources sources_dir
 
-        if given, prepend basedir path to the generated path
+        If given, prepend basedir path to the generated path. Return `None` if
+        we can't figure out where to extract the package to
+
         """
-        steps = [ self.archive_area(),
+        area = self.archive_area()
+        if area is None:
+            return None
+
+        steps = [ area,
                   self.prefix(),
                   self['package'],
                   self['version'] ]

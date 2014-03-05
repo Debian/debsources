@@ -157,8 +157,11 @@ def _add_package(pkg, conf, session, sticky=False):
     handles and logs exceptions
     """
     logging.info('add %s...' % pkg)
-    pkgdir = pkg.extraction_dir(conf['sources_dir'])
     try:
+        pkgdir = pkg.extraction_dir(conf['sources_dir'])
+        if pkgdir is None:
+            logging.warning('package %s has no extracion dir, skipping' % pkg)
+            return
         if not conf['dry_run'] and 'fs' in conf['backends']:
             fs_storage.extract_package(pkg, pkgdir)
         with session.begin_nested():
