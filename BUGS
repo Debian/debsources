@@ -39,7 +39,12 @@
 * TODO infobox: add ctags count				   :web:easy:infobox:
 
 * TODO "update statistics" stage is too slow		   :infra:stats:perf:
-  currently, it takes about 12 minutes on tytso
+  Currently, it takes about 12 minutes on tytso. It can be optimized by
+  avoiding redoing statistic queries for each live suites (currently: 9), where
+  each query does a sequential scan (due to count(*), despite "index mostly
+  scan"). Instead, we can do GROUP BY queries, taking at once stats for all
+  suites. Proof of concept and benchmarks available in
+  doc/update-stats-query.bench.sql
 
 * TODO check-in derivatives from the census		  :infra:derivatives:
 
