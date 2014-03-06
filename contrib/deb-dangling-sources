@@ -67,7 +67,8 @@ for path in glob.glob('dists/*/*/source/Sources.gz'):
                         _src_file = os.path.abspath(src_file)
                         _dest_file = os.path.abspath(dest_file)
                         ln = 'ln -fs %s %s' % \
-                             (os.path.relpath(_dest_file, _src_file),
+                             (os.path.relpath(_dest_file,
+                                              os.path.dirname(_src_file)),
                               _src_file)
                     else:
                         dest_file = ''
