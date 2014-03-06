@@ -2,8 +2,8 @@
 Archive format
 ==============
 
-				binary		debsources
-version	name	release date	packages	notes
+				binary	source	debsources
+version	name	release date	pkgs	pkgs	notes
 
 1.1	buzz	17 Jun 1996	474		no Sources, no pool
 		       				.dsc only in contrib/
@@ -17,24 +17,23 @@ version	name	release date	packages	notes
 		       				.dsc for almost all packages
 		       				856 .dsc / 958 .tar.gz
 
-2.0	hamm	24 Jul 1998	≈ 1,500		Sources (1st release),
-		       		  		no pool, all .dsc (1st release)
+2.0	hamm	24 Jul 1998	~1,500	~1,400	Sources (1st rel.), no pool,
+						all .dsc (1st rel.)
 
-2.1	slink	 9 Mar 1999	≈ 2,250		Sources, no pool, all .dsc
+2.1	slink	 9 Mar 1999	~2,250	~1,900	Sources, no pool, .dsc
 
-2.2	potato	15 Aug 2000	≈ 3,900		Sources, no pool, all .dsc
+2.2	potato	15 Aug 2000	~3,900	~2,900	Sources, no pool, .dsc
 
-3.0	woody	19 Jul 2002	≈ 8,500		Sources, pool (1st release),
-		       		  		all .dsc
+3.0	woody	19 Jul 2002	~8,500	~5,600	Sources, pool (1st rel.), .dsc
 
-3.1	sarge	 6 Jun 2005	≈ 15,400	Sources, pool, all .dsc
+3.1	sarge	 6 Jun 2005	~15,400	~9,000	Sources, pool, .dsc
 
-4.0	etch	 8 Apr 2007	≈ 18,000	Sources, pool, all .dsc
+4.0	etch	 8 Apr 2007	~18,000	~10,500	Sources, pool, .dsc
 
-5.0	lenny	15 Feb 2009	≈ 23,000	Sources, pool, all .dsc
+5.0	lenny	15 Feb 2009	~23,000	~12,500	Sources, pool, .dsc
 
-6.0	squeeze	 6 Feb 2011	≈ 29,000	Sources, pool, all .dsc
+6.0	squeeze	 6 Feb 2011	~29,000	~15,000	Sources, pool, .dsc
 
-7	wheezy	 4 May 2013	≈ 37,000	Sources, pool, all .dsc
+7	wheezy	 4 May 2013	~37,000	~17,600	Sources, pool, .dsc
 
 (some data from http://en.wikipedia.org/wiki/Debian#Timeline)
