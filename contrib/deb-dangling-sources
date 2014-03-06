@@ -1,0 +1,75 @@
+#!/usr/bin/python
+
+# Copyright (C) 2014 Stefano Zacchiroli
+# License: GNU General Public License, version 3 or above
+
+# Check Sources.gz file in a given Debian mirror for referenced, but missing,
+# files of a source packages; try to guess the proper symlink target from pool.
+
+from __future__ import print_function
+
+import glob
+import os
+import sys
+
+from debian import deb822
+
+
+try:
+    target_dir = sys.argv[1]
+except IndexError:
+    target_dir = os.curdir
+dists_dir = os.path.join(target_dir, 'dists')
+pool_dir = os.path.join(target_dir, 'pool')
+if not os.path.isdir(dists_dir) or not os.path.isdir(pool_dir):
+    print("%s doesn't look like a debian mirror; it should contain dists/ and pool/"
+          % target_dir)
+    sys.exit(1)
+
+
+def pkg_prefix(pkg):
+    if pkg.startswith('lib'):
+        assert len(pkg) >= 4
+        return pkg[:4]
+    else:
+        assert pkg
+        return pkg[:1]
+
+
+def guess_target(path, pool_dir):
+    # e.g. path="dists/potato/main/source/games/xsol_0.31-3.1.dsc"
+    # to be guessed:    "pool/main/x/xsol/xsol_0.31-3.1.dsc"
+    steps = path.split('/')
+    area = steps[2]	# e.g. "main"
+    pkg = steps[-1].split('_')[0]	# e.g. "xsol"
+
+    target = os.path.join(pool_dir, area, pkg_prefix(pkg), pkg, steps[-1])
+    if os.path.isfile(target):
+        return target
+    else:
+        return None
+
+
+os.chdir(target_dir)
+for path in glob.glob('dists/*/*/source/Sources.gz'):
+    release = path.split('/')[1]
+    if os.path.islink('dists/' + release):
+        continue	# avoid scanning twice release w/ aliases
+    print('scanning %s...' % path, file=sys.stderr)
+    with open(path) as index:
+        for pkg in deb822.Sources.iter_paragraphs(index):
+            src_dir = pkg['directory']
+            for file in pkg['files']:
+                src_file = os.path.join(src_dir, file['name'])
+                if not os.path.isfile(src_file):
+                    dest_file = guess_target(src_file, 'pool')
+                    if dest_file:
+                        _src_file = os.path.abspath(src_file)
+                        _dest_file = os.path.abspath(dest_file)
+                        ln = 'ln -fs %s %s' % \
+                             (os.path.relpath(_dest_file, _src_file),
+                              _src_file)
+                    else:
+                        dest_file = ''
+                        ln = ''
+                    print('missing\t%s\t%s\t%s' % (src_file, dest_file, ln))
