@@ -1,6 +1,7 @@
 #!/bin/bash
 
 DEBSOURCES_ROOT=/srv/debsources
+DEBSOURCES_MIRROR=/srv/debian-mirror
 COPYRIGHT_DIR="${HOME}/debian-copyright"
 
 if [ -f "${DEBSOURCES_ROOT}/ONGOING-UPDATE.pid" ] ; then
@@ -11,7 +12,7 @@ if [ -d "$COPYRIGHT_DIR" ] ; then
     rm -rf "$COPYRIGHT_DIR"	# start anew each time
 fi
 
-export DEBSOURCES_ROOT COPYRIGHT_DIR
+export DEBSOURCES_ROOT DEBSOURCES_MIRROR COPYRIGHT_DIR
 cd $DEBSOURCES_ROOT
 
 bin/foreach \

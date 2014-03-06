@@ -13,10 +13,21 @@ if [ -f debian/copyright ] ; then
     cp debian/copyright "${destdir}/copyright.${format}"
     ln -s "copyright.${format}" "${destdir}/copyright"
     for suite in $(echo "$DEBSOURCES_SUITES" | sed 's/,/ /g') ; do
+	# create symlink under SUITES/...
 	suite_destdir=$(echo "$destdir" | sed "s%^${COPYRIGHT_DIR}%${COPYRIGHT_DIR}/SUITES/${suite}%")
 	if ! [ -d "$suite_destdir" ] ; then
 	    mkdir -p "$suite_destdir"
 	fi
 	ln -s "$destdir"/* "$suite_destdir"
+	# copy over relevant Sources.gz index, if needed
+	sources_gz_src="${DEBSOURCES_MIRROR}/dists/${suite}/${DEBSOURCES_AREA}/source/Sources.gz"
+	sources_gz_dest="${COPYRIGHT_DIR}/SUITES/${suite}/${DEBSOURCES_AREA}/Sources.gz"
+	if ! [ -f "$sources_gz_dest" ] ; then
+	    sources_gz_destdir=$(dirname $sources_gz_dest)
+	    if ! [ -d "$sources_gz_destdir" ] ; then
+		mkdir -p "$sources_gz_destdir"
+	    fi
+	    cp "$sources_gz_src" "$sources_gz_dest"
+	fi
     done
 fi
