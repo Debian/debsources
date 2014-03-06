@@ -25,3 +25,26 @@ checkpoints
 -----------
 
 checkpoint_segments = 256	# i.e. every 4 GB
+
+
+Trigram index
+=============
+
+http://www.postgresql.org/docs/9.1/static/pgtrgm.html
+
+To enable trigram indexes (used for the file table) you'll need, on a per DB
+basis:
+
+  CREATE EXTENSION pg_trgm;
+
+Then, for instance:
+
+  CREATE INDEX ix_files_path_trgm
+  ON files
+  USING gin (encode(path, 'escape') gin_trgm_ops);
+
+which can be queried efficiently using queries like:
+
+  SELECT *
+  FROM files
+  WHERE encode(path, 'escape') LIKE '%stdio%';
