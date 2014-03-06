@@ -238,7 +238,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
     
     def test_stats_all(self):
         rv = json.loads(self.app.get('/api/stats/').data)
-        assert sorted(rv["suites"]) == (
+        assert sorted(rv["all_suites"]) == (
             ["debian_experimental", "debian_jessie", "debian_sid",
              "debian_squeeze", "debian_wheezy"])
         assert "ansic" in rv["languages"]
