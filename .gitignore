@@ -1,5 +1,6 @@
 backup
 cache
+local
 sources
 *.pyc
 etc/config.local.ini

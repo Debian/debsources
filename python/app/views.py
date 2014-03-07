@@ -18,14 +18,15 @@
 
 import os
 
+from debian.debian_support import version_compare
 from flask import render_template, redirect, url_for, request, safe_join, \
     jsonify
 from flask.views import View
 from sqlalchemy import and_, func as sql_func
 
-from sqla_session import _close_session
+import local_info
 
-from debian.debian_support import version_compare
+from sqla_session import _close_session
 
 
 from app import app_wrapper
@@ -841,10 +842,9 @@ class StatsView(GeneralView):
             raise Http404Error() # security, to avoid suite='../../foo'
                                  # to include <img>s, etc.
         
-        filename=os.path.join(app.config["CACHE_DIR"],
-                              "stats.data")
-        res = extract_stats(filename=filename,
-                              filter_suites = ["debian_" + suite])
+        stats_file = os.path.join(app.config["CACHE_DIR"], "stats.data")
+        res = extract_stats(filename=stats_file,
+                            filter_suites = ["debian_" + suite])
         
         return dict(results=res,
                     languages=SLOCCOUNT_LANGUAGES,
@@ -868,19 +868,22 @@ app.add_url_rule('/api/stats/<suite>/',
 
 class AllStatsView(GeneralView):
     def get_objects(self):
-        filename=os.path.join(app.config["CACHE_DIR"],
-                              "stats.data")
-        res = extract_stats(filename=filename)
+        stats_file = os.path.join(app.config["CACHE_DIR"], "stats.data")
+        res = extract_stats(filename=stats_file)
         
         all_suites=["debian_" + x for x in statistics.suites(session, suites='all')]
         release_suites=["debian_" + x for x in statistics.suites(session, suites='release')]
         devel_suites=["debian_" + x for x in statistics.suites(session, suites='devel')]
         
+        news_file = os.path.join(app.config["LOCAL_DIR"], "news.stats.html")
+        news = local_info.read_news(news_file)
+
         return dict(results=res,
                     languages=SLOCCOUNT_LANGUAGES,
                     all_suites=all_suites,
                     release_suites=release_suites,
-                    devel_suites=devel_suites)
+                    devel_suites=devel_suites,
+                    news=news)
 
 # STATS FOR ALL SUITES (HTML)
 app.add_url_rule('/stats/',

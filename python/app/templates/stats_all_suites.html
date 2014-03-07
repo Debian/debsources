@@ -27,6 +27,11 @@
   </li>
 </ul>
 
+{% if news -%}
+<h3><a name="news">News</a></h3>
+{{ news|safe }}
+{% endif %}
+
 <h3><a name="size_current">Size (current)</a></h3>
 
 {% macro size_table(suites) -%}
@@ -123,5 +128,6 @@
 
 {% import "stats_trends.inc.html" as stats_trends %}
 {{ stats_trends.render_trends("ALL") }}
+
 
 {% endblock %}
