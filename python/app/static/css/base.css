@@ -145,6 +145,22 @@ div.stats img {
     width: 400px;
 }
 
+table.stats tr td {
+    text-align: right;
+    line-height: 1ex;
+}
+table.stats tr.head th {
+    text-align: center;
+}
+table.stats tr th {
+    text-align: left;
+}
+table.stats th {
+    text-align: center;
+    padding-top: inherit;
+    padding-bottom: inherit;
+}
+
 .clear_float {
     clear: left;
 }

@@ -30,8 +30,8 @@
 <h3><a name="size_current">Size (current)</a></h3>
 
 {% macro size_table(suites) -%}
-<table>
-  <tr>
+<table class="stats">
+  <tr class="head">
     <th></th>
     {% for suite in suites %}
       <th><a href="{{ url_for('stats_html', suite=suite[7:]) }}">
@@ -80,8 +80,8 @@
 <h3><a name="sloc_current">Source lines of code (current)</a></h3>
 
 {% macro sloccount_table(suites) -%}
-<table>
-  <tr>
+<table class="stats">
+  <tr class="head">
     <th></th>
     {% for suite in suites %}
       <th><a href="{{ url_for('stats_html', suite=suite[7:]) }}">
