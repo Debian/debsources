@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Copyright (C) 2011-2014  Stefano Zacchiroli <zack@upsilon.cc>
+#
+# This file is part of Debsources.
+#
+# Debsources is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Depends: rsync
+
+conffile="$1"
+shift 1
+if ! [ -f "$conffile" ] ; then
+    echo "Usage: debian-source-archive DEBSOURCES_CONFFILE [RSYNC_OPTIONS]"
+    exit 2
+fi
+
+root_dir=$(grep "^root_dir:" "$conffile" | awk '{ print $2 }')
+conf_get () {
+    local key="$1"
+    local value=$(grep "^${key}:" "$conffile" | awk '{ print $2 }')
+    value=$(echo $value | sed "s|%(root_dir)s|${root_dir}|")
+    if [ -z "$value" ] ; then
+	echo "debian-source-archive: required configuration value $key not found in $conffile, abort." 1>&2
+    fi
+    echo "$value"
+}
+
+mirror_dir=$( conf_get "mirror_archive_dir" )
+
+cd "$mirror_dir"
+rsync \
+    --archive --delete \
+    --exclude='*.deb' \
+    $* \
+    archive.debian.org::debian-archive/debian/ .
