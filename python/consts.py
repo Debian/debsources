@@ -1,5 +1,5 @@
-# Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
-#               2013  Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2013       Matthieu Caneill <matthieu.caneill@gmail.com>
+#               2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -15,6 +15,8 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import datetime
 
 
 # Limit on the maximum key length for Postgres columns which are subject to
@@ -72,3 +74,30 @@ PREFIXES_DEFAULT = ['0', '2', '3', '4', '6', '7', '9', 'a', 'b', 'c', 'd', 'e',
                     'libq', 'libr', 'libs', 'libt', 'libu', 'libv', 'libw',
                     'libx', 'liby', 'libz', 'm', 'n', 'o', 'p', 'q', 'r', 's',
                     't', 'u', 'v', 'w', 'x', 'y', 'z']
+
+DEBIAN_RELEASES = {
+   'buzz':    { 'version': '1.1',
+                'date': datetime.date(1996,  6, 17), 'archived': True  },
+   'rex':     { 'version': '1.2',
+                'date': datetime.date(1996, 12, 12), 'archived': True  },
+   'bo':      { 'version': '1.3',
+                'date': datetime.date(1997,  6,  5), 'archived': True  },
+   'hamm':    { 'version': '2.0',
+                'date': datetime.date(1998,  7, 24), 'archived': True  },
+   'slink':   { 'version': '2.1',
+                'date': datetime.date(1999,  3,  9), 'archived': True  },
+   'potato':  { 'version': '2.2',
+                'date': datetime.date(2000,  8, 15), 'archived': True  },
+   'woody':   { 'version': '3.0',
+                'date': datetime.date(2002,  7, 19), 'archived': True  },
+   'sarge':   { 'version': '3.1',
+                'date': datetime.date(2005,  6,  6), 'archived': True  },
+   'etch':    { 'version': '4.0',
+                'date': datetime.date(2007,  4,  8), 'archived': True  },
+   'lenny':   { 'version': '5.0',
+                'date': datetime.date(2009,  2, 15), 'archived': True  },
+   'squeeze': { 'version': '6.0',
+                'date': datetime.date(2011,  2,  6), 'archived': False },
+   'wheezy':  { 'version': '7',
+                'date': datetime.date(2013,  5,  4), 'archived': False },
+}

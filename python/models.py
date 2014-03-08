@@ -37,7 +37,7 @@ Base = declarative_base()
 
 
 # used for migrations, see scripts under python/migrate/
-DB_SCHEMA_VERSION = 5
+DB_SCHEMA_VERSION = 6
 
 
 class Package(Base):
@@ -153,17 +153,19 @@ class Suite(Base):
 
     Note: currently used only for sticky suites.
     """
-    # TODO fill and maintain this table for non-sticky suites
     # TODO cross-reference SuitesMapping to this table
 
     __tablename__ = 'suites'
 
     name = Column(String, primary_key=True)
+    version = Column(String, nullable=True)
     release_date = Column(Date, nullable=True)
     sticky = Column(Boolean, nullable=False)
 
-    def __init__(self, name, sticky=False, release_date=None):
+    def __init__(self, name, sticky=False, version=None, release_date=None):
         self.name = name
+        if version:
+            self.version = version
         if release_date:
             self.release_date = release_date
         self.sticky = sticky

@@ -33,6 +33,7 @@ import models
 import statistics
 import updater
 
+from consts import DEBIAN_RELEASES
 from db_testing import DbTestFixture, pg_dump, DB_COMPARE_QUERIES
 from updater_testing import mk_conf
 from testdata import *
@@ -89,24 +90,31 @@ class Archiver(unittest.TestCase, DbTestFixture):
                           % (package, version))
 
     def assertHasStickySuite(self, suite):
-        s = archiver._lookup_db_suite(self.session, suite)
+        s = dbutils.lookup_db_suite(self.session, suite, sticky=True)
         self.assertIsNotNone(s, msg='missing sticky suite ' + suite)
 
     def assertLacksStickySuite(self, suite):
-        s = archiver._lookup_db_suite(self.session, suite)
+        s = dbutils.lookup_db_suite(self.session, suite, sticky=True)
         self.assertIsNone(s, msg='present sticky suite ' + suite)
 
 
     @istest
     @attr('slow')
     def addsStickySuite(self):
-        HAMM_PACKAGES = [ ('3dchess', '0.8.1-3'), ('ed', '0.2-16') ]
+        SUITE = 'hamm'
+        PACKAGES = [ ('3dchess', '0.8.1-3'), ('ed', '0.2-16') ]
+        rel_info = DEBIAN_RELEASES[SUITE]
 
-        archiver.add_suite(self.conf, self.session, 'hamm', self.archive,
+        archiver.add_suite(self.conf, self.session, SUITE, self.archive,
                            stages=self.TEST_STAGES)
 
-        self.assertHasStickySuite('hamm')
-        for pkg in HAMM_PACKAGES:
+        self.assertHasStickySuite(SUITE)
+
+        s = dbutils.lookup_db_suite(self.session, SUITE, sticky=True)
+        self.assertEqual(s.version, rel_info['version'])
+        self.assertEqual(s.release_date, rel_info['date'])
+
+        for pkg in PACKAGES:
             self.assertHasStickyPackage(*pkg)
 
 

@@ -23,7 +23,8 @@ from sqlalchemy.sql import exists
 
 import fs_storage
 
-from models import Base, File, Package, Version, VCS_TYPES
+from models import Base, File, Package, Suite, SuitesMapping, Version
+from models import VCS_TYPES
 
 
 def add_package(session, pkg, pkgdir, sticky=False):
@@ -85,6 +86,17 @@ def lookup_version(session, package, version):
                   .filter(Version.vnumber==version) \
                   .filter(Package.name==package) \
                   .first()
+
+
+def lookup_db_suite(session, suite, sticky=False):
+    return session.query(Suite).filter_by(name=suite, sticky=sticky).first()
+
+
+def lookup_suitemapping(session, db_version, suite):
+    return session.query(SuitesMapping) \
+                  .filter_by(sourceversion_id=db_version.id, suite=suite) \
+                  .first()
+
 
 
 def pkg_prefixes(session):

@@ -25,13 +25,14 @@ from email.utils import formatdate
 from sqlalchemy import sql, not_
 
 import charts
-import consts
 import dbutils
 import fs_storage
 import statistics
 
+from consts import DEBIAN_RELEASES, SLOCCOUNT_LANGUAGES
 from debmirror import SourceMirror, SourcePackage
-from models import SuitesMapping, Version, HistorySize, HistorySlocCount
+from models import Suite, SuitesMapping, Version
+from models import HistorySize, HistorySlocCount
 from subprocess_workaround import subprocess_setup
 
 KNOWN_EVENTS = [ 'add-package', 'rm-package' ]
@@ -201,6 +202,24 @@ def _rm_package(pkg, conf, session, db_version=None):
         logging.exception('failed to remove %s' % pkg)
 
 
+def _add_suite(conf, session, suite, sticky=False):
+    """add suite to the table of static suite info
+
+    """
+    suite_version = None
+    suite_reldate = None
+    if DEBIAN_RELEASES.has_key(suite):
+        suite_info = DEBIAN_RELEASES[suite]
+        suite_version = suite_info['version']
+        suite_reldate = suite_info['date']
+        if sticky:
+            assert suite_info['archived'] == True
+    db_suite = Suite(suite, sticky=sticky,
+                     version=suite_version, release_date=suite_reldate)
+    if not conf['dry_run']:
+        session.add(db_suite)
+
+
 def extract_new(status, conf, session, mirror):
     """update stage: list mirror and extract new packages
 
@@ -299,6 +318,11 @@ def update_suites(status, conf, session, mirror):
             session.execute(insert_q, insert_params)
             session.flush()
             insert_params = []
+
+        db_suite = dbutils.lookup_db_suite(session, suite)
+        if not db_suite:
+            _add_suite(conf, session, suite)
+
     if not conf['dry_run'] and 'db' in conf['backends'] \
        and insert_params:
         session.execute(insert_q, insert_params)
@@ -354,7 +378,7 @@ def update_statistics(status, conf, session, suites=None):
 
         """
         total_slocs = 0
-        for lang in consts.SLOCCOUNT_LANGUAGES:
+        for lang in SLOCCOUNT_LANGUAGES:
             k = prefix + '.' +  lang
             v = 0
             if summary.has_key(lang):

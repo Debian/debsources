@@ -17,6 +17,7 @@
 
 """handle the archive of sticky suites"""
 
+import consts
 import logging
 import os
 import statistics
@@ -26,18 +27,10 @@ from sqlalchemy import sql
 
 import dbutils
 
+from consts import DEBIAN_RELEASES
 from debmirror import SourcePackage
 from models import Suite, SuitesMapping, Version
 
-
-def _lookup_db_suite(session, suite):
-    return session.query(Suite).filter_by(name=suite, sticky=True).first()
-
-
-def _lookup_suitemapping(session, db_version, suite):
-    return session.query(SuitesMapping) \
-                  .filter_by(sourceversion_id=db_version.id, suite=suite) \
-                  .first()
 
 
 def list_suites(conf, session, archive):
@@ -93,11 +86,10 @@ def _remove_stats_for(conf, session, suite, stages=updater.UPDATE_STAGES):
 def add_suite(conf, session, suite, archive, stages=updater.UPDATE_STAGES):
     logging.info('add sticky suite %s to the archive...' % suite)
 
-    db_suite = _lookup_db_suite(session, suite)
+    db_suite = dbutils.lookup_db_suite(session, suite, sticky=True)
     if not db_suite:
-        db_suite = Suite(suite, sticky=True)
-        if not conf['dry_run'] and updater.STAGE_EXTRACT in stages:
-            session.add(db_suite)
+        if updater.STAGE_EXTRACT in stages:
+            updater._add_suite(conf, session, suite, sticky=True)
     else:
         logging.warn('sticky suite %s already present, looking for new packages'
                      % suite)
@@ -126,7 +118,7 @@ def add_suite(conf, session, suite, archive, stages=updater.UPDATE_STAGES):
                 logging.warn('package %s/%s not found in sticky suite %s, skipping'
                              % (pkg, version, suite))
                 continue
-            if not _lookup_suitemapping(session, db_version, suite):
+            if not dbutils.lookup_suitemapping(session, db_version, suite):
                 suitemaps.append({'sourceversion_id': db_version.id,
                                   'suite': suite })
         if suitemaps and not conf['dry_run']:
@@ -140,7 +132,7 @@ def add_suite(conf, session, suite, archive, stages=updater.UPDATE_STAGES):
 def remove_suite(conf, session, suite, stages=updater.UPDATE_STAGES):
     logging.info('remove sticky suite %s from the archive...' % suite)
 
-    db_suite = _lookup_db_suite(session, suite)
+    db_suite = dbutils.lookup_db_suite(session, suite, sticky=True)
     if not db_suite:
         logging.error('sticky suite %s does not exist in DB, abort.' % suite)
         return
@@ -173,7 +165,7 @@ def remove_suite(conf, session, suite, stages=updater.UPDATE_STAGES):
                     logging.debug('clearing sticky bit on %s' % pkg)
                     version.sticky = False
 
-            suitemap = _lookup_suitemapping(session, version, suite)
+            suitemap = dbutils.lookup_suitemapping(session, version, suite)
             if suitemap and not conf['dry_run']:
                 session.delete(suitemap)
 
