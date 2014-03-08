@@ -216,7 +216,7 @@ def _add_suite(conf, session, suite, sticky=False):
             assert suite_info['archived'] == True
     db_suite = Suite(suite, sticky=sticky,
                      version=suite_version, release_date=suite_reldate)
-    if not conf['dry_run']:
+    if not conf['dry_run'] and 'db' in conf['backends']:
         session.add(db_suite)
 
 
@@ -319,9 +319,8 @@ def update_suites(status, conf, session, mirror):
             session.flush()
             insert_params = []
 
-        session.query(Suite).filter_by(name=suite).delete()
-        db_suite = dbutils.lookup_db_suite(session, suite)
-        if not db_suite:
+        if not conf['dry_run'] and 'db' in conf['backends']:
+            session.query(Suite).filter_by(name=suite).delete()
             _add_suite(conf, session, suite)
 
     if not conf['dry_run'] and 'db' in conf['backends'] \
