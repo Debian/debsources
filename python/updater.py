@@ -319,6 +319,7 @@ def update_suites(status, conf, session, mirror):
             session.flush()
             insert_params = []
 
+        session.query(Suite).filter_by(name=suite).delete()
         db_suite = dbutils.lookup_db_suite(session, suite)
         if not db_suite:
             _add_suite(conf, session, suite)
