@@ -37,7 +37,7 @@ Base = declarative_base()
 
 
 # used for migrations, see scripts under python/migrate/
-DB_SCHEMA_VERSION = 6
+DB_SCHEMA_VERSION = 7
 
 
 class Package(Base):
@@ -100,7 +100,7 @@ class Version(Base):
     __tablename__ = 'versions'
     
     id = Column(Integer, primary_key=True)
-    vnumber = Column(String, index=True)
+    version = Column(String, index=True)
     package_id = Column(Integer,
                         ForeignKey('packages.id', ondelete="CASCADE"),
                         index=True, nullable=False)
@@ -113,21 +113,21 @@ class Version(Base):
     sticky = Column(Boolean, nullable=False)
     
     def __init__(self, version, package, sticky=False):
-        self.vnumber = version
+        self.version = version
         self.package_id = package.id
         self.sticky = sticky
 
     def __repr__(self):
-        return self.vnumber
+        return self.version
     
     def to_dict(self):
         """
         simply serializes a version (because SQLAlchemy query results
         aren't serializable
         """
-        return dict(vnumber=self.vnumber, area=self.area)
+        return dict(version=self.version, area=self.area)
 
-Index('ix_versions_package_id_vnumber', Version.package_id, Version.vnumber)
+Index('ix_versions_package_id_version', Version.package_id, Version.version)
 
 
 class SuitesMapping(Base):
@@ -228,7 +228,7 @@ class BinaryVersion(Base):
     __tablename__ = 'binaryversions'
     
     id = Column(Integer, primary_key=True)
-    vnumber = Column(String)
+    version = Column(String)
     binarypackage_id = Column(Integer,
                               ForeignKey('binarypackages.id', ondelete="CASCADE"),
                               index=True, nullable=False)
@@ -236,11 +236,11 @@ class BinaryVersion(Base):
                               ForeignKey('versions.id', ondelete="CASCADE"),
                               index=True, nullable=False)
     
-    def __init__(self, vnumber, area="main"):
-        self.vnumber = vnumber
+    def __init__(self, version, area="main"):
+        self.version = version
 
     def __repr__(self):
-        return self.vnumber
+        return self.version
 
 
 class SlocCount(Base):
@@ -315,7 +315,7 @@ class Ctag(Base):
         """
         
         results = (session.query(Package.name.label("package"),
-                                 Version.vnumber.label("version"),
+                                 Version.version.label("version"),
                                  Ctag.file_id.label("file_id"),
                                  File.path.label("path"),
                                  Ctag.line.label("line"))
@@ -458,7 +458,7 @@ class Location(object):
                 Package.name==package).first().id
             varea = session.query(Version).filter(and_(
                         Version.package_id==p_id,
-                        Version.vnumber==version)).first().area
+                        Version.version==version)).first().area
         except:
             # the package or version doesn't exist in the database
             # BUT: packages are stored for a longer time in the filesystem
@@ -615,7 +615,7 @@ class SourceFile(object):
                         .filter(Version.package_id==Package.id) \
                         .filter(File.id==Checksum.file_id) \
                         .filter(Package.name==self.location.package) \
-                        .filter(Version.vnumber==self.location.version) \
+                        .filter(Version.version==self.location.version) \
                         .filter(File.path==str(self.location.path)) \
                         .first()
                         # WARNING: in the DB path is binary, and here

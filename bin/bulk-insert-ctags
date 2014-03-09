@@ -25,7 +25,7 @@ VERSION_ID_Q = sql_query("""
     SELECT versions.id
     FROM versions, packages
     WHERE versions.package_id = packages.id
-    AND versions.vnumber = :v
+    AND versions.version = :v
     AND packages.name = :p
     """)
 

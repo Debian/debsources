@@ -40,7 +40,7 @@ def add_package(session, pkg, pkgdir, sticky=False):
         session.add(package)
 
     version = session.query(Version) \
-                     .filter_by(vnumber=pkg['version'],
+                     .filter_by(version=pkg['version'],
                                 package_id=package.id)\
                      .first()
     if not version:
@@ -83,7 +83,7 @@ def lookup_version(session, package, version):
     """
     return session.query(Version) \
                   .join(Package) \
-                  .filter(Version.vnumber==version) \
+                  .filter(Version.version==version) \
                   .filter(Package.name==package) \
                   .first()
 

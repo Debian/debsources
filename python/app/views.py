@@ -491,7 +491,7 @@ class SourceView(GeneralView):
             raise Http404Error("%s not found" % package)
         # the latest version is the latest item in the
         # sorted list (by debian_support.version_compare)
-        version = sorted([v.vnumber for v in versions],
+        version = sorted([v.version for v in versions],
                          cmp=version_compare)[-1]
         
         # avoids extra '/' at the end
@@ -664,7 +664,7 @@ class ChecksumView(GeneralView):
             You can slice the results, passing slice=(start, end).
             """
             results = (session.query(Package.name.label("package"),
-                                     Version.vnumber.label("version"),
+                                     Version.version.label("version"),
                                      Checksum.file_id.label("file_id"),
                                      File.path.label("path"))
                        .filter(Checksum.sha256 == checksum)

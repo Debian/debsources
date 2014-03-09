@@ -39,61 +39,61 @@ DB_COMPARE_QUERIES = {
      LIMIT 100",
 
     "versions":
-    "SELECT packages.name, vnumber, area, vcs_type, vcs_url, vcs_browser \
+    "SELECT packages.name, version, area, vcs_type, vcs_url, vcs_browser \
      FROM %(schema)s.versions, %(schema)s.packages \
      WHERE versions.package_id = packages.id \
-     ORDER BY packages.name, vnumber \
+     ORDER BY packages.name, version \
      LIMIT 100",
 
     "suitesmapping":
-    "SELECT packages.name, versions.vnumber, suite \
+    "SELECT packages.name, versions.version, suite \
      FROM %(schema)s.versions, %(schema)s.packages, %(schema)s.suitesmapping \
      WHERE versions.package_id = packages.id \
      AND suitesmapping.sourceversion_id = versions.id \
-     ORDER BY packages.name, versions.vnumber, suite \
+     ORDER BY packages.name, versions.version, suite \
      LIMIT 100",
 
     "files":
-    "SELECT packages.name, versions.vnumber, files.path \
+    "SELECT packages.name, versions.version, files.path \
      FROM %(schema)s.files, %(schema)s.versions, %(schema)s.packages \
      WHERE versions.package_id = packages.id \
      AND files.version_id = versions.id \
-     ORDER BY packages.name, versions.vnumber, files.path \
+     ORDER BY packages.name, versions.version, files.path \
      LIMIT 100",
 
     "checksums":
-    "SELECT packages.name, versions.vnumber, files.path, sha256 \
+    "SELECT packages.name, versions.version, files.path, sha256 \
      FROM %(schema)s.files, %(schema)s.versions, %(schema)s.packages, %(schema)s.checksums \
      WHERE versions.package_id = packages.id \
      AND checksums.version_id = versions.id \
      AND checksums.file_id = files.id \
-     ORDER BY packages.name, versions.vnumber, files.path \
+     ORDER BY packages.name, versions.version, files.path \
      LIMIT 100",
 
     "sloccounts":
-    "SELECT packages.name, versions.vnumber, language, count \
+    "SELECT packages.name, versions.version, language, count \
      FROM %(schema)s.sloccounts, %(schema)s.versions, %(schema)s.packages \
      WHERE versions.package_id = packages.id \
      AND sloccounts.sourceversion_id = versions.id \
-     ORDER BY packages.name, versions.vnumber, language \
+     ORDER BY packages.name, versions.version, language \
      LIMIT 100",
 
     "ctags":
-    "SELECT packages.name, versions.vnumber, files.path, tag, line, kind, language \
+    "SELECT packages.name, versions.version, files.path, tag, line, kind, language \
      FROM %(schema)s.ctags, %(schema)s.files, %(schema)s.versions, %(schema)s.packages \
      WHERE versions.package_id = packages.id \
      AND ctags.version_id = versions.id \
      AND ctags.file_id = files.id \
-     ORDER BY packages.name, versions.vnumber, files.path, tag, line, kind, language \
+     ORDER BY packages.name, versions.version, files.path, tag, line, kind, language \
      LIMIT 100",
 
     "metric":
-    "SELECT packages.name, versions.vnumber, metric, value_ \
+    "SELECT packages.name, versions.version, metric, value_ \
      FROM %(schema)s.metrics, %(schema)s.versions, %(schema)s.packages \
      WHERE versions.package_id = packages.id \
      AND metrics.sourceversion_id = versions.id \
      AND metric != 'size' \
-     ORDER BY packages.name, versions.vnumber, metric \
+     ORDER BY packages.name, versions.version, metric \
      LIMIT 100",
 
     # XXX projecting also on the ctags column gives different result (by a few

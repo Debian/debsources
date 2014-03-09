@@ -38,7 +38,7 @@ class SourcePackage(deb822.Sources):
         """
         meta = {}
         meta['package'] = db_version.package.name
-        meta['version'] = db_version.vnumber
+        meta['version'] = db_version.version
         meta['section'] = db_version.area
         return cls(meta)
 

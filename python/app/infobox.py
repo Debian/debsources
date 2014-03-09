@@ -42,7 +42,7 @@ class Infobox(object):
         """ information available directly in Version table """
         try:
             infos = (self.session.query(Version)
-                     .filter(Version.vnumber==self.version,
+                     .filter(Version.version==self.version,
                              Version.package_id==Package.id,
                              Package.name==self.package)
                      .first())
@@ -57,7 +57,7 @@ class Infobox(object):
         try:
             suites = (self.session.query(SuitesMapping.suite)
                       .filter(SuitesMapping.sourceversion_id==Version.id,
-                              Version.vnumber==self.version,
+                              Version.version==self.version,
                               Version.package_id==Package.id,
                               Package.name==self.package)
                       .all())
@@ -71,7 +71,7 @@ class Infobox(object):
         try:
             sloc = (self.session.query(SlocCount)
                     .filter(SlocCount.sourceversion_id==Version.id,
-                            Version.vnumber==self.version,
+                            Version.version==self.version,
                             Version.package_id==Package.id,
                             Package.name==self.package)
                     .order_by(SlocCount.count.desc())
@@ -86,7 +86,7 @@ class Infobox(object):
         try:
             metric = (self.session.query(Metric)
                       .filter(Metric.sourceversion_id==Version.id,
-                              Version.vnumber==self.version,
+                              Version.version==self.version,
                               Version.package_id==Package.id,
                               Package.name==self.package)
                       .all())
