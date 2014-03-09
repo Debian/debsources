@@ -643,7 +643,7 @@ class ChecksumView(GeneralView):
         if package is not None and package != "": # (only within the package)
             count = (count.filter(Package.name == package)
                      .filter(Checksum.version_id == Version.id)
-                     .filter(Version.package_id == Package.id))
+                     .filter(Version.name_id == Package.id))
         count = count.first()[0]
 
         
@@ -670,7 +670,7 @@ class ChecksumView(GeneralView):
                        .filter(Checksum.sha256 == checksum)
                        .filter(Checksum.version_id == Version.id)
                        .filter(Checksum.file_id == File.id)
-                       .filter(Version.package_id == Package.id)
+                       .filter(Version.name_id == Package.id)
                        )
             if package is not None and package != "":
                 results = results.filter(Package.name == package)

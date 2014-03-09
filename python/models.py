@@ -40,9 +40,9 @@ Base = declarative_base()
 DB_SCHEMA_VERSION = 7
 
 
-class Package(Base):
-    """ a source package """
-    __tablename__ = 'packages'
+class PackageName(Base):
+    """ a source package name """
+    __tablename__ = 'package_names'
     
     id = Column(Integer, primary_key=True)
     name = Column(String, index=True, unique=True)
@@ -73,13 +73,13 @@ class Package(Base):
     @staticmethod
     def list_versions_from_name(session, packagename):
          try:
-             package_id = session.query(Package).filter(
-                 Package.name==packagename).first().id
+             name_id = session.query(PackageName).filter(
+                 PackageName.name==packagename).first().id
          except Exception as e:
              raise InvalidPackageOrVersionError(packagename)
          try:
              versions = session.query(Version).filter(
-                 Version.package_id==package_id).all()
+                 Version.name_id==name_id).all()
          except Exception as e:
              raise e
              raise InvalidPackageOrVersionError(packagename)
@@ -101,9 +101,9 @@ class Version(Base):
     
     id = Column(Integer, primary_key=True)
     version = Column(String, index=True)
-    package_id = Column(Integer,
-                        ForeignKey('packages.id', ondelete="CASCADE"),
-                        index=True, nullable=False)
+    name_id = Column(Integer,
+                     ForeignKey('packages.id', ondelete="CASCADE"),
+                     index=True, nullable=False)
     area = Column(String(8), index=True)	# main, contrib, non-free
     vcs_type = Column(Enum(*VCS_TYPES, name="vcs_types"))
     vcs_url = Column(String)
@@ -114,7 +114,7 @@ class Version(Base):
     
     def __init__(self, version, package, sticky=False):
         self.version = version
-        self.package_id = package.id
+        self.name_id = package.id
         self.sticky = sticky
 
     def __repr__(self):
@@ -127,7 +127,7 @@ class Version(Base):
         """
         return dict(version=self.version, area=self.area)
 
-Index('ix_versions_package_id_version', Version.package_id, Version.version)
+Index('ix_versions_name_id_version', Version.name_id, Version.version)
 
 
 class SuitesMapping(Base):
@@ -314,7 +314,7 @@ class Ctag(Base):
         package: limit results to package
         """
         
-        results = (session.query(Package.name.label("package"),
+        results = (session.query(PackageName.name.label("package"),
                                  Version.version.label("version"),
                                  Ctag.file_id.label("file_id"),
                                  File.path.label("path"),
@@ -322,10 +322,10 @@ class Ctag(Base):
                    .filter(Ctag.tag == ctag)
                    .filter(Ctag.version_id == Version.id)
                    .filter(Ctag.file_id == File.id)
-                   .filter(Version.package_id == Package.id)
+                   .filter(Version.name_id == PackageName.id)
                    )
         if package is not None:
-            results = results.filter(Package.name == package)
+            results = results.filter(PackageName.name == package)
         
         results = results.order_by(Ctag.version_id, File.path)
         count = results.count()
@@ -454,10 +454,10 @@ class Location(object):
             prefix = package[0]
         
         try:
-            p_id = session.query(Package).filter(
-                Package.name==package).first().id
+            p_id = session.query(PackageName).filter(
+                PackageName.name==package).first().id
             varea = session.query(Version).filter(and_(
-                        Version.package_id==p_id,
+                        Version.name_id==p_id,
                         Version.version==version)).first().area
         except:
             # the package or version doesn't exist in the database
@@ -612,9 +612,9 @@ class SourceFile(object):
         """
         shasum = session.query(Checksum.sha256) \
                         .filter(Checksum.version_id==Version.id) \
-                        .filter(Version.package_id==Package.id) \
+                        .filter(Version.name_id==PackageName.id) \
                         .filter(File.id==Checksum.file_id) \
-                        .filter(Package.name==self.location.package) \
+                        .filter(PackageName.name==self.location.package) \
                         .filter(Version.version==self.location.version) \
                         .filter(File.path==str(self.location.path)) \
                         .first()

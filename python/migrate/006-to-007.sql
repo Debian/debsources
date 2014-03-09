@@ -1,7 +1,10 @@
 ALTER TABLE versions
   RENAME COLUMN vnumber TO version ;
-ALTER INDEX ix_versions_package_id_vnumber
-  RENAME TO ix_versions_package_id_version ;
+ALTER INDEX ix_versions_vnumber
+  RENAME TO ix_versions_version ;
+-- see below for this
+-- ALTER INDEX ix_versions_package_id_vnumber
+--   RENAME TO ix_versions_package_id_version ;
 
 ALTER TABLE suitesmapping
   RENAME COLUMN sourceversion_id TO version_id ;
@@ -21,3 +24,12 @@ ALTER INDEX suitesmapping_sourceversion_id_suite_key
   RENAME TO suitesmapping_version_id_suite_key ;
 
 ALTER TABLE suites RENAME TO suites_info ;
+
+ALTER TABLE packages RENAME TO package_names ;
+ALTER TABLE versions
+  RENAME COLUMN package_id TO name_id ;
+ALTER INDEX ix_versions_package_id
+  RENAME TO ix_versions_name_id ;
+ALTER INDEX ix_versions_package_id_vnumber
+  RENAME TO ix_versions_name_id_version ;
+

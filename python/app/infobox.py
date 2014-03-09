@@ -21,7 +21,7 @@ PTS_PREFIX = "http://packages.qa.debian.org/"
 # it would add a dependence layer with app.config
 
 
-from models import Package, Version, SuitesMapping, SlocCount, Metric
+from models import PackageName, Version, SuitesMapping, SlocCount, Metric
 from excepts import Http500Error, Http404Error
 
 # to generate PTS link safely (for internal links we use url_for)
@@ -43,8 +43,8 @@ class Infobox(object):
         try:
             infos = (self.session.query(Version)
                      .filter(Version.version==self.version,
-                             Version.package_id==Package.id,
-                             Package.name==self.package)
+                             Version.name_id==PackageName.id,
+                             PackageName.name==self.package)
                      .first())
             
         except Exception as e:
@@ -58,8 +58,8 @@ class Infobox(object):
             suites = (self.session.query(SuitesMapping.suite)
                       .filter(SuitesMapping.version_id==Version.id,
                               Version.version==self.version,
-                              Version.package_id==Package.id,
-                              Package.name==self.package)
+                              Version.name_id==PackageName.id,
+                              PackageName.name==self.package)
                       .all())
         except Exception as e:
             raise Http500Error(e)
@@ -72,8 +72,8 @@ class Infobox(object):
             sloc = (self.session.query(SlocCount)
                     .filter(SlocCount.version_id==Version.id,
                             Version.version==self.version,
-                            Version.package_id==Package.id,
-                            Package.name==self.package)
+                            Version.name_id==PackageName.id,
+                            PackageName.name==self.package)
                     .order_by(SlocCount.count.desc())
                     .all())
         except Exception as e:
@@ -87,8 +87,8 @@ class Infobox(object):
             metric = (self.session.query(Metric)
                       .filter(Metric.version_id==Version.id,
                               Version.version==self.version,
-                              Version.package_id==Package.id,
-                              Package.name==self.package)
+                              Version.name_id==PackageName.id,
+                              PackageName.name==self.package)
                       .all())
         except Exception as e:
             raise Http500Error(e)

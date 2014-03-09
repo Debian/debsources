@@ -41,7 +41,7 @@ def add_package(session, pkg, pkgdir, sticky=False):
 
     version = session.query(Version) \
                      .filter_by(version=pkg['version'],
-                                package_id=package.id)\
+                                name_id=package.id)\
                      .first()
     if not version:
         version = Version(pkg['version'], package, sticky)
