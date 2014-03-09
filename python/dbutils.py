@@ -1,5 +1,5 @@
-# Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
-#               2013  Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2013       Matthieu Caneill <matthieu.caneill@gmail.com>
+#               2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -23,7 +23,7 @@ from sqlalchemy.sql import exists
 
 import fs_storage
 
-from models import Base, File, Package, Suite, SuitesMapping, Version
+from models import Base, File, Package, SuiteInfo, SuitesMapping, Version
 from models import VCS_TYPES
 
 
@@ -89,7 +89,9 @@ def lookup_version(session, package, version):
 
 
 def lookup_db_suite(session, suite, sticky=False):
-    return session.query(Suite).filter_by(name=suite, sticky=sticky).first()
+    return session.query(SuiteInfo) \
+                  .filter_by(name=suite, sticky=sticky) \
+                  .first()
 
 
 def lookup_suitemapping(session, db_version, suite):

@@ -29,7 +29,7 @@ import dbutils
 
 from consts import DEBIAN_RELEASES
 from debmirror import SourcePackage
-from models import Suite, SuitesMapping, Version
+from models import SuitesMapping, Version
 
 
 

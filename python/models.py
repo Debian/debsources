@@ -148,14 +148,14 @@ class SuitesMapping(Base):
         self.suite = suite
 
 
-class Suite(Base):
+class SuiteInfo(Base):
     """static information about known suites
 
     Note: currently used only for sticky suites.
     """
     # TODO cross-reference SuitesMapping to this table
 
-    __tablename__ = 'suites'
+    __tablename__ = 'suites_info'
 
     name = Column(String, primary_key=True)
     version = Column(String, nullable=True)

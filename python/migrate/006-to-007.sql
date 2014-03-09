@@ -19,3 +19,5 @@ ALTER INDEX sloccounts_sourceversion_id_language_key
   RENAME TO sloccounts_version_id_language_key ;
 ALTER INDEX suitesmapping_sourceversion_id_suite_key
   RENAME TO suitesmapping_version_id_suite_key ;
+
+ALTER TABLE suites RENAME TO suites_info ;

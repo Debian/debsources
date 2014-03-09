@@ -31,7 +31,7 @@ import statistics
 
 from consts import DEBIAN_RELEASES, SLOCCOUNT_LANGUAGES
 from debmirror import SourceMirror, SourcePackage
-from models import Suite, SuitesMapping, Version
+from models import SuiteInfo, SuitesMapping, Version
 from models import HistorySize, HistorySlocCount
 from subprocess_workaround import subprocess_setup
 
@@ -214,8 +214,9 @@ def _add_suite(conf, session, suite, sticky=False):
         suite_reldate = suite_info['date']
         if sticky:
             assert suite_info['archived'] == True
-    db_suite = Suite(suite, sticky=sticky,
-                     version=suite_version, release_date=suite_reldate)
+    db_suite = SuiteInfo(suite, sticky=sticky,
+                         version=suite_version,
+                         release_date=suite_reldate)
     if not conf['dry_run'] and 'db' in conf['backends']:
         session.add(db_suite)
 

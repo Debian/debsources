@@ -27,7 +27,7 @@ from sqlalchemy import func as sql_func
 
 from consts import SLOCCOUNT_LANGUAGES
 from models import Checksum, Ctag, Metric, SlocCount
-from models import Suite, SuitesMapping, Version
+from models import SuiteInfo, SuitesMapping, Version
 
 
 def _count(query):
@@ -84,7 +84,8 @@ def sticky_suites(session):
     """list sticky suites currently present in Debsources DB
 
     """
-    q = session.query(Suite.name).filter(Suite.sticky == True)
+    q = session.query(SuiteInfo.name) \
+               .filter(SuiteInfo.sticky == True)
     return [ row[0] for row in q ]
 
 
