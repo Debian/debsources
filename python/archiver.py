@@ -55,19 +55,19 @@ def list_suites(conf, session, archive):
     return suites
 
 
-def _add_stats_for(conf, session, suite, stages=updater.UPDATE_STAGES):
+def _add_stats_for(conf, session, suite):
     status = updater.UpdateStatus()
-    if updater.STAGE_STATS in stages:
+    if updater.STAGE_STATS in conf['stages']:
         updater.update_statistics(status, conf, session, [suite])
-    if updater.STAGE_CACHE in stages:
+    if updater.STAGE_CACHE in conf['stages']:
         updater.update_metadata(status, conf, session)
-    if updater.STAGE_CHARTS in stages:
+    if updater.STAGE_CHARTS in conf['stages']:
         updater.update_charts(status, conf, session, [suite])
 
 
-def _remove_stats_for(conf, session, suite, stages=updater.UPDATE_STAGES):
+def _remove_stats_for(conf, session, suite):
     status = updater.UpdateStatus()
-    if updater.STAGE_STATS in stages:
+    if updater.STAGE_STATS in conf['stages']:
         updater.update_statistics(status, conf, session, [suite])
         # remove newly orphan keys from stats.data
         stats_file = os.path.join(conf['cache_dir'], 'stats.data')
@@ -76,25 +76,25 @@ def _remove_stats_for(conf, session, suite, stages=updater.UPDATE_STAGES):
             if k.startswith('debian_' + suite + '.'):
                 del(stats[k])
         statistics.save_metadata_cache(stats, stats_file)
-    if updater.STAGE_CACHE in stages:
+    if updater.STAGE_CACHE in conf['stages']:
         updater.update_metadata(status, conf, session)
-    if updater.STAGE_CHARTS in stages:
+    if updater.STAGE_CHARTS in conf['stages']:
         updater.update_charts(status, conf, session)
 
 
 
-def add_suite(conf, session, suite, archive, stages=updater.UPDATE_STAGES):
+def add_suite(conf, session, suite, archive):
     logging.info('add sticky suite %s to the archive...' % suite)
 
     db_suite = dbutils.lookup_db_suite(session, suite, sticky=True)
     if not db_suite:
-        if updater.STAGE_EXTRACT in stages:
+        if updater.STAGE_EXTRACT in conf['stages']:
             updater._add_suite(conf, session, suite, sticky=True)
     else:
         logging.warn('sticky suite %s already present, looking for new packages'
                      % suite)
 
-    if updater.STAGE_EXTRACT in stages:
+    if updater.STAGE_EXTRACT in conf['stages']:
         for pkg in archive.ls(suite):
             db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])
             if db_package:	# avoid GC upon removal from a non-sticky suite
@@ -109,7 +109,7 @@ def add_suite(conf, session, suite, archive, stages=updater.UPDATE_STAGES):
                     updater._add_package(pkg, conf, session, sticky=True)
         session.flush()	# to fill Package.id-s
 
-    if updater.STAGE_SUITES in stages:
+    if updater.STAGE_SUITES in conf['stages']:
         suitemap_q = sql.insert(SuitesMapping.__table__)
         suitemaps = []
         for (pkg, version) in archive.suites[suite]:
@@ -124,12 +124,12 @@ def add_suite(conf, session, suite, archive, stages=updater.UPDATE_STAGES):
         if suitemaps and not conf['dry_run']:
             session.execute(suitemap_q, suitemaps)
 
-    _add_stats_for(conf, session, suite, stages)
+    _add_stats_for(conf, session, suite)
 
     logging.info('sticky suite %s added to the archive.' % suite)
 
 
-def remove_suite(conf, session, suite, stages=updater.UPDATE_STAGES):
+def remove_suite(conf, session, suite):
     logging.info('remove sticky suite %s from the archive...' % suite)
 
     db_suite = dbutils.lookup_db_suite(session, suite, sticky=True)
@@ -138,7 +138,7 @@ def remove_suite(conf, session, suite, stages=updater.UPDATE_STAGES):
         return
     sticky_suites = statistics.sticky_suites(session)
 
-    if updater.STAGE_GC in stages:
+    if updater.STAGE_GC in conf['stages']:
         for package in session.query(Package) \
                               .join(SuitesMapping) \
                               .filter(SuitesMapping.suite == suite) \
@@ -172,6 +172,6 @@ def remove_suite(conf, session, suite, stages=updater.UPDATE_STAGES):
         if not conf['dry_run']:
             session.delete(db_suite)
 
-    _remove_stats_for(conf, session, suite, stages)
+    _remove_stats_for(conf, session, suite)
 
     logging.info('sticky suite %s removed from the archive.' % suite)

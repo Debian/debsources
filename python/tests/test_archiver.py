@@ -43,10 +43,14 @@ from testdata import *
 @attr('postgres')
 class Archiver(unittest.TestCase, DbTestFixture):
 
+    TEST_STAGES = set([updater.STAGE_EXTRACT, updater.STAGE_SUITES,
+                       updater.STAGE_GC])
+
     def setUp(self):
         self.db_setup()
         self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
         self.conf = mk_conf(self.tmpdir)
+        self.conf['stages'] = self.TEST_STAGES
         self.longMessage = True
         self.maxDiff = None
 
@@ -60,14 +64,10 @@ class Archiver(unittest.TestCase, DbTestFixture):
 
         self.archive = debmirror.SourceMirrorArchive(self.conf['mirror_archive_dir'])
 
-
     def tearDown(self):
         self.db_teardown()
         shutil.rmtree(self.tmpdir)
 
-
-    TEST_STAGES = set([updater.STAGE_EXTRACT, updater.STAGE_SUITES,
-                       updater.STAGE_GC])
 
 
     def assertHasPackage(self, package, version):
@@ -105,8 +105,7 @@ class Archiver(unittest.TestCase, DbTestFixture):
         PACKAGES = [ ('3dchess', '0.8.1-3'), ('ed', '0.2-16') ]
         rel_info = DEBIAN_RELEASES[SUITE]
 
-        archiver.add_suite(self.conf, self.session, SUITE, self.archive,
-                           stages=self.TEST_STAGES)
+        archiver.add_suite(self.conf, self.session, SUITE, self.archive)
 
         self.assertHasStickySuite(SUITE)
 
@@ -125,16 +124,16 @@ class Archiver(unittest.TestCase, DbTestFixture):
         stats_file = os.path.join(self.conf['cache_dir'], 'stats.data')
 
         # to test stats.data cleanup
-        stages = self.TEST_STAGES.union(set([updater.STAGE_STATS]))
-        archiver.add_suite(self.conf, self.session, 'sarge', self.archive,
-                           stages)
+        self.conf['stages'] = self.TEST_STAGES.union(set([updater.STAGE_STATS]))
+        archiver.add_suite(self.conf, self.session, 'sarge', self.archive)
         self.assertHasStickySuite('sarge')
         for pkg in SARGE_PACKAGES:
             self.assertHasStickyPackage(*pkg)
         stats = statistics.load_metadata_cache(stats_file)
         self.assertTrue(stats.has_key('debian_sarge.sloccount'))
 
-        archiver.remove_suite(self.conf, self.session, 'sarge', stages)
+        self.conf['stages'] = self.TEST_STAGES
+        archiver.remove_suite(self.conf, self.session, 'sarge')
         self.assertLacksStickySuite('sarge')
         for pkg in SARGE_PACKAGES:
             self.assertLacksStickyPackage(*pkg)
@@ -147,20 +146,16 @@ class Archiver(unittest.TestCase, DbTestFixture):
     def countsReferences(self):
         DUP_PKG = ('2utf', '1.04')	# in both hamm and slink
 
-        archiver.add_suite(self.conf, self.session, 'hamm', self.archive,
-                           stages=self.TEST_STAGES)
+        archiver.add_suite(self.conf, self.session, 'hamm', self.archive)
         self.assertHasStickyPackage(*DUP_PKG)
 
-        archiver.add_suite(self.conf, self.session, 'slink', self.archive,
-                           stages=self.TEST_STAGES)
+        archiver.add_suite(self.conf, self.session, 'slink', self.archive)
         self.assertHasStickyPackage(*DUP_PKG)
 
-        archiver.remove_suite(self.conf, self.session, 'hamm',
-                              stages=self.TEST_STAGES)
+        archiver.remove_suite(self.conf, self.session, 'hamm')
         self.assertHasStickyPackage(*DUP_PKG)
 
-        archiver.remove_suite(self.conf, self.session, 'slink',
-                              stages=self.TEST_STAGES)
+        archiver.remove_suite(self.conf, self.session, 'slink')
         self.assertLacksStickyPackage(*DUP_PKG)
 
 
@@ -170,12 +165,10 @@ class Archiver(unittest.TestCase, DbTestFixture):
         DUP_PKG = ('libcaca', '0.99.beta17-1')	# in both lenny (sticky) and squeeze (live)
         self.assertHasLivePackage(*DUP_PKG)
 
-        archiver.add_suite(self.conf, self.session, 'lenny', self.archive,
-                           stages=self.TEST_STAGES)
+        archiver.add_suite(self.conf, self.session, 'lenny', self.archive)
         self.assertHasStickyPackage(*DUP_PKG)
 
-        archiver.remove_suite(self.conf, self.session, 'lenny',
-                              stages=self.TEST_STAGES)
+        archiver.remove_suite(self.conf, self.session, 'lenny')
         self.assertHasLivePackage(*DUP_PKG)
 
 
@@ -184,8 +177,7 @@ class Archiver(unittest.TestCase, DbTestFixture):
     def guessAreaForSectionlessPkgs(self):
         sectionless_pkg = ('tripwire', '1.2-15')
 
-        archiver.add_suite(self.conf, self.session, 'slink', self.archive,
-                           stages=self.TEST_STAGES)
+        archiver.add_suite(self.conf, self.session, 'slink', self.archive)
         p = dbutils.lookup_package(self.session, *sectionless_pkg)
         self.assertEqual('non-free', p.area)
 
@@ -195,6 +187,5 @@ class Archiver(unittest.TestCase, DbTestFixture):
     def canAddPkgsWSpecialFiles(self):
         pkg_w_pipe = ('freewrl', '0.20.a1-3')
 
-        archiver.add_suite(self.conf, self.session, 'potato', self.archive,
-                           stages=self.TEST_STAGES)
+        archiver.add_suite(self.conf, self.session, 'potato', self.archive)
         self.assertHasStickyPackage(*pkg_w_pipe)
