@@ -46,7 +46,7 @@ class PackageName(Base):
     
     id = Column(Integer, primary_key=True)
     name = Column(String, index=True, unique=True)
-    versions = relationship("Package", backref="package",
+    versions = relationship("Package", backref="name",
                             cascade="all, delete-orphan",
                             passive_deletes=True)
     

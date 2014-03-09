@@ -35,7 +35,7 @@ session = app_wrapper.session
 
 from excepts import InvalidPackageOrVersionError, FileOrFolderNotFound, \
     Http500Error, Http404Error, Http403Error
-from models import Ctag, Package, Package, Checksum, Location, \
+from models import Ctag, Package, PackageName, Checksum, Location, \
     Directory, SourceFile, SuitesMapping, SlocCount, Metric, File
 from sourcecode import SourceCodeIterator
 from forms import SearchForm
@@ -62,7 +62,7 @@ def skeleton_variables():
     except IOError:
         last_update = "unknown"
     
-    packages_prefixes = Package.get_packages_prefixes(app.config["CACHE_DIR"])
+    packages_prefixes = PackageName.get_packages_prefixes(app.config["CACHE_DIR"])
     
     return dict(packages_prefixes=packages_prefixes,
                 searchform = SearchForm(),
@@ -227,13 +227,13 @@ class SearchView(GeneralView):
         """ processes the search query and renders the results in a dict """
         query = query.replace('%', '').replace('_', '')
         try:
-            exact_matching = (session.query(Package)
+            exact_matching = (session.query(PackageName)
                               .filter_by(name=query)
                               .first())
         
-            other_results = (session.query(Package)
-                             .filter(Package.name.contains(query))
-                             .order_by(Package.name)
+            other_results = (session.query(PackageName)
+                             .filter(PackageName.name.contains(query))
+                             .order_by(PackageName.name)
                              )
         except Exception as e:
             raise Http500Error(e) # db problem, ...
@@ -298,8 +298,8 @@ class ListpackagesView(GeneralView):
     def get_objects(self, page=1):
         if self.all_: # we retrieve all packages
             try:
-                packages = (session.query(Package)
-                            .order_by(Package.name)
+                packages = (session.query(PackageName)
+                            .order_by(PackageName.name)
                             .all()
                             )
                 packages = [p.to_dict() for p in packages]
@@ -315,11 +315,11 @@ class ListpackagesView(GeneralView):
                 start = (page - 1) * offset
                 end = start + offset
 
-                count_packages = (session.query(Package)
+                count_packages = (session.query(PackageName)
                                   .count()
                                   )
-                packages = (session.query(Package)
-                            .order_by(Package.name)
+                packages = (session.query(PackageName)
+                            .order_by(PackageName.name)
                             .slice(start, end)
                             )
                 pagination = Pagination(page, offset, count_packages)
@@ -353,11 +353,11 @@ app.add_url_rule('/api/list/', view_func=ListpackagesView.as_view(
 class PrefixView(GeneralView):
     def get_objects(self, prefix='a'):
         """ returns the packages beginning with prefix """
-        if prefix in Package.get_packages_prefixes(app.config["CACHE_DIR"]):
+        if prefix in PackageName.get_packages_prefixes(app.config["CACHE_DIR"]):
             try:
-                packages = (session.query(Package)
-                            .filter(Package.name.startswith(prefix))
-                            .order_by(Package.name)
+                packages = (session.query(PackageName)
+                            .filter(PackageName.name.startswith(prefix))
+                            .order_by(PackageName.name)
                             .all()
                             )
                 packages = [p.to_dict() for p in packages]
@@ -391,7 +391,7 @@ class SourceView(GeneralView):
         """
         # we list the versions
         try:
-            versions = Package.list_versions_from_name(session, packagename)
+            versions = PackageName.list_versions_from_name(session, packagename)
         except InvalidPackageOrVersionError:
             raise Http404Error("%s not found" % packagename)
             
@@ -486,7 +486,7 @@ class SourceView(GeneralView):
         when 'latest' is provided instead of a version number
         """
         try:
-            versions = Package.list_versions_from_name(session, package)
+            versions = PackageName.list_versions_from_name(session, package)
         except InvalidPackageOrVersionError:
             raise Http404Error("%s not found" % package)
         # the latest version is the latest item in the
@@ -641,9 +641,9 @@ class ChecksumView(GeneralView):
         count = (session.query(sql_func.count(Checksum.id))
                  .filter(Checksum.sha256 == checksum))
         if package is not None and package != "": # (only within the package)
-            count = (count.filter(Package.name == package)
+            count = (count.filter(PackageName.name == package)
                      .filter(Checksum.package_id == Package.id)
-                     .filter(Package.name_id == Package.id))
+                     .filter(Package.name_id == PackageName.id))
         count = count.first()[0]
 
         
@@ -663,17 +663,17 @@ class ChecksumView(GeneralView):
             Returns a list of files whose hexdigest is checksum.
             You can slice the results, passing slice=(start, end).
             """
-            results = (session.query(Package.name.label("package"),
+            results = (session.query(PackageName.name.label("package"),
                                      Package.version.label("version"),
                                      Checksum.file_id.label("file_id"),
                                      File.path.label("path"))
                        .filter(Checksum.sha256 == checksum)
                        .filter(Checksum.package_id == Package.id)
                        .filter(Checksum.file_id == File.id)
-                       .filter(Package.name_id == Package.id)
+                       .filter(Package.name_id == PackageName.id)
                        )
             if package is not None and package != "":
-                results = results.filter(Package.name == package)
+                results = results.filter(PackageName.name == package)
         
             results = results.order_by("package", "version", "path")
 

@@ -132,7 +132,6 @@ class Archiver(unittest.TestCase, DbTestFixture):
         stats = statistics.load_metadata_cache(stats_file)
         self.assertTrue(stats.has_key('debian_sarge.sloccount'))
 
-        self.conf['stages'] = self.TEST_STAGES
         archiver.remove_suite(self.conf, self.session, 'sarge')
         self.assertLacksStickySuite('sarge')
         for pkg in SARGE_PACKAGES:

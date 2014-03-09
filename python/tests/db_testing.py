@@ -38,62 +38,62 @@ DB_COMPARE_QUERIES = {
      ORDER BY name \
      LIMIT 100",
 
-    "versions":
+    "packages":
     "SELECT package_names.name, version, area, vcs_type, vcs_url, vcs_browser \
-     FROM %(schema)s.versions, %(schema)s.package_names \
-     WHERE versions.name_id = package_names.id \
+     FROM %(schema)s.packages, %(schema)s.package_names \
+     WHERE packages.name_id = package_names.id \
      ORDER BY package_names.name, version \
      LIMIT 100",
 
     "suitesmapping":
-    "SELECT package_names.name, versions.version, suite \
-     FROM %(schema)s.versions, %(schema)s.package_names, %(schema)s.suitesmapping \
-     WHERE versions.name_id = package_names.id \
-     AND suitesmapping.package_id = versions.id \
-     ORDER BY package_names.name, versions.version, suite \
+    "SELECT package_names.name, packages.version, suite \
+     FROM %(schema)s.packages, %(schema)s.package_names, %(schema)s.suitesmapping \
+     WHERE packages.name_id = package_names.id \
+     AND suitesmapping.package_id = packages.id \
+     ORDER BY package_names.name, packages.version, suite \
      LIMIT 100",
 
     "files":
-    "SELECT package_names.name, versions.version, files.path \
-     FROM %(schema)s.files, %(schema)s.versions, %(schema)s.package_names \
-     WHERE versions.name_id = package_names.id \
-     AND files.package_id = versions.id \
-     ORDER BY package_names.name, versions.version, files.path \
+    "SELECT package_names.name, packages.version, files.path \
+     FROM %(schema)s.files, %(schema)s.packages, %(schema)s.package_names \
+     WHERE packages.name_id = package_names.id \
+     AND files.package_id = packages.id \
+     ORDER BY package_names.name, packages.version, files.path \
      LIMIT 100",
 
     "checksums":
-    "SELECT package_names.name, versions.version, files.path, sha256 \
-     FROM %(schema)s.files, %(schema)s.versions, %(schema)s.package_names, %(schema)s.checksums \
-     WHERE versions.name_id = package_names.id \
-     AND checksums.package_id = versions.id \
+    "SELECT package_names.name, packages.version, files.path, sha256 \
+     FROM %(schema)s.files, %(schema)s.packages, %(schema)s.package_names, %(schema)s.checksums \
+     WHERE packages.name_id = package_names.id \
+     AND checksums.package_id = packages.id \
      AND checksums.file_id = files.id \
-     ORDER BY package_names.name, versions.version, files.path \
+     ORDER BY package_names.name, packages.version, files.path \
      LIMIT 100",
 
     "sloccounts":
-    "SELECT package_names.name, versions.version, language, count \
-     FROM %(schema)s.sloccounts, %(schema)s.versions, %(schema)s.package_names \
-     WHERE versions.name_id = package_names.id \
-     AND sloccounts.package_id = versions.id \
-     ORDER BY package_names.name, versions.version, language \
+    "SELECT package_names.name, packages.version, language, count \
+     FROM %(schema)s.sloccounts, %(schema)s.packages, %(schema)s.package_names \
+     WHERE packages.name_id = package_names.id \
+     AND sloccounts.package_id = packages.id \
+     ORDER BY package_names.name, packages.version, language \
      LIMIT 100",
 
     "ctags":
-    "SELECT package_names.name, versions.version, files.path, tag, line, kind, language \
-     FROM %(schema)s.ctags, %(schema)s.files, %(schema)s.versions, %(schema)s.package_names \
-     WHERE versions.name_id = package_names.id \
-     AND ctags.package_id = versions.id \
+    "SELECT package_names.name, packages.version, files.path, tag, line, kind, language \
+     FROM %(schema)s.ctags, %(schema)s.files, %(schema)s.packages, %(schema)s.package_names \
+     WHERE packages.name_id = package_names.id \
+     AND ctags.package_id = packages.id \
      AND ctags.file_id = files.id \
-     ORDER BY package_names.name, versions.version, files.path, tag, line, kind, language \
+     ORDER BY package_names.name, packages.version, files.path, tag, line, kind, language \
      LIMIT 100",
 
     "metric":
-    "SELECT package_names.name, versions.version, metric, value_ \
-     FROM %(schema)s.metrics, %(schema)s.versions, %(schema)s.package_names \
-     WHERE versions.name_id = package_names.id \
-     AND metrics.package_id = versions.id \
+    "SELECT package_names.name, packages.version, metric, value_ \
+     FROM %(schema)s.metrics, %(schema)s.packages, %(schema)s.package_names \
+     WHERE packages.name_id = package_names.id \
+     AND metrics.package_id = packages.id \
      AND metric != 'size' \
-     ORDER BY package_names.name, versions.version, metric \
+     ORDER BY package_names.name, packages.version, metric \
      LIMIT 100",
 
     # XXX projecting also on the ctags column gives different result (by a few

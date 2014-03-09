@@ -27,7 +27,7 @@ class SourcePackage(deb822.Sources):
     """
 
     @classmethod
-    def from_db_model(cls, db_version):
+    def from_db_model(cls, db_package):
         """build a (mock) SourcePackage object from a models.Package instance
 
         note that the built object will not contain all the needed source
@@ -37,9 +37,9 @@ class SourcePackage(deb822.Sources):
 
         """
         meta = {}
-        meta['package'] = db_version.package.name
-        meta['version'] = db_version.version
-        meta['section'] = db_version.area
+        meta['package'] = db_package.name.name
+        meta['version'] = db_package.version
+        meta['section'] = db_package.area
         return cls(meta)
 
     # override deb822's __eq__, as in source package land we can rely on

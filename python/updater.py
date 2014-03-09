@@ -31,7 +31,7 @@ import statistics
 
 from consts import DEBIAN_RELEASES, SLOCCOUNT_LANGUAGES
 from debmirror import SourceMirror, SourcePackage
-from models import SuiteInfo, SuitesMapping, PackageName
+from models import SuiteInfo, SuitesMapping, Package
 from models import HistorySize, HistorySlocCount
 from subprocess_workaround import subprocess_setup
 
@@ -321,7 +321,7 @@ def update_suites(status, conf, session, mirror):
             insert_params = []
 
         if not conf['dry_run'] and 'db' in conf['backends']:
-            session.query(Suite).filter_by(name=suite).delete()
+            session.query(SuiteInfo).filter_by(name=suite).delete()
             _add_suite(conf, session, suite)
 
     if not conf['dry_run'] and 'db' in conf['backends'] \

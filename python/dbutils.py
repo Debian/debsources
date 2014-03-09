@@ -75,9 +75,9 @@ def rm_package(session, pkg, db_package):
     """
     logging.debug('remove from db %s...' % pkg)
     session.delete(db_package)
-    if not db_package.name_id.versions:
+    if not db_package.name.versions:
         # just removed last version, get rid of package too
-        session.delete(db_package.name_id)
+        session.delete(db_package.name)
 
 
 def lookup_package(session, package, version):
@@ -110,8 +110,8 @@ def pkg_prefixes(session):
     starting with "lib") or the first letter
 
     """
-    q = """SELECT DISTINCT(substring(name from 1 for 1)) FROM PACKAGES \
+    q = """SELECT DISTINCT(substring(name from 1 for 1)) FROM package_names \
            UNION \
-           SELECT DISTINCT(substring(name from 1 for 4)) FROM PACKAGES
+           SELECT DISTINCT(substring(name from 1 for 4)) FROM package_names
            WHERE substring(name from 1 for 3) = 'lib'"""
     return sorted([ row[0] for row in session.execute(q) ])
