@@ -27,7 +27,7 @@ from sqlalchemy import func as sql_func
 
 from consts import SLOCCOUNT_LANGUAGES
 from models import Checksum, Ctag, Metric, SlocCount
-from models import SuiteInfo, SuitesMapping, Version
+from models import SuiteInfo, SuitesMapping, Package
 
 
 def _count(query):
@@ -99,7 +99,7 @@ def disk_usage(session, suite=None):
     q = session.query(sql_func.sum(Metric.value)) \
                .filter(Metric.metric == 'size')
     if suite:
-        q = q.join(Version) \
+        q = q.join(Package) \
              .join(SuitesMapping) \
              .filter(SuitesMapping.suite == suite)
     return _count(q)
@@ -117,7 +117,7 @@ def source_packages(session, suite=None):
 
     """
     logging.debug('count source packages for suite %s...' % suite)
-    q = session.query(sql_func.count(Version.id))
+    q = session.query(sql_func.count(Package.id))
     if suite:
         q = q.join(SuitesMapping) \
             .filter(SuitesMapping.suite == suite)
@@ -137,7 +137,7 @@ def source_files(session, suite=None):
     logging.debug('count source files for suite %s...' % suite)
     q = session.query(sql_func.count(Checksum.id))
     if suite:
-        q = q.join(Version) \
+        q = q.join(Package) \
              .join(SuitesMapping) \
              .filter(SuitesMapping.suite == suite)
     return _count(q)
@@ -153,7 +153,7 @@ def sloccount_lang(session, language, suite=None):
     q = session.query(sql_func.sum(SlocCount.count)) \
                .filter(SlocCount.language == language)
     if suite:
-        q = q.join(Version) \
+        q = q.join(Package) \
              .join(SuitesMapping) \
              .filter(SuitesMapping.suite == suite)
     return _count(q)
@@ -170,7 +170,7 @@ def sloccount_summary(session, suite=None):
     logging.debug('sloccount summary for suite %s...' % suite)
     q = session.query(SlocCount.language, sql_func.sum(SlocCount.count))
     if suite:
-        q = q.join(Version) \
+        q = q.join(Package) \
              .join(SuitesMapping) \
              .filter(SuitesMapping.suite == suite)
     q = q.group_by(SlocCount.language)
@@ -186,7 +186,7 @@ def ctags(session, suite=None):
     logging.debug('count ctags for suite %s...' % suite)
     q = session.query(sql_func.count(Ctag.id))
     if suite:
-        q = q.join(Version) \
+        q = q.join(Package) \
              .join(SuitesMapping) \
              .filter(SuitesMapping.suite == suite)
     return _count(q)

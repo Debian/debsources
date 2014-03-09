@@ -1,8 +1,8 @@
 -- one suite: ctags
 SELECT count(ctags.id)
 FROM ctags, versions, suitesmapping
-WHERE ctags.version_id = versions.id
-AND   versions.id = suitesmapping.version_id
+WHERE ctags.package_id = versions.id
+AND   versions.id = suitesmapping.package_id
 AND   suitesmapping.suite = 'jessie'
 ;
 --   count   
@@ -14,8 +14,8 @@ AND   suitesmapping.suite = 'jessie'
 -- all suites: ctags
 SELECT count(ctags.id), suitesmapping.suite
 FROM ctags, versions, suitesmapping
-WHERE ctags.version_id = versions.id
-AND   versions.id = suitesmapping.version_id
+WHERE ctags.package_id = versions.id
+AND   versions.id = suitesmapping.package_id
 GROUP BY suitesmapping.suite
 ;
 --    count   |          suite          
@@ -42,8 +42,8 @@ GROUP BY suitesmapping.suite
 -- one suite: files
 SELECT count(files.id)    
 FROM files, versions, suitesmapping
-WHERE files.version_id = versions.id
-AND   versions.id = suitesmapping.version_id
+WHERE files.package_id = versions.id
+AND   versions.id = suitesmapping.package_id
 AND   suitesmapping.suite = 'sid'
 ;
 --   count  
@@ -55,8 +55,8 @@ AND   suitesmapping.suite = 'sid'
 -- all suites: files
 SELECT count(files.id), suitesmapping.suite
 FROM files, versions, suitesmapping
-WHERE files.version_id = versions.id
-AND   versions.id = suitesmapping.version_id
+WHERE files.package_id = versions.id
+AND   versions.id = suitesmapping.package_id
 GROUP BY suitesmapping.suite
 ;
 --   count  |          suite          

@@ -71,22 +71,22 @@ class Archiver(unittest.TestCase, DbTestFixture):
 
 
     def assertHasPackage(self, package, version):
-        v = dbutils.lookup_version(self.session, package, version)
-        self.assertIsNotNone(v, msg='missing package %s/%s' % (package, version))
-        return v
+        p = dbutils.lookup_package(self.session, package, version)
+        self.assertIsNotNone(p, msg='missing package %s/%s' % (package, version))
+        return p
 
     def assertHasLivePackage(self, package, version):
-        v = self.assertHasPackage(package, version)
-        self.assertFalse(v.sticky, msg='unexpected sticky bit on package %s/%s'
+        p = self.assertHasPackage(package, version)
+        self.assertFalse(p.sticky, msg='unexpected sticky bit on package %s/%s'
                         % (package, version))
     def assertHasStickyPackage(self, package, version):
-        v = self.assertHasPackage(package, version)
-        self.assertTrue(v.sticky, msg='missing sticky bit on package %s/%s'
+        p = self.assertHasPackage(package, version)
+        self.assertTrue(p.sticky, msg='missing sticky bit on package %s/%s'
                         % (package, version))
 
     def assertLacksStickyPackage(self, package, version):
-        v = dbutils.lookup_version(self.session, package, version)
-        self.assertIsNone(v, msg='missing sticky package %s/%s'
+        p = dbutils.lookup_package(self.session, package, version)
+        self.assertIsNone(p, msg='missing sticky package %s/%s'
                           % (package, version))
 
     def assertHasStickySuite(self, suite):
@@ -186,8 +186,8 @@ class Archiver(unittest.TestCase, DbTestFixture):
 
         archiver.add_suite(self.conf, self.session, 'slink', self.archive,
                            stages=self.TEST_STAGES)
-        v = dbutils.lookup_version(self.session, *sectionless_pkg)
-        self.assertEqual('non-free', v.area)
+        p = dbutils.lookup_package(self.session, *sectionless_pkg)
+        self.assertEqual('non-free', p.area)
 
 
     @istest

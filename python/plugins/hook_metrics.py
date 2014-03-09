@@ -64,14 +64,14 @@ def add_package(session, pkg, pkgdir, file_table):
             # from previous runs...
             metric_value = parse_metrics(metricsfile)[metric_type]
 
-        version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
+        db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])
         metric = session.query(Metric) \
-                        .filter_by(version_id=version.id,
+                        .filter_by(package_id=db_package.id,
                                    metric=metric_type,
                                    value=metric_value) \
                         .first()
         if not metric:
-            metric = Metric(version, metric_type, metric_value)
+            metric = Metric(db_package, metric_type, metric_value)
             session.add(metric)
 
 
@@ -85,9 +85,9 @@ def rm_package(session, pkg, pkgdir, file_table):
             os.unlink(metricsfile)
 
     if 'hooks.db' in conf['backends']:
-        version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
+        db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])
         session.query(Metric) \
-               .filter_by(version_id=version.id) \
+               .filter_by(package_id=db_package.id) \
                .delete()
 
 

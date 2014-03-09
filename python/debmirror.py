@@ -28,7 +28,7 @@ class SourcePackage(deb822.Sources):
 
     @classmethod
     def from_db_model(cls, db_version):
-        """build a (mock) SourcePackage object from a models.Version instance
+        """build a (mock) SourcePackage object from a models.Package instance
 
         note that the built object will not contain all the needed source
         package information, but only those that can be reconstructed using

@@ -49,7 +49,7 @@ DB_COMPARE_QUERIES = {
     "SELECT package_names.name, versions.version, suite \
      FROM %(schema)s.versions, %(schema)s.package_names, %(schema)s.suitesmapping \
      WHERE versions.name_id = package_names.id \
-     AND suitesmapping.version_id = versions.id \
+     AND suitesmapping.package_id = versions.id \
      ORDER BY package_names.name, versions.version, suite \
      LIMIT 100",
 
@@ -57,7 +57,7 @@ DB_COMPARE_QUERIES = {
     "SELECT package_names.name, versions.version, files.path \
      FROM %(schema)s.files, %(schema)s.versions, %(schema)s.package_names \
      WHERE versions.name_id = package_names.id \
-     AND files.version_id = versions.id \
+     AND files.package_id = versions.id \
      ORDER BY package_names.name, versions.version, files.path \
      LIMIT 100",
 
@@ -65,7 +65,7 @@ DB_COMPARE_QUERIES = {
     "SELECT package_names.name, versions.version, files.path, sha256 \
      FROM %(schema)s.files, %(schema)s.versions, %(schema)s.package_names, %(schema)s.checksums \
      WHERE versions.name_id = package_names.id \
-     AND checksums.version_id = versions.id \
+     AND checksums.package_id = versions.id \
      AND checksums.file_id = files.id \
      ORDER BY package_names.name, versions.version, files.path \
      LIMIT 100",
@@ -74,7 +74,7 @@ DB_COMPARE_QUERIES = {
     "SELECT package_names.name, versions.version, language, count \
      FROM %(schema)s.sloccounts, %(schema)s.versions, %(schema)s.package_names \
      WHERE versions.name_id = package_names.id \
-     AND sloccounts.version_id = versions.id \
+     AND sloccounts.package_id = versions.id \
      ORDER BY package_names.name, versions.version, language \
      LIMIT 100",
 
@@ -82,7 +82,7 @@ DB_COMPARE_QUERIES = {
     "SELECT package_names.name, versions.version, files.path, tag, line, kind, language \
      FROM %(schema)s.ctags, %(schema)s.files, %(schema)s.versions, %(schema)s.package_names \
      WHERE versions.name_id = package_names.id \
-     AND ctags.version_id = versions.id \
+     AND ctags.package_id = versions.id \
      AND ctags.file_id = files.id \
      ORDER BY package_names.name, versions.version, files.path, tag, line, kind, language \
      LIMIT 100",
@@ -91,7 +91,7 @@ DB_COMPARE_QUERIES = {
     "SELECT package_names.name, versions.version, metric, value_ \
      FROM %(schema)s.metrics, %(schema)s.versions, %(schema)s.package_names \
      WHERE versions.name_id = package_names.id \
-     AND metrics.version_id = versions.id \
+     AND metrics.package_id = versions.id \
      AND metric != 'size' \
      ORDER BY package_names.name, versions.version, metric \
      LIMIT 100",

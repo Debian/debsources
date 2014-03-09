@@ -21,7 +21,7 @@ BINDPARAMS = [
     bindparam('path', type_=LargeBinary),
 ]
 
-VERSION_ID_Q = sql_query("""
+PACKAGE_ID_Q = sql_query("""
     SELECT versions.id
     FROM versions, packages
     WHERE versions.package_id = packages.id
@@ -32,13 +32,13 @@ VERSION_ID_Q = sql_query("""
 CTAGS_EXIST_Q = sql_query("""
     SELECT 1
     FROM ctags
-    WHERE version_id = :v
+    WHERE package_id = :v
     LIMIT 1
     """)
 
 INSERT_CTAGS_Q = sql_query("""
-    INSERT INTO ctags (version_id, tag, path, line, kind, language)
-    VALUES (:version_id, :tag, :path, :line, :kind, :language)
+    INSERT INTO ctags (package_id, tag, path, line, kind, language)
+    VALUES (:package_id, :tag, :path, :line, :kind, :language)
     """,
     bindparams = BINDPARAMS)
 
@@ -48,12 +48,12 @@ def insert_ctags(conn, ctagsfile):
     version = steps[-1][:-METADATA_SUFFIX_LEN]
     logging.debug('package %s/%s' % (package, version))
 
-    version_id = conn.execute(VERSION_ID_Q, v=version, p=package).first()
-    if not version_id:
+    package_id = conn.execute(PACKAGE_ID_Q, v=version, p=package).first()
+    if not package_id:
         logging.warn('skipping %s/%s (does not exist in DB)' % (package, version))
         return
 
-    has_ctags = conn.execute(CTAGS_EXIST_Q, v=version_id[0]).first()
+    has_ctags = conn.execute(CTAGS_EXIST_Q, v=package_id[0]).first()
     if has_ctags:
         logging.warn('skipping %s/%s (already inserted)' % (package, version))
         return
@@ -61,7 +61,7 @@ def insert_ctags(conn, ctagsfile):
     logging.debug('INSERT INTO ctags %s/%s...' % (package, version))
     ctags = []
     for tag in parse_ctags(ctagsfile):
-        tag['version_id'] = version_id
+        tag['package_id'] = package_id
         ctags.append(tag)
     if ctags:
         conn.execute(INSERT_CTAGS_Q, ctags)

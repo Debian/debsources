@@ -21,7 +21,7 @@ BINDPARAMS = [
     bindparam('path', type_=LargeBinary),
 ]
 
-VERSION_ID_Q = sql_query("""
+PACKAGE_ID_Q = sql_query("""
     SELECT versions.id
     FROM versions, packages
     WHERE versions.package_id = packages.id
@@ -32,13 +32,13 @@ VERSION_ID_Q = sql_query("""
 CHECKSUMS_EXIST_Q = sql_query("""
     SELECT 1
     FROM checksums
-    WHERE version_id = :v
+    WHERE package_id = :v
     LIMIT 1
     """)
 
 INSERT_SHA_Q = sql_query("""
-    INSERT INTO checksums (version_id, path, sha256)
-    VALUES (:version_id, :path, :sha256)
+    INSERT INTO checksums (package_id, path, sha256)
+    VALUES (:package_id, :path, :sha256)
     """,
     bindparams = BINDPARAMS)
 
@@ -50,15 +50,15 @@ def insert_checksums(conn, sumsfile):
     logging.debug('package %s/%s' % (package, version))
     logging.debug('INSERT INTO checksums %s/%s...' % (package, version))
 
-    version_id = conn.execute(VERSION_ID_Q, v=version, p=package).first()[0]
-    assert version_id is not None
-    has_checksums = conn.execute(CHECKSUMS_EXIST_Q, v=version_id).first()
+    package_id = conn.execute(PACKAGE_ID_Q, v=version, p=package).first()[0]
+    assert package_id is not None
+    has_checksums = conn.execute(CHECKSUMS_EXIST_Q, v=package_id).first()
     if has_checksums:
         return
 
     checksums = []
     for (sha256, path) in parse_checksums(sumsfile):
-        checksums.append({ 'version_id': version_id,
+        checksums.append({ 'package_id': package_id,
                            'path': path,
                            'sha256': sha256 })
     if checksums:

@@ -76,26 +76,26 @@ def add_package(session, pkg, pkgdir, file_table):
             os.rename(sumsfile_tmp, sumsfile)
 
     if 'hooks.db' in conf['backends']:
-        version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
+        db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])
         insert_q = sql.insert(Checksum.__table__)
         insert_params = []
-        if not session.query(Checksum).filter_by(version_id=version.id).first():
+        if not session.query(Checksum).filter_by(package_id=db_package.id).first():
             # ASSUMPTION: if *a* checksum of this package has already
             # been added to the db in the past, then *all* of them have,
             # as additions are part of the same transaction
             for (sha256, relpath) in parse_checksums(sumsfile):
-                params = {'version_id': version.id,
+                params = {'package_id': db_package.id,
                           'sha256': sha256,
                       }
                 if file_table:
                     try:
                         file_id = file_table[relpath]
-                        checksum = Checksum(version, file_id, sha256)
+                        checksum = Checksum(db_package, file_id, sha256)
                         params['file_id'] = file_id
                     except KeyError:
                         continue
                 else:
-                    file_ = session.query(File).filter_by(version_id=version.id,
+                    file_ = session.query(File).filter_by(package_id=db_package.id,
                                                           path=relpath).first()
                     if not file_:
                         continue
@@ -120,9 +120,9 @@ def rm_package(session, pkg, pkgdir, file_table):
             os.unlink(sumsfile)
 
     if 'hooks.db' in conf['backends']:
-        version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
+        db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])
         session.query(Checksum) \
-               .filter_by(version_id=version.id) \
+               .filter_by(package_id=db_package.id) \
                .delete()
 
 

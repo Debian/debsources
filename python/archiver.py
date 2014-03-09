@@ -29,7 +29,7 @@ import dbutils
 
 from consts import DEBIAN_RELEASES
 from debmirror import SourcePackage
-from models import SuitesMapping, Version
+from models import SuitesMapping, Package
 
 
 
@@ -96,30 +96,30 @@ def add_suite(conf, session, suite, archive, stages=updater.UPDATE_STAGES):
 
     if updater.STAGE_EXTRACT in stages:
         for pkg in archive.ls(suite):
-            version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
-            if version:	# avoid GC upon removal from a non-sticky suite
-                if not version.sticky and not conf['dry_run']:
+            db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])
+            if db_package:	# avoid GC upon removal from a non-sticky suite
+                if not db_package.sticky and not conf['dry_run']:
                     logging.debug('setting sticky bit on %s' % pkg)
-                    version.sticky = True
+                    db_package.sticky = True
             else:
                 if not conf['single_transaction']:
                     with session.begin():
                         updater._add_package(pkg, conf, session, sticky=True)
                 else:
                     updater._add_package(pkg, conf, session, sticky=True)
-        session.flush()	# to fill Version.id-s
+        session.flush()	# to fill Package.id-s
 
     if updater.STAGE_SUITES in stages:
         suitemap_q = sql.insert(SuitesMapping.__table__)
         suitemaps = []
         for (pkg, version) in archive.suites[suite]:
-            db_version = dbutils.lookup_version(session, pkg, version)
-            if not db_version:
+            db_package = dbutils.lookup_package(session, pkg, version)
+            if not db_package:
                 logging.warn('package %s/%s not found in sticky suite %s, skipping'
                              % (pkg, version, suite))
                 continue
-            if not dbutils.lookup_suitemapping(session, db_version, suite):
-                suitemaps.append({'version_id': db_version.id,
+            if not dbutils.lookup_suitemapping(session, db_package, suite):
+                suitemaps.append({'package_id': db_package.id,
                                   'suite': suite })
         if suitemaps and not conf['dry_run']:
             session.execute(suitemap_q, suitemaps)
@@ -139,33 +139,33 @@ def remove_suite(conf, session, suite, stages=updater.UPDATE_STAGES):
     sticky_suites = statistics.sticky_suites(session)
 
     if updater.STAGE_GC in stages:
-        for version in session.query(Version) \
+        for package in session.query(Package) \
                               .join(SuitesMapping) \
                               .filter(SuitesMapping.suite == suite) \
-                              .filter(Version.sticky):
-            pkg = SourcePackage.from_db_model(version)
+                              .filter(Package.sticky):
+            pkg = SourcePackage.from_db_model(package)
 
             other_suites = \
                 session.query(SuitesMapping.suite.distinct()) \
-                       .filter(SuitesMapping.version_id == version.id) \
+                       .filter(SuitesMapping.package_id == package.id) \
                        .filter(SuitesMapping.suite != suite)
             other_suites = [ row[0] for row in other_suites ]
 
             if not other_suites:
                 if not conf['single_transaction']:
                     with session.begin():
-                        updater._rm_package(pkg, conf, session, db_version=version)
+                        updater._rm_package(pkg, conf, session, db_package=package)
                 else:
-                    updater._rm_package(pkg, conf, session, db_version=version)
+                    updater._rm_package(pkg, conf, session, db_package=package)
             else:
                 other_sticky_suites = filter(lambda s: s in sticky_suites,
                                              other_suites)
                 if not other_sticky_suites and not conf['dry_run']:
                     # package is only listed in "live" suites, drop sticky flag
                     logging.debug('clearing sticky bit on %s' % pkg)
-                    version.sticky = False
+                    package.sticky = False
 
-            suitemap = dbutils.lookup_suitemapping(session, version, suite)
+            suitemap = dbutils.lookup_suitemapping(session, package, suite)
             if suitemap and not conf['dry_run']:
                 session.delete(suitemap)
 

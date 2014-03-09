@@ -35,7 +35,7 @@ session = app_wrapper.session
 
 from excepts import InvalidPackageOrVersionError, FileOrFolderNotFound, \
     Http500Error, Http404Error, Http403Error
-from models import Ctag, Package, Version, Checksum, Location, \
+from models import Ctag, Package, Package, Checksum, Location, \
     Directory, SourceFile, SuitesMapping, SlocCount, Metric, File
 from sourcecode import SourceCodeIterator
 from forms import SearchForm
@@ -642,8 +642,8 @@ class ChecksumView(GeneralView):
                  .filter(Checksum.sha256 == checksum))
         if package is not None and package != "": # (only within the package)
             count = (count.filter(Package.name == package)
-                     .filter(Checksum.version_id == Version.id)
-                     .filter(Version.name_id == Package.id))
+                     .filter(Checksum.package_id == Package.id)
+                     .filter(Package.name_id == Package.id))
         count = count.first()[0]
 
         
@@ -664,13 +664,13 @@ class ChecksumView(GeneralView):
             You can slice the results, passing slice=(start, end).
             """
             results = (session.query(Package.name.label("package"),
-                                     Version.version.label("version"),
+                                     Package.version.label("version"),
                                      Checksum.file_id.label("file_id"),
                                      File.path.label("path"))
                        .filter(Checksum.sha256 == checksum)
-                       .filter(Checksum.version_id == Version.id)
+                       .filter(Checksum.package_id == Package.id)
                        .filter(Checksum.file_id == File.id)
-                       .filter(Version.name_id == Package.id)
+                       .filter(Package.name_id == Package.id)
                        )
             if package is not None and package != "":
                 results = results.filter(Package.name == package)

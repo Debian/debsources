@@ -31,7 +31,7 @@ import statistics
 
 from consts import DEBIAN_RELEASES, SLOCCOUNT_LANGUAGES
 from debmirror import SourceMirror, SourcePackage
-from models import SuiteInfo, SuitesMapping, Version
+from models import SuiteInfo, SuitesMapping, PackageName
 from models import HistorySize, HistorySlocCount
 from subprocess_workaround import subprocess_setup
 
@@ -178,16 +178,16 @@ def _add_package(pkg, conf, session, sticky=False):
         logging.exception('failed to add %s' % pkg)
 
 
-def _rm_package(pkg, conf, session, db_version=None):
+def _rm_package(pkg, conf, session, db_package=None):
     """remove package `pkg` from both FS and DB storage, and notify plugins
 
     handles and logs exceptions
     """
     logging.info("remove %s..." % pkg)
     pkgdir = pkg.extraction_dir(conf['sources_dir'])
-    if not db_version:
-        db_version = lookup_version(session, pkg['package'], pkg['version'])
-        if not db_version:
+    if not db_package:
+        db_package = lookup_package(session, pkg['package'], pkg['version'])
+        if not db_package:
             logging.warn('cannot find package %s, not removing' % pkg)
             return
     try:
@@ -197,7 +197,7 @@ def _rm_package(pkg, conf, session, db_version=None):
             fs_storage.remove_package(pkg, pkgdir)
         if not conf['dry_run'] and 'db' in conf['backends']:
             with session.begin_nested():
-                dbutils.rm_package(session, pkg, db_version)
+                dbutils.rm_package(session, pkg, db_package)
     except:
         logging.exception('failed to remove %s' % pkg)
 
@@ -228,7 +228,7 @@ def extract_new(status, conf, session, mirror):
     ensure_cache_dir(conf)
 
     def add_package(pkg):
-        if not dbutils.lookup_version(session, pkg['package'], pkg['version']):
+        if not dbutils.lookup_package(session, pkg['package'], pkg['version']):
             _add_package(pkg, conf, session)
         if conf['force_triggers']:
             try:
@@ -257,7 +257,7 @@ def garbage_collect(status, conf, session, mirror):
 
     """
     logging.info('garbage collection...')
-    for version in session.query(Version).filter(not_(Version.sticky)):
+    for version in session.query(Package).filter(not_(Package.sticky)):
         pkg = SourcePackage.from_db_model(version)
         pkg_id = (pkg['package'], pkg['version'])
         pkgdir = pkg.extraction_dir(conf['sources_dir'])
@@ -270,7 +270,7 @@ def garbage_collect(status, conf, session, mirror):
                 age = datetime.now() \
                       - datetime.fromtimestamp(os.path.getmtime(pkgdir))
             if not age or age.days >= expire_days:
-                _rm_package(pkg, conf, session, db_version=version)
+                _rm_package(pkg, conf, session, db_package=version)
             else:
                 logging.debug('not removing %s as it is too young' % pkg)
 
@@ -297,14 +297,14 @@ def update_suites(status, conf, session, mirror):
             session.query(SuitesMapping).filter_by(suite=suite).delete()
         for pkg_id in pkgs:
             (pkg, version) = pkg_id
-            version = dbutils.lookup_version(session, pkg, version)
-            if not version:
+            db_package = dbutils.lookup_package(session, pkg, version)
+            if not db_package:
                 logging.warn('package %s/%s not found in suite %s, skipping'
                              % (pkg, version, suite))
             else:
                 logging.debug('add suite mapping: %s/%s -> %s'
                               % (pkg, version, suite))
-                params = { 'version_id': version.id,
+                params = { 'package_id': db_package.id,
                            'suite': suite }
                 insert_params.append(params)
                 if status.sources.has_key(pkg_id):

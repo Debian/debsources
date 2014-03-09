@@ -46,7 +46,7 @@ class PackageName(Base):
     
     id = Column(Integer, primary_key=True)
     name = Column(String, index=True, unique=True)
-    versions = relationship("Version", backref="package",
+    versions = relationship("Package", backref="package",
                             cascade="all, delete-orphan",
                             passive_deletes=True)
     
@@ -78,8 +78,8 @@ class PackageName(Base):
          except Exception as e:
              raise InvalidPackageOrVersionError(packagename)
          try:
-             versions = session.query(Version).filter(
-                 Version.name_id==name_id).all()
+             versions = session.query(Package).filter(
+                 Package.name_id==name_id).all()
          except Exception as e:
              raise e
              raise InvalidPackageOrVersionError(packagename)
@@ -95,14 +95,14 @@ class PackageName(Base):
         return dict(name=self.name)
 
 
-class Version(Base):
-    """ a version of a source package """
-    __tablename__ = 'versions'
+class Package(Base):
+    """ a (versioned) source package """
+    __tablename__ = 'packages'
     
     id = Column(Integer, primary_key=True)
     version = Column(String, index=True)
     name_id = Column(Integer,
-                     ForeignKey('packages.id', ondelete="CASCADE"),
+                     ForeignKey('package_names.id', ondelete="CASCADE"),
                      index=True, nullable=False)
     area = Column(String(8), index=True)	# main, contrib, non-free
     vcs_type = Column(Enum(*VCS_TYPES, name="vcs_types"))
@@ -127,7 +127,7 @@ class Version(Base):
         """
         return dict(version=self.version, area=self.area)
 
-Index('ix_versions_name_id_version', Version.name_id, Version.version)
+Index('ix_packages_name_id_version', Package.name_id, Package.version)
 
 
 class SuitesMapping(Base):
@@ -135,16 +135,16 @@ class SuitesMapping(Base):
     Debian suites (squeeze, wheezy, etc) mapping with source package versions
     """
     __tablename__ = 'suitesmapping'
-    __table_args__ = (UniqueConstraint('version_id', 'suite'),)
+    __table_args__ = (UniqueConstraint('package_id', 'suite'),)
     
     id = Column(Integer, primary_key=True)
-    version_id = Column(Integer,
-                        ForeignKey('versions.id', ondelete="CASCADE"),
+    package_id = Column(Integer,
+                        ForeignKey('packages.id', ondelete="CASCADE"),
                         index=True, nullable=False)
     suite = Column(String, index=True)
     
-    def __init__(self, version, suite):
-        self.version_id = version.id
+    def __init__(self, package, suite):
+        self.package_id = package.id
         self.suite = suite
 
 
@@ -175,27 +175,27 @@ class File(Base):
     """source file table"""
 
     __tablename__ = 'files'
-    __table_args__ = (UniqueConstraint('version_id', 'path'),)
+    __table_args__ = (UniqueConstraint('package_id', 'path'),)
 
     id = Column(Integer, primary_key=True)
-    version_id = Column(Integer,
-                        ForeignKey('versions.id', ondelete="CASCADE"),
+    package_id = Column(Integer,
+                        ForeignKey('packages.id', ondelete="CASCADE"),
                         index=True, nullable=False)
     path = Column(LargeBinary, index=True,	# path/whitin/source/pkg
                   nullable=False)
 
     def __init__(self, version, path):
-        self.version_id = version.id
+        self.package_id = version.id
         self.path = path
 
 
 class Checksum(Base):
     __tablename__ = 'checksums'
-    __table_args__ = (UniqueConstraint('version_id', 'file_id'),)
+    __table_args__ = (UniqueConstraint('package_id', 'file_id'),)
 
     id = Column(Integer, primary_key=True)
-    version_id = Column(Integer,
-                        ForeignKey('versions.id', ondelete="CASCADE"),
+    package_id = Column(Integer,
+                        ForeignKey('packages.id', ondelete="CASCADE"),
                         index=True, nullable=False)
     file_id = Column(Integer,
                      ForeignKey('files.id', ondelete="CASCADE"),
@@ -203,7 +203,7 @@ class Checksum(Base):
     sha256 = Column(String(64), nullable=False, index=True)
 
     def __init__(self, version, file_id, sha256):
-        self.version_id = version.id
+        self.package_id = version.id
         self.file_id = file_id
         self.sha256 = sha256
 
@@ -232,8 +232,8 @@ class BinaryVersion(Base):
     binarypackage_id = Column(Integer,
                               ForeignKey('binarypackages.id', ondelete="CASCADE"),
                               index=True, nullable=False)
-    version_id = Column(Integer,
-                        ForeignKey('versions.id', ondelete="CASCADE"),
+    package_id = Column(Integer,
+                        ForeignKey('packages.id', ondelete="CASCADE"),
                         index=True, nullable=False)
     
     def __init__(self, version, area="main"):
@@ -245,11 +245,11 @@ class BinaryVersion(Base):
 
 class SlocCount(Base):
     __tablename__ = 'sloccounts'
-    __table_args__ = (UniqueConstraint('version_id', 'language'),)
+    __table_args__ = (UniqueConstraint('package_id', 'language'),)
     
     id = Column(Integer, primary_key=True)
-    version_id = Column(Integer,
-                        ForeignKey('versions.id', ondelete="CASCADE"),
+    package_id = Column(Integer,
+                        ForeignKey('packages.id', ondelete="CASCADE"),
                         index=True, nullable=False)
     language = Column(Enum(*SLOCCOUNT_LANGUAGES, name="language_names"),
                       # TODO rename enum s/language_names/sloccount/languages
@@ -257,7 +257,7 @@ class SlocCount(Base):
     count = Column(Integer, nullable=False)
 
     def __init__(self, version, lang, locs):
-        self.version_id = version.id
+        self.package_id = version.id
         self.language = lang
         self.count = locs
 
@@ -266,8 +266,8 @@ class Ctag(Base):
     __tablename__ = 'ctags'
 
     id = Column(Integer, primary_key=True)
-    version_id = Column(Integer,
-                        ForeignKey('versions.id', ondelete="CASCADE"),
+    package_id = Column(Integer,
+                        ForeignKey('packages.id', ondelete="CASCADE"),
                         index=True, nullable=False)
     tag = Column(String, nullable=False, index=True)
     file_id = Column(Integer,
@@ -280,7 +280,7 @@ class Ctag(Base):
     language = Column(Enum(*CTAGS_LANGUAGES, name="ctags_languages"))
 
     def __init__(self, version, tag, file_id, line, kind, language):
-        self.version_id = version.id
+        self.package_id = version.id
         self.tag = tag
         self.file_id = file_id
         self.line = line
@@ -299,7 +299,7 @@ class Ctag(Base):
     #     ctags: [tags]
     #     package: limit search in package
     #     """
-    #     results = (session.query(Ctag.path, Ctag.version_id)
+    #     results = (session.query(Ctag.path, Ctag.package_id)
     #                .filter(Ctag.tag in ctags)
     #                .filter(Ctag
     
@@ -315,19 +315,19 @@ class Ctag(Base):
         """
         
         results = (session.query(PackageName.name.label("package"),
-                                 Version.version.label("version"),
+                                 Package.version.label("version"),
                                  Ctag.file_id.label("file_id"),
                                  File.path.label("path"),
                                  Ctag.line.label("line"))
                    .filter(Ctag.tag == ctag)
-                   .filter(Ctag.version_id == Version.id)
+                   .filter(Ctag.package_id == Package.id)
                    .filter(Ctag.file_id == File.id)
-                   .filter(Version.name_id == PackageName.id)
+                   .filter(Package.name_id == PackageName.id)
                    )
         if package is not None:
             results = results.filter(PackageName.name == package)
         
-        results = results.order_by(Ctag.version_id, File.path)
+        results = results.order_by(Ctag.package_id, File.path)
         count = results.count()
         if slice_ is not None:
             results = results.slice(slice_[0], slice_[1])
@@ -342,17 +342,17 @@ class Ctag(Base):
 
 class Metric(Base):
     __tablename__ = 'metrics'
-    __table_args__ = (UniqueConstraint('version_id', 'metric'),)
+    __table_args__ = (UniqueConstraint('package_id', 'metric'),)
 
     id = Column(Integer, primary_key=True)
-    version_id = Column(Integer,
-                        ForeignKey('versions.id', ondelete="CASCADE"),
+    package_id = Column(Integer,
+                        ForeignKey('packages.id', ondelete="CASCADE"),
                         index=True, nullable=False)
     metric = Column(Enum(*METRIC_TYPES, name="metric_types"), nullable=False)
     value = Column("value_", Integer, nullable=False)
 
     def __init__(self, version, metric, value):
-        self.version_id = version.id
+        self.package_id = version.id
         self.metric = metric
         self.value = value
 
@@ -456,9 +456,9 @@ class Location(object):
         try:
             p_id = session.query(PackageName).filter(
                 PackageName.name==package).first().id
-            varea = session.query(Version).filter(and_(
-                        Version.name_id==p_id,
-                        Version.version==version)).first().area
+            varea = session.query(Package).filter(and_(
+                        Package.name_id==p_id,
+                        Package.version==version)).first().area
         except:
             # the package or version doesn't exist in the database
             # BUT: packages are stored for a longer time in the filesystem
@@ -611,11 +611,11 @@ class SourceFile(object):
         Queries the DB and returns the shasum of the file.
         """
         shasum = session.query(Checksum.sha256) \
-                        .filter(Checksum.version_id==Version.id) \
-                        .filter(Version.name_id==PackageName.id) \
+                        .filter(Checksum.package_id==Package.id) \
+                        .filter(Package.name_id==PackageName.id) \
                         .filter(File.id==Checksum.file_id) \
                         .filter(PackageName.name==self.location.package) \
-                        .filter(Version.version==self.location.version) \
+                        .filter(Package.version==self.location.version) \
                         .filter(File.path==str(self.location.path)) \
                         .first()
                         # WARNING: in the DB path is binary, and here

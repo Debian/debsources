@@ -92,14 +92,14 @@ def add_package(session, pkg, pkgdir, file_table):
 
     if 'hooks.db' in conf['backends']:
         slocs = parse_sloccount(slocfile)
-        version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
-        if not session.query(SlocCount).filter_by(version_id=version.id)\
+        db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])
+        if not session.query(SlocCount).filter_by(package_id=db_package.id)\
                                        .first():
             # ASSUMPTION: if *a* loc count of this package has already been
             # added to the db in the past, then *all* of them have, as
             # additions are part of the same transaction
             for (lang, locs) in slocs.iteritems():
-                sloccount = SlocCount(version, lang, locs)
+                sloccount = SlocCount(db_package, lang, locs)
                 session.add(sloccount)
 
 
@@ -113,9 +113,9 @@ def rm_package(session, pkg, pkgdir, file_table):
             os.unlink(slocfile)
 
     if 'hooks.db' in conf['backends']:
-        version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
+        db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])
         session.query(SlocCount) \
-               .filter_by(version_id=version.id) \
+               .filter_by(package_id=db_package.id) \
                .delete()
 
 

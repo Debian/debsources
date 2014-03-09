@@ -21,7 +21,7 @@ PTS_PREFIX = "http://packages.qa.debian.org/"
 # it would add a dependence layer with app.config
 
 
-from models import PackageName, Version, SuitesMapping, SlocCount, Metric
+from models import PackageName, Package, SuitesMapping, SlocCount, Metric
 from excepts import Http500Error, Http404Error
 
 # to generate PTS link safely (for internal links we use url_for)
@@ -39,11 +39,11 @@ class Infobox(object):
         self.version = version
     
     def _get_direct_infos(self):
-        """ information available directly in Version table """
+        """ information available directly in Package table """
         try:
-            infos = (self.session.query(Version)
-                     .filter(Version.version==self.version,
-                             Version.name_id==PackageName.id,
+            infos = (self.session.query(Package)
+                     .filter(Package.version==self.version,
+                             Package.name_id==PackageName.id,
                              PackageName.name==self.package)
                      .first())
             
@@ -56,9 +56,9 @@ class Infobox(object):
         """ associated suites, which come from SuitesMapping """
         try:
             suites = (self.session.query(SuitesMapping.suite)
-                      .filter(SuitesMapping.version_id==Version.id,
-                              Version.version==self.version,
-                              Version.name_id==PackageName.id,
+                      .filter(SuitesMapping.package_id==Package.id,
+                              Package.version==self.version,
+                              Package.name_id==PackageName.id,
                               PackageName.name==self.package)
                       .all())
         except Exception as e:
@@ -70,9 +70,9 @@ class Infobox(object):
         """ sloccount """
         try:
             sloc = (self.session.query(SlocCount)
-                    .filter(SlocCount.version_id==Version.id,
-                            Version.version==self.version,
-                            Version.name_id==PackageName.id,
+                    .filter(SlocCount.package_id==Package.id,
+                            Package.version==self.version,
+                            Package.name_id==PackageName.id,
                             PackageName.name==self.package)
                     .order_by(SlocCount.count.desc())
                     .all())
@@ -85,9 +85,9 @@ class Infobox(object):
         """ metrics"""
         try:
             metric = (self.session.query(Metric)
-                      .filter(Metric.version_id==Version.id,
-                              Version.version==self.version,
-                              Version.name_id==PackageName.id,
+                      .filter(Metric.package_id==Package.id,
+                              Package.version==self.version,
+                              Package.name_id==PackageName.id,
                               PackageName.name==self.package)
                       .all())
         except Exception as e:

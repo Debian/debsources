@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright (C) 2013  Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -34,7 +34,7 @@ import dbutils
 import fs_storage
 
 from debmirror import SourcePackage
-from models import Version
+from models import Package
 
 Session = sessionmaker()
 
@@ -48,7 +48,7 @@ def fs_check_missing(conf, session, fix=False):
     global file_extensions
 
     logging.info('fs storage: check for missing data...')
-    for version in session.query(Version).all():
+    for version in session.query(Package).all():
         pkg = SourcePackage.from_db_model(version)
         pkgdir = pkg.extraction_dir(conf['sources_dir'])
         if not os.path.isdir(pkgdir):
@@ -70,7 +70,7 @@ def fs_check_stale(conf, session, fix=False):
         pkg_id = (package, version)
         if not checked_versions.has_key(pkg_id):
             checked_versions[pkg_id] = \
-                bool(dbutils.lookup_version(session, package, version))
+                bool(dbutils.lookup_package(session, package, version))
         return checked_versions[pkg_id]
 
     logging.info('fs storage: check for stale data...')

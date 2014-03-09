@@ -123,17 +123,17 @@ def add_package(session, pkg, pkgdir, file_table):
                 os.chdir(workdir)
 
     if 'hooks.db' in conf['backends']:
-        version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
+        db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])
         curfile = {None: None}	# poor man's cache for last <relpath, file_id>;
                              # rely on the fact that ctags file are path-sorted
         insert_q = sql.insert(Ctag.__table__)
         insert_params = []
-        if not session.query(Ctag).filter_by(version_id=version.id).first():
+        if not session.query(Ctag).filter_by(package_id=db_package.id).first():
             # ASSUMPTION: if *a* ctag of this package has already been added to
             # the db in the past, then *all* of them have, as additions are
             # part of the same transaction
             for tag in parse_ctags(ctagsfile):
-                params = ({'version_id': version.id,
+                params = ({'package_id': db_package.id,
                            'tag': tag['tag'],
                            # 'file_id': 	# will be filled below
                            'line': tag['line'],
@@ -150,7 +150,7 @@ def add_package(session, pkg, pkgdir, file_table):
                     try:
                         params['file_id'] = curfile[relpath]
                     except KeyError:
-                        file_ = session.query(File).filter_by(version_id=version.id,
+                        file_ = session.query(File).filter_by(package_id=db_package.id,
                                                               path=relpath).first()
                         if not file_:
                             continue
@@ -176,9 +176,9 @@ def rm_package(session, pkg, pkgdir, file_table):
             os.unlink(ctagsfile)
 
     if 'hooks.db' in conf['backends']:
-        version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
+        db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])
         session.query(Ctag) \
-               .filter_by(version_id=version.id) \
+               .filter_by(package_id=db_package.id) \
                .delete()
 
 
