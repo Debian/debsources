@@ -66,7 +66,7 @@ def add_package(session, pkg, pkgdir, file_table):
 
         version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
         metric = session.query(Metric) \
-                        .filter_by(sourceversion_id=version.id,
+                        .filter_by(version_id=version.id,
                                    metric=metric_type,
                                    value=metric_value) \
                         .first()
@@ -87,7 +87,7 @@ def rm_package(session, pkg, pkgdir, file_table):
     if 'hooks.db' in conf['backends']:
         version = dbutils.lookup_version(session, pkg['package'], pkg['version'])
         session.query(Metric) \
-               .filter_by(sourceversion_id=version.id) \
+               .filter_by(version_id=version.id) \
                .delete()
 
 

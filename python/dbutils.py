@@ -94,7 +94,7 @@ def lookup_db_suite(session, suite, sticky=False):
 
 def lookup_suitemapping(session, db_version, suite):
     return session.query(SuitesMapping) \
-                  .filter_by(sourceversion_id=db_version.id, suite=suite) \
+                  .filter_by(version_id=db_version.id, suite=suite) \
                   .first()
 
 

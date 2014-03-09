@@ -2,7 +2,7 @@
 SELECT count(ctags.id)
 FROM ctags, versions, suitesmapping
 WHERE ctags.version_id = versions.id
-AND   versions.id = suitesmapping.sourceversion_id
+AND   versions.id = suitesmapping.version_id
 AND   suitesmapping.suite = 'jessie'
 ;
 --   count   
@@ -15,7 +15,7 @@ AND   suitesmapping.suite = 'jessie'
 SELECT count(ctags.id), suitesmapping.suite
 FROM ctags, versions, suitesmapping
 WHERE ctags.version_id = versions.id
-AND   versions.id = suitesmapping.sourceversion_id
+AND   versions.id = suitesmapping.version_id
 GROUP BY suitesmapping.suite
 ;
 --    count   |          suite          
@@ -43,7 +43,7 @@ GROUP BY suitesmapping.suite
 SELECT count(files.id)    
 FROM files, versions, suitesmapping
 WHERE files.version_id = versions.id
-AND   versions.id = suitesmapping.sourceversion_id
+AND   versions.id = suitesmapping.version_id
 AND   suitesmapping.suite = 'sid'
 ;
 --   count  
@@ -56,7 +56,7 @@ AND   suitesmapping.suite = 'sid'
 SELECT count(files.id), suitesmapping.suite
 FROM files, versions, suitesmapping
 WHERE files.version_id = versions.id
-AND   versions.id = suitesmapping.sourceversion_id
+AND   versions.id = suitesmapping.version_id
 GROUP BY suitesmapping.suite
 ;
 --   count  |          suite          

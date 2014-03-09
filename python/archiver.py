@@ -119,7 +119,7 @@ def add_suite(conf, session, suite, archive, stages=updater.UPDATE_STAGES):
                              % (pkg, version, suite))
                 continue
             if not dbutils.lookup_suitemapping(session, db_version, suite):
-                suitemaps.append({'sourceversion_id': db_version.id,
+                suitemaps.append({'version_id': db_version.id,
                                   'suite': suite })
         if suitemaps and not conf['dry_run']:
             session.execute(suitemap_q, suitemaps)
@@ -147,7 +147,7 @@ def remove_suite(conf, session, suite, stages=updater.UPDATE_STAGES):
 
             other_suites = \
                 session.query(SuitesMapping.suite.distinct()) \
-                       .filter(SuitesMapping.sourceversion_id == version.id) \
+                       .filter(SuitesMapping.version_id == version.id) \
                        .filter(SuitesMapping.suite != suite)
             other_suites = [ row[0] for row in other_suites ]
 

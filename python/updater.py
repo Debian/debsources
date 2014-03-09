@@ -303,7 +303,7 @@ def update_suites(status, conf, session, mirror):
             else:
                 logging.debug('add suite mapping: %s/%s -> %s'
                               % (pkg, version, suite))
-                params = { 'sourceversion_id': version.id,
+                params = { 'version_id': version.id,
                            'suite': suite }
                 insert_params.append(params)
                 if status.sources.has_key(pkg_id):

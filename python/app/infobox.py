@@ -56,7 +56,7 @@ class Infobox(object):
         """ associated suites, which come from SuitesMapping """
         try:
             suites = (self.session.query(SuitesMapping.suite)
-                      .filter(SuitesMapping.sourceversion_id==Version.id,
+                      .filter(SuitesMapping.version_id==Version.id,
                               Version.version==self.version,
                               Version.package_id==Package.id,
                               Package.name==self.package)
@@ -70,7 +70,7 @@ class Infobox(object):
         """ sloccount """
         try:
             sloc = (self.session.query(SlocCount)
-                    .filter(SlocCount.sourceversion_id==Version.id,
+                    .filter(SlocCount.version_id==Version.id,
                             Version.version==self.version,
                             Version.package_id==Package.id,
                             Package.name==self.package)
@@ -85,7 +85,7 @@ class Infobox(object):
         """ metrics"""
         try:
             metric = (self.session.query(Metric)
-                      .filter(Metric.sourceversion_id==Version.id,
+                      .filter(Metric.version_id==Version.id,
                               Version.version==self.version,
                               Version.package_id==Package.id,
                               Package.name==self.package)

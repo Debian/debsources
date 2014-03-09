@@ -135,16 +135,16 @@ class SuitesMapping(Base):
     Debian suites (squeeze, wheezy, etc) mapping with source package versions
     """
     __tablename__ = 'suitesmapping'
-    __table_args__ = (UniqueConstraint('sourceversion_id', 'suite'),)
+    __table_args__ = (UniqueConstraint('version_id', 'suite'),)
     
     id = Column(Integer, primary_key=True)
-    sourceversion_id = Column(Integer,
-                              ForeignKey('versions.id', ondelete="CASCADE"),
-                              index=True, nullable=False)
+    version_id = Column(Integer,
+                        ForeignKey('versions.id', ondelete="CASCADE"),
+                        index=True, nullable=False)
     suite = Column(String, index=True)
     
     def __init__(self, version, suite):
-        self.sourceversion_id = version.id
+        self.version_id = version.id
         self.suite = suite
 
 
@@ -232,9 +232,9 @@ class BinaryVersion(Base):
     binarypackage_id = Column(Integer,
                               ForeignKey('binarypackages.id', ondelete="CASCADE"),
                               index=True, nullable=False)
-    sourceversion_id = Column(Integer,
-                              ForeignKey('versions.id', ondelete="CASCADE"),
-                              index=True, nullable=False)
+    version_id = Column(Integer,
+                        ForeignKey('versions.id', ondelete="CASCADE"),
+                        index=True, nullable=False)
     
     def __init__(self, version, area="main"):
         self.version = version
@@ -245,19 +245,19 @@ class BinaryVersion(Base):
 
 class SlocCount(Base):
     __tablename__ = 'sloccounts'
-    __table_args__ = (UniqueConstraint('sourceversion_id', 'language'),)
+    __table_args__ = (UniqueConstraint('version_id', 'language'),)
     
     id = Column(Integer, primary_key=True)
-    sourceversion_id = Column(Integer,
-                              ForeignKey('versions.id', ondelete="CASCADE"),
-                              index=True, nullable=False)
+    version_id = Column(Integer,
+                        ForeignKey('versions.id', ondelete="CASCADE"),
+                        index=True, nullable=False)
     language = Column(Enum(*SLOCCOUNT_LANGUAGES, name="language_names"),
                       # TODO rename enum s/language_names/sloccount/languages
                       nullable=False)
     count = Column(Integer, nullable=False)
 
     def __init__(self, version, lang, locs):
-        self.sourceversion_id = version.id
+        self.version_id = version.id
         self.language = lang
         self.count = locs
 
@@ -342,17 +342,17 @@ class Ctag(Base):
 
 class Metric(Base):
     __tablename__ = 'metrics'
-    __table_args__ = (UniqueConstraint('sourceversion_id', 'metric'),)
+    __table_args__ = (UniqueConstraint('version_id', 'metric'),)
 
     id = Column(Integer, primary_key=True)
-    sourceversion_id = Column(Integer,
-                              ForeignKey('versions.id', ondelete="CASCADE"),
-                              index=True, nullable=False)
+    version_id = Column(Integer,
+                        ForeignKey('versions.id', ondelete="CASCADE"),
+                        index=True, nullable=False)
     metric = Column(Enum(*METRIC_TYPES, name="metric_types"), nullable=False)
     value = Column("value_", Integer, nullable=False)
 
     def __init__(self, version, metric, value):
-        self.sourceversion_id = version.id
+        self.version_id = version.id
         self.metric = metric
         self.value = value
 

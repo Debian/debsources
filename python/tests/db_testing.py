@@ -49,7 +49,7 @@ DB_COMPARE_QUERIES = {
     "SELECT packages.name, versions.version, suite \
      FROM %(schema)s.versions, %(schema)s.packages, %(schema)s.suitesmapping \
      WHERE versions.package_id = packages.id \
-     AND suitesmapping.sourceversion_id = versions.id \
+     AND suitesmapping.version_id = versions.id \
      ORDER BY packages.name, versions.version, suite \
      LIMIT 100",
 
@@ -74,7 +74,7 @@ DB_COMPARE_QUERIES = {
     "SELECT packages.name, versions.version, language, count \
      FROM %(schema)s.sloccounts, %(schema)s.versions, %(schema)s.packages \
      WHERE versions.package_id = packages.id \
-     AND sloccounts.sourceversion_id = versions.id \
+     AND sloccounts.version_id = versions.id \
      ORDER BY packages.name, versions.version, language \
      LIMIT 100",
 
@@ -91,7 +91,7 @@ DB_COMPARE_QUERIES = {
     "SELECT packages.name, versions.version, metric, value_ \
      FROM %(schema)s.metrics, %(schema)s.versions, %(schema)s.packages \
      WHERE versions.package_id = packages.id \
-     AND metrics.sourceversion_id = versions.id \
+     AND metrics.version_id = versions.id \
      AND metric != 'size' \
      ORDER BY packages.name, versions.version, metric \
      LIMIT 100",
