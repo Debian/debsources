@@ -27,6 +27,7 @@ from nose.tools import istest
 from nose.plugins.attrib import attr
 from os.path import abspath, dirname
 
+import dbutils
 import mainlib
 import models
 import statistics
@@ -176,6 +177,55 @@ class Updater(unittest.TestCase, DbTestFixture):
         assert_dir_equal(self, orig_sources, dest_sources)
         # check that the update recreate an identical DB
         assert_db_schema_equal(self, 'ref', 'public')
+
+
+    @istest
+    @attr('slow')
+    def garbageCollects(self):
+        GC_PACKAGE = ('ocaml-curses', '1.0.3-1')
+        PKG_SUITE = 'squeeze'
+        PKG_AREA = 'main'
+
+        # make fresh copies of sources/ and mirror dir
+        orig_sources = os.path.join(TEST_DATA_DIR, 'sources')
+        orig_mirror = os.path.join(TEST_DATA_DIR, 'mirror')
+        new_sources = os.path.join(self.tmpdir, 'sources2')
+        new_mirror = os.path.join(self.tmpdir, 'mirror2')
+        shutil.copytree(orig_sources, new_sources)
+        shutil.copytree(orig_mirror, new_mirror)
+        self.conf['mirror_dir'] = new_mirror
+        self.conf['sources_dir'] = new_sources
+
+        pkgdir = os.path.join(new_sources, PKG_AREA, GC_PACKAGE[0][0],
+                              GC_PACKAGE[0], GC_PACKAGE[1])
+        src_index = os.path.join(new_mirror, 'dists', PKG_SUITE, PKG_AREA,
+                                 'source', 'Sources.gz')
+
+        # rm package to be GC'd from mirror (actually, remove everything...)
+        with open(src_index, 'w') as f:
+            f.truncate()
+
+        # update run that should not GC, due to timestamp
+        os.utime(pkgdir, None)
+        self.conf['expire_days'] = 3
+        self.do_update()
+        self.assertTrue(os.path.exists(pkgdir),
+                    'young gone package %s/%s disappeared from FS storage' % \
+                    GC_PACKAGE)
+        self.assertTrue(dbutils.lookup_package(self.session, *GC_PACKAGE),
+                    'young gone package %s/%s disappeared from DB storage' % \
+                    GC_PACKAGE)
+
+        # another update run without grace period, package should go
+        self.conf['expire_days'] = 0
+        self.do_update()
+        self.assertFalse(os.path.exists(pkgdir),
+                         'gone package %s/%s persisted in FS storage' % \
+                         GC_PACKAGE)
+        self.assertFalse(dbutils.lookup_package(self.session, *GC_PACKAGE),
+                         'gone package %s/%s persisted in DB storage' % \
+                         GC_PACKAGE)
+
 
 
 @attr('infra')
