@@ -38,6 +38,9 @@
 
 * TODO infobox: add ctags count				   :web:easy:infobox:
 
+* TODO release pages: add version number and date	   :web:easy:release:
+  which are now available in the suites table
+
 * TODO "update statistics" stage is too slow		   :infra:stats:perf:
   Currently, it takes about 12 minutes on tytso. It can be optimized by
   avoiding redoing statistic queries for each live suites (currently: 9), where
