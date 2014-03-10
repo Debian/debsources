@@ -208,12 +208,12 @@ class Checksum(Base):
         self.sha256 = sha256
 
 
-class BinaryPackage(Base):
-    __tablename__ = 'binarypackages'
+class BinaryName(Base):
+    __tablename__ = 'binary_names'
     
     id = Column(Integer, primary_key=True)
     name = Column(String, index=True, unique=True)
-    versions = relationship("BinaryVersion", backref="binarypackage",
+    versions = relationship("Binary", backref="name",
                             cascade="all, delete-orphan",
                             passive_deletes=True)
     
@@ -224,14 +224,14 @@ class BinaryPackage(Base):
         return self.name
 
 
-class BinaryVersion(Base):
-    __tablename__ = 'binaryversions'
+class Binary(Base):
+    __tablename__ = 'binaries'
     
     id = Column(Integer, primary_key=True)
     version = Column(String)
-    binarypackage_id = Column(Integer,
-                              ForeignKey('binarypackages.id', ondelete="CASCADE"),
-                              index=True, nullable=False)
+    name_id = Column(Integer,
+                     ForeignKey('binary_names.id', ondelete="CASCADE"),
+                     index=True, nullable=False)
     package_id = Column(Integer,
                         ForeignKey('packages.id', ondelete="CASCADE"),
                         index=True, nullable=False)

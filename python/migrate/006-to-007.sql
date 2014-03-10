@@ -84,7 +84,26 @@ ALTER TABLE metrics RENAME COLUMN sourceversion_id TO package_id ;
 ALTER TABLE sloccounts RENAME COLUMN sourceversion_id TO package_id ;
 ALTER TABLE suitesmapping RENAME COLUMN version_id TO package_id ;
 
+ALTER TABLE suitesmapping RENAME TO suites ;
+ALTER SEQUENCE suitesmapping_id_seq RENAME TO suites_id_seq ;
+ALTER INDEX ix_suitesmapping_package_id RENAME TO ix_suites_package_id ;
+ALTER INDEX ix_suitesmapping_suite RENAME TO ix_suites_suite ;
+ALTER INDEX suitesmapping_package_id_suite_key
+  RENAME TO suites_package_id_suite_key ;
+ALTER INDEX suitesmapping_pkey RENAME TO suites_pkey ;
+ALTER INDEX binarypackages_pkey RENAME TO binary_names_pkey ;
+ALTER INDEX binaryversions_pkey RENAME TO binaries_pkey ;
+
 ALTER TABLE binaryversions
   RENAME COLUMN vnumber TO version ;
 ALTER TABLE binaryversions
   RENAME COLUMN sourceversion_id TO package_id ;
+
+ALTER TABLE binarypackages RENAME TO binary_names ;
+ALTER TABLE binaryversions RENAME TO binaries ;
+ALTER TABLE binaries RENAME COLUMN binarypackage_id TO name_id ;
+ALTER SEQUENCE binarypackages_id_seq RENAME TO binary_names_id_seq ;
+ALTER SEQUENCE binaryversions_id_seq RENAME TO binaries_id_seq ;
+ALTER INDEX ix_binarypackages_name RENAME TO ix_binary_names_name ;
+ALTER INDEX ix_binaryversions_binarypackage_id RENAME TO ix_binaries_name_id ;
+ALTER INDEX ix_binaryversions_package_id RENAME TO ix_binaries_package_id ;
