@@ -31,7 +31,7 @@ import statistics
 
 from consts import DEBIAN_RELEASES, SLOCCOUNT_LANGUAGES
 from debmirror import SourceMirror, SourcePackage
-from models import SuiteInfo, SuitesMapping, Package
+from models import SuiteInfo, Suite, Package
 from models import HistorySize, HistorySlocCount
 from subprocess_workaround import subprocess_setup
 
@@ -290,11 +290,11 @@ def update_suites(status, conf, session, mirror):
     """
     logging.info('update suites mappings...')
 
-    insert_q = sql.insert(SuitesMapping.__table__)
+    insert_q = sql.insert(Suite.__table__)
     insert_params = []
     for (suite, pkgs) in mirror.suites.iteritems():
         if not conf['dry_run'] and 'db' in conf['backends']:
-            session.query(SuitesMapping).filter_by(suite=suite).delete()
+            session.query(Suite).filter_by(suite=suite).delete()
         for pkg_id in pkgs:
             (pkg, version) = pkg_id
             db_package = dbutils.lookup_package(session, pkg, version)

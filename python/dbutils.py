@@ -23,7 +23,7 @@ from sqlalchemy.sql import exists
 
 import fs_storage
 
-from models import Base, File, Package, PackageName, SuiteInfo, SuitesMapping
+from models import Base, File, Package, PackageName, SuiteInfo, Suite
 from models import VCS_TYPES
 
 
@@ -97,7 +97,7 @@ def lookup_db_suite(session, suite, sticky=False):
 
 
 def lookup_suitemapping(session, db_package, suite):
-    return session.query(SuitesMapping) \
+    return session.query(Suite) \
                   .filter_by(package_id=db_package.id, suite=suite) \
                   .first()
 

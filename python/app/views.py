@@ -36,7 +36,7 @@ session = app_wrapper.session
 from excepts import InvalidPackageOrVersionError, FileOrFolderNotFound, \
     Http500Error, Http404Error, Http403Error
 from models import Ctag, Package, PackageName, Checksum, Location, \
-    Directory, SourceFile, SuitesMapping, SlocCount, Metric, File
+    Directory, SourceFile, SlocCount, Metric, File
 from sourcecode import SourceCodeIterator
 from forms import SearchForm
 from infobox import Infobox

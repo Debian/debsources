@@ -130,11 +130,11 @@ class Package(Base):
 Index('ix_packages_name_id_version', Package.name_id, Package.version)
 
 
-class SuitesMapping(Base):
+class Suite(Base):
     """
     Debian suites (squeeze, wheezy, etc) mapping with source package versions
     """
-    __tablename__ = 'suitesmapping'
+    __tablename__ = 'suites'
     __table_args__ = (UniqueConstraint('package_id', 'suite'),)
     
     id = Column(Integer, primary_key=True)
@@ -153,7 +153,7 @@ class SuiteInfo(Base):
 
     Note: currently used only for sticky suites.
     """
-    # TODO cross-reference SuitesMapping to this table
+    # TODO cross-reference Suite to this table
 
     __tablename__ = 'suites_info'
 

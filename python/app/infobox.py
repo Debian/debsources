@@ -21,7 +21,7 @@ PTS_PREFIX = "http://packages.qa.debian.org/"
 # it would add a dependence layer with app.config
 
 
-from models import PackageName, Package, SuitesMapping, SlocCount, Metric
+from models import PackageName, Package, Suite, SlocCount, Metric
 from excepts import Http500Error, Http404Error
 
 # to generate PTS link safely (for internal links we use url_for)
@@ -53,10 +53,10 @@ class Infobox(object):
         return infos
     
     def _get_associated_suites(self):
-        """ associated suites, which come from SuitesMapping """
+        """ associated suites, which come from Suite """
         try:
-            suites = (self.session.query(SuitesMapping.suite)
-                      .filter(SuitesMapping.package_id==Package.id,
+            suites = (self.session.query(Suite.suite)
+                      .filter(Suite.package_id==Package.id,
                               Package.version==self.version,
                               Package.name_id==PackageName.id,
                               PackageName.name==self.package)

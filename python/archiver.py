@@ -29,7 +29,7 @@ import dbutils
 
 from consts import DEBIAN_RELEASES
 from debmirror import SourcePackage
-from models import SuitesMapping, Package
+from models import Suite, Package
 
 
 
@@ -110,7 +110,7 @@ def add_suite(conf, session, suite, archive):
         session.flush()	# to fill Package.id-s
 
     if updater.STAGE_SUITES in conf['stages']:
-        suitemap_q = sql.insert(SuitesMapping.__table__)
+        suitemap_q = sql.insert(Suite.__table__)
         suitemaps = []
         for (pkg, version) in archive.suites[suite]:
             db_package = dbutils.lookup_package(session, pkg, version)
@@ -140,15 +140,15 @@ def remove_suite(conf, session, suite):
 
     if updater.STAGE_GC in conf['stages']:
         for package in session.query(Package) \
-                              .join(SuitesMapping) \
-                              .filter(SuitesMapping.suite == suite) \
+                              .join(Suite) \
+                              .filter(Suite.suite == suite) \
                               .filter(Package.sticky):
             pkg = SourcePackage.from_db_model(package)
 
             other_suites = \
-                session.query(SuitesMapping.suite.distinct()) \
-                       .filter(SuitesMapping.package_id == package.id) \
-                       .filter(SuitesMapping.suite != suite)
+                session.query(Suite.suite.distinct()) \
+                       .filter(Suite.package_id == package.id) \
+                       .filter(Suite.suite != suite)
             other_suites = [ row[0] for row in other_suites ]
 
             if not other_suites:

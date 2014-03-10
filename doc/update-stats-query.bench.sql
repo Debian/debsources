@@ -1,9 +1,9 @@
 -- one suite: ctags
 SELECT count(ctags.id)
-FROM ctags, versions, suitesmapping
-WHERE ctags.package_id = versions.id
-AND   versions.id = suitesmapping.package_id
-AND   suitesmapping.suite = 'jessie'
+FROM ctags, packages, suites
+WHERE ctags.package_id = packages.id
+AND   packages.id = suites.package_id
+AND   suites.suite = 'jessie'
 ;
 --   count   
 -- ----------
@@ -12,11 +12,11 @@ AND   suitesmapping.suite = 'jessie'
 -- Time: 100 166,175 ms
 
 -- all suites: ctags
-SELECT count(ctags.id), suitesmapping.suite
-FROM ctags, versions, suitesmapping
-WHERE ctags.package_id = versions.id
-AND   versions.id = suitesmapping.package_id
-GROUP BY suitesmapping.suite
+SELECT count(ctags.id), suites.suite
+FROM ctags, packages, suites
+WHERE ctags.package_id = packages.id
+AND   packages.id = suites.package_id
+GROUP BY suites.suite
 ;
 --    count   |          suite          
 -- -----------+-------------------------
@@ -41,10 +41,10 @@ GROUP BY suitesmapping.suite
 
 -- one suite: files
 SELECT count(files.id)    
-FROM files, versions, suitesmapping
-WHERE files.package_id = versions.id
-AND   versions.id = suitesmapping.package_id
-AND   suitesmapping.suite = 'sid'
+FROM files, packages, suites
+WHERE files.package_id = packages.id
+AND   packages.id = suites.package_id
+AND   suites.suite = 'sid'
 ;
 --   count  
 -- ---------
@@ -53,11 +53,11 @@ AND   suitesmapping.suite = 'sid'
 -- Time: 11 338,649 ms
 
 -- all suites: files
-SELECT count(files.id), suitesmapping.suite
-FROM files, versions, suitesmapping
-WHERE files.package_id = versions.id
-AND   versions.id = suitesmapping.package_id
-GROUP BY suitesmapping.suite
+SELECT count(files.id), suites.suite
+FROM files, packages, suites
+WHERE files.package_id = packages.id
+AND   packages.id = suites.package_id
+GROUP BY suites.suite
 ;
 --   count  |          suite          
 -- ---------+-------------------------

@@ -45,11 +45,11 @@ DB_COMPARE_QUERIES = {
      ORDER BY package_names.name, version \
      LIMIT 100",
 
-    "suitesmapping":
+    "suites":
     "SELECT package_names.name, packages.version, suite \
-     FROM %(schema)s.packages, %(schema)s.package_names, %(schema)s.suitesmapping \
+     FROM %(schema)s.packages, %(schema)s.package_names, %(schema)s.suites \
      WHERE packages.name_id = package_names.id \
-     AND suitesmapping.package_id = packages.id \
+     AND suites.package_id = packages.id \
      ORDER BY package_names.name, packages.version, suite \
      LIMIT 100",
 
