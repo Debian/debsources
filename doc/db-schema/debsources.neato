@@ -1,0 +1,45 @@
+digraph g {
+node [ fontsize = "10", shape = record ];
+edge [];
+
+"binaries" [shape = record, label = "{<col0> \N| id:  serial\lversion:  character varying\lname_id:  integer\lpackage_id:  integer\l}" ];
+
+"binary_names" [shape = record, label = "{<col0> \N| id:  serial\lname:  character varying\l}" ];
+
+"checksums" [shape = record, label = "{<col0> \N| id:  serial\lpackage_id:  integer\lfile_id:  integer\lsha256:  character varying(64)\l}" ];
+
+"ctags" [shape = record, label = "{<col0> \N| id:  serial\lpackage_id:  integer\ltag:  character varying\lfile_id:  integer\lline:  integer\lkind:  character varying\llanguage:  ctags_languages\l}" ];
+
+"files" [shape = record, label = "{<col0> \N| id:  serial\lpackage_id:  integer\lpath:  bytea\l}" ];
+
+"history_size" [shape = record, label = "{<col0> \N| timestamp:  timestamp without time zone\lsuite:  character varying\lsource_packages:  integer\lbinary_packages:  integer\ldisk_usage:  integer\lsource_files:  integer\lctags:  integer\l}" ];
+
+"history_sloccount" [shape = record, label = "{<col0> \N| timestamp:  timestamp without time zone\lsuite:  character varying\llang_ada:  integer\llang_ansic:  integer\llang_asm:  integer\llang_awk:  integer\llang_cobol:  integer\llang_cpp:  integer\llang_cs:  integer\llang_csh:  integer\llang_erlang:  integer\llang_exp:  integer\llang_f90:  integer\llang_fortran:  integer\llang_haskell:  integer\llang_java:  integer\llang_jsp:  integer\llang_lex:  integer\llang_lisp:  integer\llang_makefile:  integer\llang_ml:  integer\llang_modula3:  integer\llang_objc:  integer\llang_pascal:  integer\llang_perl:  integer\llang_php:  integer\llang_python:  integer\llang_ruby:  integer\llang_sed:  integer\llang_sh:  integer\llang_sql:  integer\llang_tcl:  integer\llang_vhdl:  integer\llang_xml:  integer\llang_yacc:  integer\l}" ];
+
+"metrics" [shape = record, label = "{<col0> \N| id:  serial\lpackage_id:  integer\lmetric:  metric_types\lvalue_:  integer\l}" ];
+
+"package_names" [shape = record, label = "{<col0> \N| id:  serial\lname:  character varying\l}" ];
+
+"packages" [shape = record, label = "{<col0> \N| id:  serial\lversion:  character varying\lname_id:  integer\larea:  character varying(8)\lvcs_type:  vcs_types\lvcs_url:  character varying\lvcs_browser:  character varying\lsticky:  boolean\l}" ];
+
+"sloccounts" [shape = record, label = "{<col0> \N| id:  serial\lpackage_id:  integer\llanguage:  language_names\lcount:  integer\l}" ];
+
+"suites" [shape = record, label = "{<col0> \N| id:  serial\lpackage_id:  integer\lsuite:  character varying\l}" ];
+
+"suites_info" [shape = record, label = "{<col0> \N| name:  character varying\lversion:  character varying\lrelease_date:  date\lsticky:  boolean\l}" ];
+
+
+"binaries" -> "binary_names" [label="binaries_name_id_fkey"];
+"binaries" -> "packages" [label="binaries_package_id_fkey"];
+"checksums" -> "packages" [label="checksums_package_id_fkey"];
+"checksums" -> "files" [label="checksums_file_id_fkey"];
+"ctags" -> "packages" [label="ctags_package_id_fkey"];
+"ctags" -> "files" [label="ctags_file_id_fkey"];
+"files" -> "packages" [label="files_package_id_fkey"];
+"metrics" -> "packages" [label="metrics_package_id_fkey"];
+"packages" -> "package_names" [label="packages_name_id_fkey"];
+"sloccounts" -> "packages" [label="sloccounts_package_id_fkey"];
+"suites" -> "packages" [label="suites_package_id_fkey"];
+}
+
+

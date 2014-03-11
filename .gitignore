@@ -4,4 +4,3 @@ local
 sources
 *.pyc
 etc/config.local.ini
-doc/db-schema/
