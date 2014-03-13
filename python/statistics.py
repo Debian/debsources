@@ -27,7 +27,7 @@ from sqlalchemy import func as sql_func
 
 from consts import SLOCCOUNT_LANGUAGES
 from models import Checksum, Ctag, Metric, SlocCount
-from models import Suite, SuiteInfo, Package
+from models import Suite, SuiteInfo, Package, PackageName
 
 
 def _count(query):
@@ -299,6 +299,30 @@ def history_sloc_monthly(session, interval, suite):
     return _hist_sloc_sample(session, interval,
                              projection="date_trunc('month', timestamp)",
                              suite=suite)
+
+
+def sloc_per_package(session, suite=None):
+    """return the size (in SLOC) of each package in `suite`, if given, or of all
+    known packages
+
+    data are returned as a list of sqlalchemy keyed tuples (package) `name,
+    version, sloc`
+
+    data are returned sorted, from the largest package to the smallest
+
+    """
+    q = session.query(PackageName.name, Package.version,
+                      sql_func.sum(SlocCount.count).label('sloc'))
+    if suite:
+        q = q.select_from(Suite)
+    q = q.filter(SlocCount.package_id == Package.id) \
+         .filter(Package.name_id == PackageName.id)
+    if suite:
+        q = q.filter(Suite.package_id == Package.id) \
+             .filter(Suite.suite == suite)
+    q = q.group_by(PackageName.name, Package.version) \
+         .order_by('sloc desc, name, version')
+    return q.all()
 
 
 def load_metadata_cache(fname):

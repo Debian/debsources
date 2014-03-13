@@ -127,3 +127,20 @@ class Stats(unittest.TestCase, DbTestFixture):
         total_ctags = 70166
         self.assertSuiteCountsEqual(ctags, statistics.ctags)
         self.assertEqual(total_ctags, statistics.ctags(self.session))
+
+
+    @istest
+    def slocPerPkgMatchReferenceDb(self):
+        LARGEST = ('gnubg', '1.02.000-2', 124353)
+        SMALLEST = ('susv3', '6.1', 10)
+        LARGEST_exp = ('ledger', '3.0.0~20130313+b608ed2-1', 45848)
+        SMALLEST_exp = LARGEST_exp
+
+        slocs_all = statistics.sloc_per_package(self.session)
+        self.assertEqual(slocs_all[0], LARGEST)
+        self.assertEqual(slocs_all[-1], SMALLEST)
+
+        slocs_exp = statistics.sloc_per_package(self.session,
+                                                suite='experimental')
+        self.assertEqual(slocs_exp[0], LARGEST_exp)
+        self.assertEqual(slocs_exp[-1], SMALLEST_exp)
