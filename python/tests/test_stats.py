@@ -28,12 +28,16 @@ from db_testing import DbTestFixture, pg_dump
 @attr('infra')
 class Stats(unittest.TestCase, DbTestFixture):
 
-    def setUp(self):
-        self.db_setup()
-        self.maxDiff = None
+    @classmethod
+    def setUpClass(cls):
+        cls.db_setup_cls()
 
-    def tearDown(self):
-        self.db_teardown()
+    @classmethod
+    def tearDownClass(cls):
+        cls.db_teardown_cls()
+
+    def setUp(self):
+        self.maxDiff = None
 
     def assertSuiteCountsEqual(self, expected, query_method):
         for suite, expected_count in expected.iteritems():
