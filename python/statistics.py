@@ -89,26 +89,33 @@ def sticky_suites(session):
     return [ row[0] for row in q ]
 
 
-def disk_usage(session, suite=None):
+def disk_usage(session, suite=None, areas=None):
     """disk space used by extracted source packages
 
     only count disk usage relative to suite, if given
+
+    only count disk usage relative to archive `areas`, if given
 
     """
     logging.debug('compute disk usage for suite %s...' % suite)
     q = session.query(sql_func.sum(Metric.value)) \
                .filter(Metric.metric == 'size')
+    if suite or areas:
+        q = q.join(Package)
     if suite:
-        q = q.join(Package) \
-             .join(Suite) \
+        q = q.join(Suite) \
              .filter(Suite.suite == suite)
+    if areas:
+        q = q.filter(Package.area.in_(areas))
     return _count(q)
 
 
-def source_packages(session, suite=None):
+def source_packages(session, suite=None, areas=None):
     """(versioned) source package count
 
     only count packages in suite, if given
+
+    only count packages in archive `areas`, if given
 
     multiple versions of the same source package count adds up to the result of
     this query. When doing per-suite queries that doesn't (shouldn't) happen,
@@ -121,13 +128,17 @@ def source_packages(session, suite=None):
     if suite:
         q = q.join(Suite) \
             .filter(Suite.suite == suite)
+    if areas:
+        q = q.filter(Package.area.in_(areas))
     return _count(q)
 
 
-def source_files(session, suite=None):
+def source_files(session, suite=None, areas=None):
     """source files count
 
     only count source files in suite, if given
+
+    only count packages in archive `areas`, if given
 
     Return 0 if the checksum plugin is not enabled
 
@@ -136,59 +147,77 @@ def source_files(session, suite=None):
     # adapted to use that instead of Checksum
     logging.debug('count source files for suite %s...' % suite)
     q = session.query(sql_func.count(Checksum.id))
+    if suite or areas:
+        q = q.join(Package)
     if suite:
-        q = q.join(Package) \
-             .join(Suite) \
+        q = q.join(Suite) \
              .filter(Suite.suite == suite)
+    if areas:
+        q = q.filter(Package.area.in_(areas))
     return _count(q)
 
 
-def sloccount_lang(session, language, suite=None):
+def sloccount_lang(session, language, suite=None, areas=None):
     """source lines of codes (SLOCs) written in a given programming language
 
     only count SLOCs relative to suite, if given
+
+    only count packages in archive `areas`, if given
 
     """
     logging.debug('sloccount for language %s, suite %s...' % (language, suite))
     q = session.query(sql_func.sum(SlocCount.count)) \
                .filter(SlocCount.language == language)
+    if suite or areas:
+        q = q.join(Package)
     if suite:
-        q = q.join(Package) \
-             .join(Suite) \
+        q = q.join(Suite) \
              .filter(Suite.suite == suite)
+    if areas:
+        q = q.filter(Package.area.in_(areas))
     return _count(q)
 
 
-def sloccount_summary(session, suite=None):
+def sloccount_summary(session, suite=None, areas=None):
     """source lines of code (SLOCs), broken down per language
 
     return a language-indexed dictionary of SLOC counts
 
     only count LOCs relative to suite, if given
 
+    only count packages in archive `areas`, if given
+
     """
     logging.debug('sloccount summary for suite %s...' % suite)
     q = session.query(SlocCount.language, sql_func.sum(SlocCount.count))
+    if suite or areas:
+        q = q.join(Package)
     if suite:
-        q = q.join(Package) \
-             .join(Suite) \
+        q = q.join(Suite) \
              .filter(Suite.suite == suite)
+    if areas:
+        q = q.filter(Package.area.in_(areas))
     q = q.group_by(SlocCount.language)
     return dict(q.all())
 
 
-def ctags(session, suite=None):
+def ctags(session, suite=None, areas=None):
     """ctags count
 
     only count ctags in suite, if given
 
+    only count packages in archive `areas`, if given
+
     """
     logging.debug('count ctags for suite %s...' % suite)
     q = session.query(sql_func.count(Ctag.id))
+    if suite or areas:
+        q = q.join(Package)
     if suite:
-        q = q.join(Package) \
-             .join(Suite) \
+        q = q.join(Suite) \
              .filter(Suite.suite == suite)
+    if areas:
+        q = q.filter(Package.area.in_(areas))
     return _count(q)
 
 
@@ -301,9 +330,11 @@ def history_sloc_monthly(session, interval, suite):
                              suite=suite)
 
 
-def sloc_per_package(session, suite=None):
+def sloc_per_package(session, suite=None, areas=None):
     """return the size (in SLOC) of each package in `suite`, if given, or of all
     known packages
+
+    only consider packages in archive `areas`, if given
 
     data are returned as a list of sqlalchemy keyed tuples (package) `name,
     version, sloc`
@@ -320,6 +351,8 @@ def sloc_per_package(session, suite=None):
     if suite:
         q = q.filter(Suite.package_id == Package.id) \
              .filter(Suite.suite == suite)
+    if areas:
+        q = q.filter(Package.area.in_(areas))
     q = q.group_by(PackageName.name, Package.version) \
          .order_by('sloc desc, name, version')
     return q.all()

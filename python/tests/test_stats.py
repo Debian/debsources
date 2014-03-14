@@ -148,3 +148,29 @@ class Stats(unittest.TestCase, DbTestFixture):
                                                 suite='experimental')
         self.assertEqual(slocs_exp[0], LARGEST_exp)
         self.assertEqual(slocs_exp[-1], SMALLEST_exp)
+
+
+    @istest
+    def areaFiltersMatchReferenceDb(self):
+        self.assertEqual(statistics.disk_usage(self.session),
+                         122628)
+        self.assertEqual(statistics.disk_usage(self.session, areas=['main']),
+                         104568)
+        self.assertEqual(statistics.disk_usage(self.session, suite='wheezy', areas=['main']),
+                         35824)
+
+        area_count = statistics.source_packages(self.session, areas=['main'])
+        self.assertEqual(area_count, 13)
+        self.assertLessEqual(area_count, statistics.source_packages(self.session))
+
+        area_count = statistics.source_files(self.session, areas=['contrib'])
+        self.assertEqual(area_count, 372)
+        self.assertLessEqual(area_count, statistics.source_files(self.session))
+
+        area_count = statistics.sloccount_lang(self.session, 'ansic', areas=['non-free'])
+        self.assertEqual(area_count, 121155)
+        self.assertLessEqual(area_count, statistics.sloccount_lang(self.session, 'ansic'))
+
+        area_count = statistics.ctags(self.session, areas=['main'])
+        self.assertEqual(area_count, 43622)
+        self.assertLessEqual(area_count, statistics.ctags(self.session))
