@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Extract package ID strings (e.g. PACKAGE/VERSION) from Sources.gz files
+
+shopt -s nocasematch
+
+package=""
+zgrep -hE '^(Package|Version):' "$@" | \
+while read field value ; do
+    case "$field" in
+	package:)
+	    package="$value"
+	    ;;
+	version:)
+	    echo "${package}/${value}"
+	    package=""
+	    ;;
+    esac
+done | \
+sort -u
