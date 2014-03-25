@@ -113,11 +113,10 @@ def add_package(session, pkg, pkgdir, file_table):
         if not os.path.exists(ctagsfile): # extract tags only if needed
             workdir = os.getcwd()
             try:
-                cmd = [ 'ctags' ] + CTAGS_FLAGS + [ '-f', '-' ]
+                cmd = [ 'ctags' ] + CTAGS_FLAGS + [ '-o', ctagsfile_tmp ]
                 os.chdir(pkgdir) # execute in pkgdir to get relative paths right
-                with open(ctagsfile_tmp, 'w') as out,\
-                     open(os.devnull, 'w') as null:
-                    subprocess.check_call(cmd, stdout=out, stderr=null)
+                with open(os.devnull, 'w') as null:
+                    subprocess.check_call(cmd, stderr=null)
                 os.rename(ctagsfile_tmp, ctagsfile)
             finally:
                 os.chdir(workdir)
