@@ -111,15 +111,13 @@ def add_package(session, pkg, pkgdir, file_table):
 
     if 'hooks.fs' in conf['backends']:
         if not os.path.exists(ctagsfile): # extract tags only if needed
-            workdir = os.getcwd()
-            try:
-                cmd = [ 'ctags' ] + CTAGS_FLAGS + [ '-o', ctagsfile_tmp ]
-                os.chdir(pkgdir) # execute in pkgdir to get relative paths right
-                with open(os.devnull, 'w') as null:
-                    subprocess.check_call(cmd, stderr=null)
-                os.rename(ctagsfile_tmp, ctagsfile)
-            finally:
-                os.chdir(workdir)
+            cmd = [ 'ctags' ] + CTAGS_FLAGS + [ '-o', ctagsfile_tmp ]
+            # ASSUMPTION: will be run under pkgdir as CWD, which is needed to
+            # get relative paths right. The assumption is enforced by the
+            # updater
+            with open(os.devnull, 'w') as null:
+                subprocess.check_call(cmd, stderr=null)
+            os.rename(ctagsfile_tmp, ctagsfile)
 
     if 'hooks.db' in conf['backends']:
         db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])

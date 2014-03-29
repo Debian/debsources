@@ -158,6 +158,7 @@ def _add_package(pkg, conf, session, sticky=False):
     handles and logs exceptions
     """
     logging.info('add %s...' % pkg)
+    workdir = os.getcwd()
     try:
         pkgdir = pkg.extraction_dir(conf['sources_dir'])
         if pkgdir is None:
@@ -165,6 +166,7 @@ def _add_package(pkg, conf, session, sticky=False):
             return
         if not conf['dry_run'] and 'fs' in conf['backends']:
             fs_storage.extract_package(pkg, pkgdir)
+            os.chdir(pkgdir)
         with session.begin_nested():
             # single db session for package addition and hook execution: if the
             # hooks fail, the package won't be added to the db (it will be
@@ -176,6 +178,8 @@ def _add_package(pkg, conf, session, sticky=False):
                 notify(conf, 'add-package', session, pkg, pkgdir, file_table)
     except:
         logging.exception('failed to add %s' % pkg)
+    finally:
+        os.chdir(workdir)
 
 
 def _rm_package(pkg, conf, session, db_package=None):
