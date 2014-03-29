@@ -32,6 +32,13 @@ def add_package(session, pkg, pkgdir, sticky=False):
 
     If `sticky` is set, also set the corresponding bit in the versions table.
 
+    Return the package file table, which maps relative (file) path within the
+    extracted package to file identifiers pointing into the `models.File`
+    table.  Suitable usages of the file table include:
+
+    - DB cache to avoid re-fetching all file IDs
+    - FS cache to avoid re-scanning package dir to iterate over file names
+
     """
     logging.debug('add to db %s...' % pkg)
     package_name = session.query(PackageName) \

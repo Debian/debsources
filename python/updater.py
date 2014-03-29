@@ -229,6 +229,9 @@ def extract_new(status, conf, session, mirror):
 
     def add_package(pkg):
         if not dbutils.lookup_package(session, pkg['package'], pkg['version']):
+            # use DB as completion marker: if the package has been inserted, it
+            # means everything went fine last time we tried. If not, we redo
+            # everything, just to be safe
             _add_package(pkg, conf, session)
         if conf['force_triggers']:
             try:
