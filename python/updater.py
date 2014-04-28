@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import glob
 import logging
 import os
 import string
@@ -152,6 +153,34 @@ def ensure_stats_dir(conf):
     ensure_dir(os.path.join(conf['cache_dir'], 'stats'))
 
 
+def exclude_files(session, pkg, pkgdir, file_table, exclude_specs):
+    """remove files matching `exclude_specs` from storage and exclude them from
+    further processing
+
+    Side effect: excluded files will be removed from `file_table`
+
+    """
+    # enforce spec's Package field
+    specs = filter(lambda spec: spec['package'] == pkg['package'],
+                   exclude_specs)
+    candidates = []  # files eligible for exclusion
+    for spec in specs:
+        # enforce spec's Files field
+        for pat in spec['files'].split():
+            # ASSUMPTION: `pkgdir` is the CWD; enforced by _add_package
+            for relpath in glob.iglob(pat):
+                candidates.append(relpath)
+
+    # remove exclusion candidates from FS and DB storage
+    if candidates:
+        logging.info('excluding some files from %s' % pkg)
+        for relpath in candidates:
+            logging.debug('excluding file %s' % relpath)
+            fs_storage.rm_file(pkgdir, relpath)
+            dbutils.rm_file(session, pkg['package'], relpath, file_table)
+            del(file_table[relpath])
+
+
 def _add_package(pkg, conf, session, sticky=False):
     """add package `pkg` to both FS and DB storage, and notify plugins
 
@@ -174,6 +203,7 @@ def _add_package(pkg, conf, session, sticky=False):
             file_table = None
             if not conf['dry_run'] and 'db' in conf['backends']:
                 file_table = dbutils.add_package(session, pkg, pkgdir, sticky)
+            exclude_files(session, pkg, pkgdir, file_table, conf['exclude'])
             if not conf['dry_run'] and 'hooks' in conf['backends']:
                 notify(conf, 'add-package', session, pkg, pkgdir, file_table)
     except:

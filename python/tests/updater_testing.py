@@ -30,5 +30,6 @@ def mk_conf(tmpdir):
         'python_dir': abspath(os.path.join(TEST_DIR, '..')),
         'root_dir': abspath(os.path.join(TEST_DIR, '../..')),
         'sources_dir': os.path.join(tmpdir, 'sources'),
+        'exclude': [],
     }
     return conf

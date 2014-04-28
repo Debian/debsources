@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import glob
 import logging
 import os
 import shutil
@@ -226,6 +227,38 @@ class Updater(unittest.TestCase, DbTestFixture):
                          'gone package %s/%s persisted in DB storage' % \
                          GC_PACKAGE)
 
+    @istest
+    @attr('slow')
+    def excludeFiles(self):
+        PKG = 'bsdgames-nonfree'
+        PKG_PREFIX = PKG[0]
+        EXCLUDED_GLOB = 'tests/battlestar.in17'
+        EXCLUSIONS = """Explanation: test case
+Package: %s
+Files: %s
+Action: remove""" % (PKG, EXCLUDED_GLOB)
+        excluded_paths = os.path.join(self.tmpdir, 'sources', '*',
+                                      PKG_PREFIX, PKG, '*', EXCLUDED_GLOB)
+
+        # dummy update run, copying over sources/ dir
+        orig_sources = os.path.join(TEST_DATA_DIR, 'sources')
+        dest_sources = os.path.join(self.tmpdir, 'sources')
+        shutil.copytree(orig_sources, dest_sources)
+        self.do_update()
+        self.assertTrue(glob.glob(excluded_paths))
+
+        # second update run, this time with exclusions
+        exclude_tmp = os.path.join(self.tmpdir, 'exclude.conf')
+        with open(exclude_tmp, 'w') as f:
+            f.write(EXCLUSIONS)
+        self.conf['exclude'] = mainlib.parse_exclude(exclude_tmp)
+        pkgs = self.session.query(models.Package) \
+                           .join(models.PackageName) \
+                           .filter_by(name=PKG)
+        for pkg in pkgs:
+            self.session.delete(pkg)
+        self.do_update()
+        self.assertFalse(glob.glob(excluded_paths))
 
 
 @attr('infra')

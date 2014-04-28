@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# TODO rename this module to db_storage, coherently with fs_storage
+
 import logging
 import os
 
@@ -109,7 +111,6 @@ def lookup_suitemapping(session, db_package, suite):
                   .first()
 
 
-
 def pkg_prefixes(session):
     """extract Debian package prefixes from DB via `session`
 
@@ -122,3 +123,16 @@ def pkg_prefixes(session):
            SELECT DISTINCT(substring(name from 1 for 4)) FROM package_names
            WHERE substring(name from 1 for 3) = 'lib'"""
     return sorted([ row[0] for row in session.execute(q) ])
+
+
+def rm_file(session, package, relpath, file_table=None):
+    if file_table:
+        file_id = file_table[relpath]
+        file_ = session.query(File).filter_by(id=file_id).first()
+    else:
+        file_ = session.query(File) \
+                       .join(Package) \
+                       .join(PackageName) \
+                       .filter_by(name=package, path=relpath) \
+                       .first()
+    session.delete(file_)

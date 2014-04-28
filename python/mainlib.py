@@ -21,8 +21,13 @@ import logging
 import os
 import string
 import sys
+
+from debian import deb822
+
 import updater
 
+# TODO split configuration entry to a separate file: it's getting too complex
+# TODO more uniform handling of config typing/defaults: it's getting too brittle
 
 DEFAULT_CONFIG = {
     'dry_run':     'false',
@@ -46,6 +51,16 @@ LOG_LEVELS = {	# XXX module logging has no built-in way to do this conversion
     'error':    logging.ERROR,		# verbosity >= 0
     'critical': logging.CRITICAL,
 }
+
+
+def parse_exclude(fname):
+    """parse file exclusion specifications from file `fname`
+
+    """
+    exclude_specs = []
+    with open(fname) as f:
+        exclude_specs = list(deb822.Deb822.iter_paragraphs(f))
+    return exclude_specs
 
 
 def load_conf(conffile):
@@ -74,6 +89,12 @@ def load_conf(conffile):
             assert value in ['true', 'false']
             value = (value == 'true')
         typed_conf[key] = value
+
+    exclude_file = os.path.join(typed_conf['local_dir'], 'exclude.conf')
+    typed_conf['exclude'] = []
+    if os.path.exists(exclude_file):
+        typed_conf['exclude'] = parse_exclude(exclude_file)
+
     return typed_conf
 
 

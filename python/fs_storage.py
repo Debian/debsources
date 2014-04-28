@@ -131,3 +131,14 @@ def parse_path(fname):
     else:
         assert False
     return path
+
+
+def rm_file(pkgdir, relpath):
+    """remove file `relpath` from package directory `pkgdir`
+
+    """
+    path = os.path.join(pkgdir, relpath)
+    if os.path.exists(path):
+        os.unlink(path)
+    else:
+        logging.warning('cannot remove non existing file %s' % path)
