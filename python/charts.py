@@ -25,7 +25,7 @@ from itertools import cycle
 
 
 def _split_series(series):
-    """splite a time `series` (list of <x,y> points) into two lists --- one of x
+    """split a time `series` (list of <x,y> points) into two lists --- one of x
     and the other of y --- excluding y which are None
 
     """
@@ -53,15 +53,15 @@ def size_plot(series, fname):
     plt.close()
 
 
-LINE_COLORS =  ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+LINE_COLORS = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
 LINE_MARKERS = ['o', '^', 's', '*', '+', 'x', 'v']
-LINE_STYLES =  [ c + m + '-' for m in LINE_MARKERS for c in LINE_COLORS ]
+LINE_STYLES = [c + m + '-' for m in LINE_MARKERS for c in LINE_COLORS]
 
 
 def sloc_plot(multiseries, fname):
-    """plot multiple sloccount time series --- available from `multiseries` as a
-    dictionary mapping series name to list of <timestamp, value> paris --- and
-    save it to file `fname`
+    """plot multiple sloccount time series --- available from `multiseries` as
+    a dictionary mapping series name to list of <timestamp, value> paris ---
+    and save it to file `fname`
 
     """
     logging.debug('generate sloccount plot to %s...' % fname)
@@ -74,7 +74,7 @@ def sloc_plot(multiseries, fname):
     for name, series in sorted(multiseries.iteritems(),
                                cmp=by_value, reverse=True):
         ts, values = _split_series(series)
-        if filter(bool, values): # at least one value is != None and != 0
+        if filter(bool, values):  # at least one value is != None and != 0
             plt.plot(ts, values, styles.next(), label=name)
 
     # plt.legend(bbox_to_anchor=(0., 1.02, 1., .102),
@@ -88,13 +88,13 @@ def sloc_plot(multiseries, fname):
 
 
 def sloc_pie(slocs, fname):
-   """plot a pie chart of sloccount in `slocs`, a dictionary which maps language
-   names to slocs. Save the obtained chart to `fname`
+    """plot a pie chart of sloccount in `slocs`, a dictionary which maps
+    language names to slocs. Save the obtained chart to `fname`
 
-   """
-   logging.debug('generate sloccount pie chart to %s...' % fname)
-   plt.figure()
-   langs, slocs = _split_series(list(slocs.iteritems()))
-   plt.pie(slocs, labels=langs, autopct='%1.1f%%')
-   plt.savefig(fname)
-   plt.close()
+    """
+    logging.debug('generate sloccount pie chart to %s...' % fname)
+    plt.figure()
+    langs, slocs = _split_series(list(slocs.iteritems()))
+    plt.pie(slocs, labels=langs, autopct='%1.1f%%')
+    plt.savefig(fname)
+    plt.close()

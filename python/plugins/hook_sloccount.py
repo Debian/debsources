@@ -27,7 +27,7 @@ from models import SlocCount
 
 conf = None
 
-SLOCCOUNT_FLAGS = [ '--addlangall' ]
+SLOCCOUNT_FLAGS = ['--addlangall']
 
 MY_NAME = 'sloccount'
 MY_EXT = '.' + MY_NAME
@@ -46,6 +46,7 @@ def grep(args):
 SLOC_TBL_HEADER = re.compile('^Totals grouped by language')
 SLOC_TBL_FOOTER = re.compile('^\s*$')
 SLOC_TBL_LINE = re.compile('^(?P<lang>[^:]+):\s+(?P<locs>\d+)')
+
 
 def parse_sloccount(path):
     """parse SLOCCOUNT(1) output and return a mapping from languages to locs
@@ -78,11 +79,12 @@ def add_package(session, pkg, pkgdir, file_table):
     slocfile_tmp = slocfile + '.new'
 
     if 'hooks.fs' in conf['backends']:
-        if not os.path.exists(slocfile):	# run sloccount only if needed
+        if not os.path.exists(slocfile):  # run sloccount only if needed
             try:
-                cmd = [ 'sloccount' ] + SLOCCOUNT_FLAGS + [ pkgdir ]
+                cmd = ['sloccount'] + SLOCCOUNT_FLAGS + [pkgdir]
                 with open(slocfile_tmp, 'w') as out:
-                    subprocess.check_call(cmd, stdout=out, stderr=subprocess.STDOUT)
+                    subprocess.check_call(cmd, stdout=out,
+                                          stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError:
                 if not grep(['^SLOC total is zero,', slocfile_tmp]):
                     # rationale: sloccount fails when it can't find source code
@@ -92,7 +94,8 @@ def add_package(session, pkg, pkgdir, file_table):
 
     if 'hooks.db' in conf['backends']:
         slocs = parse_sloccount(slocfile)
-        db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])
+        db_package = dbutils.lookup_package(session, pkg['package'],
+                                            pkg['version'])
         if not session.query(SlocCount).filter_by(package_id=db_package.id)\
                                        .first():
             # ASSUMPTION: if *a* loc count of this package has already been
@@ -113,7 +116,8 @@ def rm_package(session, pkg, pkgdir, file_table):
             os.unlink(slocfile)
 
     if 'hooks.db' in conf['backends']:
-        db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])
+        db_package = dbutils.lookup_package(session, pkg['package'],
+                                            pkg['version'])
         session.query(SlocCount) \
                .filter_by(package_id=db_package.id) \
                .delete()

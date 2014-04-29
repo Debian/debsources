@@ -17,7 +17,6 @@
 
 """handle the archive of sticky suites"""
 
-import consts
 import logging
 import os
 import statistics
@@ -27,21 +26,20 @@ from sqlalchemy import sql
 
 import dbutils
 
-from consts import DEBIAN_RELEASES
 from debmirror import SourcePackage
 from models import Suite, Package
 
 
-
 def list_suites(conf, session, archive):
-    """return a mapping from suite names to a dictionary `{'archive': bool, 'db':
+    """return a mapping from suite names to a dict `{'archive': bool, 'db':
     bool}`. The first field tells whether a suite is available via the local
     mirror archive; the second whether it is available in Debsources DB.
 
     """
-    suites = {}	# suite name -> {'archive': bool, 'db': bool}
+    suites = {}  # suite name -> {'archive': bool, 'db': bool}
+
     def ensure_suite(suite):
-        if not suites.has_key(suite):
+        if not suite in suites:
             suites[suite] = {'archive': False, 'db': False}
 
     for suite in archive.ls_suites():
@@ -82,7 +80,6 @@ def _remove_stats_for(conf, session, suite):
         updater.update_charts(status, conf, session)
 
 
-
 def add_suite(conf, session, suite, archive):
     logging.info('add sticky suite %s to the archive...' % suite)
 
@@ -91,13 +88,14 @@ def add_suite(conf, session, suite, archive):
         if updater.STAGE_EXTRACT in conf['stages']:
             updater._add_suite(conf, session, suite, sticky=True)
     else:
-        logging.warn('sticky suite %s already present, looking for new packages'
+        logging.warn('sticky suite %s already exist, looking for new packages'
                      % suite)
 
     if updater.STAGE_EXTRACT in conf['stages']:
         for pkg in archive.ls(suite):
-            db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])
-            if db_package:	# avoid GC upon removal from a non-sticky suite
+            db_package = dbutils.lookup_package(session, pkg['package'],
+                                                pkg['version'])
+            if db_package:  # avoid GC upon removal from a non-sticky suite
                 if not db_package.sticky and not conf['dry_run']:
                     logging.debug('setting sticky bit on %s' % pkg)
                     db_package.sticky = True
@@ -107,7 +105,7 @@ def add_suite(conf, session, suite, archive):
                         updater._add_package(pkg, conf, session, sticky=True)
                 else:
                     updater._add_package(pkg, conf, session, sticky=True)
-        session.flush()	# to fill Package.id-s
+        session.flush()  # to fill Package.id-s
 
     if updater.STAGE_SUITES in conf['stages']:
         suitemap_q = sql.insert(Suite.__table__)
@@ -115,12 +113,13 @@ def add_suite(conf, session, suite, archive):
         for (pkg, version) in archive.suites[suite]:
             db_package = dbutils.lookup_package(session, pkg, version)
             if not db_package:
-                logging.warn('package %s/%s not found in sticky suite %s, skipping'
+                logging.warn('package %s/%s not found in sticky suite'
+                             ' %s, skipping'
                              % (pkg, version, suite))
                 continue
             if not dbutils.lookup_suitemapping(session, db_package, suite):
                 suitemaps.append({'package_id': db_package.id,
-                                  'suite': suite })
+                                  'suite': suite})
         if suitemaps and not conf['dry_run']:
             session.execute(suitemap_q, suitemaps)
 
@@ -149,12 +148,13 @@ def remove_suite(conf, session, suite):
                 session.query(Suite.suite.distinct()) \
                        .filter(Suite.package_id == package.id) \
                        .filter(Suite.suite != suite)
-            other_suites = [ row[0] for row in other_suites ]
+            other_suites = [row[0] for row in other_suites]
 
             if not other_suites:
                 if not conf['single_transaction']:
                     with session.begin():
-                        updater._rm_package(pkg, conf, session, db_package=package)
+                        updater._rm_package(pkg, conf, session,
+                                            db_package=package)
                 else:
                     updater._rm_package(pkg, conf, session, db_package=package)
             else:

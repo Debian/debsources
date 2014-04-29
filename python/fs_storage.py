@@ -18,7 +18,6 @@
 import logging
 import os
 import shutil
-import signal
 import subprocess
 
 from subprocess_workaround import subprocess_setup
@@ -31,11 +30,10 @@ def extract_package(pkg, destdir):
     parentdir = os.path.dirname(destdir)
     if not os.path.isdir(parentdir):
         os.makedirs(parentdir)
-    if os.path.isdir(destdir):	# remove stale dir, dpkg-source doesn't clobber
+    if os.path.isdir(destdir):  # remove stale dir, dpkg-source doesn't clobber
         shutil.rmtree(str(destdir))
     dsc = pkg.dsc_path()
-    cmd = ['dpkg-source', '--no-copy', '--no-check',
-           '-x', dsc, destdir ]
+    cmd = ['dpkg-source', '--no-copy', '--no-check', '-x', dsc, destdir]
     logfile = destdir + '.log'
     donefile = destdir + '.done'
     with open(logfile, 'w') as log:
@@ -56,7 +54,7 @@ def remove_package(pkg, destdir):
     try:
         os.removedirs(os.path.dirname(destdir))
     except OSError:
-        pass	# parent dir is likely non empty, due to other package versions
+        pass  # parent dir is likely non empty, due to other package versions
 
 
 def walk(sources_dir, test=None):
@@ -78,13 +76,13 @@ def walk(sources_dir, test=None):
                 path = os.path.join(cwd, item)
                 if test is None or test(path):
                     yield path
-            del(dirs[:])	# stop recursion
+            del(dirs[:])  # stop recursion
 
 
 def walk_pkg_files(pkgdir, file_table=None):
-    """walk through the source files in pkgdir, yielding a pair <relpath, abspath>
-    a time. `relpath` is a path relative to `pkgdir`, whereas `abspath` is an
-    absolute path (as long as `pkgdir` is absolute as well; otherwise it is "as
+    """walk the source files in pkgdir, yielding pairs <relpath, abspath>.
+    `relpath` is a path relative to `pkgdir`, whereas `abspath` is an absolute
+    path (as long as `pkgdir` is absolute as well; otherwise it is "as
     absolute" as `pkgdir` is)
 
     """
@@ -119,12 +117,12 @@ def parse_path(fname):
     where the ext key is None for package directories
     """
     steps = fname.split('/')
-    path = { 'package': steps[-2],
-             'version': steps[-1],
-             'ext':     None }
-    if os.path.isdir(fname):	# e.g. contrib/v/vor/0.5.5-2
+    path = {'package': steps[-2],
+            'version': steps[-1],
+            'ext':     None}
+    if os.path.isdir(fname):  # e.g. contrib/v/vor/0.5.5-2
         pass
-    elif os.path.isfile(fname):	# e.g. contrib/v/vor/0.5.5-2.checksums
+    elif os.path.isfile(fname):  # e.g. contrib/v/vor/0.5.5-2.checksums
         (base, ext) = os.path.splitext(path['version'])
         path['version'] = base
         path['ext'] = ext

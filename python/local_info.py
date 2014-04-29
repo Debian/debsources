@@ -17,6 +17,7 @@
 
 import os
 
+
 def read_news(fname):
     """try to read an HTML news file and return either the contained markup.
     Return None if the file doesn't exist or is empty

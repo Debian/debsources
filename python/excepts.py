@@ -17,13 +17,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# The package or the version doesn't exist in the DB
-class InvalidPackageOrVersionError(ValueError): pass
-
-# The Folder or File doesn't exist in the disk
-class FileOrFolderNotFound(Exception): pass
+class InvalidPackageOrVersionError(ValueError):
+    """The package or the version doesn't exist in the DB"""
+    pass
 
 
-class Http500Error(Exception): pass
-class Http404Error(Exception): pass
-class Http403Error(Exception): pass
+class FileOrFolderNotFound(Exception):
+    """The Folder or File doesn't exist in the disk"""
+    pass
+
+
+class Http500Error(Exception):
+    pass
+
+
+class Http404Error(Exception):
+    pass
+
+
+class Http403Error(Exception):
+    pass

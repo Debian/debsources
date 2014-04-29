@@ -23,19 +23,19 @@ from sqlalchemy import sql
 
 import dbutils
 
-from models import Ctag, File, MAX_KEY_LENGTH
+from models import Ctag, File
+from consts import MAX_KEY_LENGTH
 
 
 conf = None
 
-CTAGS_FLAGS = [ '--recurse',
-                '--excmd=number',
-                '--fields=+lnz',
-                # '--extra=+q',
-                '--sort=no',
-                '--links=no',
-]
-                
+CTAGS_FLAGS = ['--recurse',
+               '--excmd=number',
+               '--fields=+lnz',
+               # '--extra=+q',
+               '--sort=no',
+               '--links=no']
+
 MY_NAME = 'ctags'
 MY_EXT = '.' + MY_NAME
 ctags_path = lambda pkgdir: pkgdir + MY_EXT
@@ -46,6 +46,7 @@ BULK_FLUSH_THRESHOLD = 20000
 # maximum number of detailed warnings for malformed tags that will be emitted.
 # used to avoid flooding logs
 BAD_TAGS_THRESHOLD = 5
+
 
 def parse_ctags(path):
     """parse exuberant ctags tags file
@@ -60,17 +61,17 @@ def parse_ctags(path):
       }
     """
     def parse_tag(line):
-        tag = { 'kind': None, 'line': None, 'language': None }
+        tag = {'kind': None, 'line': None, 'language': None}
         # initialize with extension fields which are not guaranteed to exist
 
         fields = line.rstrip().split('\t')
-        tag['tag'] = fields[0].decode()	# will fail when encountering encoding issues;
-					# that is intended
+        tag['tag'] = fields[0].decode()  # will fail when encountering encoding
+                                         # issues; that is intended
         tag['path'] = fields[1]
         # note: ignore fields[2], ex_cmd
 
-        for ext in fields[3:]:	# parse extension fields
-            k, v = ext.split(':', 1) # caution: "typeref:struct:__RAW_READ_INFO"
+        for ext in fields[3:]:  # parse extension fields
+            k, v = ext.split(':', 1)  # caution: "typeref:struct:__RAW_R_INFO"
             if k == 'kind':
                 tag['kind'] = v
             elif k == 'line':
@@ -78,7 +79,7 @@ def parse_ctags(path):
             elif k == 'language':
                 tag['language'] = v.lower()
             else:
-                pass	# ignore other fields
+                pass  # ignore other fields
 
         assert tag['line'] is not None
         assert len(tag['tag']) <= MAX_KEY_LENGTH
@@ -89,7 +90,7 @@ def parse_ctags(path):
         for line in ctags:
             # e.g. 'music\tsound.c\t13;"\tkind:v\tline:13\tlanguage:C\tfile:\n'
             # see CTAGS(1), section "TAG FILE FORMAT"
-            if line.startswith('!_TAG'):	# skip ctags metadata
+            if line.startswith('!_TAG'):  # skip ctags metadata
                 continue
             try:
                 yield parse_tag(line)
@@ -110,8 +111,8 @@ def add_package(session, pkg, pkgdir, file_table):
     ctagsfile_tmp = ctagsfile + '.new'
 
     if 'hooks.fs' in conf['backends']:
-        if not os.path.exists(ctagsfile): # extract tags only if needed
-            cmd = [ 'ctags' ] + CTAGS_FLAGS + [ '-o', ctagsfile_tmp ]
+        if not os.path.exists(ctagsfile):  # extract tags only if needed
+            cmd = ['ctags'] + CTAGS_FLAGS + ['-o', ctagsfile_tmp]
             # ASSUMPTION: will be run under pkgdir as CWD, which is needed to
             # get relative paths right. The assumption is enforced by the
             # updater
@@ -120,8 +121,9 @@ def add_package(session, pkg, pkgdir, file_table):
             os.rename(ctagsfile_tmp, ctagsfile)
 
     if 'hooks.db' in conf['backends']:
-        db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])
-        curfile = {None: None}	# poor man's cache for last <relpath, file_id>;
+        db_package = dbutils.lookup_package(session, pkg['package'],
+                                            pkg['version'])
+        curfile = {None: None}  # poor man's cache for last <relpath, file_id>;
                              # rely on the fact that ctags file are path-sorted
         insert_q = sql.insert(Ctag.__table__)
         insert_params = []
@@ -135,8 +137,7 @@ def add_package(session, pkg, pkgdir, file_table):
                            # 'file_id': 	# will be filled below
                            'line': tag['line'],
                            'kind': tag['kind'],
-                           'language': tag['language'],
-                       })
+                           'language': tag['language']})
                 relpath = tag['path']
                 if file_table:
                     try:
@@ -147,18 +148,20 @@ def add_package(session, pkg, pkgdir, file_table):
                     try:
                         params['file_id'] = curfile[relpath]
                     except KeyError:
-                        file_ = session.query(File).filter_by(package_id=db_package.id,
-                                                              path=relpath).first()
+                        file_ = session.query(File) \
+                                       .filter_by(package_id=db_package.id,
+                                                  path=relpath) \
+                                       .first()
                         if not file_:
                             continue
-                        curfile = { relpath: file_.id }
+                        curfile = {relpath: file_.id}
                         params['file_id'] = file_.id
                 insert_params.append(params)
                 if len(insert_params) >= BULK_FLUSH_THRESHOLD:
                     session.execute(insert_q, insert_params)
                     session.flush()
                     insert_params = []
-            if insert_params:	# might be empty if there are no ctags at all!
+            if insert_params:  # might be empty if there are no ctags at all!
                 session.execute(insert_q, insert_params)
                 session.flush()
 
@@ -173,7 +176,8 @@ def rm_package(session, pkg, pkgdir, file_table):
             os.unlink(ctagsfile)
 
     if 'hooks.db' in conf['backends']:
-        db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])
+        db_package = dbutils.lookup_package(session, pkg['package'],
+                                            pkg['version'])
         session.query(Ctag) \
                .filter_by(package_id=db_package.id) \
                .delete()

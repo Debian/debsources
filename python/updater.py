@@ -36,8 +36,8 @@ from models import SuiteInfo, Suite, Package
 from models import HistorySize, HistorySlocCount
 from subprocess_workaround import subprocess_setup
 
-KNOWN_EVENTS = [ 'add-package', 'rm-package' ]
-NO_OBSERVERS = dict( [ (e, []) for e in KNOWN_EVENTS ] )
+KNOWN_EVENTS = ['add-package', 'rm-package']
+NO_OBSERVERS = dict([(e, []) for e in KNOWN_EVENTS])
 
 # maximum number of pending rows before performing a (bulk) insert
 BULK_FLUSH_THRESHOLD = 50000
@@ -106,15 +106,15 @@ def notify(conf, event, session, pkg, pkgdir, file_table=None):
            '--arg', pkgdir,
            '--arg', package,
            '--arg', version,
-           os.path.join(conf['bin_dir'], event + '.d')
-       ]
+           os.path.join(conf['bin_dir'], event + '.d')]
 
     # fire shell hooks
     try:
         subprocess.check_output(cmd, stderr=subprocess.STDOUT,
                                 preexec_fn=subprocess_setup)
     except subprocess.CalledProcessError, e:
-        logging.error('shell hooks for %s on %s returned exit code %d. Output: %s'
+        logging.error('shell hooks for %s on %s returned exit code %d.'
+                      ' Output: %s'
                       % (event, pkg, e.returncode, e.output))
         raise e
 
@@ -134,7 +134,8 @@ def notify_plugins(observers, event, session, pkg, pkgdir,
             if triggers is None:
                 action(session, pkg, pkgdir, file_table)
             elif (event, title) in triggers:
-                logging.info('notify (forced) %s/%s for %s' % (event, title, pkg))
+                logging.info('notify (forced) %s/%s for %s'
+                             % (event, title, pkg))
                 if not dry:
                     action(session, pkg, pkgdir, file_table)
         except:
@@ -146,8 +147,10 @@ def ensure_dir(dir):
     if not os.path.exists(dir):
         os.makedirs(dir)
 
+
 def ensure_cache_dir(conf):
     ensure_dir(conf['cache_dir'])
+
 
 def ensure_stats_dir(conf):
     ensure_dir(os.path.join(conf['cache_dir'], 'stats'))
@@ -220,7 +223,8 @@ def _rm_package(pkg, conf, session, db_package=None):
     logging.info("remove %s..." % pkg)
     pkgdir = pkg.extraction_dir(conf['sources_dir'])
     if not db_package:
-        db_package = lookup_package(session, pkg['package'], pkg['version'])
+        db_package = dbutils.lookup_package(session,
+                                            pkg['package'], pkg['version'])
         if not db_package:
             logging.warn('cannot find package %s, not removing' % pkg)
             return
@@ -242,12 +246,12 @@ def _add_suite(conf, session, suite, sticky=False):
     """
     suite_version = None
     suite_reldate = None
-    if DEBIAN_RELEASES.has_key(suite):
+    if suite in DEBIAN_RELEASES:
         suite_info = DEBIAN_RELEASES[suite]
         suite_version = suite_info['version']
         suite_reldate = suite_info['date']
         if sticky:
-            assert suite_info['archived'] == True
+            assert suite_info['archived']
     db_suite = SuiteInfo(suite, sticky=sticky,
                          version=suite_version,
                          release_date=suite_reldate)
@@ -267,6 +271,7 @@ def extract_new(status, conf, session, mirror):
             # means everything went fine last time we tried. If not, we redo
             # everything, just to be safe
             _add_package(pkg, conf, session)
+        pkgdir = pkg.extraction_dir(conf['sources_dir'])
         if conf['force_triggers']:
             try:
                 notify_plugins(conf['observers'], 'add-package',
@@ -277,7 +282,6 @@ def extract_new(status, conf, session, mirror):
                 logging.exception('trigger failure on %s' % pkg)
         # add entry for sources.txt, temporarily with no suite associated
         pkg_id = (pkg['package'], pkg['version'])
-        pkgdir = pkg.extraction_dir(conf['sources_dir'])
         status.sources[pkg_id] = pkg.archive_area(), pkg.dsc_path(), pkgdir, []
 
     logging.info('add new packages...')
@@ -304,8 +308,8 @@ def garbage_collect(status, conf, session, mirror):
             expire_days = conf['expire_days']
             age = None
             if os.path.exists(pkgdir):
-                age = datetime.now() \
-                      - datetime.fromtimestamp(os.path.getmtime(pkgdir))
+                age = datetime.now() - \
+                    datetime.fromtimestamp(os.path.getmtime(pkgdir))
             if not age or age.days >= expire_days:
                 _rm_package(pkg, conf, session, db_package=version)
             else:
@@ -341,15 +345,15 @@ def update_suites(status, conf, session, mirror):
             else:
                 logging.debug('add suite mapping: %s/%s -> %s'
                               % (pkg, version, suite))
-                params = { 'package_id': db_package.id,
-                           'suite': suite }
+                params = {'package_id': db_package.id,
+                          'suite': suite}
                 insert_params.append(params)
-                if status.sources.has_key(pkg_id):
+                if pkg_id in status.sources:
                     # fill-in incomplete suite information in status
                     status.sources[pkg_id][-1].append(suite)
                 else:
                     # defensive measure to make update_suites() more reusable
-                    logging.warn('cannot find package %s/%s in status during suite update'
+                    logging.warn('cannot find %s/%s during suite update'
                                  % (pkg, version))
         if not conf['dry_run'] and 'db' in conf['backends'] \
            and len(insert_params) >= BULK_FLUSH_THRESHOLD:
@@ -371,7 +375,7 @@ def update_suites(status, conf, session, mirror):
     with open(src_list_path + '.new', 'w') as src_list:
         for pkg_id, src_entry in status.sources.iteritems():
             fields = list(pkg_id)
-            fields.extend(src_entry[:-1])	# all except suites
+            fields.extend(src_entry[:-1])  # all except suites
             fields.append(string.join(src_entry[-1], ','))
             src_list.write(string.join(fields, '\t') + '\n')
     os.rename(src_list_path + '.new', src_list_path)
@@ -380,9 +384,9 @@ def update_suites(status, conf, session, mirror):
 def __target_suites(session, suites=None):
     if not suites:
         sticky_suites = statistics.sticky_suites(session)
-        suites = [ suite
-                   for suite in statistics.suites(session, suites='all')
-                   if suite not in sticky_suites ]
+        suites = [suite
+                  for suite in statistics.suites(session, suites='all')
+                  if suite not in sticky_suites]
     return suites
 
 
@@ -409,17 +413,17 @@ def update_statistics(status, conf, session, suites=None):
         stats = {}
 
     def store_sloccount_stats(summary, d, prefix, db_obj):
-        """Update stats dictionary `d`, and DB object `db_obj`, with per-language
-        sloccount statistics available in `summary`, generating dictionary keys
-        that start with `prefix`. Missing languages in summary will be stored
-        as 0-value entries.
+        """Update stats dictionary `d`, and DB object `db_obj`, with per
+        language sloccount statistics available in `summary`, generating
+        dictionary keys that start with `prefix`. Missing languages in summary
+        will be stored as 0-value entries.
 
         """
         total_slocs = 0
         for lang in SLOCCOUNT_LANGUAGES:
-            k = prefix + '.' +  lang
+            k = prefix + '.' + lang
             v = 0
-            if summary.has_key(lang):
+            if lang in summary:
                 v = summary[lang]
             d[k] = v
             setattr(db_obj, 'lang_' + lang, v)
@@ -493,7 +497,7 @@ def update_charts(status, conf, session, suites=None):
     ensure_stats_dir(conf)
     suites = __target_suites(session, suites)
 
-    CHARTS = [	# <period, granularity> paris
+    CHARTS = [  # <period, granularity> paris
         ('1 month', 'hourly'),
         ('1 year', 'daily'),
         ('5 years', 'weekly'),
@@ -506,9 +510,8 @@ def update_charts(status, conf, session, suites=None):
             for suite in suites + ['ALL']:
                 series = getattr(statistics, 'history_size_' + granularity) \
                          (session, metric, interval=period, suite=suite)
-                chart_file = os.path.join(conf['cache_dir'], 'stats', \
-                        '%s-%s-%s.png' % \
-                            (suite, metric, period.replace(' ', '-')))
+                chart_file = os.path.join(conf['cache_dir'], 'stats',
+                    '%s-%s-%s.png' % (suite, metric, period.replace(' ', '-')))
                 if not conf['dry_run']:
                     charts.size_plot(series, chart_file)
 
@@ -529,7 +532,7 @@ def update_charts(status, conf, session, suites=None):
         if sloc_suite == 'ALL':
             sloc_suite = None
         slocs = statistics.sloccount_summary(session, suite=sloc_suite)
-        chart_file = os.path.join(conf['cache_dir'], 'stats', \
+        chart_file = os.path.join(conf['cache_dir'], 'stats',
                                   '%s-sloc_pie-current.png' % suite)
         if not conf['dry_run']:
             charts.sloc_pie(slocs, chart_file)
@@ -550,7 +553,7 @@ __STAGES = {
     'cache': STAGE_CACHE,
     'charts': STAGE_CHARTS,
 }
-__STAGE2STR = { v:k for k,v in __STAGES.items() }
+__STAGE2STR = {v: k for k, v in __STAGES.items()}
 UPDATE_STAGES = set(__STAGES.values())
 
 
@@ -558,15 +561,16 @@ def parse_stage(s):
     try:
         return __STAGES[s]
     except KeyError:
-        raise ValueError, 'unknown update stage %s' % s
+        raise ValueError('unknown update stage %s' % s)
 
 parse_stages = lambda s: set(map(parse_stage, s.split()))
+
 
 def pp_stage(stage):
     try:
         return __STAGE2STR[stage]
     except KeyError:
-        raise ValueError, 'unknown update stage %s' % s
+        raise ValueError('unknown update stage %s' % stage)
 
 
 def update(conf, session, stages=UPDATE_STAGES):
@@ -578,16 +582,16 @@ def update(conf, session, stages=UPDATE_STAGES):
     status = UpdateStatus()
 
     if STAGE_EXTRACT in stages:
-        extract_new(status, conf, session, mirror)	# stage 1
+        extract_new(status, conf, session, mirror)      # stage 1
     if STAGE_SUITES in stages:
-        update_suites(status, conf, session, mirror)	# stage 2
+        update_suites(status, conf, session, mirror)    # stage 2
     if STAGE_GC in stages:
-        garbage_collect(status, conf, session, mirror)	# stage 3
+        garbage_collect(status, conf, session, mirror)  # stage 3
     if STAGE_STATS in stages:
-        update_statistics(status, conf, session)	# stage 4
+        update_statistics(status, conf, session)        # stage 4
     if STAGE_CACHE in stages:
-        update_metadata(status, conf, session)		# stage 5
+        update_metadata(status, conf, session)          # stage 5
     if STAGE_CHARTS in stages:
-        update_charts(status, conf, session)		# stage 6
+        update_charts(status, conf, session)            # stage 6
 
     logging.info('finish')

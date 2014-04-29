@@ -57,7 +57,7 @@ class SourcePackage(deb822.Sources):
         """comparison based on <package, version> pairs only
         """
         cmp1 = cmp(self['package'], other['package'])
-        if cmp1:	# 'package' key is enough to discriminate
+        if cmp1:  # 'package' key is enough to discriminate
             return cmp1
         return version_compare(self['version'], other['version'])
 
@@ -90,8 +90,8 @@ class SourcePackage(deb822.Sources):
                 area = 'non-free'
             else:
                 area = 'main'
-        except KeyError:	# section not found, might happen in some old
-                                # buggy packages; try an heuristic
+        except KeyError:  # section not found, might happen in some old
+                          # buggy packages; try an heuristic
             try:
                 directory = self['directory']
                 steps = directory.split('/')
@@ -101,7 +101,7 @@ class SourcePackage(deb822.Sources):
                     area = 'contrib'
                 else:
                     area = 'main'
-                logging.warn('guessed archive area %s for section-less package %s'
+                logging.warn('guessed archive area %s for package %s'
                              % (area, self))
             except KeyError:
                 area = None
@@ -139,10 +139,10 @@ class SourcePackage(deb822.Sources):
         if area is None:
             return None
 
-        steps = [ area,
-                  self.prefix(),
-                  self['package'],
-                  self['version'] ]
+        steps = [area,
+                 self.prefix(),
+                 self['package'],
+                 self['version']]
         if basedir:
             steps.insert(0, basedir)
         return os.path.join(*steps)
@@ -156,10 +156,9 @@ class SourceMirror(object):
         """create a handle to a local source mirror rooted at path
         """
         self.mirror_root = path
-        self._suites = None	# dict: suite name -> [<package, version>]
-        self._packages = None	# set(<package, version>)
+        self._suites = None    # dict: suite name -> [<package, version>]
+        self._packages = None  # set(<package, version>)
         self._dists_dir = os.path.join(path, 'dists')
-
 
     @property
     def suites(self):
@@ -170,10 +169,9 @@ class SourceMirror(object):
         """
         if self._suites is None:
             for pkg in self.ls():
-                pass	# hack: rely on ls' side-effects to populate suites
+                pass  # hack: rely on ls' side-effects to populate suites
         assert self._suites is not None
         return self._suites
-
 
     @property
     def packages(self):
@@ -184,10 +182,9 @@ class SourceMirror(object):
         """
         if self._packages is None:
             for pkg in self.ls():
-                pass	# hack: rely on ls' side-effects to populate _packages
+                pass  # hack: rely on ls' side-effects to populate _packages
         assert self._packages is not None
         return self._packages
-
 
     def __find_Sources_gz(self):
         """Find Sources.gz entries contained in the mirror
@@ -195,14 +192,13 @@ class SourceMirror(object):
         return them as <suite, path> pairs
         """
         for root, dirs, files in os.walk(self._dists_dir):
-            src_indexes = [ os.path.join(root, file)
-                            for file in files
-                            if file == "Sources.gz" ]
+            src_indexes = [os.path.join(root, file)
+                           for file in files
+                           if file == "Sources.gz"]
             for f in src_indexes:
                 steps = f.split('/')
-                suite = steps[-4]	# wheezy, jessie, sid, ...
+                suite = steps[-4]  # wheezy, jessie, sid, ...
                 yield suite, f
-
 
     def pkg_prefixes(self):
         """Return the list of relevant package prefixes
@@ -222,10 +218,9 @@ class SourceMirror(object):
                     prefixes.add(os.path.relpath(entry, pool_subdir))
         return sorted(list(prefixes))
 
-
     def ls(self, suite=None):
-        """List SourcePackages instances of packages available in the mirror. If
-        `suite` is given, ignore all other suites.
+        """List SourcePackages instances of packages available in the mirror.
+        If `suite` is given, ignore all other suites.
 
         Side effect: populate the properties suites and packages (beware of the
         interaction between this and passing `suite`: other suites will not be
@@ -242,7 +237,7 @@ class SourceMirror(object):
                 for pkg in SourcePackage.iter_paragraphs(i):
                     pkg_id = (pkg['package'], pkg['version'])
 
-                    if not self._suites.has_key(cursuite):
+                    if not cursuite in self._suites:
                         self._suites[cursuite] = []
                     self._suites[cursuite].append(pkg_id)
 
@@ -250,7 +245,6 @@ class SourceMirror(object):
                         self._packages.add(pkg_id)
                         pkg['x-debsources-mirror-root'] = self.mirror_root
                         yield pkg
-
 
     def ls_suites(self, aliases=False):
         """list suites available in the archive
@@ -268,7 +262,6 @@ class SourceMirror(object):
                 suites.append(f)
 
         return suites
-
 
 
 class SourceMirrorArchive(SourceMirror):

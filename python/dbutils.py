@@ -19,13 +19,10 @@
 # TODO rename this module to db_storage, coherently with fs_storage
 
 import logging
-import os
-
-from sqlalchemy.sql import exists
 
 import fs_storage
 
-from models import Base, File, Package, PackageName, SuiteInfo, Suite
+from models import File, Package, PackageName, SuiteInfo, Suite
 from models import VCS_TYPES
 
 
@@ -57,16 +54,16 @@ def add_package(session, pkg, pkgdir, sticky=False):
     if not db_package:
         db_package = Package(pkg['version'], package_name, sticky)
         db_package.area = pkg.archive_area()
-        if pkg.has_key('vcs-browser'):
+        if 'vcs-browser' in pkg:
             db_package.vcs_browser = pkg['vcs-browser']
         for vcs_type in VCS_TYPES:
             vcs_key = 'vcs-' + vcs_type
-            if pkg.has_key(vcs_key):
+            if vcs_key in pkg:
                 db_package.vcs_type = vcs_type
                 db_package.vcs_url = pkg[vcs_key]
         package_name.versions.append(db_package)
         session.add(db_package)
-        session.flush()	# to get a version.id, needed by File below
+        session.flush()  # to get a version.id, needed by File below
 
         # add individual source files to the File table
         file_table = {}
@@ -94,8 +91,8 @@ def lookup_package(session, package, version):
     """
     return session.query(Package) \
                   .join(PackageName) \
-                  .filter(Package.version==version) \
-                  .filter(PackageName.name==package) \
+                  .filter(Package.version == version) \
+                  .filter(PackageName.name == package) \
                   .first()
 
 
@@ -122,7 +119,7 @@ def pkg_prefixes(session):
            UNION \
            SELECT DISTINCT(substring(name from 1 for 4)) FROM package_names
            WHERE substring(name from 1 for 3) = 'lib'"""
-    return sorted([ row[0] for row in session.execute(q) ])
+    return sorted([row[0] for row in session.execute(q)])
 
 
 def rm_file(session, package, relpath, file_table=None):

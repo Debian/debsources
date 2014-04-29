@@ -36,6 +36,7 @@ sums_path = lambda pkgdir: pkgdir + MY_EXT
 # maximum number of ctags after which a (bulk) insert is sent to the DB
 BULK_FLUSH_THRESHOLD = 100000
 
+
 def parse_checksums(path):
     """parse sha256 checksums from a file in SHA256SUM(1) format
 
@@ -69,34 +70,38 @@ def add_package(session, pkg, pkgdir, file_table):
         out.write('%s  %s\n' % (sha256, relpath))
 
     if 'hooks.fs' in conf['backends']:
-        if not os.path.exists(sumsfile): # compute checksums only if needed
+        if not os.path.exists(sumsfile):  # compute checksums only if needed
             with open(sumsfile_tmp, 'w') as out:
-                for (relpath, abspath) in fs_storage.walk_pkg_files(pkgdir, file_table):
+                for (relpath, abspath) in \
+                        fs_storage.walk_pkg_files(pkgdir, file_table):
                     emit_checksum(out, relpath, abspath)
             os.rename(sumsfile_tmp, sumsfile)
 
     if 'hooks.db' in conf['backends']:
-        db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])
+        db_package = dbutils.lookup_package(session, pkg['package'],
+                                            pkg['version'])
         insert_q = sql.insert(Checksum.__table__)
         insert_params = []
-        if not session.query(Checksum).filter_by(package_id=db_package.id).first():
+        if not session.query(Checksum) \
+                      .filter_by(package_id=db_package.id) \
+                      .first():
             # ASSUMPTION: if *a* checksum of this package has already
             # been added to the db in the past, then *all* of them have,
             # as additions are part of the same transaction
             for (sha256, relpath) in parse_checksums(sumsfile):
                 params = {'package_id': db_package.id,
-                          'sha256': sha256,
-                      }
+                          'sha256': sha256}
                 if file_table:
                     try:
                         file_id = file_table[relpath]
-                        checksum = Checksum(db_package, file_id, sha256)
                         params['file_id'] = file_id
                     except KeyError:
                         continue
                 else:
-                    file_ = session.query(File).filter_by(package_id=db_package.id,
-                                                          path=relpath).first()
+                    file_ = session.query(File) \
+                                   .filter_by(package_id=db_package.id,
+                                              path=relpath) \
+                                   .first()
                     if not file_:
                         continue
                     params['file_id'] = file_.id
@@ -105,7 +110,7 @@ def add_package(session, pkg, pkgdir, file_table):
                     session.execute(insert_q, insert_params)
                     session.flush()
                     insert_params = []
-            if insert_params:	# source packages shouldn't be empty but...
+            if insert_params:  # source packages shouldn't be empty but...
                 session.execute(insert_q, insert_params)
                 session.flush()
 
@@ -120,7 +125,8 @@ def rm_package(session, pkg, pkgdir, file_table):
             os.unlink(sumsfile)
 
     if 'hooks.db' in conf['backends']:
-        db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])
+        db_package = dbutils.lookup_package(session, pkg['package'],
+                                            pkg['version'])
         session.query(Checksum) \
                .filter_by(package_id=db_package.id) \
                .delete()

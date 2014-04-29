@@ -20,14 +20,13 @@ import importlib
 import logging
 import os
 import string
-import sys
 
 from debian import deb822
 
 import updater
 
-# TODO split configuration entry to a separate file: it's getting too complex
-# TODO more uniform handling of config typing/defaults: it's getting too brittle
+# TODO split configuration entry to a separate file: it's too complex
+# TODO more uniform handling of config typing/defaults: it's too brittle
 
 DEFAULT_CONFIG = {
     'dry_run':     'false',
@@ -43,12 +42,12 @@ LOG_FMT_FILE = '%(asctime)s %(module)s:%(levelname)s %(message)s'
 LOG_FMT_STDERR = '%(module)s:%(levelname)s %(message)s'
 LOG_DATE_FMT = '%Y-%m-%d %H:%M:%S'
 
-LOG_LEVELS = {	# XXX module logging has no built-in way to do this conversion
+LOG_LEVELS = {  # XXX module logging has no built-in way to do this conversion
                 # unless one uses the logging.config cannon. Really?!?
-    'debug':    logging.DEBUG,		# verbosity >= 3
-    'info':     logging.INFO,		# verbosity >= 2
-    'warning':  logging.WARNING,	# verbosity >= 1
-    'error':    logging.ERROR,		# verbosity >= 0
+    'debug':    logging.DEBUG,    # verbosity >= 3
+    'info':     logging.INFO,     # verbosity >= 2
+    'warning':  logging.WARNING,  # verbosity >= 1
+    'error':    logging.ERROR,    # verbosity >= 0
     'critical': logging.CRITICAL,
 }
 
@@ -70,7 +69,7 @@ def load_conf(conffile):
     conf = configparser.SafeConfigParser(DEFAULT_CONFIG)
     conf.read(conffile)
 
-    typed_conf = { 'conffile': conffile }
+    typed_conf = {'conffile': conffile}
     for (key, value) in conf.items('infra'):
         if key == 'expire_days':
             value = int(value)
@@ -99,8 +98,8 @@ def load_conf(conffile):
 
 
 def add_arguments(cmdline):
-    """populate `cmdline` --- an `argpase.ArgumentParser` --- with cmdline options
-    shared across several Debsources tools
+    """populate `cmdline` --- an `argpase.ArgumentParser` --- with cmdline
+    options shared across several Debsources tools
 
     """
     cmdline.add_argument('--backend', '-b',
@@ -163,8 +162,8 @@ def override_conf(conf, cmdline):
 
 
 def conf_warnings(conf):
-    """check configuration `conf` and log warnings about non standard settings if
-    needed
+    """check configuration `conf` and log warnings about non standard settings
+    if needed
 
     """
     if conf['dry_run']:
@@ -172,7 +171,7 @@ def conf_warnings(conf):
     if conf['backends'] != set(DEFAULT_CONFIG['backends'].split()):
         logging.warn('only using backends: %s' % list(conf['backends']))
     if conf['stages'] != updater.UPDATE_STAGES:
-        logging.warn('only doing stages: %s' % \
+        logging.warn('only doing stages: %s' %
                      map(updater.pp_stage, conf['stages']))
     if conf['force_triggers']:
         logging.warn('forcing triggers: %s' % conf['force_triggers'])
@@ -196,12 +195,12 @@ def load_hooks(conf):
 
     def declare_ext_callback(ext, title=""):
         assert ext.startswith('.')
-        assert not file_exts.has_key(ext)
+        assert ext not in file_exts
         file_exts[ext] = title
 
-    debsources = { 'subscribe': subscribe_callback,
-                   'declare_ext': declare_ext_callback,
-                   'config':    conf }
+    debsources = {'subscribe': subscribe_callback,
+                  'declare_ext': declare_ext_callback,
+                  'config': conf}
     for hook in conf['hooks']:
         plugin = importlib.import_module('plugins.hook_' + hook)
         plugin.init_plugin(debsources)
@@ -231,18 +230,18 @@ def init_logging(conf, console_verbosity=logging.ERROR):
     """
     logger = logging.getLogger()
 
-    if conf.has_key('log_file'): # log to file and stderr, w/ different settings
-        logging.basicConfig(level=logging.DEBUG,	# log everything by default
+    if 'log_file' in conf:  # log to file and stderr, w/ different settings
+        logging.basicConfig(level=logging.DEBUG,  # log everything by default
                             format=LOG_FMT_FILE,
                             datefmt=LOG_DATE_FMT,
                             filename=conf['log_file'])
-        logger.handlers[0].setLevel(conf['log_level'])	# logfile verbosity
+        logger.handlers[0].setLevel(conf['log_level'])  # logfile verbosity
 
         stderr_log = logging.StreamHandler()
-        stderr_log.setLevel(console_verbosity)	# console verbosity
+        stderr_log.setLevel(console_verbosity)  # console verbosity
         stderr_log.setFormatter(logging.Formatter(LOG_FMT_STDERR))
         logger.addHandler(stderr_log)
-    else:	# only log to stderr
+    else:  # only log to stderr
         logging.basicConfig(level=console_verbosity,
                             format=LOG_FMT_STDERR,
                             datefmt=LOG_DATE_FMT)

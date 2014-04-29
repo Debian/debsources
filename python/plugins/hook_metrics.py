@@ -50,8 +50,8 @@ def add_package(session, pkg, pkgdir, file_table):
     metricsfile_tmp = metricsfile + '.new'
 
     if 'hooks.fs' in conf['backends']:
-        if not os.path.exists(metricsfile):	# run du only if needed
-            cmd = [ 'du', '--summarize', pkgdir ]
+        if not os.path.exists(metricsfile):  # run du only if needed
+            cmd = ['du', '--summarize', pkgdir]
             metric_value = int(subprocess.check_output(cmd).split()[0])
             with open(metricsfile_tmp, 'w') as out:
                 out.write('%s\t%d\n' % (metric_type, metric_value))
@@ -64,7 +64,8 @@ def add_package(session, pkg, pkgdir, file_table):
             # from previous runs...
             metric_value = parse_metrics(metricsfile)[metric_type]
 
-        db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])
+        db_package = dbutils.lookup_package(session, pkg['package'],
+                                            pkg['version'])
         metric = session.query(Metric) \
                         .filter_by(package_id=db_package.id,
                                    metric=metric_type,
@@ -85,7 +86,8 @@ def rm_package(session, pkg, pkgdir, file_table):
             os.unlink(metricsfile)
 
     if 'hooks.db' in conf['backends']:
-        db_package = dbutils.lookup_package(session, pkg['package'], pkg['version'])
+        db_package = dbutils.lookup_package(session, pkg['package'],
+                                            pkg['version'])
         session.query(Metric) \
                .filter_by(package_id=db_package.id) \
                .delete()

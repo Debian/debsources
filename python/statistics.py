@@ -38,18 +38,18 @@ def _count(query):
 
 
 def _time_series(query):
-    return [ (row['timestamp'], row['value']) for row in query ]
+    return [(row['timestamp'], row['value']) for row in query]
 
 
 SUITES = {
-    'release': [# known releases sorted by release date
+    'release': [  # known releases sorted by release date
         'buzz', 'rex', 'bo', 'hamm', 'slink', 'potato', 'woody', 'sarge',
         'etch', 'lenny', 'squeeze', 'wheezy', 'jessie', 'sid'
     ],
-    'devel': [], # known release variants; filled below
-    'all': [],	 # all known releases + variants; filled below
+    'devel': [],  # known release variants; filled below
+    'all': [],	  # all known releases + variants; filled below
 }
-SUITE_VARIANTS = [ '%s-updates', '%s-proposed-updates', '%s-backports' ]
+SUITE_VARIANTS = ['%s-updates', '%s-proposed-updates', '%s-backports']
 for s in SUITES['release']:
     SUITES['all'].append(s)
     for v in SUITE_VARIANTS:
@@ -72,11 +72,12 @@ def suites(session, suites='release'):
 
     """
     if not suites in SUITES.keys():
-        raise ValueError, 'unknown set of suites: %s' % suites
+        raise ValueError('unknown set of suites: %s' % suites)
 
-    db_suites = [ row[0] for row in session.query(distinct(Suite.suite)) ]
+    db_suites = [row[0] for row in session.query(distinct(Suite.suite))]
     db_suites = filter(lambda s: s in SUITES[suites], db_suites)
-    by_release_date = lambda s1, s2: cmp(SUITES[suites].index(s1), SUITES[suites].index(s2))
+    by_release_date = lambda s1, s2: cmp(SUITES[suites].index(s1),
+                                         SUITES[suites].index(s2))
     return sorted(db_suites, cmp=by_release_date)
 
 
@@ -86,7 +87,7 @@ def sticky_suites(session):
     """
     q = session.query(SuiteInfo.name) \
                .filter(SuiteInfo.sticky == True)
-    return [ row[0] for row in q ]
+    return [row[0] for row in q]
 
 
 def disk_usage(session, suite=None, areas=None):
@@ -228,13 +229,14 @@ def _hist_size_sample(session, metric, interval, projection, suite=None):
       WHERE timestamp >= now() - interval '%(interval)s' \
       %(filter)s \
       ORDER BY %(projection)s DESC, timestamp DESC"
-    kw = { 'metric': metric,
-           'projection': projection,
-           'interval': interval,
-           'filter': '' }
+    kw = {'metric': metric,
+          'projection': projection,
+          'interval': interval,
+          'filter': ''}
     if suite:
         kw['filter'] = "AND suite = '%s'" % suite
     return _time_series(session.execute(q % kw))
+
 
 def history_size_hourly(session, metric, interval, suite):
     """return recent size history of `metric`, over the past `interval`
@@ -249,6 +251,7 @@ def history_size_hourly(session, metric, interval, suite):
                              projection="date_trunc('hour', timestamp)",
                              suite=suite)
 
+
 def history_size_daily(session, metric, interval, suite):
     """like `history_size_full`, but taking daily samples"""
     logging.debug('take daily %s sample of %s for suite %s'
@@ -257,6 +260,7 @@ def history_size_daily(session, metric, interval, suite):
                              projection="date_trunc('day', timestamp)",
                              suite=suite)
 
+
 def history_size_weekly(session, metric, interval, suite):
     """like `history_size_full`, but taking weekly samples"""
     logging.debug('take weekly %s sample of %s for suite %s'
@@ -264,6 +268,7 @@ def history_size_weekly(session, metric, interval, suite):
     return _hist_size_sample(session, metric, interval,
                              projection="date_trunc('week', timestamp)",
                              suite=suite)
+
 
 def history_size_monthly(session, metric, interval, suite):
     """like `history_size_full`, but taking monthly samples"""
@@ -281,19 +286,20 @@ def _hist_sloc_sample(session, interval, projection, suite=None):
       WHERE timestamp >= now() - interval '%(interval)s' \
       %(filter)s \
       ORDER BY %(projection)s DESC, timestamp DESC"
-    kw = { 'projection': projection,
-           'interval': interval,
-           'filter': '' }
+    kw = {'projection': projection,
+          'interval': interval,
+          'filter': ''}
     if suite:
         kw['filter'] = "AND suite = '%s'" % suite
 
-    series = dict([ (lang, []) for lang in SLOCCOUNT_LANGUAGES ])
+    series = dict([(lang, []) for lang in SLOCCOUNT_LANGUAGES])
     samples = session.execute(q % kw)
     for row in samples:
         for lang in SLOCCOUNT_LANGUAGES:
             series[lang].append((row['timestamp'], row['lang_' + lang]))
 
     return series
+
 
 def history_sloc_hourly(session, interval, suite):
     """return recent sloccount history, over the past `interval`. Return a
@@ -308,6 +314,7 @@ def history_sloc_hourly(session, interval, suite):
                              projection="date_trunc('hour', timestamp)",
                              suite=suite)
 
+
 def history_sloc_daily(session, interval, suite):
     """like `history_sloc_full`, but taking daily samples"""
     logging.debug('take daily sloccount sample for suite %s' % suite)
@@ -315,12 +322,14 @@ def history_sloc_daily(session, interval, suite):
                              projection="date_trunc('day', timestamp)",
                              suite=suite)
 
+
 def history_sloc_weekly(session, interval, suite):
     """like `history_sloc_full`, but taking weekly samples"""
     logging.debug('take weekly sloccount sample for suite %s' % suite)
     return _hist_sloc_sample(session, interval,
                              projection="date_trunc('week', timestamp)",
                              suite=suite)
+
 
 def history_sloc_monthly(session, interval, suite):
     """like `history_sloc_full`, but taking monthly samples"""
@@ -331,8 +340,8 @@ def history_sloc_monthly(session, interval, suite):
 
 
 def sloc_per_package(session, suite=None, areas=None):
-    """return the size (in SLOC) of each package in `suite`, if given, or of all
-    known packages
+    """return the size (in SLOC) of each package in `suite`, if given, or of
+    all known packages
 
     only consider packages in archive `areas`, if given
 
@@ -365,15 +374,15 @@ def load_metadata_cache(fname):
     """
     stats = {}
     with open(fname) as f:
-        for line in open(fname):
+        for line in f:
             k, v = line.split(None, 1)
             stats[k] = int(v)
     return stats
 
 
 def save_metadata_cache(stats, fname):
-    """save a `stats.data` file, atomically, reading values from an integer-valued
-    dictionary
+    """save a `stats.data` file, atomically, reading values from an
+    integer-valued dictionary
 
     """
     with open(fname + '.new', 'w') as out:
