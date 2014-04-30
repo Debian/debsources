@@ -511,7 +511,9 @@ def update_charts(status, conf, session, suites=None):
                 series = getattr(statistics, 'history_size_' + granularity) \
                          (session, metric, interval=period, suite=suite)
                 chart_file = os.path.join(conf['cache_dir'], 'stats',
-                    '%s-%s-%s.png' % (suite, metric, period.replace(' ', '-')))
+                                          '%s-%s-%s.png' %
+                                          (suite, metric,
+                                           period.replace(' ', '-')))
                 if not conf['dry_run']:
                     charts.size_plot(series, chart_file)
 
@@ -521,8 +523,9 @@ def update_charts(status, conf, session, suites=None):
             # historical histogram
             mseries = getattr(statistics, 'history_sloc_' + granularity) \
                       (session, interval=period, suite=suite)
-            chart_file = os.path.join(conf['cache_dir'], 'stats', \
-                    '%s-sloc-%s.png' % (suite, period.replace(' ', '-')))
+            chart_file = os.path.join(conf['cache_dir'], 'stats',
+                                      '%s-sloc-%s.png' %
+                                      (suite, period.replace(' ', '-')))
             if not conf['dry_run']:
                 charts.sloc_plot(mseries, chart_file)
 

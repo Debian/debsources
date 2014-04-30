@@ -41,7 +41,7 @@ def main():
     mainlib.conf_warnings(conf)
 
     try:
-        db = sqlalchemy.create_engine(conf['db_uri'], echo = args.verbose >= 4)
+        db = sqlalchemy.create_engine(conf['db_uri'], echo=args.verbose >= 4)
         Session = sqlalchemy.orm.sessionmaker()
         if conf['single_transaction']:
             session = Session(bind=db, autocommit=False)
@@ -50,9 +50,9 @@ def main():
         else:
             session = Session(bind=db, autocommit=True)
             updater.update(conf, session, stage=conf['stages'])
-    except SystemExit:	# exit as requested
+    except SystemExit:  # exit as requested
         raise
-    except:	# store trace in log, then exit
+    except:  # store trace in log, then exit
         logging.exception('unhandled exception. Abort')
         sys.exit(2)
 

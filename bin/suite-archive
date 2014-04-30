@@ -30,12 +30,15 @@ import mainlib
 
 
 def main():
-    cmdline = argparse.ArgumentParser(description='Debsources suite archive manager')
+    cmdline = argparse.ArgumentParser(description='Debsources suite '
+                                      'archive manager')
     cmdline.add_argument('action', metavar='ACTION',
                          choices=['add', 'list', 'remove'],
-                         help='action to perform on the archive of sticky suites')
+                         help='action to perform on the archive of '
+                         'sticky suites')
     cmdline.add_argument('suite', metavar='SUITE', nargs='?', default=None,
-                         help='name of the suite to act upon (for "add" and "remove")')
+                         help='name of the suite to act upon '
+                         '(for "add" and "remove")')
     mainlib.add_arguments(cmdline)
     args = cmdline.parse_args()
     if args.action in ['add', 'remove'] and args.suite is None:
@@ -49,23 +52,24 @@ def main():
     mainlib.conf_warnings(conf)
 
     try:
-        db = sqlalchemy.create_engine(conf['db_uri'], echo = args.verbose >= 4)
+        db = sqlalchemy.create_engine(conf['db_uri'], echo=args.verbose >= 4)
         Session = sqlalchemy.orm.sessionmaker()
-        session = Session(bind=db, autocommit = not conf['single_transaction'])
+        session = Session(bind=db, autocommit=not conf['single_transaction'])
         archive = debmirror.SourceMirrorArchive(conf['mirror_archive_dir'])
         if args.action == 'add':
             archiver.add_suite(conf, session, args.suite, archive)
         elif args.action == 'list':
             print "# name\tindexed\tavailable"
-            for (suite, present) in archiver.list_suites(conf, session, archive).items():
+            for (suite, present) in \
+                    archiver.list_suites(conf, session, archive).items():
                 print '%s\t%s\t%s' % (suite, present['db'], present['archive'])
         elif args.action == 'remove':
             archiver.remove_suite(conf, session, args.suite)
         if conf['single_transaction']:
             session.commit()
-    except SystemExit:	# exit as requested
+    except SystemExit:  # exit as requested
         raise
-    except:	# store trace in log, then exit
+    except:  # store trace in log, then exit
         logging.exception('unhandled exception. Abort')
         sys.exit(2)
 

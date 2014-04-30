@@ -105,29 +105,46 @@ def add_arguments(cmdline):
     cmdline.add_argument('--backend', '-b',
                          metavar='BACKEND',
                          action='append',
-                         help='only affect a specific backend (one of: db, fs, hooks, hooks.db, hooks.fs). By default all backends are enabled; the special value "none" disables all backends. Can be specified multiple times. Warning: using this you can mess up the update logic, use at your own risk.',
+                         help='only affect a specific backend (one of: db, fs,'
+                         'hooks, hooks.db, hooks.fs). By default all backends'
+                         'are enabled; the special value "none" disables all'
+                         'backends. Can be specified multiple times. Warning:'
+                         'using this you can mess up the update logic, use at '
+                         'your own risk.',
                          dest='backends')
     cmdline.add_argument('--config', '-c', dest='conffile',
                          help='alternate configuration file')
     cmdline.add_argument('--dburi', '-u', dest='dburi',
-                         help='database URI, e.g. postgresql:///mydbname. Override configuration file setting "db_uri"')
+                         help='database URI, e.g. postgresql:///mydbname.'
+                         'Override configuration file setting "db_uri"')
     cmdline.add_argument('--dry-run', '-d', dest='dry',
                          action='store_true',
                          help='enable dry run mode')
     cmdline.add_argument('--single-transaction', dest='single_transaction',
                          choices=['yes', 'no'],
-                         help='use a single big DB transaction, instead of smaller per-package transactions (default: yes)')
+                         help='use a single big DB transaction, instead of '
+                         'smaller per-package transactions (default: yes)')
     cmdline.add_argument('--stage', '-s',
                          metavar='STAGE',
                          action='append',
-                         help='only perform a specific update stage (one of: %s). By default all update stages are performed. Can be specified multiple times. Warning: using this you can mess up the update logic, use at your own risk.' % \
-                           map(updater.pp_stage, updater.UPDATE_STAGES),
+                         help='only perform a specific update stage '
+                         '(one of: %s). By default all update stages are '
+                         'performed. Can be specified multiple times. Warning:'
+                         'using this you can mess up the update logic, use at'
+                         'your own risk.' %
+                         map(updater.pp_stage, updater.UPDATE_STAGES),
                          dest='stages')
     cmdline.add_argument('--trigger', '-t',
                          metavar='EVENT/HOOK',
                          action='append',
-                         help='force trigger of (Python) HOOK for EVENT. By default all registered hooks are triggered for all changed packages. Event is one of: %s. Hook is one of the available hooks. Can be specified multiple times. Warning: if not used with "--backend none" it might lead to multiple execution of the same hook. E.g.: -t add-package/checksums' % \
-                           string.join(updater.KNOWN_EVENTS, ', '),
+                         help='force trigger of (Python) HOOK for EVENT. By '
+                         'default all registered hooks are triggered for all '
+                         'changed packages. Event is one of: %s. Hook is one '
+                         'of the available hooks. Can be specified multiple '
+                         'times. Warning: if not used with "--backend none" '
+                         'it might lead to multiple execution of the same '
+                         'hook. E.g.: -t add-package/checksums' %
+                         string.join(updater.KNOWN_EVENTS, ', '),
                          dest='force_triggers')
     cmdline.add_argument('--verbose', '-v',
                          action='count',

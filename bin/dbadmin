@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
-#               2013  Stefano Zacchiroli <zack@upsilon.cc>
+#               2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -19,11 +19,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import sys, os
 import time
 
 from sqlalchemy import create_engine
-from sqlalchemy.sql import exists
 
 import bininit
 
@@ -35,12 +33,14 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Manage Debsources DB")
     parser.add_argument("dburi",
-                        help="SQLAlchemy URI to the DB, e.g. postgres://username:password@localhost:5432/debsources")
+                        help="SQLAlchemy URI to the DB, e.g. postgres://"
+                        "username:password@localhost:5432/debsources")
     parser.add_argument("--createdb",
                         help="create DB schema",
                         action="store_true")
     parser.add_argument("--dropdb",
-                        help="destroy existing DB schema (WARNING: you will lose all data)",
+                        help="destroy existing DB schema "
+                        "(WARNING: you will lose all data)",
                         action="store_true")
     parser.add_argument("--verbose",
                         help="verbose logging (default: be quiet)",
