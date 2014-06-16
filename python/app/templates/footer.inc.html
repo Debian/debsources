@@ -7,6 +7,12 @@
   Browse <a href="{{ url_for('listpackages_html', page=1) }}">by page</a>
 </p>
 <hr />
+<div style="position: relative">
+{% if credits -%}
+<div style="position: absolute; right: 0">
+{{ credits|safe }}
+</div>
+{% endif %}
 <p>
   Debsources &mdash; Copyright (C) 2011&ndash;2014 Matthieu Caneill, Stefano
   Zacchiroli, and
@@ -22,3 +28,4 @@
   Contact: <a href="mailto:info@{{ config.DOMAIN }}">info@{{ config.DOMAIN }}</a>.
   Last update: {{ last_update }}.
 </p>
+</div>

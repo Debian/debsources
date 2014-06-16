@@ -63,10 +63,15 @@ def skeleton_variables():
         last_update = "unknown"
     
     packages_prefixes = PackageName.get_packages_prefixes(app.config["CACHE_DIR"])
+
+    credits_file = os.path.join(app.config["LOCAL_DIR"], "credits.html")
+    credits = local_info.read_html(credits_file)
+
     
     return dict(packages_prefixes=packages_prefixes,
                 searchform = SearchForm(),
-                last_update=last_update)
+                last_update=last_update,
+                credits=credits)
 
 # jinja2 Filter to format big numbers
 def format_big_num(num):
@@ -876,7 +881,7 @@ class AllStatsView(GeneralView):
         devel_suites=["debian_" + x for x in statistics.suites(session, suites='devel')]
         
         news_file = os.path.join(app.config["LOCAL_DIR"], "news.stats.html")
-        news = local_info.read_news(news_file)
+        news = local_info.read_html(news_file)
 
         return dict(results=res,
                     languages=SLOCCOUNT_LANGUAGES,

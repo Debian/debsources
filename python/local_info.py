@@ -18,8 +18,8 @@
 import os
 
 
-def read_news(fname):
-    """try to read an HTML news file and return either the contained markup.
+def read_html(fname):
+    """try to read an HTML file and return the contained markup.
     Return None if the file doesn't exist or is empty
 
     """
