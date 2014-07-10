@@ -30,3 +30,13 @@ def read_html(fname):
         if not markup:
             markup = None
     return markup
+
+
+def read_update_ts(fname):
+    last_update = None
+    try:
+        with open(fname) as f:
+            last_update = f.readline().strip()
+    except IOError:
+        last_update = "unknown"
+    return last_update

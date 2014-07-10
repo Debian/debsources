@@ -56,20 +56,16 @@ def shutdown_session(exception=None):
 # last_update (for the footer)
 @app.context_processor
 def skeleton_variables():
-    try:
-        with open(os.path.join(app.config['CACHE_DIR'], 'last-update')) as f:
-            last_update = f.readline()
-    except IOError:
-        last_update = "unknown"
-    
+    update_ts_file = os.path.join(app.config['CACHE_DIR'], 'last-update')
+    last_update = local_info.read_update_ts(update_ts_file)
+
     packages_prefixes = PackageName.get_packages_prefixes(app.config["CACHE_DIR"])
 
     credits_file = os.path.join(app.config["LOCAL_DIR"], "credits.html")
     credits = local_info.read_html(credits_file)
 
-    
     return dict(packages_prefixes=packages_prefixes,
-                searchform = SearchForm(),
+                searchform=SearchForm(),
                 last_update=last_update,
                 credits=credits)
 
@@ -178,11 +174,15 @@ def server_error(e):
 
 @app.route('/api/ping/')
 def ping():
+    update_ts_file = os.path.join(app.config['CACHE_DIR'], 'last-update')
+    last_update = local_info.read_update_ts(update_ts_file)
     try:
-        a = session.query(Package).first().id # database check
+        session.query(Package).first().id  # database check
     except:
         return jsonify(dict(status="db error", http_status_code=500)), 500
-    return jsonify(dict(status="ok", http_status_code=200))
+    return jsonify(dict(status="ok",
+                        http_status_code=200,
+                        last_update=last_update))
 
 ### INDEX, DESCRIPTION, DOCUMENTATION, ABOUT ###
 
