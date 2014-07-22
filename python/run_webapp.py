@@ -6,8 +6,8 @@ import argparse
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run Flask app, for dev/debug.')
-    parser.add_argument('--ip', type=str, default='127.0.0.1', required=False,
-                        help='Local IP adress')
+    parser.add_argument('--host', type=str, default='127.0.0.1', required=False,
+                        help='Host, use 0.0.0.0 to listen on all IPs.')
     parser.add_argument('--port', type=int, default=5000, required=False,
                         help='Port in use')
     args = parser.parse_args()
@@ -17,4 +17,4 @@ if __name__ == "__main__":
 
     from app import app_wrapper
     app_wrapper.go()
-    app_wrapper.app.run(debug=True, host=args.ip, port=args.port)
+    app_wrapper.app.run(debug=True, host=args.host, port=args.port)
