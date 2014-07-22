@@ -46,6 +46,7 @@ Infrastructure
 
 Debian packages:
 
+- dpkg-dev
 - debmirror
 - exuberant-ctags
 - postgresql >= 9.1
