@@ -25,9 +25,9 @@ import os
 from sqlalchemy import distinct
 from sqlalchemy import func as sql_func
 
-from consts import SLOCCOUNT_LANGUAGES
-from models import Checksum, Ctag, Metric, SlocCount
-from models import Suite, SuiteInfo, Package, PackageName
+from debsources.consts import SLOCCOUNT_LANGUAGES
+from debsources.models import Checksum, Ctag, Metric, SlocCount, \
+    Suite, SuiteInfo, Package, PackageName
 
 
 def _count(query):

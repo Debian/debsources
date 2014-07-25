@@ -20,9 +20,9 @@ import os
 import re
 import subprocess
 
-import dbutils
+from debsources import dbutils
 
-from models import SlocCount
+from debsources.models import SlocCount
 
 
 conf = None

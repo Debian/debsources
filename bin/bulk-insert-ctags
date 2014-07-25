@@ -11,8 +11,8 @@ import sys
 from sqlalchemy import create_engine, bindparam, Integer, LargeBinary, String
 from sqlalchemy.sql import text as sql_query
 
-import fs_storage
-from plugins.hook_ctags import parse_ctags
+from debsources import fs_storage
+from debsources.plugins.hook_ctags import parse_ctags
 
 METADATA_SUFFIX = '.ctags'
 METADATA_SUFFIX_LEN = len(METADATA_SUFFIX)

@@ -22,10 +22,10 @@ import subprocess
 
 from os.path import abspath, dirname
 
-import models
+from debsources import models
 
-from subprocess_workaround import subprocess_setup
-from testdata import *
+from debsources.subprocess_workaround import subprocess_setup
+from debsources.tests.testdata import *
 
 
 TEST_DB_DUMP = os.path.join(TEST_DATA_DIR, 'db/pg-dump-custom')

@@ -20,10 +20,9 @@
 
 import logging
 
-import fs_storage
-
-from models import File, Package, PackageName, SuiteInfo, Suite
-from models import VCS_TYPES
+from debsources import fs_storage
+from debsources.models import File, Package, PackageName, SuiteInfo, Suite
+from debsources.models import VCS_TYPES
 
 
 def add_package(session, pkg, pkgdir, sticky=False):

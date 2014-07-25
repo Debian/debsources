@@ -31,10 +31,10 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from debian.debian_support import version_compare
 
-from excepts import InvalidPackageOrVersionError, FileOrFolderNotFound
-from consts import VCS_TYPES, SLOCCOUNT_LANGUAGES, \
+from debsources.excepts import InvalidPackageOrVersionError, FileOrFolderNotFound
+from debsources.consts import VCS_TYPES, SLOCCOUNT_LANGUAGES, \
     CTAGS_LANGUAGES, METRIC_TYPES, AREAS, PREFIXES_DEFAULT
-import filetype
+from debsources import filetype
 
 Base = declarative_base()
 

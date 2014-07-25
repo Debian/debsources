@@ -6,8 +6,8 @@ import rlcompleter
 
 from pprint import pprint
 
-import mainlib
-import sqla_session
+from debsources import mainlib
+from debsources import sqla_session
 
 from app import *
 

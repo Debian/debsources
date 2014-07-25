@@ -25,8 +25,8 @@ import json
 from nose.tools import istest, nottest
 from nose.plugins.attrib import attr
 
-from db_testing import DbTestFixture
-from testdata import TEST_DB_NAME
+from debsources.tests.db_testing import DbTestFixture
+from debsources.tests.testdata import TEST_DB_NAME
 
 @attr('webapp')
 class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
@@ -42,7 +42,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         cls.db_setup_cls()
         
         # creates an app object, which is used to run queries
-        from app import app_wrapper
+        from debsources.app import app_wrapper
         
         # erases a few configuration parameters needed for testing:
         uri = "postgresql:///" + TEST_DB_NAME

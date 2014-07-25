@@ -21,8 +21,8 @@ PTS_PREFIX = "http://tracker.debian.org/pkg/"
 # it would add a dependence layer with app.config
 
 
-from models import PackageName, Package, Suite, SlocCount, Metric
-from excepts import Http500Error, Http404Error
+from debsources.models import PackageName, Package, Suite, SlocCount, Metric
+from debsources.excepts import Http500Error, Http404Error
 
 # to generate PTS link safely (for internal links we use url_for)
 try:

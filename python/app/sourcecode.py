@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
-from filetype import get_highlightjs_language
+from debsources.filetype import get_highlightjs_language
 
 class SourceCodeIterator(object):
     def __init__(self, filepath, hl=None, msg=None, encoding="utf8"):

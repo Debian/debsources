@@ -25,16 +25,16 @@ from datetime import datetime
 from email.utils import formatdate
 from sqlalchemy import sql, not_
 
-import charts
-import dbutils
-import fs_storage
-import statistics
+from debsources import charts
+from debsources import dbutils
+from debsources import fs_storage
+from debsources import statistics
 
-from consts import DEBIAN_RELEASES, SLOCCOUNT_LANGUAGES
-from debmirror import SourceMirror, SourcePackage
-from models import SuiteInfo, Suite, Package
-from models import HistorySize, HistorySlocCount
-from subprocess_workaround import subprocess_setup
+from debsources.consts import DEBIAN_RELEASES, SLOCCOUNT_LANGUAGES
+from debsources.debmirror import SourceMirror, SourcePackage
+from debsources.models import SuiteInfo, Suite, Package, \
+    HistorySize, HistorySlocCount
+from debsources.subprocess_workaround import subprocess_setup
 
 KNOWN_EVENTS = ['add-package', 'rm-package']
 NO_OBSERVERS = dict([(e, []) for e in KNOWN_EVENTS])

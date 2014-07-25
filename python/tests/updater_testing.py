@@ -6,7 +6,7 @@ import os
 
 from os.path import abspath, dirname
 
-from testdata import *
+from debsources.tests.testdata import *
 
 
 def mk_conf(tmpdir):

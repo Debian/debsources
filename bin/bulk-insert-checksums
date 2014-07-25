@@ -11,8 +11,8 @@ import sys
 from sqlalchemy import create_engine, bindparam, Integer, LargeBinary, String
 from sqlalchemy.sql import text as sql_query
 
-import fs_storage
-from plugins.hook_checksums import parse_checksums
+from debsources import fs_storage
+from debsources.plugins.hook_checksums import parse_checksums
 
 METADATA_SUFFIX = '.checksums'
 METADATA_SUFFIX_LEN = len(METADATA_SUFFIX)

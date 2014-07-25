@@ -20,11 +20,11 @@ import os
 
 from sqlalchemy import sql
 
-import dbutils
-import fs_storage
-import hashutil
+from debsources import dbutils
+from debsources import fs_storage
+from debsources import hashutil
 
-from models import Checksum, File
+from debsources.models import Checksum, File
 
 
 conf = None

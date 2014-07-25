@@ -25,18 +25,18 @@ import unittest
 from nose.tools import istest, nottest
 from nose.plugins.attrib import attr
 
-import archiver
-import dbutils
-import debmirror
-import mainlib
-import models
-import statistics
-import updater
+from debsources import archiver
+from debsources import dbutils
+from debsources import debmirror
+from debsources import mainlib
+from debsources import models
+from debsources import statistics
+from debsources import updater
 
-from consts import DEBIAN_RELEASES
-from db_testing import DbTestFixture, pg_dump, DB_COMPARE_QUERIES
-from updater_testing import mk_conf
-from testdata import *
+from debsources.consts import DEBIAN_RELEASES
+from debsources.tests.db_testing import DbTestFixture, pg_dump, DB_COMPARE_QUERIES
+from debsources.tests.updater_testing import mk_conf
+from debsources.tests.testdata import *
 
 
 @attr('infra')

@@ -15,6 +15,6 @@ if __name__ == "__main__":
     PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
     sys.path.append(PROJECT_DIR)
 
-    from app import app_wrapper
+    from debsources.app import app_wrapper
     app_wrapper.go()
     app_wrapper.app.run(debug=True, host=args.host, port=args.port)

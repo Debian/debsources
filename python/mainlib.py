@@ -23,7 +23,7 @@ import string
 
 from debian import deb822
 
-import updater
+from debsources import updater
 
 # TODO split configuration entry to a separate file: it's too complex
 # TODO more uniform handling of config typing/defaults: it's too brittle

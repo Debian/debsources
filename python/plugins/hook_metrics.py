@@ -21,7 +21,7 @@ import subprocess
 
 import dbutils
 
-from models import Metric
+from debsources.models import Metric
 
 
 conf = None

@@ -24,26 +24,28 @@ from flask import render_template, redirect, url_for, request, safe_join, \
 from flask.views import View
 from sqlalchemy import and_, func as sql_func
 
-import local_info
+from debsources import local_info
 
-from sqla_session import _close_session
+from debsources.sqla_session import _close_session
 
 
-from app import app_wrapper
+from debsources.app import app_wrapper
 app = app_wrapper.app
 session = app_wrapper.session
 
-from excepts import InvalidPackageOrVersionError, FileOrFolderNotFound, \
+from debsources.excepts import InvalidPackageOrVersionError, FileOrFolderNotFound, \
     Http500Error, Http404Error, Http404ErrorSuggestions, Http403Error
-from models import Ctag, Package, PackageName, Checksum, Location, \
+from debsources.models import Ctag, Package, PackageName, Checksum, Location, \
     Directory, SourceFile, SlocCount, Metric, File
-from sourcecode import SourceCodeIterator
-from forms import SearchForm
-from infobox import Infobox
+from debsources.app.sourcecode import SourceCodeIterator
+from debsources.app.forms import SearchForm
+from debsources.app.infobox import Infobox
 
-from extract_stats import extract_stats
-from consts import SLOCCOUNT_LANGUAGES
-import statistics
+from debsources.app.extract_stats import extract_stats
+from debsources.consts import SLOCCOUNT_LANGUAGES
+from debsources import statistics
+
+from debsources.app.pagination import Pagination
 
 
 @app.teardown_appcontext
@@ -80,8 +82,6 @@ def format_big_num(num):
 app.jinja_env.filters['format_big_num'] = format_big_num
 
 ### PAGINATION ###
-
-from pagination import Pagination
 
 def url_for_other_page(page):
     args = dict(request.args.copy())

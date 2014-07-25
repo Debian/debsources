@@ -28,16 +28,16 @@ from nose.tools import istest
 from nose.plugins.attrib import attr
 from os.path import abspath, dirname
 
-import dbutils
-import mainlib
-import models
-import statistics
-import updater
+from debsources import dbutils
+from debsources import mainlib
+from debsources import models
+from debsources import statistics
+from debsources import updater
 
-from db_testing import DbTestFixture, pg_dump, DB_COMPARE_QUERIES
-from updater_testing import mk_conf
-from subprocess_workaround import subprocess_setup
-from testdata import *
+from debsources.tests.db_testing import DbTestFixture, pg_dump, DB_COMPARE_QUERIES
+from debsources.tests.updater_testing import mk_conf
+from debsources.subprocess_workaround import subprocess_setup
+from debsources.tests.testdata import *
 
 
 def compare_dirs(dir1, dir2, exclude=[]):

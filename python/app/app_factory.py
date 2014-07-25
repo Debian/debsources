@@ -23,7 +23,7 @@ from ConfigParser import SafeConfigParser
 
 from flask import Flask
 
-from sqla_session import _get_engine_session
+from debsources.sqla_session import _get_engine_session
 
 class AppWrapper(object):
     """

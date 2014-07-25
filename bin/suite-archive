@@ -24,9 +24,9 @@ import sys
 
 import bininit
 
-import archiver
-import debmirror
-import mainlib
+from debsources import archiver
+from debsources import debmirror
+from debsources import mainlib
 
 
 def main():

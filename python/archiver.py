@@ -24,10 +24,10 @@ import updater
 
 from sqlalchemy import sql
 
-import dbutils
+from debsources import dbutils
 
-from debmirror import SourcePackage
-from models import Suite, Package
+from debsources.debmirror import SourcePackage
+from debsources.models import Suite, Package
 
 
 def list_suites(conf, session, archive):

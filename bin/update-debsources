@@ -24,8 +24,8 @@ import sys
 
 import bininit
 
-import mainlib
-import updater
+from debsources import mainlib
+from debsources import updater
 
 
 def main():

@@ -21,10 +21,10 @@ import subprocess
 
 from sqlalchemy import sql
 
-import dbutils
+from debsources import dbutils
 
-from models import Ctag, File
-from consts import MAX_KEY_LENGTH
+from debsources.models import Ctag, File
+from debsources.consts import MAX_KEY_LENGTH
 
 
 conf = None
