@@ -12,8 +12,8 @@ if __name__ == "__main__":
                         help='Port in use')
     args = parser.parse_args()
 
-    PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-    sys.path.append(PROJECT_DIR)
+    # PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+    # sys.path.append(PROJECT_DIR)
 
     from debsources.app import app_wrapper
     app_wrapper.go()

@@ -9,7 +9,7 @@ from pprint import pprint
 from debsources import mainlib
 from debsources import sqla_session
 
-from app import *
+from debsources.app import *
 
 PYDIR = os.path.dirname(os.path.abspath(__file__))
 ROOTDIR = os.path.dirname(PYDIR)
