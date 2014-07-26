@@ -15,6 +15,6 @@ fi
 export DEBSOURCES_ROOT DEBSOURCES_MIRROR COPYRIGHT_DIR
 cd $DEBSOURCES_ROOT
 
-bin/foreach \
+bin/debsources-foreach \
     cache/sources.txt \
     ${DEBSOURCES_ROOT}/contrib/export-debian-copyright.worker

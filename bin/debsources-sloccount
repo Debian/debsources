@@ -55,7 +55,7 @@ if ($ARGV[0] eq "--summary" or $ARGV[0] eq "-s") {
     shift @ARGV;
     $summary_mode = 1;
 }
-die "Usage: sloccount [--summary] { SOURCES-LIST | SLOC-FILE }\n" unless $ARGV[0];
+die "Usage: debsources-sloccount [--summary] { SOURCES-LIST | SLOC-FILE }\n" unless $ARGV[0];
 
 if ($summary_mode) {
     while (my $srcline = <>) {

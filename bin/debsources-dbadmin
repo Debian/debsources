@@ -23,7 +23,7 @@ import time
 
 from sqlalchemy import create_engine
 
-import bininit
+from debsources import bininit
 
 from debsources.models import Base
 

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright (C) 2014  Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -22,27 +22,16 @@ import logging
 import sqlalchemy
 import sys
 
-import bininit
+from debsources import bininit
 
-from debsources import archiver
-from debsources import debmirror
 from debsources import mainlib
+from debsources import updater
 
 
 def main():
-    cmdline = argparse.ArgumentParser(description='Debsources suite '
-                                      'archive manager')
-    cmdline.add_argument('action', metavar='ACTION',
-                         choices=['add', 'list', 'remove'],
-                         help='action to perform on the archive of '
-                         'sticky suites')
-    cmdline.add_argument('suite', metavar='SUITE', nargs='?', default=None,
-                         help='name of the suite to act upon '
-                         '(for "add" and "remove")')
+    cmdline = argparse.ArgumentParser(description='Debsources updater')
     mainlib.add_arguments(cmdline)
     args = cmdline.parse_args()
-    if args.action in ['add', 'remove'] and args.suite is None:
-        cmdline.error('%s requires a suite name' % args.action)
 
     conf = mainlib.load_conf(args.conffile or bininit.DEFAULT_CONFFILE)
     mainlib.override_conf(conf, args)
@@ -54,19 +43,13 @@ def main():
     try:
         db = sqlalchemy.create_engine(conf['db_uri'], echo=args.verbose >= 4)
         Session = sqlalchemy.orm.sessionmaker()
-        session = Session(bind=db, autocommit=not conf['single_transaction'])
-        archive = debmirror.SourceMirrorArchive(conf['mirror_archive_dir'])
-        if args.action == 'add':
-            archiver.add_suite(conf, session, args.suite, archive)
-        elif args.action == 'list':
-            print "# name\tindexed\tavailable"
-            for (suite, present) in \
-                    archiver.list_suites(conf, session, archive).items():
-                print '%s\t%s\t%s' % (suite, present['db'], present['archive'])
-        elif args.action == 'remove':
-            archiver.remove_suite(conf, session, args.suite)
         if conf['single_transaction']:
+            session = Session(bind=db, autocommit=False)
+            updater.update(conf, session, stages=conf['stages'])
             session.commit()
+        else:
+            session = Session(bind=db, autocommit=True)
+            updater.update(conf, session, stage=conf['stages'])
     except SystemExit:  # exit as requested
         raise
     except:  # store trace in log, then exit

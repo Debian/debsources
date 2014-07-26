@@ -19,10 +19,10 @@
 
 # Iterate a given command in each unpacked source package dir
 #
-# Usage: foreach SOURCES_LIST COMMAND...
+# Usage: debsources-foreach SOURCES_LIST COMMAND...
 
 die_usage() {
-    echo "Usage: foreach SOURCES_LIST COMMAND..."
+    echo "Usage: debsources-foreach SOURCES_LIST COMMAND..."
     exit 2
 }
 

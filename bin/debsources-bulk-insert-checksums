@@ -1,12 +1,12 @@
 #!/usr/bin/python
 
-import bininit
-
 import argparse
 import logging
 import mainlib
 import os
 import sys
+
+from debsources import bininit
 
 from sqlalchemy import create_engine, bindparam, Integer, LargeBinary, String
 from sqlalchemy.sql import text as sql_query

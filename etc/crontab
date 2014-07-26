@@ -7,11 +7,11 @@ DEBSRC=/srv/debsources
 
 # # 4 runs a day, ideally after the mirror network has stabilized.
 # # See http://ftp-master.debian.org/#dinstall for the big bang reference.
-# 1   4,10,16,22 *   *   *   debsources  $DEBSRC/bin/main
+# 1   4,10,16,22 *   *   *   debsources  $DEBSRC/bin/debsources-main
 
 # Extra run on Friday, for synchronization with codesearch.d.n, just in case
 # they grabbed versions we don't have yet.
-1   8          *   *   5   debsources  $DEBSRC/bin/main
+1   8          *   *   5   debsources  $DEBSRC/bin/debsources-main
 
 # daily DB dump
-13  20         *   *   *   debsources  $DEBSRC/bin/backup-db
+13  20         *   *   *   debsources  $DEBSRC/bin/debsources-backup-db

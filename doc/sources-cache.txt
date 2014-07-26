@@ -38,16 +38,16 @@ The format is as follows:
     package is part.
 
 
-bin/foreach
+bin/debsources-foreach
 ===========
 
-The `bin/foreach` helper script can be used to quickly execute scripts in batch
+The `bin/debsources-foreach` helper script can be used to quickly execute scripts in batch
 on all available source packages, based on sources.txt content.
 
 Here is an example which just dumps all information available in the source
 cache, showing the augmented environment that foreach prepares for client code:
 
-    $ bin/foreach cache/sources.txt 'echo ; pwd; env | grep DEBSOURCES_'
+    $ bin/debsources-foreach cache/sources.txt 'echo ; pwd; env | grep DEBSOURCES_'
     
     /srv/debsources/sources/main/l/ledger/2.6.2-3.1
 	DEBSOURCES_DIR=/srv/debsources/sources/main/l/ledger/2.6.2-3.1

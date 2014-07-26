@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2011-2014  Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2011-2013  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -17,12 +17,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Depends: rsync
+# Depends: debmirror
 
 conffile="$1"
 shift 1
 if ! [ -f "$conffile" ] ; then
-    echo "Usage: debian-source-archive DEBSOURCES_CONFFILE [RSYNC_OPTIONS]"
+    echo "Usage: debsources-debian-source-mirror DEBSOURCES_CONFFILE [DEBMIRROR_OPTIONS]"
     exit 2
 fi
 
@@ -32,16 +32,23 @@ conf_get () {
     local value=$(grep "^${key}:" "$conffile" | awk '{ print $2 }')
     value=$(echo $value | sed "s|%(root_dir)s|${root_dir}|")
     if [ -z "$value" ] ; then
-	echo "debian-source-archive: required configuration value $key not found in $conffile, abort." 1>&2
+	echo "debsources-debian-source-mirror: required configuration value $key not found in $conffile, abort." 1>&2
     fi
     echo "$value"
 }
 
-mirror_dir=$( conf_get "mirror_archive_dir" )
+mirror_host=$( conf_get "mirror_host" )
+mirror_suites=$( conf_get "mirror_suites" )
+mirror_sections=$( conf_get "mirror_sections" )
+mirror_dir=$( conf_get "mirror_dir" )
 
-cd "$mirror_dir"
-rsync \
-    --archive --delete \
-    --exclude='*.deb' \
-    $* \
-    archive.debian.org::debian-archive/debian/ .
+debmirror \
+  --source \
+  --host=${mirror_host} \
+  --method=rsync \
+  --dist=${mirror_suites} \
+  --section=${mirror_sections} \
+  --arch=none \
+  --ignore-release-gpg \
+  $* \
+  "$mirror_dir"

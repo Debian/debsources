@@ -542,7 +542,7 @@ class Location(object):
         pathl = []
 
         # we import flask here, in order to permit the use of this module
-        # without requiring the user to have flask (e.g. bin/update-debsources
+        # without requiring the user to have flask (e.g. bin/debsources-update
         # can run in another machine without flask, because it doesn't use
         # this method)
         from flask import url_for

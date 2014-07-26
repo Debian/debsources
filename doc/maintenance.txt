@@ -7,11 +7,11 @@ reference:
 1. reset the current DB by either emptying all tables or simply recreating the
    DB, e.g. with:
 
-     $ bin/dbadmin --dropdb --createdb postgresql:///debsources
+     $ bin/debsources-dbadmin --dropdb --createdb postgresql:///debsources
 
 2. refill DB backend(s), skipping filesystem:
 
-     $ bin/update-debsources --backend db --backend hooks --backend hooks.db
+     $ bin/debsources-update --backend db --backend hooks --backend hooks.db
 
 
 Add/remove plugins
@@ -19,11 +19,11 @@ Add/remove plugins
 
 To add a plugin:
 
-1. add the (Python) plugin under `bin/plugins/hook_NAME.py`
+1. add the (Python) plugin under `debsources/plugins/hook_NAME.py`
 
 2. trigger the `add-package` event:
 
-    $ bin/update-debsources -vvv --backend hooks.fs --backend hooks.db \
+    $ bin/debsources-update -vvv --backend hooks.fs --backend hooks.db \
                                  --trigger add-package/NAME
 
 3. add the hook to the `hooks` configuration entry in config(.local).ini

@@ -19,12 +19,12 @@
 
 # Check for DB/FS inconsistencies
 
-import bininit
-
 import argparse
 import logging
 import os
 import shutil
+
+from debsources import bininit
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
