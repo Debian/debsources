@@ -55,7 +55,7 @@ class AppWrapper(object):
         self.setup_logging()
         
         # importing the views creates all the routing for the app
-        from app import views
+        from debsources.app import views
         
     def setup_conf(self):
         """

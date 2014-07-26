@@ -219,7 +219,7 @@ def load_hooks(conf):
                   'declare_ext': declare_ext_callback,
                   'config': conf}
     for hook in conf['hooks']:
-        plugin = importlib.import_module('plugins.hook_' + hook)
+        plugin = importlib.import_module('debsources.plugins.hook_' + hook)
         plugin.init_plugin(debsources)
 
     return (observers, file_exts)

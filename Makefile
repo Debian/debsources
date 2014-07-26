@@ -11,12 +11,12 @@ doc:
 test: tests-fast
 
 disttest:
-	$(NOSE) $(TESTFLAGS) python/
+	$(NOSE) $(TESTFLAGS) debsources/
 
 tests-fast:
-	$(NOSE) $(TESTFLAGS) python/ -a \!slow
+	$(NOSE) $(TESTFLAGS) debsources/ -a \!slow
 tests-slow:
-	$(NOSE) $(TESTFLAGS) python/ -a slow
+	$(NOSE) $(TESTFLAGS) debsources/ -a slow
 
 clean:
 	$(MAKE) -C doc $@

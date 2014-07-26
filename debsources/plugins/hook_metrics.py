@@ -19,7 +19,7 @@ import logging
 import os
 import subprocess
 
-import dbutils
+from debsources import dbutils
 
 from debsources.models import Metric
 
