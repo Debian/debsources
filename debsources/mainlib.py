@@ -61,6 +61,8 @@ ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 PROBABLE_CONF_FILES = [
     '/etc/debsources/config.ini',
+    '/srv/debsources/etc/config.local.ini',
+    '/srv/debsources/etc/config.ini',
     os.path.join(ROOT_DIR, 'etc', 'config.local.ini'),
     os.path.join(ROOT_DIR, 'etc', 'config.ini'),
     ]
