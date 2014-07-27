@@ -22,8 +22,6 @@ import logging
 import sqlalchemy
 import sys
 
-from debsources import bininit
-
 from debsources import mainlib
 from debsources import updater
 
@@ -33,7 +31,7 @@ def main():
     mainlib.add_arguments(cmdline)
     args = cmdline.parse_args()
 
-    conf = mainlib.load_conf(args.conffile or bininit.DEFAULT_CONFFILE)
+    conf = mainlib.load_conf(args.conffile or mainlib.guess_conffile())
     mainlib.override_conf(conf, args)
     mainlib.init_logging(conf, mainlib.log_level_of_verbosity(args.verbose))
     logging.debug('loaded configuration from %s' % conf['conffile'])

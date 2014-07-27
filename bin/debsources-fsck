@@ -24,8 +24,6 @@ import logging
 import os
 import shutil
 
-from debsources import bininit
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -104,7 +102,7 @@ def main(conf, session, fix):
 if __name__ == '__main__':
     cmdline = argparse.ArgumentParser(description='Debsources fsck')
     cmdline.add_argument('--config', '-c', dest='conffile',
-                         default=bininit.DEFAULT_CONFFILE,
+                         default=mainlib.guess_conffile(),
                          help='alternate configuration file')
     cmdline.add_argument('--fix', '-f',
                          action='store_true',

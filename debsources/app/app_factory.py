@@ -16,13 +16,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import sys
 import logging
 from logging import Formatter, StreamHandler
-from ConfigParser import SafeConfigParser
 
 from flask import Flask
 
+from debsources import mainlib
 from debsources.sqla_session import _get_engine_session
 
 class AppWrapper(object):
@@ -59,27 +58,10 @@ class AppWrapper(object):
         
     def setup_conf(self):
         """
-        Sets up the configuration.
-        Will first try in etc/config.local.ini, then in etc/config.ini.
+        Sets up the configuration, getting it from mainlib.
         """
-        parser = SafeConfigParser()
-        conf_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                 '../../etc/config.local.ini')
-        if not(os.path.exists(conf_file)):
-            conf_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                     '../../etc/config.ini')
-
-        parser.read(conf_file)
-
-        for (key, value) in parser.items("webapp"):
-            if value.lower() == "false":
-                value = False
-            elif value.lower() == "true":
-                value = True
-            self.app.config[key.upper()] = value
-        
-        # needs to be done at this point, because we need the value in the conf
-        sys.path.append(self.app.config['PYTHON_DIR'])
+        conf = mainlib.load_conf(mainlib.guess_conffile(), section="webapp")
+        self.app.config.update(conf)
         
     def setup_sqlalchemy(self):
         """

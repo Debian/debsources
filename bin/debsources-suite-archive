@@ -22,7 +22,6 @@ import logging
 import sqlalchemy
 import sys
 
-from debsources import bininit
 
 from debsources import archiver
 from debsources import debmirror
@@ -44,7 +43,7 @@ def main():
     if args.action in ['add', 'remove'] and args.suite is None:
         cmdline.error('%s requires a suite name' % args.action)
 
-    conf = mainlib.load_conf(args.conffile or bininit.DEFAULT_CONFFILE)
+    conf = mainlib.load_conf(args.conffile or mainlib.guess_conffile())
     mainlib.override_conf(conf, args)
     mainlib.init_logging(conf, mainlib.log_level_of_verbosity(args.verbose))
     logging.debug('loaded configuration from %s' % conf['conffile'])

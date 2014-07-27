@@ -1,4 +1,5 @@
 # Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
+#               2014 Matthieu Caneill <matthieu.caneill@gmail.com>
 #
 # This file is part of Debsources.
 #
@@ -51,6 +52,13 @@ LOG_LEVELS = {  # XXX module logging has no built-in way to do this conversion
     'critical': logging.CRITICAL,
 }
 
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+PROBABLE_CONF_FILES = [
+    '/etc/debsources/config.ini',
+    os.path.join(ROOT_DIR, 'etc', 'config.local.ini'),
+    os.path.join(ROOT_DIR, 'etc', 'config.ini'),
+    ]
 
 def parse_exclude(fname):
     """parse file exclusion specifications from file `fname`
@@ -61,16 +69,22 @@ def parse_exclude(fname):
         exclude_specs = list(deb822.Deb822.iter_paragraphs(f))
     return exclude_specs
 
+def guess_conffile():
+    """ returns the first probable configuration file, that exists and is not
+    empty, and raises Exception if nothing is found """
+    for conffile in PROBABLE_CONF_FILES:
+        if os.path.exists(conffile):
+            if os.stat(conffile).st_size: # file is not empty
+                logging.info('Configuration file found: %s' % conffile)
+                return conffile
 
-def load_conf(conffile):
-    """load configuration from `conffile` and return it as a (typed) dictionary
+    raise Exception('No configuration file found in %s'
+                    % str(PROBABLE_CONF_FILES))
 
-    """
-    conf = configparser.SafeConfigParser(DEFAULT_CONFIG)
-    conf.read(conffile)
-
-    typed_conf = {'conffile': conffile}
-    for (key, value) in conf.items('infra'):
+def parse_conf_infra(items):
+    """ returns correct typing for the [infra] section """
+    typed = {}
+    for (key, value) in items:
         if key == 'expire_days':
             value = int(value)
         elif key == 'dry_run':
@@ -87,12 +101,50 @@ def load_conf(conffile):
         elif key == 'single_transaction':
             assert value in ['true', 'false']
             value = (value == 'true')
-        typed_conf[key] = value
+        typed[key] = value
+    return typed
 
-    exclude_file = os.path.join(typed_conf['local_dir'], 'exclude.conf')
-    typed_conf['exclude'] = []
-    if os.path.exists(exclude_file):
-        typed_conf['exclude'] = parse_exclude(exclude_file)
+def parse_conf_webapp(items):
+    """ returns correct typing for the [webapp] section """
+    typed = {}
+    for (key, value) in items:
+        if value.lower() == "false":
+            value = False
+        elif value.lower() == "true":
+            value = True
+        typed[key.upper()] = value # Flask only understands CAPSLOCKED keys
+    return typed
+
+def load_conf(conffile, section="infra"):
+    """load configuration from `conffile` and return it as a (typed) dictionary,
+    containing the desired section
+    """
+    conf = configparser.SafeConfigParser(DEFAULT_CONFIG)
+
+    if not os.path.exists(conffile):
+        raise Exception('Configuration file %s does not exist' % conffile)
+    conf.read(conffile)
+
+    typed_conf = {'conffile': conffile}
+
+    # Checks that we have section in the loaded conf, and throws a more
+    # precise error if not (easier to debug when we know where the files are)
+    if section not in conf.sections():
+        raise Exception('No section [%s] found in %s' % (section, conffile))
+
+    if section == 'infra':
+        typed_conf.update(parse_conf_infra(conf.items('infra')))
+
+        exclude_file = os.path.join(typed_conf['local_dir'], 'exclude.conf')
+        typed_conf['exclude'] = []
+        if os.path.exists(exclude_file):
+            typed_conf['exclude'] = parse_exclude(exclude_file)
+
+    elif section == 'webapp':
+        typed_conf.update(parse_conf_webapp(conf.items('webapp')))
+
+    else:
+        typed_conf.update(conf.items(section))
 
     return typed_conf
 

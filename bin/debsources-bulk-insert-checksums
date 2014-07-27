@@ -2,15 +2,13 @@
 
 import argparse
 import logging
-import mainlib
 import os
 import sys
-
-from debsources import bininit
 
 from sqlalchemy import create_engine, bindparam, Integer, LargeBinary, String
 from sqlalchemy.sql import text as sql_query
 
+from debsources import mainlib
 from debsources import fs_storage
 from debsources.plugins.hook_checksums import parse_checksums
 
@@ -84,7 +82,7 @@ def main(conf, sumsfile=None):
 if __name__ == '__main__':
     cmdline = argparse.ArgumentParser(description='Debsources: bulk checksum insertion')
     cmdline.add_argument('--config', '-c', dest='conffile',
-                         default=bininit.DEFAULT_CONFFILE,
+                         default=mainlib.guess_conffile(),
                          help='alternate configuration file')
     cmdline.add_argument('file', nargs='?',
                          help='.checksum metadata file')
