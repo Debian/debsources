@@ -80,7 +80,10 @@ def guess_conffile():
     for conffile in PROBABLE_CONF_FILES:
         if os.path.exists(conffile):
             if os.stat(conffile).st_size: # file is not empty
-                logging.info('Configuration file found: %s' % conffile)
+                # TODO: debug
+                # Doing logging here prevents Flask's development server
+                # to output its usual logs in the terminal.
+                # logging.info('Configuration file found: %s' % conffile)
                 return conffile
 
     raise Exception('No configuration file found in %s'
