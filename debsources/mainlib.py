@@ -21,6 +21,7 @@ import importlib
 import logging
 import os
 import string
+from collections import defaultdict
 
 from debian import deb822
 
@@ -29,15 +30,19 @@ from debsources import updater
 # TODO split configuration entry to a separate file: it's too complex
 # TODO more uniform handling of config typing/defaults: it's too brittle
 
-DEFAULT_CONFIG = {
-    'dry_run':     'false',
-    'backends':    'db fs hooks hooks.db hooks.fs',
-    'stages':      'extract suites gc stats cache charts',
-    'log_level':   'info',
-    'expire_days': '0',
-    'force_triggers': [],
-    'single_transaction': 'true',
-}
+DEFAULT_CONFIG = defaultdict(dict) # a non-existing key will return {}
+DEFAULT_CONFIG.update({
+    'infra': {
+        'dry_run':     'false',
+        'backends':    'db fs hooks hooks.db hooks.fs',
+        'stages':      'extract suites gc stats cache charts',
+        'log_level':   'info',
+        'expire_days': '0',
+        'force_triggers': [],
+        'single_transaction': 'true',
+        },
+    'webapp': {},
+})
 
 LOG_FMT_FILE = '%(asctime)s %(module)s:%(levelname)s %(message)s'
 LOG_FMT_STDERR = '%(module)s:%(levelname)s %(message)s'
@@ -119,7 +124,7 @@ def load_conf(conffile, section="infra"):
     """load configuration from `conffile` and return it as a (typed) dictionary,
     containing the desired section
     """
-    conf = configparser.SafeConfigParser(DEFAULT_CONFIG)
+    conf = configparser.SafeConfigParser(DEFAULT_CONFIG[section])
 
     if not os.path.exists(conffile):
         raise Exception('Configuration file %s does not exist' % conffile)
@@ -237,7 +242,7 @@ def conf_warnings(conf):
     """
     if conf['dry_run']:
         logging.warn('note: DRY RUN mode is enabled')
-    if conf['backends'] != set(DEFAULT_CONFIG['backends'].split()):
+    if conf['backends'] != set(DEFAULT_CONFIG['infra']['backends'].split()):
         logging.warn('only using backends: %s' % list(conf['backends']))
     if conf['stages'] != updater.UPDATE_STAGES:
         logging.warn('only doing stages: %s' %
