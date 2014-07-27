@@ -3,6 +3,5 @@ setuptools_git
 flask
 sqlalchemy
 python-debian
-python-magic
 psycopg2
 #matplotlib
