@@ -27,7 +27,6 @@ def mk_conf(tmpdir):
         'mirror_dir': os.path.join(TEST_DATA_DIR, 'mirror'),
         'mirror_archive_dir': os.path.join(TEST_DATA_DIR, 'archive'),
         'backends': set(['hooks.fs', 'hooks', 'fs', 'db', 'hooks.db']),
-        'python_dir': abspath(os.path.join(TEST_DIR, '..')),
         'root_dir': abspath(os.path.join(TEST_DIR, '../..')),
         'sources_dir': os.path.join(tmpdir, 'sources'),
         'exclude': [],
