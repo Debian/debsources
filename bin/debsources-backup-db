@@ -17,19 +17,18 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# will be overridden by config.local.ini in the same dir, if present
-CONFFILE="/srv/debsources/etc/config.ini"
+conffile=`python -c 'from debsources import mainlib; print(mainlib.guess_conffile())'`
+if [ $? -ne 0 ]
+then
+    echo "Configuration file not found, aborting."
+    exit 2
+fi
 
 # -----------------------------------------------------------------------
 
 umask 0002
 export LANG=C
 
-alt_conffile=$(echo "$CONFFILE" | sed 's/config.ini/config.local.ini/')
-conffile="$CONFFILE"
-if [ -f "$alt_conffile" ] ; then
-    conffile="$alt_conffile"
-fi
 root_dir=$(grep "^root_dir:" "$conffile" | awk '{ print $2 }')
 conf_get () {
     local key="$1"
