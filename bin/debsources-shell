@@ -3,6 +3,7 @@
 import os
 import readline
 import rlcompleter
+import argparse
 
 from pprint import pprint
 
@@ -11,8 +12,14 @@ from debsources import sqla_session
 
 from debsources.app import *
 
-readline.parse_and_bind("tab: complete")
-os.environ['PYTHONINSPECT'] = 'True'
+def main():
+    readline.parse_and_bind("tab: complete")
+    os.environ['PYTHONINSPECT'] = 'True'
 
-conf = mainlib.load_conf(mainlib.guess_conffile())
-engine, session = sqla_session._get_engine_session(conf['db_uri'])
+    conf = mainlib.load_conf(mainlib.guess_conffile())
+    engine, session = sqla_session._get_engine_session(conf['db_uri'])
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Run Debsources shell, for debugging.')
+    args = parser.parse_args()
+    main()
