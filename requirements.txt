@@ -4,4 +4,6 @@ flask
 sqlalchemy
 python-debian
 psycopg2
-#matplotlib
+# required for matplotlib to build:
+freetype-py
+matplotlib
