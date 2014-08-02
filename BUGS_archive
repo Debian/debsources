@@ -341,3 +341,15 @@ Archived entries from file /srv/debian/debsources.bugs/BUGS
 
   did the package change section and that causes problem?
 
+
+* TODO add (some of) archive.debian.org releases
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-08-02 Sat 09:28
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_OLPATH: [0/2] multiple archive support
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :ARCHIVE_ITAGS: infra
+  :END:
+  these are now currently mirrored on tytso:/srv/debian-archive
+

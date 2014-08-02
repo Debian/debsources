@@ -1,21 +1,22 @@
 #    -*- mode: org -*-
 
-* TODO [#A] [0/2] new stats happy			    :web:stats:infra:
+* TODO [#A] file-level deduplication, using checksums		      :infra:
+  depends (to be done properly) on "database schema refactoring"
+
+* TODO [#B] [0/3] new stats happy 			    :web:stats:infra:
 ** TODO postgres db size
 ** TODO number of binary packages
    depends: "inject binary<->source mappings in DB"
+** TODO live stats from ESEM 2014 paper
+   https://upsilon.cc/~zack/research/publications/debsources-esem-2014.pdf
 
-* TODO [#B] file-level deduplication, using checksums		      :infra:
-  depends (to be done properly) on "database schema refactoring"
-
-* TODO inject binary<->source mappings in DB			   :infra:db:
-
-* TODO [0/2] multiple archive support 				      :infra:
+* TODO multiple archive support					      :infra:
   to do so, we need to do a separate debmirror run, as the security archive is
   not hosted on the regular mirror network
-** TODO add debian-security
-** TODO add (some of) archive.debian.org releases
-   these are now currently mirrored on tytso:/srv/debian-archive
+* TODO add debian-security
+  depends: multiple archive support
+
+* TODO inject binary<->source mappings in DB			   :infra:db:
 
 * TODO stats: injection of arbitrary data point			:infra:stats:
   e.g. to inject sloccount of past releases
