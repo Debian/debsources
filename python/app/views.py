@@ -34,7 +34,7 @@ app = app_wrapper.app
 session = app_wrapper.session
 
 from excepts import InvalidPackageOrVersionError, FileOrFolderNotFound, \
-    Http500Error, Http404Error, Http403Error
+    Http500Error, Http404Error, Http404ErrorSuggestions, Http403Error
 from models import Ctag, Package, PackageName, Checksum, Location, \
     Directory, SourceFile, SlocCount, Metric, File
 from sourcecode import SourceCodeIterator
@@ -136,7 +136,16 @@ def deal_404_error(error, mode='html'):
     if mode == 'json':
         return jsonify(dict(error=404))
     else:
-        return render_template('404.html'), 404
+        if isinstance(error, Http404ErrorSuggestions):
+            # let's suggest all the possible locations with a different
+            # package version
+            possible_versions = PackageName.list_versions_from_name(session, error.package)
+            suggestions = ['/'.join(filter(None, [error.package, v.version, error.path]))
+                           for v in possible_versions]
+            return render_template('404_suggestions.html', suggestions=suggestions), 404
+
+        else:
+            return render_template('404.html'), 404
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -417,10 +426,8 @@ class SourceView(GeneralView):
                                 app.config["SOURCES_DIR"],
                                 app.config["SOURCES_STATIC"],
                                 package, version, path)
-        except FileOrFolderNotFound as e:
-            raise Http404Error(e)
-        except InvalidPackageOrVersionError as e:
-            raise Http404Error(e)
+        except (FileOrFolderNotFound, InvalidPackageOrVersionError):
+            raise Http404ErrorSuggestions(package, version, path)
         
         # if the location is a symbolic link, we 403 (for security reasons)
         if location.issymlink():

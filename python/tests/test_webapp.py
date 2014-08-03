@@ -243,6 +243,11 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
              "debian_squeeze", "debian_wheezy"])
         assert "ansic" in rv["languages"]
         assert rv["results"]["debian_sid.sloccount.ansic"] == 140353
-        
+
+    def test_suggestions_when_404(self):
+        rv = self.app.get('/src/libcaca/0.NOPE.beta17-1/src/cacaview.c')
+        assert 'other versions of this package are available' in rv.data
+        assert '<a href="/src/libcaca/0.99.beta17-1/src/cacaview.c">' in rv.data
+
 if __name__ == '__main__':
     unittest.main(exit=False)

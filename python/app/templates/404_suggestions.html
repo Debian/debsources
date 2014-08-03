@@ -1,0 +1,25 @@
+{#
+  Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
+  License: GNU Affero General Public License, version 3 or above.
+#}
+
+{% extends "base.html" %}
+
+{% block title %}404{% endblock %}
+{% block content %}
+
+<h2>{{ self.title() }}</h2>
+<p>The specific version of the package you requested doesn't exist,
+but other versions of this package are available in the database.
+The file you are looking for might exist in one of the following
+versions:
+<ul>
+{% for s in suggestions %}
+  <li><a href="{{ url_for('source_html', path_to=s) }}">{{ s }}</a></li>
+{% endfor %}
+</ul>
+</p>
+
+<a href="/">Go home</a>
+
+{% endblock %}

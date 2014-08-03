@@ -30,10 +30,15 @@ class FileOrFolderNotFound(Exception):
 class Http500Error(Exception):
     pass
 
-
 class Http404Error(Exception):
     pass
 
+class Http404ErrorSuggestions(Http404Error):
+    def __init__(self, package, version, path):
+        self.package = package
+        self.version = version
+        self.path = path
+        super(Http404ErrorSuggestions, self).__init__()
 
 class Http403Error(Exception):
     pass
