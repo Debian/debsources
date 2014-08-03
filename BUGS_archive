@@ -353,3 +353,63 @@ Archived entries from file /srv/debian/debsources.bugs/BUGS
   :END:
   these are now currently mirrored on tytso:/srv/debian-archive
 
+
+* TODO 404 inconsistencies due to trailing '/' slash   :web:navigation:flask:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-08-02 Sat 20:38
+  :ARCHIVE_FILE: ~/work/debian/debsources_bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  currently:
+        404     http://sources.debian.net/src
+        404     http://sources.debian.net/src/
+        OK      http://sources.debian.net/src/dpkg
+        404     http://sources.debian.net/src/dpkg/
+        OK      http://sources.debian.net/src/dpkg/1.17.10
+        OK      http://sources.debian.net/src/dpkg/1.17.10/
+** Message-Id: <201408021211.29212.stuart@debian.org>
+
+
+* TODO "Folder: label broken with trailing '/' slash   :web:navigation:flask:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-08-02 Sat 20:38
+  :ARCHIVE_FILE: ~/work/debian/debsources_bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  currently:
+    http://sources.debian.net/src/dpkg/1.17.10/utils  -> "Folder: utils"
+    http://sources.debian.net/src/dpkg/1.17.10/utils/ -> "Folder: "
+** Message-Id: <201408021211.29212.stuart@debian.org>
+
+
+* TODO more helpful 404 for removed package versions	     :web:navigation:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-08-02 Sat 20:38
+  :ARCHIVE_FILE: ~/work/debian/debsources_bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  suggested language by Stuart Prescott:
+
+        404
+
+        The specific version of the package you requested doesn't exist,
+        but other versions of this package are available in the database.
+        The file you are looking for might exist in one of the following
+        versions:
+
+
+        version 1.4.0.23.2 (main)
+        version 1.4.0.35 (main)
+        version 1.6.15 (main)
+        version 1.9.21 (main)
+        version 1.10.28 (main)
+        version 1.13.26 (main)
+        version 1.14.31 (main)
+        version 1.15.11 (main)
+        version 1.16.15 (main)
+        version 1.17.10 (main)
+** Message-Id: <201408021211.29212.stuart@debian.org>
+
