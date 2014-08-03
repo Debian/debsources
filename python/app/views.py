@@ -611,7 +611,7 @@ def render_source_file_json(**kwargs):
         return jsonify(**kwargs)
 
 # PACKAGE/FOLDER/FILE ROUTING (HTML)
-app.add_url_rule('/src/<path:path_to>', view_func=SourceView.as_view(
+app.add_url_rule('/src/<path:path_to>/', view_func=SourceView.as_view(
         'source_html',
         render_func=lambda **kwargs:
                         render_source_file_html("source_file.html", **kwargs),
@@ -619,7 +619,7 @@ app.add_url_rule('/src/<path:path_to>', view_func=SourceView.as_view(
         ))
 
 # PACKAGE/FOLDER/FILE ROUTING (JSON)
-app.add_url_rule('/api/src/<path:path_to>', view_func=SourceView.as_view(
+app.add_url_rule('/api/src/<path:path_to>/', view_func=SourceView.as_view(
         'source_json',
         render_func=render_source_file_json,
         err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
@@ -823,7 +823,7 @@ app.add_url_rule('/api/info/package/<package>/<version>/',
 ### EMBEDDED PAGES ###
 
 # SOURCE FILE EMBEDDED ROUTING (HTML)
-app.add_url_rule('/embed/file/<path:path_to>', view_func=SourceView.as_view(
+app.add_url_rule('/embed/file/<path:path_to>/', view_func=SourceView.as_view(
         'embedded_source_html',
         render_func=lambda **kwargs:
                 render_source_file_html("source_file_embedded.html", **kwargs),
@@ -832,7 +832,7 @@ app.add_url_rule('/embed/file/<path:path_to>', view_func=SourceView.as_view(
 
 # we redirect the old used embedded file page (/embedded/<path>)
 # to the new one (/embed/file/<path>)
-@app.route("/embedded/<path:path_to>")
+@app.route("/embedded/<path:path_to>/")
 def old_embedded_file(path_to, **kwargs):
     return redirect(url_for("embedded_source_html",
                             path_to=path_to,

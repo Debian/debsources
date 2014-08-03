@@ -108,13 +108,13 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         assert {'name': "libcaca"} in rv['packages']
 
     def test_package(self):
-        rv = json.loads(self.app.get('/api/src/ledit').data)
+        rv = json.loads(self.app.get('/api/src/ledit/').data)
         assert rv['path'] == "ledit"
         assert len(rv['versions']) == 3
         assert rv['type'] == "package"
         
     def test_folder(self):
-        rv = json.loads(self.app.get('/api/src/ledit/2.01-6').data)
+        rv = json.loads(self.app.get('/api/src/ledit/2.01-6/').data)
         assert rv['type'] == "directory"
         assert rv['path'] == "ledit/2.01-6"
         assert rv['package'] == "ledit"
@@ -122,7 +122,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         assert {'type': "file", 'name': "ledit.ml"} in rv['content']
         
     def test_source_file(self):
-        rv = self.app.get('/src/ledit/2.01-6/ledit.ml')
+        rv = self.app.get('/src/ledit/2.01-6/ledit.ml/')
         
         # source code detection
         assert '<code id="sourcecode" class="ocaml">' in rv.data
@@ -146,29 +146,29 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
                 'download</a>') in rv.data
         
         # parent folder link
-        assert '<a href="/src/ledit/2.01-6">parent folder</a>' in rv.data
+        assert '<a href="/src/ledit/2.01-6/">parent folder</a>' in rv.data
     
     def test_source_file_text(self):
-        rv = self.app.get('/src/ledit/2.01-6/README')
+        rv = self.app.get('/src/ledit/2.01-6/README/')
         assert '<code id="sourcecode" class="no-highlight">' in rv.data
         
     def test_source_file_embedded(self):
-        rv = self.app.get('/embed/file/ledit/2.01-6/ledit.ml')
+        rv = self.app.get('/embed/file/ledit/2.01-6/ledit.ml/')
         assert '<code id="sourcecode" class="ocaml">' in rv.data
         assert 'Institut National de Recherche en Informatique' in rv.data
         assert '<div id="logo">' not in rv.data
         
     def test_errors(self):
-        rv = json.loads(self.app.get('/api/src/blablabla').data)
+        rv = json.loads(self.app.get('/api/src/blablabla/').data)
         assert rv['error'] == 404
         
     def test_latest(self):
-        rv = json.loads(self.app.get('/api/src/ledit/latest',
+        rv = json.loads(self.app.get('/api/src/ledit/latest/',
                                      follow_redirects=True).data)
         assert "2.03-2" in rv['path']
     
     def test_codesearch_box(self):
-        rv = self.app.get('/src/ledit/2.03-2/ledit.ml')
+        rv = self.app.get('/src/ledit/2.03-2/ledit.ml/')
         assert 'value="package:ledit "' in rv.data
     
     def test_pagination(self):
@@ -179,7 +179,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
     
     def test_file_duplicates(self):
         rv = json.loads(self.app.get('/api/src/bsdgames-nonfree/'
-                                     '2.17-3/COPYING').data)
+                                     '2.17-3/COPYING/').data)
         assert rv["number_of_duplicates"] == 3
         assert rv["checksum"] == ("be43f81c20961702327c10e9bd5f5a9a2b1cc"
                                   "eea850402ea562a9a76abcfa4bf")
@@ -208,7 +208,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         assert len(rv["results"]) == 14
     
     def test_pkg_infobox(self):
-        rv = json.loads(self.app.get('/api/src/libcaca/0.99.beta17-1').data)
+        rv = json.loads(self.app.get('/api/src/libcaca/0.99.beta17-1/').data)
         assert rv["pkg_infos"]["suites"] == ["squeeze"]
         assert rv["pkg_infos"]["area"] == "main"
         assert rv["pkg_infos"]["sloc"][0] == ["ansic", 22607]
@@ -245,9 +245,9 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         assert rv["results"]["debian_sid.sloccount.ansic"] == 140353
 
     def test_suggestions_when_404(self):
-        rv = self.app.get('/src/libcaca/0.NOPE.beta17-1/src/cacaview.c')
+        rv = self.app.get('/src/libcaca/0.NOPE.beta17-1/src/cacaview.c/')
         assert 'other versions of this package are available' in rv.data
-        assert '<a href="/src/libcaca/0.99.beta17-1/src/cacaview.c">' in rv.data
+        assert '<a href="/src/libcaca/0.99.beta17-1/src/cacaview.c/">' in rv.data
 
 if __name__ == '__main__':
     unittest.main(exit=False)
