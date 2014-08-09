@@ -16,7 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from flask.ext.wtf import Form, TextField, Required
+from wtforms import TextField
+from wtforms.validators import Required
+from flask.ext.wtf import Form
 
 class SearchForm(Form):
     query = TextField('package name', validators=[Required()])
