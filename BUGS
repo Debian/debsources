@@ -268,3 +268,26 @@
   A search which returns *files* (and not a line in a file), which
   contain all searched ctags.
   See TODO in python/models.py.
+
+* TODO on the fly diff/debdiff						:web:
+  Add the ability to diff arbitrary version of packages available by
+  debsources, producing a debdiff as a result. Should come as a new "/diff"
+  URL, taking package names/versions as parameters and return the debdiff.
+  Bonus point: offer the ability to either download or typeset the debdiff in
+  the browser.
+
+* TODO ability to "edit" files						:web:
+  every file exposed should have a edit file (maybe only for some users) a-la
+  GitHub. The result of the edit actionn will be returned as debdiff against
+  the whole package, so that it could be submitted as an easy to import patch
+  to the Debian BTS. Bonus point (but more difficult): have real editing
+  sessions, in which more than one file could be edited.
+
+  Credit: Raphael Geissert after DebConf14 talk
+
+* TODO ability to override detected language type		:web:hilight:
+  Rationale: our detection heuristics could be wrong. Also, they are incomplete
+  (e.g., the info files example reported in Message-Id:
+  <201408161506.50897.stuart@debian.org> and currently available here
+  http://sources.debian.net/src/make/latest/doc/make.info-4/). This should come
+  as something like a "?lang=..." URL parameter.
