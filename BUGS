@@ -293,7 +293,7 @@
   as something like a "?lang=..." URL parameter.
 
   Note that, in terms of code, the semantic of lang should be twofold:
-  - on one hand its presence should override the detection done by libamgic to
+  - on one hand its presence should override the detection done by libmagic to
     decide whether to show or download a file (e.g.,
     http://anonscm.debian.org/cgit/qa/debsources.git/tree/python/models.py#n652)
   - on the other hand the language specified is used to override the heuristic
