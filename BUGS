@@ -291,3 +291,12 @@
   <201408161506.50897.stuart@debian.org> and currently available here
   http://sources.debian.net/src/make/latest/doc/make.info-4/). This should come
   as something like a "?lang=..." URL parameter.
+
+  Note that, in terms of code, the semantic of lang should be twofold:
+  - on one hand its presence should override the detection done by libamgic to
+    decide whether to show or download a file (e.g.,
+    http://anonscm.debian.org/cgit/qa/debsources.git/tree/python/models.py#n652)
+  - on the other hand the language specified is used to override the heuristic
+    based language detection
+  To simply force the display without requiring any highlighting, we could use
+  ?lang=none
