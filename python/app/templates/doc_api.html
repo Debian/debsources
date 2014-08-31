@@ -67,7 +67,7 @@
   <a href="{{ url_prefix }}/api/prefix/libz">See example</a>
 </p>
 
-<h3>Navigation in source folders and files</h3>
+<h3>Package information</h3>
 
 <p>
   List different versions of a package:
@@ -77,17 +77,26 @@
 </p>
 
 <p>
-  List folders and files in a folder:
-  <span class="url">{{ url_prefix
-    }}/api/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/folder</strong></span>
-<a href="{{ url_prefix }}/api/src/cowsay/3.03%2Bdfsg1-4/cows">See example</a>
-</p>
-
-<p>
   You can use
   <span class="url">{{ url_prefix
     }}/api/src/<strong>packagename</strong>/latest</span>
   to use automatically the latest available version of the package.
+</p>
+
+<p>
+  Package information, including metrics, suites where is present, PTS link, and the like:
+  <span class="url">{{ url_prefix
+    }}/api/info/package/<strong>packagename</strong>/<strong>version</strong></span>
+  <a href="{{ url_prefix }}/api/info/package/davfs2/1.5.2-1/">See example</a>
+</p>
+
+<h3>Navigation in source folders and files</h3>
+
+<p>
+  List folders and files in a folder:
+  <span class="url">{{ url_prefix
+    }}/api/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/folder</strong></span>
+<a href="{{ url_prefix }}/api/src/cowsay/3.03%2Bdfsg1-4/cows">See example</a>
 </p>
 
 <p>
