@@ -1,6 +1,10 @@
 Getting started with Debsources development
 ===========================================
 
+
+Local Debsources deployment
+---------------------------
+
 - $ git clone https://anonscm.debian.org/git/qa/debsources.git
   $ cd debsources/
 
@@ -52,3 +56,9 @@ Getting started with Debsources development
 
   you can now visit the above URL with your browser and verify that everything
   is OK.
+
+
+Running tests
+-------------
+
+See `doc/testing.txt`.
