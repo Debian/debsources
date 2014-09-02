@@ -26,6 +26,10 @@
 
 <p>The JSON result will be pretty-printed, unless the X-Requested-With header is set to XmlHttpRequest.</p>
 
+<p>Note: wherever a specific <em>version number</em> is required, you can use
+  the string "latest" instead to get redirected to the most recent version of
+  the package.</p>
+
 <h3>Search</h3>
 
 <h4>Package search</h4>
@@ -74,13 +78,6 @@
   <span class="url">{{ url_prefix
     }}/api/src/<strong>packagename</strong></span>
   <a href="{{ url_prefix }}/api/src/ocaml">See example</a>
-</p>
-
-<p>
-  You can use
-  <span class="url">{{ url_prefix
-    }}/api/src/<strong>packagename</strong>/latest</span>
-  to use automatically the latest available version of the package.
 </p>
 
 <p>
