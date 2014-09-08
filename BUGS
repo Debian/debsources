@@ -92,6 +92,15 @@
 
 * TODO missing test: `/api/checksum/foo/`		  :web:api:test:easy:
 
+* TODO cannot list dir content when paths have unicode issues	:web:unicode:
+  e.g., http://sources.debian.net/src/cvsnt/latest/ currently returns 505, due
+  to file named "testáéíóú.txt"
+
+  the failure is at debsources/web/models.py, line 571, at os.path.join()
+
+  initially reported by Luciano Bello,
+  Message-Id: <CAGfehY0L15cLDU2DrQowMcj=Q+6Cgg9cqhQGMDWcYcgHKR5f2w@mail.gmail.com>
+
 * TODO suite test data: differentiate sid and jessie		       :test:
   Currently, the set of packages in sid and jessie are exactly the same. Add
   one or more packages which is in sid but not in jessie.
