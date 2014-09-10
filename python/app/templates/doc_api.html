@@ -42,7 +42,7 @@
 <p>
   By accessing the following URL:
   <span class="url">{{ url_prefix }}/api/search/<strong>query</strong></span>
-  <a href="{{ url_prefix }}/api/search/hello">See example</a>
+  <a href="{{ url_prefix }}/api/search/hello">example</a>
 </p>
 
 <h4>File search</h4>
@@ -51,16 +51,17 @@
   <span class="url">{{ url_prefix }}/api/sha256/?checksum=<strong>sha256</strong>&package=<strong>packagename</strong></span>
   Specifying a package name is optional.
   <br/>
-  <a href="{{ url_prefix }}/api/sha256/?checksum=d77d235e41d54594865151f4751e835c5a82322b0e87ace266567c3391a4b912">See
-  example</a>
+  <a href="{{ url_prefix }}/api/sha256/?checksum=d77d235e41d54594865151f4751e835c5a82322b0e87ace266567c3391a4b912">example</a>
 
 <h4>Code search</h4>
 <p>
   You can search within the code
   through <a href="http://ctags.sourceforge.net">tags</a>.
-  <span class="url">{{ url_prefix
-  }}/api/ctag/?ctag=<strong>tag</strong>&package=<strong>packagename</strong></span>
+  <span class="url">{{ url_prefix }}/api/ctag/?ctag=<strong>tag</strong>&package=<strong>packagename</strong></span>
   Specifying a package name is optional.
+  <br />
+  <a href="{{ url_prefix }}/api/ctag/?ctag=pcre_compile&package=pcre3">example</a>
+
 </p>
 
 
@@ -70,6 +71,7 @@
 
 <p>
   <span class="url">{{ url_prefix }}/api/list</span>
+  <a href="{{ url_prefix }}/api/list">example</a>
 </p>
 
 <h4>By prefix</h4>
@@ -77,7 +79,7 @@
 <p>
   <span class="url">{{ url_prefix
     }}/api/prefix/<strong>prefix</strong></span>
-  <a href="{{ url_prefix }}/api/prefix/libz">See example</a>
+  <a href="{{ url_prefix }}/api/prefix/libz">example</a>
 </p>
 
 <h3>Package information</h3>
@@ -86,14 +88,14 @@
   List different versions of a package:
   <span class="url">{{ url_prefix
     }}/api/src/<strong>packagename</strong></span>
-  <a href="{{ url_prefix }}/api/src/ocaml">See example</a>
+  <a href="{{ url_prefix }}/api/src/ocaml">example</a>
 </p>
 
 <p>
   Package information, including metrics, suites where is present, PTS link, and the like:
   <span class="url">{{ url_prefix
     }}/api/info/package/<strong>packagename</strong>/<strong>version</strong></span>
-  <a href="{{ url_prefix }}/api/info/package/davfs2/1.5.2-1/">See example</a>
+  <a href="{{ url_prefix }}/api/info/package/davfs2/1.5.2-1/">example</a>
 </p>
 
 <h3>Navigation in source folders and files</h3>
@@ -102,7 +104,7 @@
   List folders and files in a folder:
   <span class="url">{{ url_prefix
     }}/api/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/folder</strong></span>
-<a href="{{ url_prefix }}/api/src/cowsay/3.03%2Bdfsg1-4/cows">See example</a>
+<a href="{{ url_prefix }}/api/src/cowsay/3.03%2Bdfsg1-4/cows">example</a>
 </p>
 
 <p>
@@ -110,17 +112,15 @@
   allows you to retrieve its content):
   <span class="url">{{ url_prefix
     }}/api/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong></span>
-  <a href="{{ url_prefix }}/api/src/cowsay/3.03%2Bdfsg1-4/cowsay">See
-    example</a>
+  <a href="{{ url_prefix }}/api/src/cowsay/3.03%2Bdfsg1-4/cowsay">example</a>
 </p>
 
 <h3>Check the service status</h3>
 
 <p>
-  Through the following URL:
-  <a href="{{ url_prefix }}/api/ping/">{{ url_prefix }}/api/ping/</a>.
-  <br />
-  You can check the "status" variable and/or the HTTP response.
+  Check service status and retrieve last update timestamp:
+  <span class="url">{{ url_prefix }}/api/ping/</span>
+  <a href="{{ url_prefix }}/api/ping">example</a>
 </p>
 
 {% endblock %}
