@@ -41,9 +41,12 @@
 
 <h4>File search</h4>
 <p>
-  You can look for duplicate files using their SHA-256 sum:
+  You can search files by SHA-256 sum:
   <span class="url">{{ url_prefix }}/api/sha256/?checksum=<strong>sha256</strong>&package=<strong>packagename</strong></span>
   Specifying a package name is optional.
+  <br/>
+  <a href="{{ url_prefix }}/api/sha256/?checksum=d77d235e41d54594865151f4751e835c5a82322b0e87ace266567c3391a4b912">See
+  example</a>
 
 <h4>Code search</h4>
 <p>
@@ -104,14 +107,6 @@
   <a href="{{ url_prefix }}/api/src/cowsay/3.03%2Bdfsg1-4/cowsay">See
     example</a>
 </p>
-
-<h3>Checksums</h3>
-
-<p>
-  Query the list of indexed source files by SHA256 hash:
-  <span class="url">{{ url_prefix }}/api/sha256/<strong>sha256</strong>.</span>
-  <a href="{{ url_prefix }}/api/sha256/57c8ff33c9c0cfc3ef00e650a1cc910d7ee479a8bc509f6c9209a7c2a11399d6">See
-    example</a>
 
 <h3>Check the service status</h3>
 
