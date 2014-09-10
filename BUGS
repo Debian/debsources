@@ -46,9 +46,17 @@
 
 * TODO check-in derivatives from the census		  :infra:derivatives:
 
-* TODO mention suite(s) when listing versions 		:web:navigation:easy:
+* TODO mention suites/releases when listing versions	:web:navigation:easy:
   e.g. when visiting http://sources.debian.net/src/linux, one should see which
   version is in which suite. Note that one version might be in multiple suites.
+
+  Sample output (proposed by Stuart Prescott):
+
+  1.15.11 (main) [squeeze]
+  1.16.15 (main) [wheezy]
+  1.17.10 (main)
+  1.17.12 (main)
+  1.17.13 (main) [jessie, sid]
 
 * TODO suite-based navigation				:web:navigation:easy:
   add the ability to browse available packages per suite, e.g. with URLs like
