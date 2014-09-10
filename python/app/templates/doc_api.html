@@ -21,10 +21,16 @@
 
 <h2>{{ self.title() }}</h2>
 
-<p>You can query anything in the Debian sources, and get a JSON object
-  which allows you to navigate into packages and source files.</p>
+<div class="warning">
+  This API is not stable yet and, as such, has no associated version number.
+  For the time being use this API at your own risk and keep an eye on this page
+  for changes.
+</div>
 
-<p>The JSON result will be pretty-printed, unless the X-Requested-With header is set to XmlHttpRequest.</p>
+<p>You can query all information available in Debian Sources, and get a JSON
+  object which allows you to navigate packages and source files
+  programmaticaly.<br /> The JSON result will be pretty-printed, unless the
+  <tt>X-Requested-With</tt> HTTP header is set to <tt>XmlHttpRequest</tt>.</p>
 
 <p>Note: wherever a specific <em>version number</em> is required, you can use
   the string "latest" instead to get redirected to the most recent version of
