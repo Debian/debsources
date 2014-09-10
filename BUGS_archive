@@ -413,3 +413,153 @@ Archived entries from file /srv/debian/debsources.bugs/BUGS
         version 1.17.10 (main)
 ** Message-Id: <201408021211.29212.stuart@debian.org>
 
+
+* TODO [#A] file-level deduplication, using checksums		  :infra:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-10 Wed 22:56
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761117
+
+
+* TODO [#B] [0/3] new stats happy			:web:stats:infra:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-10 Wed 22:56
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761118
+
+
+* TODO multiple archive support					  :infra:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-10 Wed 22:56
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761079
+
+
+* TODO add debian-security					  :infra:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-10 Wed 22:56
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761084
+
+
+* TODO inject binary<->source mappings in DB		       :infra:db:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-10 Wed 22:56
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761083
+
+
+* TODO mention suites/releases when listing versions :web:navigation:easy:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-10 Wed 22:56
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761100
+
+
+* TODO suite-based navigation			    :web:navigation:easy:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-10 Wed 22:56
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761119
+
+
+* TODO file name search					  :web:search:db:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-10 Wed 22:56
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761108
+
+
+* TODO cannot list dir content when paths have unicode issues :web:unicode:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-10 Wed 22:56
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761106
+
+
+* TODO tarball-in-tarball				      :infra:web:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-10 Wed 22:56
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761077
+
+
+* TODO highlight #Lxxx lines by default		 :web:ui:javascript:easy:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-10 Wed 22:56
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761103
+
+
+* TODO allow symlink within same package/version	   :web:security:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-10 Wed 22:56
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761121
+
+
+* TODO package debsources with python distribute	  :web:packaging:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-10 Wed 22:56
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761124
+
+
+* TODO add binary->source redirection map		      :infra:web:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-10 Wed 22:57
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761085
+
+
+* TODO on the fly diff/debdiff					    :web:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-10 Wed 22:57
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761105
+

@@ -1,19 +1,8 @@
 #    -*- mode: org -*-
 
-* TODO [#A] file-level deduplication, using checksums		  :infra:FWD:
-  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761117
-
-* TODO [#B] [0/3] new stats happy			:web:stats:infra:FWD:
-  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761118
-
-* TODO multiple archive support					  :infra:FWD:
-  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761079
-
-* TODO add debian-security					  :infra:FWD:
-  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761084
-
-* TODO inject binary<->source mappings in DB		       :infra:db:FWD:
-  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761083
+**Note*: Debsources bugs are now at
+https://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=qa.debian.org;tag=debsources
+The entries remaining below are in wait of triaging/forwarding there.
 
 * TODO stats: add totals (i.e. non per-suite)		     :web:stats:easy:
   to all tables listed at http://sources.debian.net/stats/
@@ -40,15 +29,6 @@
 
 * TODO check-in derivatives from the census		  :infra:derivatives:
 
-* TODO mention suites/releases when listing versions :web:navigation:easy:FWD:
-  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761100
-
-* TODO suite-based navigation			    :web:navigation:easy:FWD:
-  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761119
-
-* TODO file name search					  :web:search:db:FWD:
-  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761108
-
 * TODO update-debsources --trigger should skip update stages	      :infra:
   At the very least it should skip: update statistics, update charts, update
   suites mappings. Should it become a separate tool? Or should we expose on the
@@ -56,15 +36,9 @@
 
 * TODO missing test: `/api/checksum/foo/`		  :web:api:test:easy:
 
-* TODO cannot list dir content when paths have unicode issues :web:unicode:FWD:
-  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761106
-
 * TODO suite test data: differentiate sid and jessie		       :test:
   Currently, the set of packages in sid and jessie are exactly the same. Add
   one or more packages which is in sid but not in jessie.
-
-* TODO tarball-in-tarball				      :infra:web:FWD:
-  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761077
 
 * TODO popup messages between lines instead of on the right	  :web:popup:
   - rationale #1: popups are invisible for very long source code lines
@@ -104,19 +78,10 @@
   packages. (Not to mention the risk of cross-referincing across different
   languages; although we should have the info to avoid that...)
 
-* TODO highlight #Lxxx lines by default		 :web:ui:javascript:easy:FWD:
-  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761103
-
-* TODO allow symlink within same package/version	   :web:security:FWD:
-  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761121
-
 * TODO .pc/ exclusion should become a configuration entry      :web:browsing:
   ..in a more general configuration variable in etc/webconfig.py. Similar to
   HIGHLIGHT_CLASSES, although we probably don't need regex for exclusions. See
   http://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=web/flask/app/models_app.py;hb=HEAD#l166
-
-* TODO package debsources with python distribute	  :web:packaging:FWD:
-  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761124
 
 * TODO make web UI parts conditional on plugin enablement	  :infra:web:
 
@@ -148,9 +113,6 @@
 * TODO migrate to sources.debian.org				  :infra:dsa:
   conversation started by Zack with DSA
   Message-ID: <20131229152159.GA8400@upsilon.cc>
-
-* TODO add binary->source redirection map		      :infra:web:FWD:
-  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761085
 
 * TODO /latest redirection for /data URLs		       :infra:apache:
   [ bug report from Simon Paillard, Message-Id: <20130907214628.GY17455@mraw.org> ]
@@ -210,9 +172,6 @@
   A search which returns *files* (and not a line in a file), which
   contain all searched ctags.
   See TODO in python/models.py.
-
-* TODO on the fly diff/debdiff					    :web:FWD:
-  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761105
 
 * TODO ability to "edit" files						:web:
   every file exposed should have a edit file (maybe only for some users) a-la
