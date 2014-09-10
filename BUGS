@@ -10,13 +10,14 @@
 ** TODO live stats from ESEM 2014 paper
    https://upsilon.cc/~zack/research/publications/debsources-esem-2014.pdf
 
-* TODO multiple archive support					      :infra:
-  to do so, we need to do a separate debmirror run, as the security archive is
-  not hosted on the regular mirror network
-* TODO add debian-security					      :infra:
-  depends: multiple archive support
+* TODO multiple archive support					  :infra:FWD:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761079
 
-* TODO inject binary<->source mappings in DB			   :infra:db:
+* TODO add debian-security					  :infra:FWD:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761084
+
+* TODO inject binary<->source mappings in DB		       :infra:db:FWD:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761083
 
 * TODO stats: injection of arbitrary data point			:infra:stats:
   e.g. to inject sloccount of past releases
@@ -113,26 +114,8 @@
   Currently, the set of packages in sid and jessie are exactly the same. Add
   one or more packages which is in sid but not in jessie.
 
-* TODO tarball-in-tarball 					  :infra:web:
-  Explode nested tarballs, partly for some packaging habits still present in
-  the archive (although they should die a horrible death), more importantly due
-  to upstream shipping tarballs.
-  
-  From #debian-qa:
-  > 04:43 < pabs> zack: well apart from tarball-in-tarball some upstreams ship
-  >               tarballs/zip files
-  > 04:49 < pabs> zack: apt-file counts 2022 .zip files and 6892 .tar* files,
-  >               242 .tgz, 22 .tbz* and 7 txz files in source packages
-  
-** tentative solution
-*** web: discriminate on trailing slash
-    - /foo/bar/baz.tar.gz     -> download the tarball
-    - /foo/bar/baz.tar.gz/qux -> navigate in it
-*** infra: not clear
-    We need some FS attribute to avoid clashes tar-vs-extraction-dir and
-    minimize the risks of collisions. Could be some highly unlikely suffix (but
-    then it will need to be excluded via apache navigation from /data/). Or
-    some metadata via xattr. Or a separate hierarchy for extracted tarballs.
+* TODO tarball-in-tarball				      :infra:web:FWD:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761077
 
 * TODO popup messages between lines instead of on the right	  :web:popup:
   - rationale #1: popups are invisible for very long source code lines
@@ -221,11 +204,8 @@
   conversation started by Zack with DSA
   Message-ID: <20131229152159.GA8400@upsilon.cc>
 
-* TODO add binary->source redirection map			  :infra:web:
-  Idea: http://sources.d.n/src/FOO -> http://sources.d.n/src/MAP[FOO], as long
-  as FOO _does not exists_ as a source package.  Feature suggested in response
-  to Selim T. Erdogan, Message-ID: <20130712112459.GA3156@cs.utexas.edu>
-** depends: "inject binary<->source mappings in DB"
+* TODO add binary->source redirection map		      :infra:web:FWD:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761085
 
 * TODO /latest redirection for /data URLs		       :infra:apache:
   [ bug report from Simon Paillard, Message-Id: <20130907214628.GY17455@mraw.org> ]
