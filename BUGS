@@ -1,14 +1,10 @@
 #    -*- mode: org -*-
 
-* TODO [#A] file-level deduplication, using checksums		      :infra:
-  depends (to be done properly) on "database schema refactoring"
+* TODO [#A] file-level deduplication, using checksums		  :infra:FWD:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761117
 
-* TODO [#B] [0/3] new stats happy 			    :web:stats:infra:
-** TODO postgres db size
-** TODO number of binary packages
-   depends: "inject binary<->source mappings in DB"
-** TODO live stats from ESEM 2014 paper
-   https://upsilon.cc/~zack/research/publications/debsources-esem-2014.pdf
+* TODO [#B] [0/3] new stats happy			:web:stats:infra:FWD:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761118
 
 * TODO multiple archive support					  :infra:FWD:
   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761079
@@ -18,9 +14,6 @@
 
 * TODO inject binary<->source mappings in DB		       :infra:db:FWD:
   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761083
-
-* TODO stats: injection of arbitrary data point			:infra:stats:
-  e.g. to inject sloccount of past releases
 
 * TODO stats: add totals (i.e. non per-suite)		     :web:stats:easy:
   to all tables listed at http://sources.debian.net/stats/
@@ -50,9 +43,8 @@
 * TODO mention suites/releases when listing versions :web:navigation:easy:FWD:
   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761100
 
-* TODO suite-based navigation				:web:navigation:easy:
-  add the ability to browse available packages per suite, e.g. with URLs like
-  http://sources.debian.net/suite/jessie/prefix/d/
+* TODO suite-based navigation			    :web:navigation:easy:FWD:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761119
 
 * TODO file name search					  :web:search:db:FWD:
   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761108
@@ -115,16 +107,16 @@
 * TODO highlight #Lxxx lines by default		 :web:ui:javascript:easy:FWD:
   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761103
 
-* TODO allow symlink within same package/version	       :web:security:
-  currently /all/ symlinks are forbidden for security reasons
+* TODO allow symlink within same package/version	   :web:security:FWD:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761121
 
 * TODO .pc/ exclusion should become a configuration entry      :web:browsing:
   ..in a more general configuration variable in etc/webconfig.py. Similar to
   HIGHLIGHT_CLASSES, although we probably don't need regex for exclusions. See
   http://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=web/flask/app/models_app.py;hb=HEAD#l166
 
-* TODO package debsources with python distribute 	      :web:packaging:
-  it will simple things like imports and the deployment would be easier
+* TODO package debsources with python distribute	  :web:packaging:FWD:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761124
 
 * TODO make web UI parts conditional on plugin enablement	  :infra:web:
 
