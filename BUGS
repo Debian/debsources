@@ -47,52 +47,15 @@
 
 * TODO check-in derivatives from the census		  :infra:derivatives:
 
-* TODO mention suites/releases when listing versions	:web:navigation:easy:
-  e.g. when visiting http://sources.debian.net/src/linux, one should see which
-  version is in which suite. Note that one version might be in multiple suites.
-
-  Sample output (proposed by Stuart Prescott):
-
-  1.15.11 (main) [squeeze]
-  1.16.15 (main) [wheezy]
-  1.17.10 (main)
-  1.17.12 (main)
-  1.17.13 (main) [jessie, sid]
+* TODO mention suites/releases when listing versions :web:navigation:easy:FWD:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761100
 
 * TODO suite-based navigation				:web:navigation:easy:
   add the ability to browse available packages per suite, e.g. with URLs like
   http://sources.debian.net/suite/jessie/prefix/d/
 
-* TODO file name search					      :web:search:db:
-** benchmark
-   too slow without decent index:
-     debsources=> select count(*) from files where path like '%stdio%';
-     count
-    -------
-      9643
-    (1 row)
-
-    Time: 7736,861 ms
-
-   but OK with trigram indexing:
-
-    debsources=> \d ix_files_path_trgm
-          Index "public.ix_files_path_trgm"
-     Column |  Type   |          Definition
-    --------+---------+------------------------------
-     encode | integer | encode(path, 'escape'::text)
-    gin, for table "public.files"
-
-    debsources=> select count(*) from files where encode(path, 'escape') like
-  '%stdio%';
-     count
-    -------
-      9643
-    (1 row)
-
-    Time: 77,558 ms
-
-  the above need CREATE EXTENSION 'trgm';
+* TODO file name search					  :web:search:db:FWD:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761108
 
 * TODO update-debsources --trigger should skip update stages	      :infra:
   At the very least it should skip: update statistics, update charts, update
@@ -101,14 +64,8 @@
 
 * TODO missing test: `/api/checksum/foo/`		  :web:api:test:easy:
 
-* TODO cannot list dir content when paths have unicode issues	:web:unicode:
-  e.g., http://sources.debian.net/src/cvsnt/latest/ currently returns 505, due
-  to file named "testáéíóú.txt"
-
-  the failure is at debsources/web/models.py, line 571, at os.path.join()
-
-  initially reported by Luciano Bello,
-  Message-Id: <CAGfehY0L15cLDU2DrQowMcj=Q+6Cgg9cqhQGMDWcYcgHKR5f2w@mail.gmail.com>
+* TODO cannot list dir content when paths have unicode issues :web:unicode:FWD:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761106
 
 * TODO suite test data: differentiate sid and jessie		       :test:
   Currently, the set of packages in sid and jessie are exactly the same. Add
@@ -155,12 +112,8 @@
   packages. (Not to mention the risk of cross-referincing across different
   languages; although we should have the info to avoid that...)
 
-* TODO highlight #Lxxx lines by default		     :web:ui:javascript:easy:
-  On Thu, Jun 13, 2013 at 12:19:58AM +0200, Joachim Breitner wrote:
-  > An URL like
-  > http://sources.debian.net/src/cairo/1.12.14-4/boilerplate/cairo-boilerplate-xcb.c#L395
-  > should highlight that line. And ideally put it in the middle of the
-  > screen, instead of the top (this might require some JS fiddling).
+* TODO highlight #Lxxx lines by default		 :web:ui:javascript:easy:FWD:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761103
 
 * TODO allow symlink within same package/version	       :web:security:
   currently /all/ symlinks are forbidden for security reasons
@@ -266,12 +219,8 @@
   contain all searched ctags.
   See TODO in python/models.py.
 
-* TODO on the fly diff/debdiff						:web:
-  Add the ability to diff arbitrary version of packages available by
-  debsources, producing a debdiff as a result. Should come as a new "/diff"
-  URL, taking package names/versions as parameters and return the debdiff.
-  Bonus point: offer the ability to either download or typeset the debdiff in
-  the browser.
+* TODO on the fly diff/debdiff					    :web:FWD:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761105
 
 * TODO ability to "edit" files						:web:
   every file exposed should have a edit file (maybe only for some users) a-la
