@@ -563,3 +563,62 @@ Archived entries from file /srv/debian/debsources.bugs/BUGS
   :END:
   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761105
 
+
+* TODO stats: add totals (i.e. non per-suite)		     :web:stats:easy:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-11 Thu 23:51
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761227
+
+
+* TODO stats: make pie charts more readable	:infra:stats:matplotlib:easy:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-11 Thu 23:51
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761228
+
+
+* TODO stats: make trend charts more readable	:infra:stats:matplotlib:easy:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-11 Thu 23:51
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761229
+
+
+* TODO infobox: add ctags count				   :web:easy:infobox:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-11 Thu 23:51
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761231
+
+
+* TODO release pages: add version number and date	   :web:easy:release:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-11 Thu 23:52
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761232
+
+
+* DONE missing test: `/api/checksum/foo/`		  :web:api:test:easy:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-11 Thu 23:54
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: DONE
+  :END:
+

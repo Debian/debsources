@@ -4,21 +4,6 @@
 https://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=qa.debian.org;tag=debsources
 The entries remaining below are in wait of triaging/forwarding there.
 
-* TODO stats: add totals (i.e. non per-suite)		     :web:stats:easy:
-  to all tables listed at http://sources.debian.net/stats/
-
-* TODO stats: make pie charts more readable	:infra:stats:matplotlib:easy:
-  e.g. by /not/ listing languages below a given thresholds, and aggregating
-  them into a "other" pseudo-language
-
-* TODO stats: make trend charts more readable	:infra:stats:matplotlib:easy:
-  e.g. avoid overlapping labels, remove/customize + delta on Y axes, etc.
-
-* TODO infobox: add ctags count				   :web:easy:infobox:
-
-* TODO release pages: add version number and date	   :web:easy:release:
-  which are now available in the suites table
-
 * TODO "update statistics" stage is too slow		   :infra:stats:perf:
   Currently, it takes about 12 minutes on tytso. It can be optimized by
   avoiding redoing statistic queries for each live suites (currently: 9), where
@@ -33,8 +18,6 @@ The entries remaining below are in wait of triaging/forwarding there.
   At the very least it should skip: update statistics, update charts, update
   suites mappings. Should it become a separate tool? Or should we expose on the
   cmdline the support to select individual update stages? (see updater.py)
-
-* TODO missing test: `/api/checksum/foo/`		  :web:api:test:easy:
 
 * TODO suite test data: differentiate sid and jessie		       :test:
   Currently, the set of packages in sid and jessie are exactly the same. Add
