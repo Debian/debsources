@@ -17,18 +17,27 @@
 <h3>Development</h3>
 
 <ul>
-  <li>source code is available via <a href="http://git-scm.com/"><b>Git</b></a>:
-    <kbd>git clone git://anonscm.debian.org/qa/debsources.git</kbd></li>
-  <li>the Git repository is also available via
-    <a href="{{ config.GITWEB_URL }}"><b>Gitweb</b></a></li>
-  <li>please report <b>bugs</b> via mail at
-    <a href="mailto:info@{{ config.DOMAIN }}">info@{{ config.DOMAIN }}</a>,
-    after checking that your issue isn't already listed in the
-    <a href="{{ config.GITWEB_URL }};a=blob;f=BUGS;hb=refs/heads/bugs">BUGS file</a></li>
-  <li>for Debsources discussions please use the
-    <a href="https://lists.debian.org/debian-qa/">debian-qa <b>mailing
-	list</b></a> and the <kbd>#debian-qa</kbd> <b>IRC channel</b> on
-    <a href="http://www.oftc.net/">OFTC</a></li>
+  <li><strong>source code</strong> is available
+    using <a href="http://git-scm.com/">Git</a>:
+    <tt>git clone git://anonscm.debian.org/qa/debsources.git</tt> and
+    browsable <a href="{{ config.GITWEB_URL }}">on the Web</a>
+  </li>
+
+  <li>please report <strong>bugs</strong> to
+    the <a href="https://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=qa.debian.org;tag=debsources">Debian
+    Bug Tracking System</a>, against the
+    <code>qa.debian.org</code> pseudo-package, using a subject line that begins
+    with "debsources:".  <br /> If you use the standard
+    Debian <code>reportbug</code> tool, please use the command
+    line: <tt>reportbug -P "User: qa.debian.org@packages.debian.org" -P
+    "Usertags: debsources" qa.debian.org</tt>
+  </li>
+
+  <li>for discussions about Debsources please <strong>contact</strong> the
+    <a href="http://lists.debian.org/debian-qa/">debian-qa mailing list</a> or
+    the <code>#debian-qa</code> IRC channel
+    on <a href="http://www.oftc.net/">OFTC</a>
+  </li>
 </ul>
 
 

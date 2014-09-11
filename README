@@ -1,23 +1,28 @@
 Development
 ===========
 
-* source code is available using [Git][1]:
+* **source code** is available using [Git][1]:
 
-    $ git clone git://anonscm.debian.org/qa/debsources.git
+        $ git clone git://anonscm.debian.org/qa/debsources.git
 
-* the Git repository is also available [via Gitweb][2]
+  and browsable [on the Web][2].
 
-* please report bugs via mail at `info@sources.debian.net`, after checking that
-  your issue isn't already listed in the [BUGS file][3]
+* please report **bugs** to the [Debian Bug Tracking System][6], against the
+  `qa.debian.org` pseudo-package, using a subject line that begins with
+  "debsources:".
 
-* for Debsources discussions please use the [debian-qa mailing list][4] and the
-  `#debian-qa` IRC channel on [OFTC][5]
+  If you use the standard Debian `reportbug` tool, please use the command line:
+
+        $ reportbug -P "User: qa.debian.org@packages.debian.org" -P "Usertags: debsources" qa.debian.org
+
+* for discussions about Debsources please **contact** the
+  [debian-qa mailing list][4] or the `#debian-qa` IRC channel on [OFTC][5]
 
 [1]: http://git-scm.com/
 [2]: http://anonscm.debian.org/gitweb/?p=qa/debsources.git
-[3]: http://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=BUGS;hb=refs/heads/bugs
 [4]: http://lists.debian.org/debian-qa/
 [5]: http://www.oftc.net/
+[6]: https://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=qa.debian.org;tag=debsources
 
 
 Dependencies
