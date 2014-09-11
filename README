@@ -25,6 +25,9 @@ Development
 [6]: https://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=qa.debian.org;tag=debsources
 
 
+To get started with Debsources development, have a look at the `HACKING` file.
+
+
 Dependencies
 ============
 
