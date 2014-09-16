@@ -622,3 +622,53 @@ Archived entries from file /srv/debian/debsources.bugs/BUGS
   :ARCHIVE_TODO: DONE
   :END:
 
+
+* TODO /latest redirection for /data URLs		   :infra:apache:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-16 Tue 14:32
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761864
+
+
+* TODO use relative paths in sources.txt	 :infra:refactoring:easy:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-16 Tue 14:32
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761863
+
+
+* TODO ability to override detected language type	    :web:hilight:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-16 Tue 14:32
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761861
+
+
+* TODO multiple ctags search					:web:sql:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-16 Tue 14:35
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761867
+
+
+* TODO "update statistics" stage is too slow	       :infra:stats:perf:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-09-16 Tue 14:42
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=761869
+

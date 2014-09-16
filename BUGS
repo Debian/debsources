@@ -4,14 +4,6 @@
 https://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=qa.debian.org;tag=debsources
 The entries remaining below are in wait of triaging/forwarding there.
 
-* TODO "update statistics" stage is too slow		   :infra:stats:perf:
-  Currently, it takes about 12 minutes on tytso. It can be optimized by
-  avoiding redoing statistic queries for each live suites (currently: 9), where
-  each query does a sequential scan (due to count(*), despite "index mostly
-  scan"). Instead, we can do GROUP BY queries, taking at once stats for all
-  suites. Proof of concept and benchmarks available in
-  doc/update-stats-query.bench.sql
-
 * TODO check-in derivatives from the census		  :infra:derivatives:
 
 * TODO update-debsources --trigger should skip update stages	      :infra:
@@ -88,20 +80,9 @@ The entries remaining below are in wait of triaging/forwarding there.
 
  Debugging: maybe with inline-block and other css tricks
 
-* TODO use relative paths in sources.txt	     :infra:refactoring:easy:
-  - 4th field should be relative to conf['mirror_dir']
-  - 5th field should be relative to conf['sources_dir']
-  see test_updater.py for reference
-
 * TODO migrate to sources.debian.org				  :infra:dsa:
   conversation started by Zack with DSA
   Message-ID: <20131229152159.GA8400@upsilon.cc>
-
-* TODO /latest redirection for /data URLs		       :infra:apache:
-  [ bug report from Simon Paillard, Message-Id: <20130907214628.GY17455@mraw.org> ]
-  to implement this we need to generate batchly redirection maps (as we did in
-  the past) and configura Apache to use them, as /data is served directly by
-  Apache
 
 * TODO bulk ctags insertion traceback		:ctags:bulk:traceback:ATTACH:
   :PROPERTIES:
@@ -151,11 +132,6 @@ The entries remaining below are in wait of triaging/forwarding there.
   automatically have these features. In this case, the json view is
   not paginated but the html view is.
 
-* TODO multiple ctags search 					    :web:sql:
-  A search which returns *files* (and not a line in a file), which
-  contain all searched ctags.
-  See TODO in python/models.py.
-
 * TODO ability to "edit" files						:web:
   every file exposed should have a edit file (maybe only for some users) a-la
   GitHub. The result of the edit actionn will be returned as debdiff against
@@ -165,18 +141,3 @@ The entries remaining below are in wait of triaging/forwarding there.
 
   Credit: Raphael Geissert after DebConf14 talk
 
-* TODO ability to override detected language type		:web:hilight:
-  Rationale: our detection heuristics could be wrong. Also, they are incomplete
-  (e.g., the info files example reported in Message-Id:
-  <201408161506.50897.stuart@debian.org> and currently available here
-  http://sources.debian.net/src/make/latest/doc/make.info-4/). This should come
-  as something like a "?lang=..." URL parameter.
-
-  Note that, in terms of code, the semantic of lang should be twofold:
-  - on one hand its presence should override the detection done by libmagic to
-    decide whether to show or download a file (e.g.,
-    http://anonscm.debian.org/cgit/qa/debsources.git/tree/python/models.py#n652)
-  - on the other hand the language specified is used to override the heuristic
-    based language detection
-  To simply force the display without requiring any highlighting, we could use
-  ?lang=none
