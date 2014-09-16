@@ -217,7 +217,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
             "http://svn.debian.org/wsvn/sam-hocevar/pkg-misc/unstable/libcaca/")
         assert rv["pkg_infos"]["vcs_type"] == "svn"
         assert rv["pkg_infos"]["pts_link"] == (
-            "http://packages.qa.debian.org/libcaca")
+            "http://tracker.debian.org/pkg/libcaca")
     
     def test_pkg_infobox_embed(self):
         rv = self.app.get('/embed/pkginfo/libcaca/0.99.beta17-1/')

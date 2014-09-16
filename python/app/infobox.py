@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-PTS_PREFIX = "http://packages.qa.debian.org/"
+PTS_PREFIX = "http://tracker.debian.org/pkg/"
 # move this to configuration file?
 # it would add a dependence layer with app.config
 
