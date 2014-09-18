@@ -50,7 +50,7 @@ Local Debsources deployment
 
 - run the webapp:
 
-  $ python/run_webapp.py 
+  $ bin/debsources-run-app
   * Running on http://127.0.0.1:5000/
   * Restarting with reloader
 

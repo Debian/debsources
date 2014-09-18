@@ -4,7 +4,7 @@ Test runner
 Debsources test suite is managed with [Nose](https://nose.readthedocs.org/).
 To run the test suite execute the following from Debsources top-level dir:
 
-	$ nosetests -v python/
+	$ nosetests -v debsources/
 
 or, if you're used to it:
 
@@ -20,7 +20,7 @@ Test attributes
 
 To get a list of available test attributes you might try something like:
 
-	$ rgrep -h @attr python/tests/ | sort -u
+	$ rgrep -h @attr debsources/tests/ | sort -u
 
 
 Test Postgres DB
