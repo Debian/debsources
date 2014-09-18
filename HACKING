@@ -25,7 +25,7 @@ Local Debsources deployment
 
 - create the DB schema:
 
-  $ bin/dbadmin --createdb postgresql:///debsources
+  $ bin/debsources-dbadmin --createdb postgresql:///debsources
 
   where debsources is the DB name. The last parameter must be a valid
   SQLAlchemy database URL; see
@@ -40,13 +40,13 @@ Local Debsources deployment
 - edit etc/config.local.ini and adapt it to your needs.
 
   To play with Debsources for development reasons, it should be enough to
-  change `db_uri` (the same you used above for bin/dbadmin) and `root_dir` (the
-  absolute path of your local Debsources Git repo) in the top-level `[DEFAULT]`
-  section of the configuration file.
+  change `db_uri` (the same you used above for bin/debsources-dbadmin) and
+  `root_dir` (the absolute path of your local Debsources Git repo) in the
+  top-level `[DEFAULT]` section of the configuration file.
 
 - do an update run:
 
-  $ bin/update-debsources -vv
+  $ bin/debsources-update -vv
 
 - run the webapp:
 
