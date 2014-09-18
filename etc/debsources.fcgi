@@ -7,14 +7,15 @@
 
 from flup.server.fcgi import WSGIServer
 
+# # if the debsources Python module is not installed system-wide, you will need
+# # to add its root directory to Python's path, e.g.:
+#
 # import sys, os
-
-# PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# WEB_DIR = os.path.join(PROJECT_DIR, "web")
-
-# sys.path.append(WEB_DIR)
+# DEBSOURCES_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# sys.path.append(DEBSOURCES_ROOT)
 
 from debsources.app import app_wrapper
+
 
 if __name__ == '__main__':
     app_wrapper.go()
