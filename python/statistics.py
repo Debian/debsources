@@ -49,7 +49,8 @@ SUITES = {
     'devel': [],  # known release variants; filled below
     'all': [],	  # all known releases + variants; filled below
 }
-SUITE_VARIANTS = ['%s-updates', '%s-proposed-updates', '%s-backports']
+SUITE_VARIANTS = ['%s-updates', '%s-proposed-updates', '%s-backports',
+                  '%s-lts']
 for s in SUITES['release']:
     SUITES['all'].append(s)
     for v in SUITE_VARIANTS:
