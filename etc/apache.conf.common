@@ -69,11 +69,6 @@
 	FcgidMaxRequestsPerProcess 1000
 	# end: FastCGI deployment
 
-	<Directory /var/www/debsources>
-        	   Order deny,allow
-        	   Allow from all
-    	</Directory>
-
 	ErrorLog ${APACHE_LOG_DIR}/debsources-error.log
 	LogLevel warn
 	CustomLog ${APACHE_LOG_DIR}/debsources-access.log combined
