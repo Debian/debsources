@@ -17,7 +17,7 @@
 
 import os
 import logging
-from logging import Formatter, StreamHandler
+from logging import Formatter, FileHandler, StreamHandler
 
 from flask import Flask
 
@@ -77,10 +77,21 @@ class AppWrapper(object):
         """
         Sets up everything needed for logging.
         """
-        handler = StreamHandler()
-        handler.setFormatter(Formatter(
-                '%(asctime)s %(levelname)s: %(message)s '
-                '[in %(pathname)s:%(lineno)d]'
-                ))
-        handler.setLevel(logging.INFO)
-        self.app.logger.addHandler(handler)
+        fmt = Formatter('%(asctime)s %(levelname)s: %(message)s '
+                        + '[in %(pathname)s:%(lineno)d]')
+        log_level = logging.INFO
+        try:
+            log_level = mainlib.LOG_LEVELS[self.app.config["LOG_LEVEL"]]
+        except KeyError:  # might be raised by both "config" and "LOG_LEVELS",
+            pass          # same treatment: fallback to default log_level
+
+        stream_handler = StreamHandler()
+        stream_handler.setFormatter(fmt)
+        stream_handler.setLevel(log_level)
+        self.app.logger.addHandler(stream_handler)
+
+        if "LOG_FILE" in self.app.config:
+            file_handler = FileHandler(self.app.config["LOG_FILE"])
+            file_handler.setFormatter(fmt)
+            file_handler.setLevel(log_level)
+            self.app.logger.addHandler(file_handler)
