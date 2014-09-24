@@ -5,21 +5,28 @@ Getting started with Debsources development
 Local Debsources deployment
 ---------------------------
 
-- $ git clone https://anonscm.debian.org/git/qa/debsources.git
-  $ cd debsources/
+- clone the Debsources Git repository:
+
+  $ git clone https://anonscm.debian.org/git/qa/debsources.git
+
+- ensure the Python interpreter can find Debsources' Python modules:
+
+  $ export PYTHONPATH=`pwd`/debsources:"$PYTHONPATH"
+  $ python -c 'import debsources'  # if this fails, double-check $PYTHONPATH
 
 - to test the updater, and subsequently run the webapp on it, you will need a
   (partial) Debian source mirror on your development machine.  To that end, you
   might want to use the data from the Debsources testsuite, which is shipped
   via a separate Git submodule rooted at testdata/, so:
 
+  $ cd debsources/
   $ git submodule update --init
 
   The testdata Git repository is ~150 MB, so it might take a while to retrieve.
 
 - create a PostgreSQL database for use by Debsources, e.g.:
 
-  $  createdb debsources
+  $ createdb debsources
 
   (as user postgres or equivalent)
 
