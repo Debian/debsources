@@ -46,24 +46,25 @@
 
 	Alias /javascript /usr/share/javascript/
 
-	# # begin: WSGI deployment
-	# WSGIScriptAlias / /srv/debsources/etc/debsources.wsgi
-	# WSGIDaemonProcess debsources user=www-data group=www-data threads=8
-	# WSGIProcessGroup debsources
-	# WSGIApplicationGroup debsources
-	# # end: WSGI deployment
-
 	Alias /robots.txt /srv/www/debsources/public_html/robots.txt
 	Alias /data/ /srv/debsources/sources/
 	Alias /static/stats/ /srv/debsources/cache/stats/
-	Alias /static/ /srv/debsources/web/app/static/
+	Alias /static/ /srv/debsources/debsources/app/static/
 	Alias /icons/ /usr/share/icons/
 	Alias /private/ /srv/www/debsources/public_html/private/
+
+	# # begin: WSGI deployment
+	# WSGIScriptAlias / /srv/debsources/etc/debsources.wsgi
+	# WSGIDaemonProcess debsources python-path=/srv/debsources user=www-data group=www-data threads=8
+	# WSGIProcessGroup debsources
+	# WSGIApplicationGroup debsources
+	# # end: WSGI deployment
 
 	# begin: FastCGI deployment
 	# note: ScriptAlias should come *after* other Alias directives, to
 	# avoid shadowing them
 	ScriptAlias / /srv/debsources/etc/debsources.fcgi/
+	FcgidInitialEnv PYTHONPATH "/srv/debsources"
 	FcgidProcessLifeTime 3600
 	FcgidMaxRequestsPerProcess 1000
 	# end: FastCGI deployment
