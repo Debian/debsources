@@ -34,11 +34,16 @@ fi
 umask 0002
 export LANG=C
 
+# minimal interpolation support, for the few configuration values needed
+# by the update driver
 root_dir=$(grep "^root_dir:" "$conffile" | awk '{ print $2 }')
+log_dir=$(grep "^log_dir:" "$conffile" | awk '{ print $2 }')
+
 conf_get () {
     local key="$1"
     local value=$(grep "^${key}:" "$conffile" | head -n 1 | awk '{ print $2 }')
     value=$(echo $value | sed "s|%(root_dir)s|${root_dir}|")
+    value=$(echo $value | sed "s|%(log_dir)s|${log_dir}|")
     if [ -z "$value" ] ; then
 	err "required configuration value $key not found in $conffile, abort."
     fi
@@ -47,9 +52,10 @@ conf_get () {
 
 bin_dir=$( conf_get "bin_dir" )
 cache_dir=$( conf_get "cache_dir" )
+logfile=$( conf_get "log_file" )
+
 disabler="${root_dir}/UPDATE-DISABLED"
 lockfile="${root_dir}/ONGOING-UPDATE.pid"
-logfile=$( conf_get "log_file" )
 
 # uses $logfile global
 source "${bin_dir}/lib.sh"
