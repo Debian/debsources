@@ -72,3 +72,23 @@ Running tests
 -------------
 
 See `doc/testing.txt`.
+
+
+Coding conventions
+==================
+
+All new Debsources code should be [PEP8][1] compliant and pass [pyflakes][2]
+validation. Before submitting patches, please make sure that the lines of code
+they touch conform to such requirements.
+
+[1]: http://legacy.python.org/dev/peps/pep-0008/
+[2]: https://pypi.python.org/pypi/pyflakes
+
+If you develop on Debian(-based distros), a good way to check that this is the
+case is:
+
+    # apt-get install flake8
+    $ flake8 file1.py file2.py ...
+
+If you stumble upon Debsources source files that are not flake8-compliant,
+patches that put them back in compliance are more than welcome (hint hint).
