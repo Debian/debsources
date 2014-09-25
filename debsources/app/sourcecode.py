@@ -15,17 +15,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
 from debsources.filetype import get_highlightjs_language
+
 
 class SourceCodeIterator(object):
     def __init__(self, filepath, hl=None, msg=None, encoding="utf8"):
         """
         creates a new SourceCodeIterator object
-        
+
         Arguments:
         filename: the source code file
-        
+
         Keyword arguments:
         hlbegin: first line whixh will be highlighted
         hlend: last line which will be highlighted
@@ -40,12 +40,12 @@ class SourceCodeIterator(object):
         # we store the firstline (used to determine file language)
         try:
             self.firstline = self.file.next()
-        except: # empty file
+        except:  # empty file
             self.firstline = ""
-        
+
         self.file.seek(0)
         # TODO: proper generator (but 'with' is not available in jinja2)
-        
+
         self.encoding = encoding
         self.current_line = 0
         self.number_of_lines = None
@@ -54,19 +54,22 @@ class SourceCodeIterator(object):
         if hl is not None:
             hlranges = hl.split(',')
             for r in hlranges:
-                if ':' in r: # it's a range
+                if ':' in r:  # it's a range
                     try:
                         rbegin, rend = r.split(':')
                         for i in range(int(rbegin), int(rend) + 1):
                             self.hls.add(i)
-                    except ValueError, TypeError: pass
-                else: # it's a single line
-                    try: self.hls.add(int(r))
-                    except: pass
-    
+                    except (ValueError, TypeError):
+                        pass
+                else:  # it's a single line
+                    try:
+                        self.hls.add(int(r))
+                    except:
+                        pass
+
     def __iter__(self):
         return self
-    
+
     def next(self):
         self.current_line += 1
         if self.current_line in self.hls:
@@ -79,15 +82,16 @@ class SourceCodeIterator(object):
             # end of file, we close it
             self.file.close()
             raise StopIteration
-        
+
         return (line, class_)
-    
+
     def get_number_of_lines(self):
         if self.number_of_lines is not None:
             return self.number_of_lines
         self.number_of_lines = 0
         with open(self.filepath) as sfile:
-            for line in sfile: self.number_of_lines += 1
+            for line in sfile:
+                self.number_of_lines += 1
         return self.number_of_lines
 
     def get_file_language(self):
@@ -102,7 +106,8 @@ class SourceCodeIterator(object):
         returns a dict(position=, title=, message=) generated from
         the string message (position:title:message)
         """
-        if self.msg is None: return dict()
+        if self.msg is None:
+            return dict()
         msgsplit = self.msg.split(':')
         msgdict = dict()
         try:

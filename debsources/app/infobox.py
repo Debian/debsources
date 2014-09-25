@@ -37,73 +37,72 @@ class Infobox(object):
         self.session = session
         self.package = package
         self.version = version
-    
+
     def _get_direct_infos(self):
         """ information available directly in Package table """
         try:
             infos = (self.session.query(Package)
-                     .filter(Package.version==self.version,
-                             Package.name_id==PackageName.id,
-                             PackageName.name==self.package)
+                     .filter(Package.version == self.version,
+                             Package.name_id == PackageName.id,
+                             PackageName.name == self.package)
                      .first())
-            
+
         except Exception as e:
             raise Http500Error(e)
-        
+
         return infos
-    
+
     def _get_associated_suites(self):
         """ associated suites, which come from Suite """
         try:
             suites = (self.session.query(Suite.suite)
-                      .filter(Suite.package_id==Package.id,
-                              Package.version==self.version,
-                              Package.name_id==PackageName.id,
-                              PackageName.name==self.package)
+                      .filter(Suite.package_id == Package.id,
+                              Package.version == self.version,
+                              Package.name_id == PackageName.id,
+                              PackageName.name == self.package)
                       .all())
         except Exception as e:
             raise Http500Error(e)
-        
+
         return [x[0] for x in suites]
-    
+
     def _get_sloc(self):
         """ sloccount """
         try:
             sloc = (self.session.query(SlocCount)
-                    .filter(SlocCount.package_id==Package.id,
-                            Package.version==self.version,
-                            Package.name_id==PackageName.id,
-                            PackageName.name==self.package)
+                    .filter(SlocCount.package_id == Package.id,
+                            Package.version == self.version,
+                            Package.name_id == PackageName.id,
+                            PackageName.name == self.package)
                     .order_by(SlocCount.count.desc())
                     .all())
         except Exception as e:
             raise Http500Error(e)
-        
+
         return [(x.language, x.count) for x in sloc]
-    
+
     def _get_metrics(self):
         """ metrics"""
         try:
             metric = (self.session.query(Metric)
-                      .filter(Metric.package_id==Package.id,
-                              Package.version==self.version,
-                              Package.name_id==PackageName.id,
-                              PackageName.name==self.package)
+                      .filter(Metric.package_id == Package.id,
+                              Package.version == self.version,
+                              Package.name_id == PackageName.id,
+                              PackageName.name == self.package)
                       .all())
         except Exception as e:
             raise Http500Error(e)
 
         return dict([(x.metric, x.value) for x in metric])
-    
+
     def _get_pts_link(self):
         """
         returns an URL for the package in the Debian Package Tracking System
         """
         pts_link = PTS_PREFIX + self.package
-        pts_link = url_quote(pts_link) # for '+' symbol in Debian package names
+        pts_link = url_quote(pts_link)  # for '+' symbol in package names
         return pts_link
 
-    
     def get_infos(self):
         """
         Retrieves information about the version of a package:
@@ -115,23 +114,23 @@ class Infobox(object):
         - pts link
         """
         pkg_infos = dict()
-        
+
         infos = self._get_direct_infos()
         if infos is None:
             raise Http404Error()
-        
+
         pkg_infos["area"] = infos.area
-        
+
         if infos.vcs_type and infos.vcs_browser:
                 pkg_infos['vcs_type'] = infos.vcs_type
                 pkg_infos['vcs_browser'] = infos.vcs_browser
-        
+
         pkg_infos["suites"] = self._get_associated_suites()
-        
+
         pkg_infos["sloc"] = self._get_sloc()
-        
+
         pkg_infos["metric"] = self._get_metrics()
-        
+
         pkg_infos["pts_link"] = self._get_pts_link()
-        
+
         return pkg_infos

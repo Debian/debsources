@@ -20,5 +20,6 @@ from wtforms import TextField
 from wtforms.validators import Required
 from flask.ext.wtf import Form
 
+
 class SearchForm(Form):
     query = TextField('package name', validators=[Required()])

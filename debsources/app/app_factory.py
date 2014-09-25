@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import logging
 from logging import Formatter, FileHandler, StreamHandler
 
@@ -23,6 +22,7 @@ from flask import Flask
 
 from debsources import mainlib
 from debsources.sqla_session import _get_engine_session
+
 
 class AppWrapper(object):
     """
@@ -37,12 +37,12 @@ class AppWrapper(object):
         """
         self.session = session
         self.app = Flask(__name__)
-        
+
         if config is None:
             self.setup_conf()
         else:
             self.app.config = config
-    
+
     def go(self):
         """
         Sets up SQLAlchemy, logging, and imports all the views.
@@ -50,19 +50,19 @@ class AppWrapper(object):
         """
         if self.session is None:
             self.setup_sqlalchemy()
-        
+
         self.setup_logging()
-        
+
         # importing the views creates all the routing for the app
         from debsources.app import views
-        
+
     def setup_conf(self):
         """
         Sets up the configuration, getting it from mainlib.
         """
         conf = mainlib.load_conf(mainlib.guess_conffile(), section="webapp")
         self.app.config.update(conf)
-        
+
     def setup_sqlalchemy(self):
         """
         Creates an engine and a session for SQLAlchemy, using the database URI
@@ -70,7 +70,7 @@ class AppWrapper(object):
         """
         db_uri = self.app.config["SQLALCHEMY_DATABASE_URI"]
         e, s = _get_engine_session(db_uri,
-                                   verbose = self.app.config["SQLALCHEMY_ECHO"])
+                                   verbose=self.app.config["SQLALCHEMY_ECHO"])
         self.engine, self.session = e, s
 
     def setup_logging(self):
