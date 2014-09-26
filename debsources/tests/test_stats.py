@@ -22,7 +22,7 @@ from nose.plugins.attrib import attr
 
 from debsources import statistics
 
-from debsources.tests.db_testing import DbTestFixture, pg_dump
+from debsources.tests.db_testing import DbTestFixture
 
 
 @attr('infra')

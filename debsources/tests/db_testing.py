@@ -20,9 +20,6 @@ import os
 import sqlalchemy
 import subprocess
 
-from os.path import abspath, dirname
-
-from debsources import models
 
 from debsources.subprocess_workaround import subprocess_setup
 from debsources.tests.testdata import *

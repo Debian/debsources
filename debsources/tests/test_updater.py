@@ -26,7 +26,6 @@ import unittest
 
 from nose.tools import istest
 from nose.plugins.attrib import attr
-from os.path import abspath, dirname
 
 from debsources import dbutils
 from debsources import mainlib
@@ -34,7 +33,7 @@ from debsources import models
 from debsources import statistics
 from debsources import updater
 
-from debsources.tests.db_testing import DbTestFixture, pg_dump, DB_COMPARE_QUERIES
+from debsources.tests.db_testing import DbTestFixture, DB_COMPARE_QUERIES
 from debsources.tests.updater_testing import mk_conf
 from debsources.subprocess_workaround import subprocess_setup
 from debsources.tests.testdata import *
