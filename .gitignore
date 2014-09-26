@@ -4,3 +4,4 @@ local
 sources
 *.pyc
 etc/config.local.ini
+.coverage
