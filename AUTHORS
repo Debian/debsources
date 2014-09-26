@@ -7,11 +7,23 @@ ways and this software wouldn't exist without them.
 
 Thank you!
 
-(For actual copyright notices, please refer to the individual source files.)
+(For actual copyright notices, please refer to the individual source files and
+the Git repository.)
+
+
+Original authors
+----------------
 
 * Matthieu Caneill
-* Software in the Public Interest, Inc.
 * Stefano Zacchiroli
+
+
+Code contributors
+-----------------
+
+* Luciano Bello
+* Software in the Public Interest, Inc.
+* Tessy Joseph
 
 * Contribute and ADD YOUR NAME HERE!
 
@@ -26,7 +38,6 @@ making Debsources feel part of the broader Debian ecosystem:
 * Christoph Berg
 * Daniel Kahn Gillmor
 * Joachim Breitner
-* Luciano Bello
 * Michael Stapelberg
 * Paul Wise
 
