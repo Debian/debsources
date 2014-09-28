@@ -407,7 +407,7 @@ def update_statistics(status, conf, session, suites=None):
         # If stats.data exists, load and update it, otherwise start from
         # scratch. Note: this means that we need to be careful about changing
         # stats keys, to avoid orphans.
-        # TODO:add a chk about orphan stats.data entries to bin/debsources-fsck
+        # TODO: add check about orphan stats.data entries to debsources-fsck
         stats = statistics.load_metadata_cache(stats_file)
     else:
         stats = {}

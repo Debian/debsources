@@ -90,7 +90,7 @@ def assert_db_schema_equal(test_subj, expected_schema, actual_schema):
         actual = [dict(r.items()) for r in
                   test_subj.session.execute(q % {'schema': actual_schema})]
         test_subj.assertSequenceEqual(expected, actual,
-                                      msg='table%s differs from reference'
+                                      msg='table %s differs from reference'
                                       % tbl)
 
 

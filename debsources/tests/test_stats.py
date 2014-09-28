@@ -156,7 +156,8 @@ class Stats(unittest.TestCase, DbTestFixture):
         self.assertEqual(statistics.disk_usage(self.session, areas=['main']),
                          104568)
         self.assertEqual(statistics.disk_usage(self.session,
-                         suite='wheezy', areas=['main']), 35824)
+                                               suite='wheezy', areas=['main']),
+                         35824)
 
         area_count = statistics.source_packages(self.session, areas=['main'])
         self.assertEqual(area_count, 13)

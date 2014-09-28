@@ -87,7 +87,8 @@ def sticky_suites(session):
 
     """
     q = session.query(SuiteInfo.name) \
-               .filter(SuiteInfo.sticky is True)
+               .filter(SuiteInfo.sticky == True)  # NOQA,
+    # '== True' can be dropped starting with sqlalchemy >= 0.8
     return [row[0] for row in q]
 
 
