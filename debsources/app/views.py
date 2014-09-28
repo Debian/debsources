@@ -180,7 +180,7 @@ def deal_403_error(error, mode='html'):
         return render_template('403.html'), 403
 
 
-@app.errorhandler(403)
+@app.errorhandler(403)  # NOQA
 def server_error(e):
     return deal_403_error(e)
 
@@ -312,10 +312,10 @@ app.add_url_rule('/advancedsearch/', view_func=AdvancedSearchView.as_view(
 
 # ADVANCED SEARCH (JSON)
 app.add_url_rule('/api/advancedsearch/', view_func=AdvancedSearchView.as_view(
-        'advanced_search_json',
-        render_func=jsonify,
-        err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
-        ))
+    'advanced_search_json',
+    render_func=jsonify,
+    err_func=lambda e, **kwargs: deal_error(e, mode='json', **kwargs)
+))
 
 
 # NAVIGATION: ALL PACKAGES #

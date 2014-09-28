@@ -302,7 +302,7 @@ def garbage_collect(status, conf, session, mirror):
         pkg = SourcePackage.from_db_model(version)
         pkg_id = (pkg['package'], pkg['version'])
         pkgdir = pkg.extraction_dir(conf['sources_dir'])
-        if not pkg_id in mirror.packages:
+        if pkg_id not in mirror.packages:
             # package is in in Debsources db, but gone from mirror: we
             # might have to garbage collect it (depending on expiry)
             expire_days = conf['expire_days']
@@ -407,7 +407,7 @@ def update_statistics(status, conf, session, suites=None):
         # If stats.data exists, load and update it, otherwise start from
         # scratch. Note: this means that we need to be careful about changing
         # stats keys, to avoid orphans.
-        # TODO: add a check about orphan stats.data entries to bin/debsources-fsck
+        # TODO:add a chk about orphan stats.data entries to bin/debsources-fsck
         stats = statistics.load_metadata_cache(stats_file)
     else:
         stats = {}
@@ -508,8 +508,8 @@ def update_charts(status, conf, session, suites=None):
     for metric in ['source_packages', 'disk_usage', 'source_files', 'ctags']:
         for (period, granularity) in CHARTS:
             for suite in suites + ['ALL']:
-                series = getattr(statistics, 'history_size_' + granularity) \
-                         (session, metric, interval=period, suite=suite)
+                series = getattr(statistics, 'history_size_' + granularity)(
+                    session, metric, interval=period, suite=suite)
                 chart_file = os.path.join(conf['cache_dir'], 'stats',
                                           '%s-%s-%s.png' %
                                           (suite, metric,
@@ -521,8 +521,8 @@ def update_charts(status, conf, session, suites=None):
     for (period, granularity) in CHARTS:
         for suite in suites + ['ALL']:
             # historical histogram
-            mseries = getattr(statistics, 'history_sloc_' + granularity) \
-                      (session, interval=period, suite=suite)
+            mseries = getattr(statistics, 'history_sloc_' + granularity)(
+                session, interval=period, suite=suite)
             chart_file = os.path.join(conf['cache_dir'], 'stats',
                                       '%s-sloc-%s.png' %
                                       (suite, period.replace(' ', '-')))

@@ -22,7 +22,7 @@ import subprocess
 
 
 from debsources.subprocess_workaround import subprocess_setup
-from debsources.tests.testdata import *
+from debsources.tests.testdata import *  # NOQA
 
 
 TEST_DB_DUMP = os.path.join(TEST_DATA_DIR, 'db/pg-dump-custom')
@@ -60,7 +60,8 @@ DB_COMPARE_QUERIES = {
 
     "checksums":
     "SELECT package_names.name, packages.version, files.path, sha256 \
-     FROM %(schema)s.files, %(schema)s.packages, %(schema)s.package_names, %(schema)s.checksums \
+     FROM %(schema)s.files, %(schema)s.packages,\
+        %(schema)s.package_names, %(schema)s.checksums \
      WHERE packages.name_id = package_names.id \
      AND checksums.package_id = packages.id \
      AND checksums.file_id = files.id \
@@ -69,19 +70,23 @@ DB_COMPARE_QUERIES = {
 
     "sloccounts":
     "SELECT package_names.name, packages.version, language, count \
-     FROM %(schema)s.sloccounts, %(schema)s.packages, %(schema)s.package_names \
+     FROM %(schema)s.sloccounts, %(schema)s.packages,\
+        %(schema)s.package_names \
      WHERE packages.name_id = package_names.id \
      AND sloccounts.package_id = packages.id \
      ORDER BY package_names.name, packages.version, language \
      LIMIT 100",
 
     "ctags":
-    "SELECT package_names.name, packages.version, files.path, tag, line, kind, language \
-     FROM %(schema)s.ctags, %(schema)s.files, %(schema)s.packages, %(schema)s.package_names \
+    "SELECT package_names.name, packages.version,\
+        files.path, tag, line, kind, language \
+     FROM %(schema)s.ctags, %(schema)s.files,\
+        %(schema)s.packages, %(schema)s.package_names \
      WHERE packages.name_id = package_names.id \
      AND ctags.package_id = packages.id \
      AND ctags.file_id = files.id \
-     ORDER BY package_names.name, packages.version, files.path, tag, line, kind, language \
+     ORDER BY package_names.name, packages.version,\
+        files.path, tag, line, kind, language \
      LIMIT 100",
 
     "metric":
@@ -108,24 +113,27 @@ DB_COMPARE_QUERIES = {
 }
 
 
-
 def pg_restore(dbname, dumpfile):
     subprocess.check_call(['pg_restore', '--no-owner', '--no-privileges',
                            '--dbname', dbname, dumpfile],
                           preexec_fn=subprocess_setup)
+
 
 def pg_dump(dbname, dumpfile):
     subprocess.check_call(['pg_dump', '--no-owner', '--no-privileges', '-Fc',
                            '-f', dumpfile, dbname],
                           preexec_fn=subprocess_setup)
 
+
 def pg_dropdb(dbname):
     subprocess.check_call(['dropdb', dbname],
                           preexec_fn=subprocess_setup)
 
+
 def pg_createdb(dbname):
     subprocess.check_call(['createdb', dbname],
                           preexec_fn=subprocess_setup)
+
 
 def db_setup(test_subj, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False):
     """Sets up the db for use by a given test subject.
@@ -138,7 +146,7 @@ def db_setup(test_subj, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False):
     """
     try:
         pg_createdb(dbname)
-    except subprocess.CalledProcessError:	# try recovering once, in case
+    except subprocess.CalledProcessError:  # try recovering once, in case
         pg_dropdb(dbname)			# the db already existed
         pg_createdb(dbname)
     test_subj.dbname = dbname
@@ -147,6 +155,7 @@ def db_setup(test_subj, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False):
     pg_restore(dbname, dbdump)
     Session = sqlalchemy.orm.sessionmaker()
     test_subj.session = Session(bind=test_subj.db)
+
 
 def db_teardown(test_subj):
     """Tears down db support used by a given test subject.
@@ -168,12 +177,13 @@ class DbTestFixture(object):
         db_setup(self, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False)
 
     @classmethod
-    def db_setup_cls(cls, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False):
+    def db_setup_cls(cls, dbname=TEST_DB_NAME,
+                     dbdump=TEST_DB_DUMP, echo=False):
         db_setup(cls, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False)
 
     def db_teardown(self):
         db_teardown(self)
-    
+
     @classmethod
     def db_teardown_cls(cls):
         db_teardown(cls)

@@ -72,7 +72,7 @@ def suites(session, suites='release'):
     two sets
 
     """
-    if not suites in SUITES.keys():
+    if suites not in SUITES.keys():
         raise ValueError('unknown set of suites: %s' % suites)
 
     db_suites = [row[0] for row in session.query(distinct(Suite.suite))]
@@ -87,7 +87,7 @@ def sticky_suites(session):
 
     """
     q = session.query(SuiteInfo.name) \
-               .filter(SuiteInfo.sticky == True)
+               .filter(SuiteInfo.sticky is True)
     return [row[0] for row in q]
 
 

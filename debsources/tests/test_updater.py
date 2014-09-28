@@ -36,7 +36,7 @@ from debsources import updater
 from debsources.tests.db_testing import DbTestFixture, DB_COMPARE_QUERIES
 from debsources.tests.updater_testing import mk_conf
 from debsources.subprocess_workaround import subprocess_setup
-from debsources.tests.testdata import *
+from debsources.tests.testdata import *  # NOQA
 
 
 def compare_dirs(dir1, dir2, exclude=[]):
@@ -48,7 +48,7 @@ def compare_dirs(dir1, dir2, exclude=[]):
     """
     try:
         subprocess.check_output(['diff', '-Naur', '--brief'] +
-                                [ '--exclude=' + pat for pat in exclude ] +
+                                ['--exclude=' + pat for pat in exclude] +
                                 [dir1, dir2],
                                 preexec_fn=subprocess_setup)
         return True, None
@@ -76,21 +76,23 @@ def db_mv_tables_to_schema(session, new_schema):
 
     then recreate the corresponding (empty) tables under 'public'
     """
-    session.execute('CREATE SCHEMA %s' % new_schema);
+    session.execute('CREATE SCHEMA %s' % new_schema)
     for tblname, table in models.Base.metadata.tables.items():
-        session.execute('ALTER TABLE %s SET SCHEMA %s' \
+        session.execute('ALTER TABLE %s SET SCHEMA %s'
                         % (tblname, new_schema))
         session.execute(sqlalchemy.schema.CreateTable(table))
 
 
 def assert_db_schema_equal(test_subj, expected_schema, actual_schema):
     for tbl, q in DB_COMPARE_QUERIES.iteritems():
-        expected = [ dict(r.items()) for r in \
-                     test_subj.session.execute(q % {'schema': expected_schema}) ]
-        actual = [ dict(r.items()) for r in \
-                   test_subj.session.execute(q % {'schema': actual_schema}) ]
+        expected = [dict(r.items()) for r in
+                    test_subj.session.execute(q % {'schema': expected_schema})]
+        actual = [dict(r.items()) for r in
+                  test_subj.session.execute(q % {'schema': actual_schema})]
         test_subj.assertSequenceEqual(expected, actual,
-                        msg='table %s differs from reference' % tbl)
+                                      msg='table%s differs from reference'
+                                      % tbl)
+
 
 def assert_dir_equal(test_subj, dir1, dir2, exclude=[]):
     dir_eq, dir_diff = compare_dirs(dir1, dir2, exclude)
@@ -133,8 +135,8 @@ class Updater(unittest.TestCase, DbTestFixture):
         # - plugin result caches -> because most of them are in os.walk()
         #   order, which is not stable
         # - dpkg-source log stored in *.log
-        exclude_pat = [ '*' + ext for ext in self.conf['file_exts'] ] \
-                      + ['*.log']
+        exclude_pat = ['*' + ext for ext in self.conf['file_exts']] \
+            + ['*.log']
         assert_dir_equal(self,
                          os.path.join(self.tmpdir, 'sources'),
                          os.path.join(TEST_DATA_DIR, 'sources'),
@@ -142,25 +144,27 @@ class Updater(unittest.TestCase, DbTestFixture):
 
         assert_db_schema_equal(self, 'ref', 'public')
 
-
     @istest
     def producesReferenceSourcesTxt(self):
         def parse_sources_txt(fname):
             for line in open(fname):
                 fields = line.split()
                 if fields[3].startswith('/'):
-                    fields[3] = os.path.relpath(fields[3], self.conf['mirror_dir'])
+                    fields[3] = os.path.relpath(fields[3],
+                                                self.conf['mirror_dir'])
                 if fields[4].startswith('/'):
-                    fields[4] = os.path.relpath(fields[4], self.conf['sources_dir'])
+                    fields[4] = os.path.relpath(fields[4],
+                                                self.conf['sources_dir'])
                 yield fields
 
         # given DB is pre-filled, this should be a "do-almost-nothing" update
         self.do_update()
         srctxt_path = 'cache/sources.txt'
-        actual_srctxt = list(parse_sources_txt(os.path.join(self.tmpdir, srctxt_path)))
-        expected_srctxt = list(parse_sources_txt(os.path.join(TEST_DATA_DIR, srctxt_path)))
+        actual_srctxt = list(parse_sources_txt(os.path.join(self.tmpdir,
+                                                            srctxt_path)))
+        expected_srctxt = list(parse_sources_txt(os.path.join(TEST_DATA_DIR,
+                                                              srctxt_path)))
         self.assertItemsEqual(actual_srctxt, expected_srctxt)
-
 
     @istest
     @attr('slow')
@@ -177,7 +181,6 @@ class Updater(unittest.TestCase, DbTestFixture):
         assert_dir_equal(self, orig_sources, dest_sources)
         # check that the update recreate an identical DB
         assert_db_schema_equal(self, 'ref', 'public')
-
 
     @istest
     @attr('slow')
@@ -210,20 +213,20 @@ class Updater(unittest.TestCase, DbTestFixture):
         self.conf['expire_days'] = 3
         self.do_update()
         self.assertTrue(os.path.exists(pkgdir),
-                    'young gone package %s/%s disappeared from FS storage' % \
-                    GC_PACKAGE)
+                        'young gone package %s/%s disappeared from FS storage'
+                        % GC_PACKAGE)
         self.assertTrue(dbutils.lookup_package(self.session, *GC_PACKAGE),
-                    'young gone package %s/%s disappeared from DB storage' % \
-                    GC_PACKAGE)
+                        'young gone package %s/%s disappeared from DB storage'
+                        % GC_PACKAGE)
 
         # another update run without grace period, package should go
         self.conf['expire_days'] = 0
         self.do_update()
         self.assertFalse(os.path.exists(pkgdir),
-                         'gone package %s/%s persisted in FS storage' % \
+                         'gone package %s/%s persisted in FS storage' %
                          GC_PACKAGE)
         self.assertFalse(dbutils.lookup_package(self.session, *GC_PACKAGE),
-                         'gone package %s/%s persisted in DB storage' % \
+                         'gone package %s/%s persisted in DB storage' %
                          GC_PACKAGE)
 
     @istest
@@ -281,7 +284,6 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
         stats_data = os.path.join(self.conf['cache_dir'], 'stats.data')
         self.stats = statistics.load_metadata_cache(stats_data)
 
-
     def tearDown(self):
         self.db_teardown()
         shutil.rmtree(self.tmpdir)
@@ -293,7 +295,7 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
 
     @istest
     def statsMatchReferenceDb(self):
-        expected_stats = {	# just a few samples
+        expected_stats = {  # just a few samples
             'total.ctags': 70166,
             'debian_sid.ctags': 21395,
             'debian_squeeze.ctags': 30633,

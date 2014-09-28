@@ -54,7 +54,7 @@ class AppWrapper(object):
         self.setup_logging()
 
         # importing the views creates all the routing for the app
-        from debsources.app import views
+        from debsources.app import views  # NOQA
 
     def setup_conf(self):
         """

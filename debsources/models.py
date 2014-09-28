@@ -31,7 +31,8 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from debian.debian_support import version_compare
 
-from debsources.excepts import InvalidPackageOrVersionError, FileOrFolderNotFound
+from debsources.excepts import InvalidPackageOrVersionError, \
+    FileOrFolderNotFound
 from debsources.consts import VCS_TYPES, SLOCCOUNT_LANGUAGES, \
     CTAGS_LANGUAGES, METRIC_TYPES, AREAS, PREFIXES_DEFAULT
 from debsources import filetype
@@ -278,8 +279,8 @@ class Ctag(Base):
                      index=True, nullable=False)
     line = Column(Integer, nullable=False)
     kind = Column(String)  # see `ctags --list-kinds`; unfortunately ctags
-        # gives no guarantee of uniformity in kinds, they might be one-lettered
-        # or full names, sigh
+    # gives no guarantee of uniformity in kinds, they might be one-lettered
+    # or full names, sigh
     language = Column(Enum(*CTAGS_LANGUAGES, name="ctags_languages"))
 
     def __init__(self, version, tag, file_id, line, kind, language):
@@ -616,9 +617,9 @@ class SourceFile(object):
                         .filter(Package.version == self.location.version) \
                         .filter(File.path == str(self.location.path)) \
                         .first()
-                        # WARNING: in the DB path is binary, and here
-                        # location.path is unicode, because the path comes from
-                        # the URL. TODO: check with non-unicode paths
+        # WARNING: in the DB path is binary, and here
+        # location.path is unicode, because the path comes from
+        # the URL. TODO: check with non-unicode paths
         if shasum:
             shasum = shasum[0]
         return shasum

@@ -39,7 +39,7 @@ def list_suites(conf, session, archive):
     suites = {}  # suite name -> {'archive': bool, 'db': bool}
 
     def ensure_suite(suite):
-        if not suite in suites:
+        if suite not in suites:
             suites[suite] = {'archive': False, 'db': False}
 
     for suite in archive.ls_suites():

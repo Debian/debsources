@@ -30,7 +30,7 @@ from debsources import updater
 # TODO split configuration entry to a separate file: it's too complex
 # TODO more uniform handling of config typing/defaults: it's too brittle
 
-DEFAULT_CONFIG = defaultdict(dict) # a non-existing key will return {}
+DEFAULT_CONFIG = defaultdict(dict)  # a non-existing key will return {}
 DEFAULT_CONFIG.update({
     'infra': {
         'dry_run':     'false',
@@ -67,6 +67,7 @@ PROBABLE_CONF_FILES = [
     os.path.join(ROOT_DIR, 'etc', 'config.ini'),
     ]
 
+
 def parse_exclude(fname):
     """parse file exclusion specifications from file `fname`
 
@@ -76,12 +77,13 @@ def parse_exclude(fname):
         exclude_specs = list(deb822.Deb822.iter_paragraphs(f))
     return exclude_specs
 
+
 def guess_conffile():
     """ returns the first probable configuration file, that exists and is not
     empty, and raises Exception if nothing is found """
     for conffile in PROBABLE_CONF_FILES:
         if os.path.exists(conffile):
-            if os.stat(conffile).st_size: # file is not empty
+            if os.stat(conffile).st_size:  # file is not empty
                 # TODO: debug
                 # Doing logging here prevents Flask's development server
                 # to output its usual logs in the terminal.
@@ -90,6 +92,7 @@ def guess_conffile():
 
     raise Exception('No configuration file found in %s'
                     % str(PROBABLE_CONF_FILES))
+
 
 def parse_conf_infra(items):
     """ returns correct typing for the [infra] section """
@@ -114,6 +117,7 @@ def parse_conf_infra(items):
         typed[key] = value
     return typed
 
+
 def parse_conf_webapp(items):
     """ returns correct typing for the [webapp] section """
     typed = {}
@@ -122,8 +126,9 @@ def parse_conf_webapp(items):
             value = False
         elif value.lower() == "true":
             value = True
-        typed[key.upper()] = value # Flask only understands CAPSLOCKED keys
+        typed[key.upper()] = value  # Flask only understands CAPSLOCKED keys
     return typed
+
 
 def load_conf(conffile, section="infra"):
     """load configuration from `conffile` and return it as a (typed) dictionary,
@@ -268,7 +273,7 @@ def load_hooks(conf):
     file_exts = {}
 
     def subscribe_callback(event, action, title=""):
-        if not event in updater.KNOWN_EVENTS:
+        if event not in updater.KNOWN_EVENTS:
             raise ValueError('unknown event type "%s"' % event)
         observers[event].append((title, action))
 

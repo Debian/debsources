@@ -65,8 +65,9 @@ def parse_ctags(path):
         # initialize with extension fields which are not guaranteed to exist
 
         fields = line.rstrip().split('\t')
-        tag['tag'] = fields[0].decode()  # will fail when encountering encoding
-                                         # issues; that is intended
+        # will fail when encountering encoding
+        # issues; that is intended
+        tag['tag'] = fields[0].decode()
         tag['path'] = fields[1]
         # note: ignore fields[2], ex_cmd
 
@@ -123,8 +124,9 @@ def add_package(session, pkg, pkgdir, file_table):
     if 'hooks.db' in conf['backends']:
         db_package = dbutils.lookup_package(session, pkg['package'],
                                             pkg['version'])
-        curfile = {None: None}  # poor man's cache for last <relpath, file_id>;
-                             # rely on the fact that ctags file are path-sorted
+        # poor man's cache for last <relpath, file_id>;
+        # rely on the fact that ctags file are path-sorted
+        curfile = {None: None}
         insert_q = sql.insert(Ctag.__table__)
         insert_params = []
         if not session.query(Ctag).filter_by(package_id=db_package.id).first():

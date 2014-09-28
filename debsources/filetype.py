@@ -120,21 +120,21 @@ filename_regexes = [
 # Shebang map:
 # from http://git.geany.org/geany/tree/src/filetypes.c?h=1.23#n910
 shebangs = dict(
-    sh =	BASH,
-    bash =	BASH,
-    dash =	BASH,
-    perl =	PERL,
-    python =	PYTHON,
-    php =	PHP,
-    ruby =	RUBY,
-    #tcl =	TCL,
-    make =	CMAKE,
-    zsh =	BASH,
-    ksh =	BASH,
-    csh =	BASH,
-    ash =	BASH,
-    dmd =	D,
-    #wish =	TCL,
+    sh=BASH,
+    bash=BASH,
+    dash=BASH,
+    perl=PERL,
+    python=PYTHON,
+    php=PHP,
+    ruby=RUBY,
+    # tcl =	TCL,
+    make=CMAKE,
+    zsh=BASH,
+    ksh=BASH,
+    csh=BASH,
+    ash=BASH,
+    dmd=D,
+    # wish = TCL,
     )
 
 # if the mime type of the file contains one of the below items,
@@ -198,7 +198,7 @@ def get_filetype_from_filename(filename):
             try:
                 if re.search(pattern, filename):
                     return language
-            except Exception as e:
+            except:
                 raise Exception("Regex error: " + str(language)
                                 + " " + str(pattern))
     return None

@@ -69,7 +69,8 @@ class Stats(unittest.TestCase, DbTestFixture):
             'experimental': 1,
         }
         total_source_packages = 31
-        self.assertSuiteCountsEqual(source_packages, statistics.source_packages)
+        self.assertSuiteCountsEqual(source_packages,
+                                    statistics.source_packages)
         self.assertEqual(total_source_packages,
                          statistics.source_packages(self.session))
 
@@ -117,7 +118,7 @@ class Stats(unittest.TestCase, DbTestFixture):
                          statistics.sloccount_lang(self.session, 'python'))
         self.assertEqual(slocs_cpp_exp,
                          statistics.sloccount_lang(self.session, 'cpp',
-                                              suite='experimental'))
+                                                   suite='experimental'))
 
     @istest
     def ctagsCountsMatchReferenceDb(self):
@@ -131,7 +132,6 @@ class Stats(unittest.TestCase, DbTestFixture):
         total_ctags = 70166
         self.assertSuiteCountsEqual(ctags, statistics.ctags)
         self.assertEqual(total_ctags, statistics.ctags(self.session))
-
 
     @istest
     def slocPerPkgMatchReferenceDb(self):
@@ -149,27 +149,29 @@ class Stats(unittest.TestCase, DbTestFixture):
         self.assertEqual(slocs_exp[0], LARGEST_exp)
         self.assertEqual(slocs_exp[-1], SMALLEST_exp)
 
-
     @istest
     def areaFiltersMatchReferenceDb(self):
         self.assertEqual(statistics.disk_usage(self.session),
                          122628)
         self.assertEqual(statistics.disk_usage(self.session, areas=['main']),
                          104568)
-        self.assertEqual(statistics.disk_usage(self.session, suite='wheezy', areas=['main']),
-                         35824)
+        self.assertEqual(statistics.disk_usage(self.session,
+                         suite='wheezy', areas=['main']), 35824)
 
         area_count = statistics.source_packages(self.session, areas=['main'])
         self.assertEqual(area_count, 13)
-        self.assertLessEqual(area_count, statistics.source_packages(self.session))
+        self.assertLessEqual(area_count,
+                             statistics.source_packages(self.session))
 
         area_count = statistics.source_files(self.session, areas=['contrib'])
         self.assertEqual(area_count, 372)
         self.assertLessEqual(area_count, statistics.source_files(self.session))
 
-        area_count = statistics.sloccount_lang(self.session, 'ansic', areas=['non-free'])
+        area_count = statistics.sloccount_lang(self.session,
+                                               'ansic', areas=['non-free'])
         self.assertEqual(area_count, 121155)
-        self.assertLessEqual(area_count, statistics.sloccount_lang(self.session, 'ansic'))
+        self.assertLessEqual(area_count,
+                             statistics.sloccount_lang(self.session, 'ansic'))
 
         area_count = statistics.ctags(self.session, areas=['main'])
         self.assertEqual(area_count, 43622)

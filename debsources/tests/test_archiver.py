@@ -34,7 +34,7 @@ from debsources import updater
 from debsources.consts import DEBIAN_RELEASES
 from debsources.tests.db_testing import DbTestFixture
 from debsources.tests.updater_testing import mk_conf
-from debsources.tests.testdata import *
+from debsources.tests.testdata import *  # NOQA
 
 
 @attr('infra')
@@ -60,23 +60,24 @@ class Archiver(unittest.TestCase, DbTestFixture):
         obs, exts = mainlib.load_hooks(self.conf)
         self.conf['observers'], self.conf['file_exts'] = obs, exts
 
-        self.archive = debmirror.SourceMirrorArchive(self.conf['mirror_archive_dir'])
+        self.archive = debmirror.SourceMirrorArchive(
+            self.conf['mirror_archive_dir'])
 
     def tearDown(self):
         self.db_teardown()
         shutil.rmtree(self.tmpdir)
 
-
-
     def assertHasPackage(self, package, version):
         p = dbutils.lookup_package(self.session, package, version)
-        self.assertIsNotNone(p, msg='missing package %s/%s' % (package, version))
+        self.assertIsNotNone(p, msg='missing package %s/%s' %
+                             (package, version))
         return p
 
     def assertHasLivePackage(self, package, version):
         p = self.assertHasPackage(package, version)
         self.assertFalse(p.sticky, msg='unexpected sticky bit on package %s/%s'
-                        % (package, version))
+                         % (package, version))
+
     def assertHasStickyPackage(self, package, version):
         p = self.assertHasPackage(package, version)
         self.assertTrue(p.sticky, msg='missing sticky bit on package %s/%s'
@@ -95,12 +96,11 @@ class Archiver(unittest.TestCase, DbTestFixture):
         s = dbutils.lookup_db_suite(self.session, suite, sticky=True)
         self.assertIsNone(s, msg='present sticky suite ' + suite)
 
-
     @istest
     @attr('slow')
     def addsStickySuite(self):
         SUITE = 'hamm'
-        PACKAGES = [ ('3dchess', '0.8.1-3'), ('ed', '0.2-16') ]
+        PACKAGES = [('3dchess', '0.8.1-3'), ('ed', '0.2-16')]
         rel_info = DEBIAN_RELEASES[SUITE]
 
         archiver.add_suite(self.conf, self.session, SUITE, self.archive)
@@ -114,34 +114,33 @@ class Archiver(unittest.TestCase, DbTestFixture):
         for pkg in PACKAGES:
             self.assertHasStickyPackage(*pkg)
 
-
     @istest
     @attr('slow')
     def removesStickySuite(self):
-        SARGE_PACKAGES = [ ('asm', '1.5.2-1'), ('zziplib', '0.12.83-4') ]
+        SARGE_PACKAGES = [('asm', '1.5.2-1'), ('zziplib', '0.12.83-4')]
         stats_file = os.path.join(self.conf['cache_dir'], 'stats.data')
 
         # to test stats.data cleanup
-        self.conf['stages'] = self.TEST_STAGES.union(set([updater.STAGE_STATS]))
+        self.conf['stages'] = self.TEST_STAGES.union(
+            set([updater.STAGE_STATS]))
         archiver.add_suite(self.conf, self.session, 'sarge', self.archive)
         self.assertHasStickySuite('sarge')
         for pkg in SARGE_PACKAGES:
             self.assertHasStickyPackage(*pkg)
         stats = statistics.load_metadata_cache(stats_file)
-        self.assertTrue(stats.has_key('debian_sarge.sloccount'))
+        self.assertTrue('debian_sarge.sloccount' in stats)
 
         archiver.remove_suite(self.conf, self.session, 'sarge')
         self.assertLacksStickySuite('sarge')
         for pkg in SARGE_PACKAGES:
             self.assertLacksStickyPackage(*pkg)
         stats = statistics.load_metadata_cache(stats_file)
-        self.assertFalse(stats.has_key('debian_sarge.sloccount'))
-
+        self.assertFalse('debian_sarge.sloccount' in stats)
 
     @istest
     @attr('slow')
     def countsReferences(self):
-        DUP_PKG = ('2utf', '1.04')	# in both hamm and slink
+        DUP_PKG = ('2utf', '1.04')  # in both hamm and slink
 
         archiver.add_suite(self.conf, self.session, 'hamm', self.archive)
         self.assertHasStickyPackage(*DUP_PKG)
@@ -155,11 +154,11 @@ class Archiver(unittest.TestCase, DbTestFixture):
         archiver.remove_suite(self.conf, self.session, 'slink')
         self.assertLacksStickyPackage(*DUP_PKG)
 
-
     @istest
     @attr('slow')
     def stayClearOfLiveSuites(self):
-        DUP_PKG = ('libcaca', '0.99.beta17-1')	# in both lenny (sticky) and squeeze (live)
+        # in both lenny (sticky) and squeeze (live)
+        DUP_PKG = ('libcaca', '0.99.beta17-1')
         self.assertHasLivePackage(*DUP_PKG)
 
         archiver.add_suite(self.conf, self.session, 'lenny', self.archive)
@@ -167,7 +166,6 @@ class Archiver(unittest.TestCase, DbTestFixture):
 
         archiver.remove_suite(self.conf, self.session, 'lenny')
         self.assertHasLivePackage(*DUP_PKG)
-
 
     @istest
     @attr('slow')
@@ -177,7 +175,6 @@ class Archiver(unittest.TestCase, DbTestFixture):
         archiver.add_suite(self.conf, self.session, 'slink', self.archive)
         p = dbutils.lookup_package(self.session, *sectionless_pkg)
         self.assertEqual('non-free', p.area)
-
 
     @istest
     @attr('slow')

@@ -91,7 +91,7 @@ class SourcePackage(deb822.Sources):
             else:
                 area = 'main'
         except KeyError:  # section not found, might happen in some old
-                          # buggy packages; try an heuristic
+                # buggy packages; try an heuristic
             try:
                 directory = self['directory']
                 steps = directory.split('/')
@@ -237,11 +237,11 @@ class SourceMirror(object):
                 for pkg in SourcePackage.iter_paragraphs(i):
                     pkg_id = (pkg['package'], pkg['version'])
 
-                    if not cursuite in self._suites:
+                    if cursuite not in self._suites:
                         self._suites[cursuite] = []
                     self._suites[cursuite].append(pkg_id)
 
-                    if not pkg_id in self._packages:
+                    if pkg_id not in self._packages:
                         self._packages.add(pkg_id)
                         pkg['x-debsources-mirror-root'] = self.mirror_root
                         yield pkg
