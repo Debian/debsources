@@ -92,7 +92,8 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         assert 'URL scheme' in rv.data
 
         rv = self.app.get('/about/')
-        assert 'source code is available' in rv.data
+        assert 'source code' in rv.data
+        assert 'is available' in rv.data
 
     def test_packages_list(self):
         rv = json.loads(self.app.get('/api/list/').data)
