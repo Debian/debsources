@@ -1,6 +1,7 @@
 setuptools
 setuptools_git
 flask
+Flask-WTF
 sqlalchemy
 python-debian
 psycopg2
