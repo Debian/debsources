@@ -22,7 +22,7 @@
 # Usage: debsources-foreach SOURCES_LIST COMMAND...
 
 die_usage() {
-    echo "Usage: debsources-foreach SOURCES_LIST COMMAND..."
+    echo "Usage: debsources-foreach SOURCES_LIST SOURCES_DIR MIRROR_DIR COMMAND..."
     exit 2
 }
 
@@ -32,12 +32,26 @@ fi
 srclist="$1"
 shift 1
 
+if ! [ -d "$1" ] ; then
+	die_usage
+fi
+srcdir="$1"
+shift 1
+
+if ! [ -d "$1" ] ; then
+	die_usage
+fi
+mirrordir="$1"
+shift 1
+
 if [ -z "$1" ] ; then
     die_usage
 fi
 
 cat $srclist | \
 while read package version area dsc dir suites ; do
+	dir=`pwd`/"$srcdir"/"$dir"	# absolute path of sources_dir
+
     if ! [ -d "$dir" ] ; then
 	warn "directory for ${package}/${version} does not exist, skipping."
     else

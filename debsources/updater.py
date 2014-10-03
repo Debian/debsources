@@ -271,7 +271,8 @@ def extract_new(status, conf, session, mirror):
             # means everything went fine last time we tried. If not, we redo
             # everything, just to be safe
             _add_package(pkg, conf, session)
-        pkgdir = pkg.extraction_dir(conf['sources_dir'])
+        pkgdir = os.path.relpath(pkg.extraction_dir(conf['sources_dir']),
+                                 conf['sources_dir'])
         if conf['force_triggers']:
             try:
                 notify_plugins(conf['observers'], 'add-package',
@@ -282,7 +283,8 @@ def extract_new(status, conf, session, mirror):
                 logging.exception('trigger failure on %s' % pkg)
         # add entry for sources.txt, temporarily with no suite associated
         pkg_id = (pkg['package'], pkg['version'])
-        status.sources[pkg_id] = pkg.archive_area(), pkg.dsc_path(), pkgdir, []
+        pkg_rel = os.path.relpath(pkg.dsc_path(), conf['mirror_dir'])
+        status.sources[pkg_id] = pkg.archive_area(), pkg_rel, pkgdir, []
 
     logging.info('add new packages...')
     for pkg in mirror.ls():
