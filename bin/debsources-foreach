@@ -19,39 +19,54 @@
 
 # Iterate a given command in each unpacked source package dir
 #
-# Usage: debsources-foreach SOURCES_LIST COMMAND...
+# Usage:   debsources-foreach CONFFILE COMMAND...
+# Example: debsources-foreach /srv/debsources/etc/config.local.ini \
+#                             'echo $DEBSOURCES_PACKAGE/$DEBSOURCES_VERSION'
 
 die_usage() {
-    echo "Usage: debsources-foreach SOURCES_LIST SOURCES_DIR MIRROR_DIR COMMAND..."
+    if [ -n "$1" ] ; then
+	echo "Error: $1"
+    fi
+    echo "Usage: debsources-foreach CONFFILE COMMAND..."
     exit 2
 }
 
 if ! [ -f "$1" ] ; then
-    die_usage
+    die_usage "cannot find configuration file: $1"
 fi
-srclist="$1"
+conffile="$1"
 shift 1
 
-if ! [ -d "$1" ] ; then
-	die_usage
-fi
-srcdir="$1"
-shift 1
+# minimal interpolation support, for the few configuration values needed
+# by the update driver
+root_dir=$(grep "^root_dir:" "$conffile" | awk '{ print $2 }')
+conf_get () {
+    local key="$1"
+    local value=$(grep "^${key}:" "$conffile" | head -n 1 | awk '{ print $2 }')
+    value=$(echo $value | sed "s|%(root_dir)s|${root_dir}|")
+    if [ -z "$value" ] ; then
+	err "required configuration value $key not found in $conffile, abort."
+    fi
+    echo "$value"
+}
+cache_dir=$( conf_get "cache_dir" )
+mirror_dir=$( conf_get "mirror_dir" )
+sources_dir=$( conf_get "sources_dir" )
+srclist="${cache_dir}/sources.txt"
 
-if ! [ -d "$1" ] ; then
-	die_usage
+if ! [ -d "$mirror_dir" ] ; then
+    die_usage "cannot find mirror dir: ${mirror_dir}"
 fi
-mirrordir="$1"
-shift 1
-
-if [ -z "$1" ] ; then
-    die_usage
+if ! [ -d "$sources_dir" ] ; then
+    die_usage "cannot find sources dir: ${sources_dir}"
+fi
+if ! [ -f "$srclist" ] ; then
+    die_usage "cannot find sources.txt cache: ${srclist}"
 fi
 
 cat $srclist | \
 while read package version area dsc dir suites ; do
-	dir=`pwd`/"$srcdir"/"$dir"	# absolute path of sources_dir
-
+    dir="${sources_dir}/${dir}"
     if ! [ -d "$dir" ] ; then
 	echo "W: directory for ${package}/${version} does not exist, skipping."
     else
