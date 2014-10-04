@@ -53,7 +53,7 @@ while read package version area dsc dir suites ; do
 	dir=`pwd`/"$srcdir"/"$dir"	# absolute path of sources_dir
 
     if ! [ -d "$dir" ] ; then
-	warn "directory for ${package}/${version} does not exist, skipping."
+	echo "W: directory for ${package}/${version} does not exist, skipping."
     else
 	(cd "$dir" && \
 	    export DEBSOURCES_PACKAGE="$package" && \
