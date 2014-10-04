@@ -66,6 +66,7 @@ fi
 
 cat $srclist | \
 while read package version area dsc dir suites ; do
+    dsc="${mirror_dir}/${dsc}"
     dir="${sources_dir}/${dir}"
     if ! [ -d "$dir" ] ; then
 	echo "W: directory for ${package}/${version} does not exist, skipping."
