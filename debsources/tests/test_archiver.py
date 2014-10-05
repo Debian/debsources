@@ -98,18 +98,21 @@ class Archiver(unittest.TestCase, DbTestFixture):
 
     @istest
     @attr('slow')
-    def addsStickySuite(self):
-        SUITE = 'hamm'
-        PACKAGES = [('3dchess', '0.8.1-3'), ('ed', '0.2-16')]
-        rel_info = DEBIAN_RELEASES[SUITE]
+    def addsStickySuites(self):
+        SUITES = ['hamm', 'slink']
+        PACKAGES = [('3dchess', '0.8.1-3'),  # hamm
+                    ('ed', '0.2-16'),        # hamm
+                    ('WMRack', '1.0b3-1')]   # slink, pkg w/ weird naming
 
-        archiver.add_suite(self.conf, self.session, SUITE, self.archive)
+        for suite in SUITES:
+            archiver.add_suite(self.conf, self.session, suite, self.archive)
 
-        self.assertHasStickySuite(SUITE)
-
-        s = dbutils.lookup_db_suite(self.session, SUITE, sticky=True)
-        self.assertEqual(s.version, rel_info['version'])
-        self.assertEqual(s.release_date, rel_info['date'])
+        for suite in SUITES:
+            self.assertHasStickySuite(suite)
+            s = dbutils.lookup_db_suite(self.session, suite, sticky=True)
+            rel_info = DEBIAN_RELEASES[suite]
+            self.assertEqual(s.version, rel_info['version'])
+            self.assertEqual(s.release_date, rel_info['date'])
 
         for pkg in PACKAGES:
             self.assertHasStickyPackage(*pkg)
