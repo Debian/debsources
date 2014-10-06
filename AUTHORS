@@ -35,12 +35,13 @@ Acknowledgements
 Other people have contributed ideas, feedback, and/or otherwise helped in
 making Debsources feel part of the broader Debian ecosystem:
 
-* Adam Lackorzynski
-* Christoph Berg
+* Adam Lackorzynski (mirror push support)
+* Christoph Berg (postgres guru-ing)
 * Daniel Kahn Gillmor
+* Holger Levsen (jenkins integration for reproducible builds)
 * Joachim Breitner
-* Michael Stapelberg
-* Paul Wise
+* Michael Stapelberg (codesearch.debian.net integration)
+* Paul Wise (tracker.debian.org integration)
 
 Thank you!
 
