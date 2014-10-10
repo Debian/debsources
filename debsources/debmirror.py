@@ -116,9 +116,10 @@ class SourcePackage(deb822.Sources):
         """
         name = self['package']
         if name.startswith('lib'):
-            return name[:4]
+            pre = name[:4]
         else:
-            return name[:1]
+            pre = name[:1]
+        return pre.lower()
 
     def dsc_path(self):
         """return (absolute) path to .dsc file for this package

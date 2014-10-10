@@ -452,6 +452,7 @@ class Location(object):
             prefix = package[0:4]
         else:
             prefix = package[0]
+        prefix = prefix.lower()
 
         try:
             p_id = session.query(PackageName) \

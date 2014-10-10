@@ -387,11 +387,13 @@ app.add_url_rule('/api/list/', view_func=ListpackagesView.as_view(
 class PrefixView(GeneralView):
     def get_objects(self, prefix='a'):
         """ returns the packages beginning with prefix """
+        prefix = prefix.lower()
         if prefix in PackageName.get_packages_prefixes(
                 app.config["CACHE_DIR"]):
             try:
                 packages = (session.query(PackageName)
-                            .filter(PackageName.name.startswith(prefix))
+                            .filter(sql_func.lower(PackageName.name)
+                                    .startswith(prefix))
                             .order_by(PackageName.name)
                             .all()
                             )

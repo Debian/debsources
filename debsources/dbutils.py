@@ -114,10 +114,11 @@ def pkg_prefixes(session):
     starting with "lib") or the first letter
 
     """
-    q = """SELECT DISTINCT(substring(name from 1 for 1)) FROM package_names \
+    q = """SELECT DISTINCT(substring(lower(name) from 1 for 1)) FROM package_names \
            UNION \
-           SELECT DISTINCT(substring(name from 1 for 4)) FROM package_names
-           WHERE substring(name from 1 for 3) = 'lib'"""
+           SELECT DISTINCT(substring(lower(name) from 1 for 4)) \
+           FROM package_names \
+           WHERE substring(lower(name) from 1 for 3) = 'lib'"""
     return sorted([row[0] for row in session.execute(q)])
 
 
