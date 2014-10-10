@@ -5,3 +5,8 @@ sources
 *.pyc
 etc/config.local.ini
 .coverage
+
+# python egg:
+build
+dist
+debsources.egg-info
