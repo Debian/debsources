@@ -4,11 +4,7 @@ Test runner
 Debsources test suite is managed with [Nose](https://nose.readthedocs.org/).
 To run the test suite execute the following from Debsources top-level dir:
 
-	$ nosetests -v debsources/
-
-or, if you're used to it:
-
-	$ make test
+	$ nosetests -v
 
 Check [Nose documentation](https://nose.readthedocs.org/en/latest/) for more
 advanced options, including how to only run specific tests, based on
@@ -20,7 +16,7 @@ Test attributes
 
 To get a list of available test attributes you might try something like:
 
-	$ rgrep -h @attr debsources/tests/ | sort -u
+	$ rgrep -h @attr debsources/tests/ | tr -d '[:blank:]' | sort -u
 
 
 Test Postgres DB
