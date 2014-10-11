@@ -263,7 +263,8 @@ class SearchView(GeneralView):
                               .first())
 
             other_results = (session.query(PackageName)
-                             .filter(PackageName.name.contains(query))
+                             .filter(sql_func.lower(PackageName.name)
+                                     .contains(query.lower()))
                              .order_by(PackageName.name)
                              )
         except Exception as e:
