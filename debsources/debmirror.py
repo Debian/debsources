@@ -108,18 +108,27 @@ class SourcePackage(deb822.Sources):
 
         return area
 
+    @staticmethod
+    def pkg_prefix(pkgname):
+        """compute package prefix in the pool structure, for pkgname
+
+        same as prefix(), but static method, used to factorize the prefix
+        computation logic throughout Debsources
+
+        """
+        if pkgname.startswith('lib'):
+            prefix = pkgname[:4]
+        else:
+            prefix = pkgname[:1]
+        return prefix.lower()
+
     def prefix(self):
         """compute package prefix in the pool structure
 
         e.g.: 1st character of package name or "lib" + 1st char, depending on
         the package
         """
-        name = self['package']
-        if name.startswith('lib'):
-            pre = name[:4]
-        else:
-            pre = name[:1]
-        return pre.lower()
+        return self.pkg_prefix(self['package'])
 
     def dsc_path(self):
         """return (absolute) path to .dsc file for this package

@@ -36,6 +36,7 @@ from debsources.excepts import InvalidPackageOrVersionError, \
 from debsources.consts import VCS_TYPES, SLOCCOUNT_LANGUAGES, \
     CTAGS_LANGUAGES, METRIC_TYPES, AREAS, PREFIXES_DEFAULT
 from debsources import filetype
+from debsources.debmirror import SourcePackage
 
 Base = declarative_base()
 
@@ -448,11 +449,7 @@ class Location(object):
 
         sources_dir: the sources directory, usually comes from the app config
         """
-        if package[0:3] == "lib":
-            prefix = package[0:4]
-        else:
-            prefix = package[0]
-        prefix = prefix.lower()
+        prefix = SourcePackage.pkg_prefix(package)
 
         try:
             p_id = session.query(PackageName) \
