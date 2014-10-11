@@ -10,12 +10,13 @@ doc:
 
 test: tests-fast
 
-disttest:
+test-all:
 	$(NOSE) $(TESTFLAGS) debsources/
 
-tests-fast:
+test-fast:
 	$(NOSE) $(TESTFLAGS) debsources/ -a \!slow
-tests-slow:
+
+test-slow:
 	$(NOSE) $(TESTFLAGS) debsources/ -a slow
 
 clean:
