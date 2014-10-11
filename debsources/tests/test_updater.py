@@ -103,6 +103,7 @@ def assert_dir_equal(test_subj, dir1, dir2, exclude=[]):
 
 @attr('infra')
 @attr('postgres')
+@attr('slow')
 class Updater(unittest.TestCase, DbTestFixture):
 
     def setUp(self):
@@ -126,7 +127,6 @@ class Updater(unittest.TestCase, DbTestFixture):
         updater.update(self.conf, self.session, stages)
 
     @istest
-    @attr('slow')
     def producesReferenceDb(self):
         db_mv_tables_to_schema(self.session, 'ref')
         self.do_update()
@@ -167,7 +167,6 @@ class Updater(unittest.TestCase, DbTestFixture):
         self.assertItemsEqual(actual_srctxt, expected_srctxt)
 
     @istest
-    @attr('slow')
     def recreatesDbFromFiles(self):
         orig_sources = os.path.join(TEST_DATA_DIR, 'sources')
         dest_sources = os.path.join(self.tmpdir, 'sources')
@@ -183,7 +182,6 @@ class Updater(unittest.TestCase, DbTestFixture):
         assert_db_schema_equal(self, 'ref', 'public')
 
     @istest
-    @attr('slow')
     def garbageCollects(self):
         GC_PACKAGE = ('ocaml-curses', '1.0.3-1')
         PKG_SUITE = 'squeeze'
@@ -230,7 +228,6 @@ class Updater(unittest.TestCase, DbTestFixture):
                          GC_PACKAGE)
 
     @istest
-    @attr('slow')
     def excludeFiles(self):
         PKG = 'bsdgames-nonfree'
         PKG_PREFIX = PKG[0]
@@ -266,6 +263,7 @@ Action: remove""" % (PKG, EXCLUDED_GLOB)
 @attr('infra')
 @attr('cache')
 @attr('metadata')
+@attr('slow')
 class MetadataCache(unittest.TestCase, DbTestFixture):
     """tests for on-disk cache of debsources metadata
 
