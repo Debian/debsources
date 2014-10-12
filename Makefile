@@ -8,7 +8,7 @@ all:
 doc:
 	$(MAKE) -C doc/
 
-test: tests-fast
+test: test-fast
 
 test-all:
 	$(NOSE) $(TESTFLAGS) debsources/
