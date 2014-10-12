@@ -7,6 +7,7 @@ License: GNU Affero General Public License, version 3 or above.
 
 #codetable{
     min-width: 100%;
+    height: 260px;
     padding: 0px;
     border: 1px solid #c70036;
 }
