@@ -73,6 +73,17 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         assert rv['results']['other'] == [{'name': "gnubg"}]
         assert rv['results']['exact'] is None
 
+    def test_case_insensitive_package_search(self):
+        # exact search (lower case)
+        rv = json.loads(self.app.get('/api/search/gnubg/').data)
+        assert rv['query'] == 'gnubg'
+        assert rv['results']['exact'] == {'name': "gnubg"}
+
+        # other results (mixed case)
+        rv = json.loads(self.app.get('/api/search/GnUbG/').data)
+        assert rv['query'] == 'GnUbG'
+        assert rv['results']['other'] == [{'name': "gnubg"}]
+
     def test_static_pages(self):
         rv = self.app.get('/')
         assert 'Debsources' in rv.data
