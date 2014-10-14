@@ -104,6 +104,11 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         rv = json.loads(self.app.get('/api/prefix/libc/').data)
         assert {'name': "libcaca"} in rv['packages']
 
+    def test_case_insensitive_prefix(self):
+        rv_lower_case = json.loads(self.app.get('/api/prefix/g/').data)
+        rv_upper_case = json.loads(self.app.get('/api/prefix/G/').data)
+        assert rv_lower_case['packages'] == rv_upper_case['packages']
+
     def test_package(self):
         rv = json.loads(self.app.get('/api/src/ledit/').data)
         assert rv['path'] == "ledit"
