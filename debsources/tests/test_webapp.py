@@ -57,215 +57,215 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
 
     def test_ping(self):
         rv = json.loads(self.app.get('/api/ping/').data)
-        assert rv["status"] == "ok"
-        assert rv["http_status_code"] == 200
+        self.assertEqual(rv["status"], "ok")
+        self.assertEqual(rv["http_status_code"], 200)
 
     def test_package_search(self):
         # exact search
         rv = json.loads(self.app.get('/api/search/gnubg/').data)
-        assert rv['query'] == 'gnubg'
-        assert rv['results']['other'] == []
-        assert rv['results']['exact'] == {'name': "gnubg"}
+        self.assertEqual(rv['query'], 'gnubg')
+        self.assertEqual(rv['results']['other'], [])
+        self.assertEqual(rv['results']['exact'], {'name': "gnubg"})
 
         # other results
         rv = json.loads(self.app.get('/api/search/gnu/').data)
-        assert rv['query'] == 'gnu'
-        assert rv['results']['other'] == [{'name': "gnubg"}]
-        assert rv['results']['exact'] is None
+        self.assertEqual(rv['query'], 'gnu')
+        self.assertEqual(rv['results']['other'], [{'name': "gnubg"}])
+        self.assertIsNone(rv['results']['exact'])
 
     def test_case_insensitive_package_search(self):
         # exact search (lower case)
         rv = json.loads(self.app.get('/api/search/gnubg/').data)
-        assert rv['query'] == 'gnubg'
-        assert rv['results']['exact'] == {'name': "gnubg"}
+        self.assertEqual(rv['query'], 'gnubg')
+        self.assertEqual(rv['results']['exact'], {'name': "gnubg"})
 
         # other results (mixed case)
         rv = json.loads(self.app.get('/api/search/GnUbG/').data)
-        assert rv['query'] == 'GnUbG'
-        assert rv['results']['other'] == [{'name': "gnubg"}]
+        self.assertEqual(rv['query'], 'GnUbG')
+        self.assertEqual(rv['results']['other'], [{'name': "gnubg"}])
 
     def test_static_pages(self):
         rv = self.app.get('/')
-        assert 'Debsources' in rv.data
+        self.assertIn('Debsources', rv.data)
 
         rv = self.app.get('/advancedsearch/')
-        assert 'Package search' in rv.data
-        assert 'File search' in rv.data
-        assert 'Code search' in rv.data
+        self.assertIn('Package search', rv.data)
+        self.assertIn('File search', rv.data)
+        self.assertIn('Code search', rv.data)
 
         rv = self.app.get('/doc/overview/')
-        assert 'Debsources provides Web access' in rv.data
+        self.assertIn('Debsources provides Web access', rv.data)
 
         rv = self.app.get('/doc/api/')
-        assert 'API documentation' in rv.data
+        self.assertIn('API documentation', rv.data)
 
         rv = self.app.get('/doc/url/')
-        assert 'URL scheme' in rv.data
+        self.assertIn('URL scheme', rv.data)
 
         rv = self.app.get('/about/')
-        assert 'source code' in rv.data
-        assert 'is available' in rv.data
+        self.assertIn('source code', rv.data)
+        self.assertIn('is available', rv.data)
 
     def test_packages_list(self):
         rv = json.loads(self.app.get('/api/list/').data)
-        assert {'name': "libcaca"} in rv['packages']
-        assert len(rv['packages']) == 14
+        self.assertIn({'name': "libcaca"}, rv['packages'])
+        self.assertEqual(len(rv['packages']), 14)
 
     def test_by_prefix(self):
         rv = json.loads(self.app.get('/api/prefix/libc/').data)
-        assert {'name': "libcaca"} in rv['packages']
+        self.assertIn({'name': "libcaca"}, rv['packages'])
 
     def test_case_insensitive_prefix(self):
         rv_lower_case = json.loads(self.app.get('/api/prefix/g/').data)
         rv_upper_case = json.loads(self.app.get('/api/prefix/G/').data)
-        assert rv_lower_case['packages'] == rv_upper_case['packages']
+        self.assertEqual(rv_lower_case['packages'], rv_upper_case['packages'])
 
     def test_package(self):
         rv = json.loads(self.app.get('/api/src/ledit/').data)
-        assert rv['path'] == "ledit"
-        assert len(rv['versions']) == 3
-        assert rv['type'] == "package"
+        self.assertEqual(rv['path'], "ledit")
+        self.assertEqual(len(rv['versions']), 3)
+        self.assertEqual(rv['type'], "package")
 
     def test_folder(self):
         rv = json.loads(self.app.get('/api/src/ledit/2.01-6/').data)
-        assert rv['type'] == "directory"
-        assert rv['path'] == "ledit/2.01-6"
-        assert rv['package'] == "ledit"
-        assert rv['directory'] == "2.01-6"
-        assert {'type': "file", 'name': "ledit.ml"} in rv['content']
+        self.assertEqual(rv['type'], "directory")
+        self.assertEqual(rv['path'], "ledit/2.01-6")
+        self.assertEqual(rv['package'], "ledit")
+        self.assertEqual(rv['directory'], "2.01-6")
+        self.assertIn({'type': "file", 'name': "ledit.ml"}, rv['content'])
 
     def test_source_file(self):
         rv = self.app.get('/src/ledit/2.01-6/ledit.ml/')
 
         # source code detection
-        assert '<code id="sourcecode" class="ocaml">' in rv.data
+        self.assertIn('<code id="sourcecode" class="ocaml">', rv.data)
 
         # highlight.js present?
-        assert 'hljs.highlightBlock' in rv.data
-        assert ('<script src="/javascript/highlight/highlight.pack.js">'
-                '</script>') in rv.data
+        self.assertIn('hljs.highlightBlock', rv.data)
+        self.assertIn('<script src="/javascript/highlight/highlight.pack.js">'
+                    '</script>', rv.data)
 
         # content of the file
-        assert 'Institut National de Recherche en Informatique' in rv.data
+        self.assertIn('Institut National de Recherche en Informatique', rv.data)
 
         # correct number of lines
-        assert '1506 lines' in rv.data
+        self.assertIn('1506 lines', rv.data)
 
         # permissions of the file
-        assert 'permissions: rw-r--r--' in rv.data
+        self.assertIn('permissions: rw-r--r--', rv.data)
 
         # raw file link
-        assert ('<a href="/data/main/l/ledit/2.01-6/ledit.ml">'
-                'download</a>') in rv.data
+        self.assertIn('<a href="/data/main/l/ledit/2.01-6/ledit.ml">'
+                        'download</a>', rv.data)
 
         # parent folder link
-        assert '<a href="/src/ledit/2.01-6/">parent folder</a>' in rv.data
+        self.assertIn('<a href="/src/ledit/2.01-6/">parent folder</a>', rv.data)
 
     def test_source_file_text(self):
         rv = self.app.get('/src/ledit/2.01-6/README/')
-        assert '<code id="sourcecode" class="no-highlight">' in rv.data
+        self.assertIn('<code id="sourcecode" class="no-highlight">', rv.data)
 
     def test_source_file_embedded(self):
         rv = self.app.get('/embed/file/ledit/2.01-6/ledit.ml/')
-        assert '<code id="sourcecode" class="ocaml">' in rv.data
-        assert 'Institut National de Recherche en Informatique' in rv.data
-        assert '<div id="logo">' not in rv.data
+        self.assertIn('<code id="sourcecode" class="ocaml">', rv.data)
+        self.assertIn('Institut National de Recherche en Informatique', rv.data)
+        self.assertNotIn('<div id="logo">', rv.data)
 
     def test_errors(self):
         rv = json.loads(self.app.get('/api/src/blablabla/').data)
-        assert rv['error'] == 404
+        self.assertEqual(rv['error'], 404)
 
     def test_latest(self):
         rv = json.loads(self.app.get('/api/src/ledit/latest/',
                                      follow_redirects=True).data)
-        assert "2.03-2" in rv['path']
+        self.assertIn("2.03-2", rv['path'])
 
     def test_codesearch_box(self):
         rv = self.app.get('/src/ledit/2.03-2/ledit.ml/')
-        assert 'value="package:ledit "' in rv.data
+        self.assertIn('value="package:ledit "', rv.data)
 
     def test_pagination(self):
         rv = self.app.get('/list/2/')
-        assert '<a href="/list/1/">&laquo; Previous</a>' in rv.data
-        assert '<a href="/list/3/">Next &raquo;</a>' in rv.data
-        assert '<strong>2</strong>' in rv.data
+        self.assertIn('<a href="/list/1/">&laquo; Previous</a>', rv.data)
+        self.assertIn('<a href="/list/3/">Next &raquo;</a>', rv.data)
+        self.assertIn('<strong>2</strong>', rv.data)
 
     def test_file_duplicates(self):
         rv = json.loads(self.app.get('/api/src/bsdgames-nonfree/'
                                      '2.17-3/COPYING/').data)
-        assert rv["number_of_duplicates"] == 3
-        assert rv["checksum"] == ("be43f81c20961702327c10e9bd5f5a9a2b1cc"
-                                  "eea850402ea562a9a76abcfa4bf")
+        self.assertEqual(rv["number_of_duplicates"], 3)
+        self.assertEqual(rv["checksum"], ("be43f81c20961702327c10e9bd5f5a9a2b1cc"
+                                    "eea850402ea562a9a76abcfa4bf"))
 
     def test_checksum_search(self):
         rv = json.loads(self.app.get(
             '/api/sha256/?checksum=be43f81c20961702327'
             'c10e9bd5f5a9a2b1cceea850402ea562a9a76abcf'
             'a4bf&page=1').data)
-        assert rv["count"] == 3
-        assert len(rv["results"]) == 3
+        self.assertEqual(rv["count"], 3)
+        self.assertEqual(len(rv["results"]), 3)
 
     def test_checksum_search_within_package(self):
         rv = json.loads(self.app.get(
             '/api/sha256/?checksum=4f721b8e5b0add185d6'
             'af7a93e577638d25eaa5c341297d95b4a27b7635b'
             '4d3f&package=susv2').data)
-        assert rv["count"] == 1
+        self.assertEqual(rv["count"], 1)
 
     def test_search_ctag(self):
         rv = json.loads(self.app.get('/api/ctag/?ctag=name').data)
-        assert rv["count"] == 88
-        assert len(rv["results"]) == 88
+        self.assertEqual(rv["count"], 88)
+        self.assertEqual(len(rv["results"]), 88)
 
     def test_search_ctag_within_package(self):
         rv = json.loads(self.app.get(
             '/api/ctag/?ctag=name&package=ledger').data)
-        assert rv["count"] == 14
-        assert len(rv["results"]) == 14
+        self.assertEqual(rv["count"], 14)
+        self.assertEqual(len(rv["results"]), 14)
 
     def test_pkg_infobox(self):
         rv = json.loads(self.app.get('/api/src/libcaca/0.99.beta17-1/').data)
-        assert rv["pkg_infos"]["suites"] == ["squeeze"]
-        assert rv["pkg_infos"]["area"] == "main"
-        assert rv["pkg_infos"]["sloc"][0] == ["ansic", 22607]
-        assert rv["pkg_infos"]["metric"]["size"] == 6584
-        assert rv["pkg_infos"]["vcs_browser"] == (
-            "http://svn.debian.org/wsvn/sam-hocevar/pkg-misc/unstable/libcaca/"
-            )
-        assert rv["pkg_infos"]["vcs_type"] == "svn"
-        assert rv["pkg_infos"]["pts_link"] == (
-            "http://tracker.debian.org/pkg/libcaca")
+        self.assertEqual(rv["pkg_infos"]["suites"], ["squeeze"])
+        self.assertEqual(rv["pkg_infos"]["area"], "main")
+        self.assertEqual(rv["pkg_infos"]["sloc"][0], ["ansic", 22607])
+        self.assertEqual(rv["pkg_infos"]["metric"]["size"], 6584)
+        self.assertEqual(rv["pkg_infos"]["vcs_browser"],
+                    "http://svn.debian.org/wsvn/sam-hocevar/pkg-misc/unstable/libcaca/"
+                    )
+        self.assertEqual(rv["pkg_infos"]["vcs_type"], "svn")
+        self.assertEqual(rv["pkg_infos"]["pts_link"],
+                "http://tracker.debian.org/pkg/libcaca")
 
     def test_pkg_infobox_embed(self):
         rv = self.app.get('/embed/pkginfo/libcaca/0.99.beta17-1/')
-        assert '<div id="pkginfobox" class="pkginfobox_large">' in rv.data
-        assert '<footer' not in rv.data  # it's an infobox-only page
+        self.assertIn('<div id="pkginfobox" class="pkginfobox_large">', rv.data)
+        self.assertNotIn('<footer', rv.data)  # it's an infobox-only page
 
     def test_info_version(self):
         rv = self.app.get('/info/package/libcaca/0.99.beta17-1/')
-        assert '<div id="pkginfobox" class="pkginfobox_large">' in rv.data
+        self.assertIn('<div id="pkginfobox" class="pkginfobox_large">', rv.data)
 
     def test_stats_suite(self):
         rv = json.loads(self.app.get('/api/stats/jessie/').data)
-        assert rv["suite"] == "jessie"
-        # assert rv["results"]["debian_jessie.ctags"] == 21767
-        # assert rv["results"]["debian_jessie.disk_usage"] == 43032
-        assert rv["results"]["debian_jessie.source_files"] == 1677
-        assert rv["results"]["debian_jessie.sloccount.python"] == 2916
+        self.assertEqual(rv["suite"], "jessie")
+        # self.assertEqual(rv["results"]["debian_jessie.ctags"], 21767)
+        # self.assertEqual(rv["results"]["debian_jessie.disk_usage"], 43032)
+        self.assertEqual(rv["results"]["debian_jessie.source_files"], 1677)
+        self.assertEqual(rv["results"]["debian_jessie.sloccount.python"], 2916)
 
     def test_stats_all(self):
         rv = json.loads(self.app.get('/api/stats/').data)
-        assert sorted(rv["all_suites"]) == (
-            ["debian_experimental", "debian_jessie", "debian_sid",
-             "debian_squeeze", "debian_wheezy"])
-        assert "ansic" in rv["languages"]
-        assert rv["results"]["debian_sid.sloccount.ansic"] == 140353
+        self.assertEqual(sorted(rv["all_suites"]),
+                ["debian_experimental", "debian_jessie", "debian_sid",
+                "debian_squeeze", "debian_wheezy"])
+        self.assertIn("ansic", rv["languages"])
+        self.assertEqual(rv["results"]["debian_sid.sloccount.ansic"], 140353)
 
     def test_suggestions_when_404(self):
         rv = self.app.get('/src/libcaca/0.NOPE.beta17-1/src/cacaview.c/')
-        assert 'other versions of this package are available' in rv.data
+        self.assertIn('other versions of this package are available', rv.data)
         link2 = '<a href="/src/libcaca/0.99.beta17-1/src/cacaview.c/">'
-        assert link2 in rv.data
+        self.assertIn(link2, rv.data)
 
 if __name__ == '__main__':
     unittest.main(exit=False)
