@@ -1,4 +1,5 @@
 NOSE = nosetests
+TESTDIR = debsources/tests/
 TESTFLAGS = -v
 
 all:
@@ -11,13 +12,13 @@ doc:
 test: test-fast
 
 test-all:
-	$(NOSE) $(TESTFLAGS) debsources/
+	$(NOSE) $(TESTFLAGS) $(TESTDIR)
 
 test-fast:
-	$(NOSE) $(TESTFLAGS) debsources/ -a \!slow
+	$(NOSE) $(TESTFLAGS) $(TESTDIR) -a \!slow
 
 test-slow:
-	$(NOSE) $(TESTFLAGS) debsources/ -a slow
+	$(NOSE) $(TESTFLAGS) $(TESTDIR) -a slow
 
 clean:
 	$(MAKE) -C doc $@
