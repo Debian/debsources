@@ -37,6 +37,7 @@ def extract_package(pkg, destdir):
     logfile = destdir + '.log'
     donefile = destdir + '.done'
     with open(logfile, 'w') as log:
+        os.umask(0022)
         subprocess.check_call(cmd, stdout=log, stderr=subprocess.STDOUT,
                               preexec_fn=subprocess_setup)
     open(donefile, 'w').close()
