@@ -1,0 +1,2 @@
+#!/bin/bash
+reportbug -P "User: qa.debian.org@packages.debian.org" -P "Usertags: debsources" "$@" qa.debian.org

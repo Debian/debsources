@@ -15,6 +15,9 @@ Development
 
         $ reportbug -P "User: qa.debian.org@packages.debian.org" -P "Usertags: debsources" qa.debian.org
 
+  (`bin/debsources-reportbug` in the Debsources' Git repo is a convenience
+  script that does the above for you)
+
 * for discussions about Debsources please **contact** the
   [debian-qa mailing list][4] or the `#debian-qa` IRC channel on [OFTC][5]
 
