@@ -20,12 +20,17 @@ import os
 import shutil
 import subprocess
 
+from consts import DPKG_EXTRACT_UMASK
 from subprocess_workaround import subprocess_setup
 
 
 def extract_package(pkg, destdir):
     """extract a package to the FS storage
     """
+    def preexec_fn():
+        subprocess_setup()
+        os.umask(DPKG_EXTRACT_UMASK)
+
     logging.debug('extract %s...' % pkg)
     parentdir = os.path.dirname(destdir)
     if not os.path.isdir(parentdir):
@@ -37,9 +42,8 @@ def extract_package(pkg, destdir):
     logfile = destdir + '.log'
     donefile = destdir + '.done'
     with open(logfile, 'w') as log:
-        os.umask(0022)
         subprocess.check_call(cmd, stdout=log, stderr=subprocess.STDOUT,
-                              preexec_fn=subprocess_setup)
+                              preexec_fn=preexec_fn)
     open(donefile, 'w').close()
 
 

@@ -101,3 +101,5 @@ DEBIAN_RELEASES = {
     'wheezy':  {'version': '7',
                 'date': datetime.date(2013,  5,  4), 'archived': False},
 }
+
+DPKG_EXTRACT_UMASK = 0022
