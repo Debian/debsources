@@ -108,11 +108,11 @@ class Infobox(object):
         """ctags counts"""
         try:
             ctags_count = (self.session.query(Ctag)
-                     .filter(Ctag.package_id == Package.id,
-                             Package.version == self.version,
-                             Package.name_id == PackageName.id,
-                             PackageName.name == self.package)
-                     .count())
+                           .filter(Ctag.package_id == Package.id,
+                                   Package.version == self.version,
+                                   Package.name_id == PackageName.id,
+                                   PackageName.name == self.package)
+                           .count())
         except Exception as e:
             raise Http500Error(e)
 
