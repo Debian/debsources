@@ -235,6 +235,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         self.assertEqual(rv["pkg_infos"]["vcs_type"], "svn")
         self.assertEqual(rv["pkg_infos"]["pts_link"],
                 "http://tracker.debian.org/pkg/libcaca")
+        self.assertEqual(rv["pkg_infos"]["ctags_count"], 3145)
 
     def test_pkg_infobox_embed(self):
         rv = self.app.get('/embed/pkginfo/libcaca/0.99.beta17-1/')

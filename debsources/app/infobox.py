@@ -21,7 +21,8 @@ PTS_PREFIX = "http://tracker.debian.org/pkg/"
 # it would add a dependence layer with app.config
 
 
-from debsources.models import PackageName, Package, Suite, SlocCount, Metric
+from debsources.models import (
+    PackageName, Package, Suite, SlocCount, Metric, Ctag)
 from debsources.excepts import Http500Error, Http404Error
 
 # to generate PTS link safely (for internal links we use url_for)
@@ -103,6 +104,20 @@ class Infobox(object):
         pts_link = url_quote(pts_link)  # for '+' symbol in package names
         return pts_link
 
+    def _get_ctags_count(self):
+        """ctags counts"""
+        try:
+            ctags_count = (self.session.query(Ctag)
+                     .filter(Ctag.package_id == Package.id,
+                             Package.version == self.version,
+                             Package.name_id == PackageName.id,
+                             PackageName.name == self.package)
+                     .count())
+        except Exception as e:
+            raise Http500Error(e)
+
+        return ctags_count
+
     def get_infos(self):
         """
         Retrieves information about the version of a package:
@@ -132,5 +147,7 @@ class Infobox(object):
         pkg_infos["metric"] = self._get_metrics()
 
         pkg_infos["pts_link"] = self._get_pts_link()
+
+        pkg_infos["ctags_count"] = self._get_ctags_count()
 
         return pkg_infos
