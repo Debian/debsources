@@ -25,7 +25,7 @@ import os
 from sqlalchemy import distinct
 from sqlalchemy import func as sql_func
 
-from debsources.consts import SLOCCOUNT_LANGUAGES
+from debsources.consts import SLOCCOUNT_LANGUAGES, SUITES
 from debsources.models import Checksum, Ctag, Metric, SlocCount, \
     Suite, SuiteInfo, Package, PackageName
 
@@ -39,26 +39,6 @@ def _count(query):
 
 def _time_series(query):
     return [(row['timestamp'], row['value']) for row in query]
-
-
-SUITES = {
-    'release': [  # known releases sorted by release date
-        'buzz', 'rex', 'bo', 'hamm', 'slink', 'potato', 'woody', 'sarge',
-        'etch', 'lenny', 'squeeze', 'wheezy', 'jessie', 'sid'
-    ],
-    'devel': [],  # known release variants; filled below
-    'all': [],	  # all known releases + variants; filled below
-}
-SUITE_VARIANTS = ['%s-updates', '%s-proposed-updates', '%s-backports',
-                  '%s-lts']
-for s in SUITES['release']:
-    SUITES['all'].append(s)
-    for v in SUITE_VARIANTS:
-        variant = v % s
-        SUITES['all'].append(variant)
-        SUITES['devel'].append(variant)
-SUITES['devel'].append('experimental')
-SUITES['all'].append('experimental')
 
 
 def suites(session, suites='release'):

@@ -102,4 +102,23 @@ DEBIAN_RELEASES = {
                 'date': datetime.date(2013,  5,  4), 'archived': False},
 }
 
+SUITES = {
+    'release': [  # known releases sorted by release date
+        'buzz', 'rex', 'bo', 'hamm', 'slink', 'potato', 'woody', 'sarge',
+        'etch', 'lenny', 'squeeze', 'wheezy', 'jessie', 'sid'
+    ],
+    'devel': [],  # known release variants; filled below
+    'all': [],	  # all known releases + variants; filled below
+}
+SUITE_VARIANTS = ['%s-updates', '%s-proposed-updates', '%s-backports',
+                  '%s-lts']
+for s in SUITES['release']:
+    SUITES['all'].append(s)
+    for v in SUITE_VARIANTS:
+        variant = v % s
+        SUITES['all'].append(variant)
+        SUITES['devel'].append(variant)
+SUITES['devel'].append('experimental')
+SUITES['all'].append('experimental')
+
 DPKG_EXTRACT_UMASK = 0022
