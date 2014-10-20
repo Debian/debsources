@@ -142,7 +142,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
 
         # highlight.js present?
         self.assertIn('hljs.highlightBlock', rv.data)
-        self.assertIn('<script src="/javascript/highlight/highlight.pack.js">'
+        self.assertIn('<script src="/javascript/highlight/highlight.min.js">'
                     '</script>', rv.data)
 
         # content of the file
