@@ -21,6 +21,10 @@
       <img src="{{ config['ICONS_FOLDER'] }}22x22/places/folder.png"
            alt="version " />{{ v.version }}</a>
     ({{ v.area }})
+    {% if v.suites %}
+        [{{ ", ".join(v.suites) }}]
+    {% endif %}
+
   </li>
 {% endfor %}
 </ul>

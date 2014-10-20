@@ -428,18 +428,16 @@ class SourceView(GeneralView):
         """
         renders the package page (which lists available versions)
         """
-        # we list the versions
+        # we list the version with suites it belongs to
         try:
-            versions = PackageName.list_versions(session,
-                                                           packagename)
+            versions_w_suites = PackageName.list_versions_w_suites(
+                session, packagename)
         except InvalidPackageOrVersionError:
             raise Http404Error("%s not found" % packagename)
 
-        versions = [v.to_dict() for v in versions]
-
         return dict(type="package",
                     package=packagename,
-                    versions=versions,
+                    versions=versions_w_suites,
                     path=path_to,
                     )
 

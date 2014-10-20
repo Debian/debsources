@@ -125,6 +125,9 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         self.assertEqual(rv['path'], "ledit")
         self.assertEqual(len(rv['versions']), 3)
         self.assertEqual(rv['type'], "package")
+        # list index/order may be changed
+        _v = [_v for _v in rv['versions'] if _v['version'] == '2.01-6'][0]
+        self.assertIn('squeeze', _v['suites'])
 
     def test_folder(self):
         rv = json.loads(self.app.get('/api/src/ledit/2.01-6/').data)

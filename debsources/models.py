@@ -37,6 +37,7 @@ from debsources.consts import VCS_TYPES, SLOCCOUNT_LANGUAGES, \
     CTAGS_LANGUAGES, METRIC_TYPES, AREAS, PREFIXES_DEFAULT
 from debsources import filetype
 from debsources.debmirror import SourcePackage
+from debsources.consts import SUITES
 
 Base = declarative_base()
 
@@ -91,6 +92,34 @@ class PackageName(Base):
         # we sort the versions according to debian versions rules
         versions = sorted(versions, cmp=version_compare)
         return versions
+
+    @staticmethod
+    def list_versions_w_suites(session, packagename):
+        """
+        returns versions with suites
+        """
+        # FIXME a left outer join on (Package, Suite) is more preferred.
+        # However, per http://stackoverflow.com/a/997467, custom aggregation
+        # function to concatenate the suite names for the group_by should be
+        # defined on database connection level.
+        versions = PackageName.list_versions(session, packagename)
+        versions_w_suites = []
+        try:
+            for v in versions:
+                suites = session.query(Suite) \
+                                .filter(Suite.package_id == v.id) \
+                                .all()
+                # sort the suites according to debsources.consts.SUITES
+                # use keyfunc to make it py3 compatible
+                suites.sort(key=lambda s: SUITES['all'].index(s.suite))
+                suites = [s.suite for s in suites]
+                v = v.to_dict()
+                v['suites'] = suites
+                versions_w_suites.append(v)
+        except Exception:
+            raise InvalidPackageOrVersionError(packagename)
+
+        return versions_w_suites
 
     def to_dict(self):
         """
