@@ -75,7 +75,7 @@ class PackageName(Base):
         return prefixes
 
     @staticmethod
-    def list_versions_from_name(session, packagename):
+    def list_versions(session, packagename):
         try:
             name_id = session.query(PackageName) \
                              .filter(PackageName.name == packagename) \

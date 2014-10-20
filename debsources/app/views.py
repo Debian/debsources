@@ -142,7 +142,7 @@ def deal_404_error(error, mode='html'):
         if isinstance(error, Http404ErrorSuggestions):
             # let's suggest all the possible locations with a different
             # package version
-            possible_versions = PackageName.list_versions_from_name(
+            possible_versions = PackageName.list_versions(
                 session, error.package)
             suggestions = ['/'.join(filter(None,
                                     [error.package, v.version, error.path]))
@@ -430,7 +430,7 @@ class SourceView(GeneralView):
         """
         # we list the versions
         try:
-            versions = PackageName.list_versions_from_name(session,
+            versions = PackageName.list_versions(session,
                                                            packagename)
         except InvalidPackageOrVersionError:
             raise Http404Error("%s not found" % packagename)
@@ -523,7 +523,7 @@ class SourceView(GeneralView):
         when 'latest' is provided instead of a version number
         """
         try:
-            versions = PackageName.list_versions_from_name(session, package)
+            versions = PackageName.list_versions(session, package)
         except InvalidPackageOrVersionError:
             raise Http404Error("%s not found" % package)
         # the latest version is the latest item in the
