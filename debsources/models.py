@@ -87,7 +87,6 @@ class PackageName(Base):
             versions = session.query(Package) \
                               .filter(Package.name_id == name_id).all()
         except Exception as e:
-            raise e
             raise InvalidPackageOrVersionError(packagename)
         # we sort the versions according to debian versions rules
         versions = sorted(versions, cmp=version_compare)
