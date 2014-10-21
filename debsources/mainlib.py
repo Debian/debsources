@@ -131,7 +131,8 @@ def parse_conf_webapp(items):
 
 
 def load_conf(conffile, section="infra"):
-    """load configuration from `conffile` and return it as a (typed) dictionary,
+    """
+    load configuration from `conffile` and return it as a (typed) dictionary,
     containing the desired section
     """
     conf = configparser.SafeConfigParser(DEFAULT_CONFIG[section])

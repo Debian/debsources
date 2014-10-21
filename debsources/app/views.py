@@ -32,10 +32,12 @@ from debsources.app import app_wrapper
 app = app_wrapper.app
 session = app_wrapper.session
 
-from debsources.excepts import InvalidPackageOrVersionError, FileOrFolderNotFound, \
-    Http500Error, Http404Error, Http404ErrorSuggestions, Http403Error
-from debsources.models import Ctag, Package, PackageName, Checksum, Location, \
-    Directory, SourceFile, File
+from debsources.excepts import (
+    InvalidPackageOrVersionError, FileOrFolderNotFound,
+    Http500Error, Http404Error, Http404ErrorSuggestions, Http403Error)
+from debsources.models import (
+    Ctag, Package, PackageName, Checksum, Location, Directory,
+    SourceFile, File)
 from debsources.app.sourcecode import SourceCodeIterator
 from debsources.app.forms import SearchForm
 from debsources.app.infobox import Infobox
