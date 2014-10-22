@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
 #               2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
