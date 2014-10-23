@@ -146,10 +146,11 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         # highlight.js present?
         self.assertIn('hljs.highlightBlock', rv.data)
         self.assertIn('<script src="/javascript/highlight/highlight.min.js">'
-                    '</script>', rv.data)
+                      '</script>', rv.data)
 
         # content of the file
-        self.assertIn('Institut National de Recherche en Informatique', rv.data)
+        self.assertIn('Institut National de Recherche en Informatique',
+                      rv.data)
 
         # correct number of lines
         self.assertIn('1506 lines', rv.data)
@@ -159,10 +160,11 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
 
         # raw file link
         self.assertIn('<a href="/data/main/l/ledit/2.01-6/ledit.ml">'
-                        'download</a>', rv.data)
+                      'download</a>', rv.data)
 
         # parent folder link
-        self.assertIn('<a href="/src/ledit/2.01-6/">parent folder</a>', rv.data)
+        self.assertIn('<a href="/src/ledit/2.01-6/">parent folder</a>',
+                      rv.data)
 
     def test_source_file_text(self):
         rv = self.app.get('/src/ledit/2.01-6/README/')
@@ -171,7 +173,8 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
     def test_source_file_embedded(self):
         rv = self.app.get('/embed/file/ledit/2.01-6/ledit.ml/')
         self.assertIn('<code id="sourcecode" class="ocaml">', rv.data)
-        self.assertIn('Institut National de Recherche en Informatique', rv.data)
+        self.assertIn('Institut National de Recherche en Informatique',
+                      rv.data)
         self.assertNotIn('<div id="logo">', rv.data)
 
     def test_errors(self):
@@ -197,8 +200,9 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         rv = json.loads(self.app.get('/api/src/bsdgames-nonfree/'
                                      '2.17-3/COPYING/').data)
         self.assertEqual(rv["number_of_duplicates"], 3)
-        self.assertEqual(rv["checksum"], ("be43f81c20961702327c10e9bd5f5a9a2b1cc"
-                                    "eea850402ea562a9a76abcfa4bf"))
+        self.assertEqual(rv["checksum"],
+                         ("be43f81c20961702327c10e9bd5f5a9a2b1cc"
+                          "eea850402ea562a9a76abcfa4bf"))
 
     def test_checksum_search(self):
         rv = json.loads(self.app.get(
@@ -232,22 +236,23 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         self.assertEqual(rv["pkg_infos"]["area"], "main")
         self.assertEqual(rv["pkg_infos"]["sloc"][0], ["ansic", 22607])
         self.assertEqual(rv["pkg_infos"]["metric"]["size"], 6584)
-        self.assertEqual(rv["pkg_infos"]["vcs_browser"],
-                    "http://svn.debian.org/wsvn/sam-hocevar/pkg-misc/unstable/libcaca/"
-                    )
+        p = "http://svn.debian.org/wsvn/sam-hocevar/pkg-misc/unstable/libcaca/"
+        self.assertEqual(rv["pkg_infos"]["vcs_browser"], p)
         self.assertEqual(rv["pkg_infos"]["vcs_type"], "svn")
         self.assertEqual(rv["pkg_infos"]["pts_link"],
-                "http://tracker.debian.org/pkg/libcaca")
+                         "http://tracker.debian.org/pkg/libcaca")
         self.assertEqual(rv["pkg_infos"]["ctags_count"], 3145)
 
     def test_pkg_infobox_embed(self):
         rv = self.app.get('/embed/pkginfo/libcaca/0.99.beta17-1/')
-        self.assertIn('<div id="pkginfobox" class="pkginfobox_large">', rv.data)
+        self.assertIn('<div id="pkginfobox" class="pkginfobox_large">',
+                      rv.data)
         self.assertNotIn('<footer', rv.data)  # it's an infobox-only page
 
     def test_info_version(self):
         rv = self.app.get('/info/package/libcaca/0.99.beta17-1/')
-        self.assertIn('<div id="pkginfobox" class="pkginfobox_large">', rv.data)
+        self.assertIn('<div id="pkginfobox" class="pkginfobox_large">',
+                      rv.data)
 
     def test_stats_suite(self):
         rv = json.loads(self.app.get('/api/stats/jessie/').data)
@@ -260,8 +265,8 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
     def test_stats_all(self):
         rv = json.loads(self.app.get('/api/stats/').data)
         self.assertEqual(sorted(rv["all_suites"]),
-                ["debian_experimental", "debian_jessie", "debian_sid",
-                "debian_squeeze", "debian_wheezy"])
+                         ["debian_experimental", "debian_jessie", "debian_sid",
+                         "debian_squeeze", "debian_wheezy"])
         self.assertIn("ansic", rv["languages"])
         self.assertEqual(rv["results"]["debian_sid.sloccount.ansic"], 140353)
 
