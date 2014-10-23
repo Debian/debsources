@@ -210,7 +210,10 @@ def ping():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    news_file = os.path.join(app.config["LOCAL_DIR"], "news.stats.html")
+    news = local_info.read_html(news_file)
+
+    return render_template('index.html', news=news)
 
 
 @app.route('/doc/')
@@ -928,15 +931,11 @@ class AllStatsView(GeneralView):
         devel_suites = ["debian_" + x for x in
                         statistics.suites(session, suites='devel')]
 
-        news_file = os.path.join(app.config["LOCAL_DIR"], "news.stats.html")
-        news = local_info.read_html(news_file)
-
         return dict(results=res,
                     languages=SLOCCOUNT_LANGUAGES,
                     all_suites=all_suites,
                     release_suites=release_suites,
-                    devel_suites=devel_suites,
-                    news=news)
+                    devel_suites=devel_suites)
 
 # STATS FOR ALL SUITES (HTML)
 app.add_url_rule('/stats/',
