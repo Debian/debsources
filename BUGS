@@ -11,18 +11,12 @@ The entries remaining below are in wait of triaging/forwarding there.
   suites mappings. Should it become a separate tool? Or should we expose on the
   cmdline the support to select individual update stages? (see updater.py)
 
-* TODO suite test data: differentiate sid and jessie		       :test:
-  Currently, the set of packages in sid and jessie are exactly the same. Add
-  one or more packages which is in sid but not in jessie.
-
 * TODO debian cross reference (lxr.debian.net)			  :web:ctags:
   A-la http://lxr.linux.no/ . Suggested by Pierre Habouzit. Main problem is of
   scope, cross-ref is mostly reasonable within the same package; /possibly/
   reasonable between dependent packages; largely unresonable among unrelated
   packages. (Not to mention the risk of cross-referincing across different
   languages; although we should have the info to avoid that...)
-
-* TODO make web UI parts conditional on plugin enablement	  :infra:web:
 
 * TODO shutter effect					    :web:hilight:css:
   When we highlight a line, we have to use a display:inline tag (whose

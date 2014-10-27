@@ -735,3 +735,23 @@ Archived entries from file /srv/debian/debsources.bugs/BUGS
   :END:
   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=762946
 
+
+* TODO make web UI parts conditional on plugin enablement     :infra:web:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-10-27 lun 10:37
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=766967
+
+
+* TODO suite test data: differentiate sid and jessie		   :test:FWD:
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2014-10-27 lun 10:40
+  :ARCHIVE_FILE: /srv/debian/debsources.bugs/BUGS
+  :ARCHIVE_CATEGORY: BUGS
+  :ARCHIVE_TODO: TODO
+  :END:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=766968
+
