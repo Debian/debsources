@@ -142,6 +142,7 @@ shebangs = dict(
 text_file_mimes = [
     "text",
     "xml",
+    "x-empty"
 ]
 
 
