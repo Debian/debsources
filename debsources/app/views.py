@@ -210,7 +210,7 @@ def ping():
 
 @app.route('/')
 def index():
-    news_file = os.path.join(app.config["LOCAL_DIR"], "news.stats.html")
+    news_file = os.path.join(app.config["LOCAL_DIR"], "news.html")
     news = local_info.read_html(news_file)
 
     return render_template('index.html', news=news)
