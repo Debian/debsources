@@ -3,4 +3,4 @@
 	url = git://git.upsilon.cc/hacks/debsources-testdata.git
 [submodule "debsources/app/static/external/bootstrap"]
 	path = debsources/app/static/external/bootstrap
-	url = git@github.com:twbs/bootstrap.git
+	url = https://github.com/twbs/bootstrap.git
