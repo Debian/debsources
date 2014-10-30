@@ -26,7 +26,7 @@ from email.utils import formatdate
 from sqlalchemy import sql, not_
 
 from debsources import charts
-from debsources import dbutils
+from debsources import db_storage
 from debsources import fs_storage
 from debsources import statistics
 
@@ -180,7 +180,7 @@ def exclude_files(session, pkg, pkgdir, file_table, exclude_specs):
         for relpath in candidates:
             logging.debug('excluding file %s' % relpath)
             fs_storage.rm_file(pkgdir, relpath)
-            dbutils.rm_file(session, pkg['package'], relpath, file_table)
+            db_storage.rm_file(session, pkg['package'], relpath, file_table)
             del(file_table[relpath])
 
 
@@ -205,7 +205,7 @@ def _add_package(pkg, conf, session, sticky=False):
             # tried again at next run)
             file_table = None
             if not conf['dry_run'] and 'db' in conf['backends']:
-                file_table = dbutils.add_package(session, pkg, pkgdir, sticky)
+                file_table = db_storage.add_package(session, pkg, pkgdir, sticky)
             exclude_files(session, pkg, pkgdir, file_table, conf['exclude'])
             if not conf['dry_run'] and 'hooks' in conf['backends']:
                 notify(conf, 'add-package', session, pkg, pkgdir, file_table)
@@ -223,7 +223,7 @@ def _rm_package(pkg, conf, session, db_package=None):
     logging.info("remove %s..." % pkg)
     pkgdir = pkg.extraction_dir(conf['sources_dir'])
     if not db_package:
-        db_package = dbutils.lookup_package(session,
+        db_package = db_storage.lookup_package(session,
                                             pkg['package'], pkg['version'])
         if not db_package:
             logging.warn('cannot find package %s, not removing' % pkg)
@@ -235,7 +235,7 @@ def _rm_package(pkg, conf, session, db_package=None):
             fs_storage.remove_package(pkg, pkgdir)
         if not conf['dry_run'] and 'db' in conf['backends']:
             with session.begin_nested():
-                dbutils.rm_package(session, pkg, db_package)
+                db_storage.rm_package(session, pkg, db_package)
     except:
         logging.exception('failed to remove %s' % pkg)
 
@@ -266,7 +266,7 @@ def extract_new(status, conf, session, mirror):
     ensure_cache_dir(conf)
 
     def add_package(pkg):
-        if not dbutils.lookup_package(session, pkg['package'], pkg['version']):
+        if not db_storage.lookup_package(session, pkg['package'], pkg['version']):
             # use DB as completion marker: if the package has been inserted, it
             # means everything went fine last time we tried. If not, we redo
             # everything, just to be safe
@@ -341,7 +341,7 @@ def update_suites(status, conf, session, mirror):
             session.query(Suite).filter_by(suite=suite).delete()
         for pkg_id in pkgs:
             (pkg, version) = pkg_id
-            db_package = dbutils.lookup_package(session, pkg, version)
+            db_package = db_storage.lookup_package(session, pkg, version)
             if not db_package:
                 logging.warn('package %s/%s not found in suite %s, skipping'
                              % (pkg, version, suite))
@@ -481,7 +481,7 @@ def update_metadata(status, conf, session):
     if not conf['dry_run'] and 'fs' in conf['backends']:
         prefix_path = os.path.join(conf['cache_dir'], 'pkg-prefixes')
         with open(prefix_path + '.new', 'w') as out:
-            for prefix in dbutils.pkg_prefixes(session):
+            for prefix in db_storage.pkg_prefixes(session):
                 out.write('%s\n' % prefix)
         os.rename(prefix_path + '.new', prefix_path)
 

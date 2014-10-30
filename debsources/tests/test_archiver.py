@@ -25,7 +25,7 @@ from nose.tools import istest
 from nose.plugins.attrib import attr
 
 from debsources import archiver
-from debsources import dbutils
+from debsources import db_storage
 from debsources import debmirror
 from debsources import mainlib
 from debsources import statistics
@@ -68,7 +68,7 @@ class Archiver(unittest.TestCase, DbTestFixture):
         shutil.rmtree(self.tmpdir)
 
     def assertHasPackage(self, package, version):
-        p = dbutils.lookup_package(self.session, package, version)
+        p = db_storage.lookup_package(self.session, package, version)
         self.assertIsNotNone(p, msg='missing package %s/%s' %
                              (package, version))
         return p
@@ -84,16 +84,16 @@ class Archiver(unittest.TestCase, DbTestFixture):
                         % (package, version))
 
     def assertLacksStickyPackage(self, package, version):
-        p = dbutils.lookup_package(self.session, package, version)
+        p = db_storage.lookup_package(self.session, package, version)
         self.assertIsNone(p, msg='missing sticky package %s/%s'
                           % (package, version))
 
     def assertHasStickySuite(self, suite):
-        s = dbutils.lookup_db_suite(self.session, suite, sticky=True)
+        s = db_storage.lookup_db_suite(self.session, suite, sticky=True)
         self.assertIsNotNone(s, msg='missing sticky suite ' + suite)
 
     def assertLacksStickySuite(self, suite):
-        s = dbutils.lookup_db_suite(self.session, suite, sticky=True)
+        s = db_storage.lookup_db_suite(self.session, suite, sticky=True)
         self.assertIsNone(s, msg='present sticky suite ' + suite)
 
     @istest
@@ -109,7 +109,7 @@ class Archiver(unittest.TestCase, DbTestFixture):
 
         for suite in SUITES:
             self.assertHasStickySuite(suite)
-            s = dbutils.lookup_db_suite(self.session, suite, sticky=True)
+            s = db_storage.lookup_db_suite(self.session, suite, sticky=True)
             rel_info = DEBIAN_RELEASES[suite]
             self.assertEqual(s.version, rel_info['version'])
             self.assertEqual(s.release_date, rel_info['date'])
@@ -176,7 +176,7 @@ class Archiver(unittest.TestCase, DbTestFixture):
         sectionless_pkg = ('tripwire', '1.2-15')
 
         archiver.add_suite(self.conf, self.session, 'slink', self.archive)
-        p = dbutils.lookup_package(self.session, *sectionless_pkg)
+        p = db_storage.lookup_package(self.session, *sectionless_pkg)
         self.assertEqual('non-free', p.area)
 
     @istest

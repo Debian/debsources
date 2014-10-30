@@ -20,7 +20,7 @@ import os
 import re
 import subprocess
 
-from debsources import dbutils
+from debsources import db_storage
 
 from debsources.models import SlocCount
 
@@ -94,7 +94,7 @@ def add_package(session, pkg, pkgdir, file_table):
 
     if 'hooks.db' in conf['backends']:
         slocs = parse_sloccount(slocfile)
-        db_package = dbutils.lookup_package(session, pkg['package'],
+        db_package = db_storage.lookup_package(session, pkg['package'],
                                             pkg['version'])
         if not session.query(SlocCount).filter_by(package_id=db_package.id)\
                                        .first():
@@ -116,7 +116,7 @@ def rm_package(session, pkg, pkgdir, file_table):
             os.unlink(slocfile)
 
     if 'hooks.db' in conf['backends']:
-        db_package = dbutils.lookup_package(session, pkg['package'],
+        db_package = db_storage.lookup_package(session, pkg['package'],
                                             pkg['version'])
         session.query(SlocCount) \
                .filter_by(package_id=db_package.id) \

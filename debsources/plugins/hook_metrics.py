@@ -19,7 +19,7 @@ import logging
 import os
 import subprocess
 
-from debsources import dbutils
+from debsources import db_storage
 
 from debsources.models import Metric
 
@@ -64,7 +64,7 @@ def add_package(session, pkg, pkgdir, file_table):
             # from previous runs...
             metric_value = parse_metrics(metricsfile)[metric_type]
 
-        db_package = dbutils.lookup_package(session, pkg['package'],
+        db_package = db_storage.lookup_package(session, pkg['package'],
                                             pkg['version'])
         metric = session.query(Metric) \
                         .filter_by(package_id=db_package.id,
@@ -86,7 +86,7 @@ def rm_package(session, pkg, pkgdir, file_table):
             os.unlink(metricsfile)
 
     if 'hooks.db' in conf['backends']:
-        db_package = dbutils.lookup_package(session, pkg['package'],
+        db_package = db_storage.lookup_package(session, pkg['package'],
                                             pkg['version'])
         session.query(Metric) \
                .filter_by(package_id=db_package.id) \

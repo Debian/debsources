@@ -16,8 +16,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# TODO rename this module to db_storage, coherently with fs_storage
-
 import logging
 
 from debsources import fs_storage

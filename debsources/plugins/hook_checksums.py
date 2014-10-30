@@ -20,7 +20,7 @@ import os
 
 from sqlalchemy import sql
 
-from debsources import dbutils
+from debsources import db_storage
 from debsources import fs_storage
 from debsources import hashutil
 
@@ -78,7 +78,7 @@ def add_package(session, pkg, pkgdir, file_table):
             os.rename(sumsfile_tmp, sumsfile)
 
     if 'hooks.db' in conf['backends']:
-        db_package = dbutils.lookup_package(session, pkg['package'],
+        db_package = db_storage.lookup_package(session, pkg['package'],
                                             pkg['version'])
         insert_q = sql.insert(Checksum.__table__)
         insert_params = []
@@ -125,7 +125,7 @@ def rm_package(session, pkg, pkgdir, file_table):
             os.unlink(sumsfile)
 
     if 'hooks.db' in conf['backends']:
-        db_package = dbutils.lookup_package(session, pkg['package'],
+        db_package = db_storage.lookup_package(session, pkg['package'],
                                             pkg['version'])
         session.query(Checksum) \
                .filter_by(package_id=db_package.id) \

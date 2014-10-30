@@ -27,7 +27,7 @@ import unittest
 from nose.tools import istest
 from nose.plugins.attrib import attr
 
-from debsources import dbutils
+from debsources import db_storage
 from debsources import mainlib
 from debsources import models
 from debsources import statistics
@@ -213,7 +213,7 @@ class Updater(unittest.TestCase, DbTestFixture):
         self.assertTrue(os.path.exists(pkgdir),
                         'young gone package %s/%s disappeared from FS storage'
                         % GC_PACKAGE)
-        self.assertTrue(dbutils.lookup_package(self.session, *GC_PACKAGE),
+        self.assertTrue(db_storage.lookup_package(self.session, *GC_PACKAGE),
                         'young gone package %s/%s disappeared from DB storage'
                         % GC_PACKAGE)
 
@@ -223,7 +223,7 @@ class Updater(unittest.TestCase, DbTestFixture):
         self.assertFalse(os.path.exists(pkgdir),
                          'gone package %s/%s persisted in FS storage' %
                          GC_PACKAGE)
-        self.assertFalse(dbutils.lookup_package(self.session, *GC_PACKAGE),
+        self.assertFalse(db_storage.lookup_package(self.session, *GC_PACKAGE),
                          'gone package %s/%s persisted in DB storage' %
                          GC_PACKAGE)
 

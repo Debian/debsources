@@ -28,7 +28,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from debsources import mainlib
-from debsources import dbutils
+from debsources import db_storage
 from debsources import fs_storage
 
 from debsources.debmirror import SourcePackage
@@ -68,7 +68,7 @@ def fs_check_stale(conf, session, fix=False):
         pkg_id = (package, version)
         if not checked_versions.has_key(pkg_id):
             checked_versions[pkg_id] = \
-                bool(dbutils.lookup_package(session, package, version))
+                bool(db_storage.lookup_package(session, package, version))
         return checked_versions[pkg_id]
 
     logging.info('fs storage: check for stale data...')

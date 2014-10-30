@@ -21,7 +21,7 @@ import subprocess
 
 from sqlalchemy import sql
 
-from debsources import dbutils
+from debsources import db_storage
 
 from debsources.models import Ctag, File
 from debsources.consts import MAX_KEY_LENGTH
@@ -122,7 +122,7 @@ def add_package(session, pkg, pkgdir, file_table):
             os.rename(ctagsfile_tmp, ctagsfile)
 
     if 'hooks.db' in conf['backends']:
-        db_package = dbutils.lookup_package(session, pkg['package'],
+        db_package = db_storage.lookup_package(session, pkg['package'],
                                             pkg['version'])
         # poor man's cache for last <relpath, file_id>;
         # rely on the fact that ctags file are path-sorted
@@ -178,7 +178,7 @@ def rm_package(session, pkg, pkgdir, file_table):
             os.unlink(ctagsfile)
 
     if 'hooks.db' in conf['backends']:
-        db_package = dbutils.lookup_package(session, pkg['package'],
+        db_package = db_storage.lookup_package(session, pkg['package'],
                                             pkg['version'])
         session.query(Ctag) \
                .filter_by(package_id=db_package.id) \
