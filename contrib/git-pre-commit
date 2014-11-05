@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+
+# Depends: python-flake8
+
+find debsources/ -name '*.py' \
+    | grep -v '/static/external/' \
+    | xargs flake8
+
+find bin/ -type f -executable \
+    | while read fname ; do
+	  if head -n 1 "$fname" | grep -q 'python' ; then
+	      flake8 "$fname"
+	  fi
+      done
