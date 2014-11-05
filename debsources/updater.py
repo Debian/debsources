@@ -205,7 +205,8 @@ def _add_package(pkg, conf, session, sticky=False):
             # tried again at next run)
             file_table = None
             if not conf['dry_run'] and 'db' in conf['backends']:
-                file_table = db_storage.add_package(session, pkg, pkgdir, sticky)
+                file_table = db_storage.add_package(session, pkg, pkgdir,
+                                                    sticky)
             exclude_files(session, pkg, pkgdir, file_table, conf['exclude'])
             if not conf['dry_run'] and 'hooks' in conf['backends']:
                 notify(conf, 'add-package', session, pkg, pkgdir, file_table)
@@ -223,8 +224,8 @@ def _rm_package(pkg, conf, session, db_package=None):
     logging.info("remove %s..." % pkg)
     pkgdir = pkg.extraction_dir(conf['sources_dir'])
     if not db_package:
-        db_package = db_storage.lookup_package(session,
-                                            pkg['package'], pkg['version'])
+        db_package = db_storage.lookup_package(session, pkg['package'],
+                                               pkg['version'])
         if not db_package:
             logging.warn('cannot find package %s, not removing' % pkg)
             return
@@ -266,7 +267,8 @@ def extract_new(status, conf, session, mirror):
     ensure_cache_dir(conf)
 
     def add_package(pkg):
-        if not db_storage.lookup_package(session, pkg['package'], pkg['version']):
+        if not db_storage.lookup_package(session, pkg['package'],
+                                         pkg['version']):
             # use DB as completion marker: if the package has been inserted, it
             # means everything went fine last time we tried. If not, we redo
             # everything, just to be safe

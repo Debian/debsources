@@ -79,7 +79,7 @@ def add_package(session, pkg, pkgdir, file_table):
 
     if 'hooks.db' in conf['backends']:
         db_package = db_storage.lookup_package(session, pkg['package'],
-                                            pkg['version'])
+                                               pkg['version'])
         insert_q = sql.insert(Checksum.__table__)
         insert_params = []
         if not session.query(Checksum) \
@@ -126,7 +126,7 @@ def rm_package(session, pkg, pkgdir, file_table):
 
     if 'hooks.db' in conf['backends']:
         db_package = db_storage.lookup_package(session, pkg['package'],
-                                            pkg['version'])
+                                               pkg['version'])
         session.query(Checksum) \
                .filter_by(package_id=db_package.id) \
                .delete()

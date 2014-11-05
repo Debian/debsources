@@ -123,7 +123,7 @@ def add_package(session, pkg, pkgdir, file_table):
 
     if 'hooks.db' in conf['backends']:
         db_package = db_storage.lookup_package(session, pkg['package'],
-                                            pkg['version'])
+                                               pkg['version'])
         # poor man's cache for last <relpath, file_id>;
         # rely on the fact that ctags file are path-sorted
         curfile = {None: None}
@@ -179,7 +179,7 @@ def rm_package(session, pkg, pkgdir, file_table):
 
     if 'hooks.db' in conf['backends']:
         db_package = db_storage.lookup_package(session, pkg['package'],
-                                            pkg['version'])
+                                               pkg['version'])
         session.query(Ctag) \
                .filter_by(package_id=db_package.id) \
                .delete()

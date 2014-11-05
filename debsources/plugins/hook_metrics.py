@@ -65,7 +65,7 @@ def add_package(session, pkg, pkgdir, file_table):
             metric_value = parse_metrics(metricsfile)[metric_type]
 
         db_package = db_storage.lookup_package(session, pkg['package'],
-                                            pkg['version'])
+                                               pkg['version'])
         metric = session.query(Metric) \
                         .filter_by(package_id=db_package.id,
                                    metric=metric_type,
@@ -87,7 +87,7 @@ def rm_package(session, pkg, pkgdir, file_table):
 
     if 'hooks.db' in conf['backends']:
         db_package = db_storage.lookup_package(session, pkg['package'],
-                                            pkg['version'])
+                                               pkg['version'])
         session.query(Metric) \
                .filter_by(package_id=db_package.id) \
                .delete()

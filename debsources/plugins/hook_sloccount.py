@@ -95,7 +95,7 @@ def add_package(session, pkg, pkgdir, file_table):
     if 'hooks.db' in conf['backends']:
         slocs = parse_sloccount(slocfile)
         db_package = db_storage.lookup_package(session, pkg['package'],
-                                            pkg['version'])
+                                               pkg['version'])
         if not session.query(SlocCount).filter_by(package_id=db_package.id)\
                                        .first():
             # ASSUMPTION: if *a* loc count of this package has already been
@@ -117,7 +117,7 @@ def rm_package(session, pkg, pkgdir, file_table):
 
     if 'hooks.db' in conf['backends']:
         db_package = db_storage.lookup_package(session, pkg['package'],
-                                            pkg['version'])
+                                               pkg['version'])
         session.query(SlocCount) \
                .filter_by(package_id=db_package.id) \
                .delete()

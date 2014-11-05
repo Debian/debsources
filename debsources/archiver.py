@@ -94,7 +94,7 @@ def add_suite(conf, session, suite, archive):
     if updater.STAGE_EXTRACT in conf['stages']:
         for pkg in archive.ls(suite):
             db_package = db_storage.lookup_package(session, pkg['package'],
-                                                pkg['version'])
+                                                   pkg['version'])
             if db_package:  # avoid GC upon removal from a non-sticky suite
                 if not db_package.sticky and not conf['dry_run']:
                     logging.debug('setting sticky bit on %s' % pkg)
