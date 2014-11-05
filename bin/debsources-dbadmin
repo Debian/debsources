@@ -45,7 +45,7 @@ if __name__ == "__main__":
                         action="store_true")
     args = parser.parse_args()
 
-    #os.environ['PYTHONINSPECT'] = 'True'
+    # os.environ['PYTHONINSPECT'] = 'True'
     db = create_engine(args.dburi, echo=args.verbose)
 
     if args.dropdb:

@@ -39,7 +39,7 @@ Session = sessionmaker()
 
 # Global. List of allowed extensions in FS storage (will be extended querying
 # plugin information)
-file_extensions = [ '.done', '.log' ]
+file_extensions = ['.done', '.log']
 
 
 def fs_check_missing(conf, session, fix=False):
@@ -66,7 +66,7 @@ def fs_check_stale(conf, session, fix=False):
         """check if a given package/version exists in the DB, with memoization
         """
         pkg_id = (package, version)
-        if not checked_versions.has_key(pkg_id):
+        if pkg_id not in checked_versions.has_key:
             checked_versions[pkg_id] = \
                 bool(db_storage.lookup_package(session, package, version))
         return checked_versions[pkg_id]
@@ -76,16 +76,18 @@ def fs_check_stale(conf, session, fix=False):
         path = fs_storage.parse_path(entry)
         if os.path.isdir(entry):
             if not have_version(path['package'], path['version']):
-               logging.warn('orphan package directory: %s' % entry)
-               if fix:
-                   logging.info('removing orphan package directory %s' % entry)
-                   shutil.rmtree(entry)
+                logging.warn('orphan package directory: %s' % entry)
+                if fix:
+                    logging.info('removing orphan package directory %s' %
+                                 entry)
+                    shutil.rmtree(entry)
         elif os.path.isfile(entry):
             if path['ext'] in file_extensions:
                 if not have_version(path['package'], path['version']):
                     logging.warn('orphan metadata file: %s' % entry)
                     if fix:
-                        logging.info('removing orphan metadata file %s' % entry)
+                        logging.info('removing orphan metadata file %s' %
+                                     entry)
                         os.unlink(entry)
             else:
                 logging.warn('unknown metadata file: %s' % entry)
@@ -111,7 +113,7 @@ if __name__ == '__main__':
 
     conf = mainlib.load_configuration(args.conffile)
     mainlib.init_logging(conf, logging.INFO)
-    (_observers, exts)  = mainlib.load_hooks(conf)
+    (_observers, exts) = mainlib.load_hooks(conf)
     file_extensions.extend(exts.keys())
     db = create_engine(conf['db_uri'])
     session = Session(bind=db)

@@ -2,15 +2,16 @@
 
 import os
 import readline
-import rlcompleter
+import rlcompleter  # NOQA
 import argparse
 
-from pprint import pprint
+# from pprint import pprint
 
 from debsources import mainlib
 from debsources import sqla_session
 
-from debsources.app import *
+from debsources.app import *  # NOQA
+
 
 def main():
     readline.parse_and_bind("tab: complete")
@@ -20,6 +21,7 @@ def main():
     engine, session = sqla_session._get_engine_session(conf['db_uri'])
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Run Debsources shell, for debugging.')
+    parser = argparse.ArgumentParser(
+        description='Run Debsources shell, for debugging.')
     args = parser.parse_args()
     main()

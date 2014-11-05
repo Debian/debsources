@@ -2,13 +2,11 @@
 
 import argparse
 import logging
-import os
-import sys
 
 
 from debsources import mainlib
 
-from sqlalchemy import create_engine, bindparam, Integer, LargeBinary, String
+from sqlalchemy import create_engine, bindparam, LargeBinary
 from sqlalchemy.sql import text as sql_query
 
 from debsources import fs_storage
@@ -40,7 +38,8 @@ INSERT_CTAGS_Q = sql_query("""
     INSERT INTO ctags (package_id, tag, path, line, kind, language)
     VALUES (:package_id, :tag, :path, :line, :kind, :language)
     """,
-    bindparams = BINDPARAMS)
+                           bindparams=BINDPARAMS)
+
 
 def insert_ctags(conn, ctagsfile):
     steps = ctagsfile.split('/')
@@ -50,7 +49,8 @@ def insert_ctags(conn, ctagsfile):
 
     package_id = conn.execute(PACKAGE_ID_Q, v=version, p=package).first()
     if not package_id:
-        logging.warn('skipping %s/%s (does not exist in DB)' % (package, version))
+        logging.warn('skipping %s/%s (does not exist in DB)' %
+                     (package, version))
         return
 
     has_ctags = conn.execute(CTAGS_EXIST_Q, v=package_id[0]).first()
@@ -69,6 +69,7 @@ def insert_ctags(conn, ctagsfile):
 
 is_ctags = lambda p: p.endswith(METADATA_SUFFIX)
 
+
 def main(conf, ctagsfile=None):
     conn = create_engine(conf['db_uri']).connect()
     if ctagsfile:
@@ -84,7 +85,8 @@ def main(conf, ctagsfile=None):
 
 
 if __name__ == '__main__':
-    cmdline = argparse.ArgumentParser(description='Debsources: bulk ctags insertion')
+    cmdline = argparse.ArgumentParser(
+        description='Debsources: bulk ctags insertion')
     cmdline.add_argument('--config', '-c', dest='conffile',
                          default=mainlib.guess_conffile(),
                          help='alternate configuration file')
