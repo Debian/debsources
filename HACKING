@@ -39,7 +39,7 @@ Local Debsources deployment
   http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls for
   details on how to connect to remote databases.
 
-- $ cp doc/examples/sample-config.local.ini etc/config.local.ini 
+- $ cp doc/examples/sample-config.local.ini etc/config.local.ini
 
   (when etc/config.local.ini, debsources will ignore etc/config.ini, and use
   the ".local." variant as its main configuration file)
@@ -89,6 +89,9 @@ case is:
 
     # apt-get install flake8
     $ flake8 file1.py file2.py ...
+
+You can add a pre-commit hook to automatically test PEP8 compliance:
+    $ ln -s ../../contrib/git-pre-commit .git/hooks/pre-commit
 
 If you stumble upon Debsources source files that are not flake8-compliant,
 patches that put them back in compliance are more than welcome (hint hint).
