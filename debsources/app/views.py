@@ -241,6 +241,14 @@ def about():
     return render_template('about.html')
 
 
+if 'SERVE_STATIC_FILES' in app.config and app.config['SERVE_STATIC_FILES']:
+    import flask
+
+    @app.route('/javascript/<path:path>')
+    def javascript(path):
+        return flask.send_from_directory('/usr/share/javascript/', path)
+
+
 # SEARCH #
 
 @app.route('/search/', methods=['GET', 'POST'])
