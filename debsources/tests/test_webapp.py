@@ -266,7 +266,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         rv = json.loads(self.app.get('/api/stats/').data)
         self.assertEqual(sorted(rv["all_suites"]),
                          ["debian_experimental", "debian_jessie", "debian_sid",
-                         "debian_squeeze", "debian_wheezy"])
+                          "debian_squeeze", "debian_wheezy"])
         self.assertIn("ansic", rv["languages"])
         self.assertEqual(rv["results"]["debian_sid.sloccount.ansic"], 140353)
 
