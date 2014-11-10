@@ -1,15 +1,70 @@
-#!/bin/sh
-set -e
+#!/bin/bash
+# Copyright (C) 2014  Stefano Zacchiroli <zack@upsilon.cc>
+#           (C) 2014  Jingjie Jiang <j@introo.me>
+#
+# This file is part of Debsources.
+#
+# Debsources is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Depends: python-flake8
 
-find debsources/ -name '*.py' \
-    | grep -v '/static/external/' \
-    | xargs flake8
+# cd to project root
+cd "$(git rev-parse --show-toplevel)"
 
-find bin/ -type f -executable \
-    | while read fname ; do
-	  if head -n 1 "$fname" | grep -q 'python' ; then
-	      flake8 "$fname"
-	  fi
-      done
+# check if there is any local change
+has_changes=false
+for ch in `git status --porcelain | cut -c 2-2`; do
+    if [[ "$ch" == "M" ]] || [[ "$ch" == "D" ]]; then
+        has_changes=true
+        break
+    fi
+done
+
+# stash unstaged changes
+if [[ "$has_changes" == "true" ]]; then
+    git stash -q --keep-index
+    if [ $? -ne 0 ]; then
+        echo "Error: cannot stash unstaged changes. Abort."
+        exit 1;
+    fi
+fi
+
+# returns an array of files to be flake8-ed
+gather_files() {
+    for fname in `git diff --cached --name-status \
+        | grep -v "^D" \
+        | cut -f2`; do
+        if [[ $fname =~ \.py$ ]]; then
+            echo $fname
+            continue
+        fi
+        if head -n 1 "$fname" | grep -q '^#!.*python'; then
+            echo $fname
+        fi
+    done
+}
+gather_files | xargs -r flake8
+exit_code=$?
+
+# pop stashed changes
+if [[ "$has_changes" == "true" ]]; then
+    git stash pop -q
+fi
+
+if [[ $exit_code -ne 0 ]]; then
+    echo "Error: flake8 issues. Abort."
+    exit 1
+fi
+
+exit 0
