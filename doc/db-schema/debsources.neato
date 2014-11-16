@@ -26,6 +26,8 @@ edge [];
 
 "suites" [shape = record, label = "{<col0> \N| id:  serial\lpackage_id:  integer\lsuite:  character varying\l}" ];
 
+"suites_aliases" [shape = record, label = "{<col0> \N| alias:  character varying\lsuite:  character varying\l}" ];
+
 "suites_info" [shape = record, label = "{<col0> \N| name:  character varying\lversion:  character varying\lrelease_date:  date\lsticky:  boolean\l}" ];
 
 
@@ -40,6 +42,7 @@ edge [];
 "packages" -> "package_names" [label="packages_name_id_fkey"];
 "sloccounts" -> "packages" [label="sloccounts_package_id_fkey"];
 "suites" -> "packages" [label="suites_package_id_fkey"];
+"suites_aliases" -> "suites_info" [label="suites_aliases_suite_fkey"];
 }
 
 

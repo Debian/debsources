@@ -112,12 +112,12 @@
   <body>
 
     <!-- Primary Index -->
-	<p><br><br>Dumped on 2014-03-11</p>
+	<p><br><br>Dumped on 2014-11-16</p>
 <h1><a name="index">Index of database - debsources</a></h1>
 <ul>
     
     <li><a name="public.schema">public</a></li><ul>
-    	<li><a href="#public.table.binaries">binaries</a></li><li><a href="#public.table.binary-names">binary_names</a></li><li><a href="#public.table.checksums">checksums</a></li><li><a href="#public.table.ctags">ctags</a></li><li><a href="#public.table.files">files</a></li><li><a href="#public.table.history-size">history_size</a></li><li><a href="#public.table.history-sloccount">history_sloccount</a></li><li><a href="#public.table.metrics">metrics</a></li><li><a href="#public.table.package-names">package_names</a></li><li><a href="#public.table.packages">packages</a></li><li><a href="#public.table.sloccounts">sloccounts</a></li><li><a href="#public.table.suites">suites</a></li><li><a href="#public.table.suites-info">suites_info</a></li>
+    	<li><a href="#public.table.binaries">binaries</a></li><li><a href="#public.table.binary-names">binary_names</a></li><li><a href="#public.table.checksums">checksums</a></li><li><a href="#public.table.ctags">ctags</a></li><li><a href="#public.table.files">files</a></li><li><a href="#public.table.history-size">history_size</a></li><li><a href="#public.table.history-sloccount">history_sloccount</a></li><li><a href="#public.table.metrics">metrics</a></li><li><a href="#public.table.package-names">package_names</a></li><li><a href="#public.table.packages">packages</a></li><li><a href="#public.table.sloccounts">sloccounts</a></li><li><a href="#public.table.suites">suites</a></li><li><a href="#public.table.suites-aliases">suites_aliases</a></li><li><a href="#public.table.suites-info">suites_info</a></li>
   	
     </ul>
     
@@ -2364,6 +2364,113 @@
 	
         <hr>
 		<h2>Table:
+			<a name="public.table.suites-aliases">suites_aliases</a>
+		</h2>
+        
+
+
+        <table width="100%" cellspacing="0" cellpadding="3">
+                <caption>suites_aliases Structure</caption>
+                <tr>
+                <th>F-Key</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Description</th>
+                </tr>
+            
+            <tr class="tr0">
+				<td>
+                
+                  
+                
+                  
+                
+                </td>
+            	<td>alias</td>
+            	<td>character varying</td>
+                <td><i>
+				
+					
+
+					
+                       UNIQUE
+                    
+				
+					PRIMARY KEY
+					
+
+					
+				
+
+				
+				
+				</i>
+				
+				</td>
+			 </tr>
+            
+            <tr class="tr1">
+				<td>
+
+                  
+                
+                  
+                  <a href="#public.table.suites-info">suites_info.name</a>
+                  
+                
+                </td>
+            	<td>suite</td>
+            	<td>character varying</td>
+                <td><i>
+				
+					PRIMARY KEY
+					
+
+					
+				
+					
+
+					
+				
+
+				
+				
+				</i>
+				
+				</td>
+			 </tr>
+            
+        </table>
+
+        <!-- Inherits -->
+		
+
+		
+		
+		
+
+        <!-- Constraint List -->
+		
+
+        <!-- Foreign Key Discovery -->
+		
+
+    <!-- Indexes -->
+    
+
+	<!-- View Definition -->
+	
+
+	<!-- List off permissions -->
+	
+
+	<p>
+		<a href="#index">Index</a> -
+		<a href="#public.schema">Schema public</a>
+    </p>
+	
+        <hr>
+		<h2>Table:
 			<a name="public.table.suites-info">suites_info</a>
 		</h2>
         
@@ -2462,6 +2569,13 @@
 		
 
         <!-- Foreign Key Discovery -->
+		
+			<p>Tables referencing this one via Foreign Key Constraints:</p>
+		
+			<ul>
+				<li><a href="#public.table.suites-aliases">suites_aliases</a></li>
+			</ul>
+		
 		
 
     <!-- Indexes -->

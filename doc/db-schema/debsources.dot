@@ -35,6 +35,8 @@ edge [
 
 "suites" [shape = plaintext, label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0"> <TR ><TD PORT="ltcol0"> </TD> <TD bgcolor="grey90" border="1" COLSPAN="4"> \N </TD> <TD PORT="rtcol0"></TD></TR>  <TR><TD PORT="ltcol1" ></TD><TD align="left" > id </TD><TD align="left" > serial </TD><TD align="left" > PK </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol1"> </TD></TR> <TR><TD PORT="ltcol2" ></TD><TD align="left" > package_id </TD><TD align="left" > integer </TD><TD align="left" >  </TD><TD align="left" > FK </TD><TD align="left" PORT="rtcol2"> </TD></TR> <TR><TD PORT="ltcol3" ></TD><TD align="left" > suite </TD><TD align="left" > character varying </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol3"> </TD></TR> </TABLE>> ];
 
+"suites_aliases" [shape = plaintext, label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0"> <TR ><TD PORT="ltcol0"> </TD> <TD bgcolor="grey90" border="1" COLSPAN="4"> \N </TD> <TD PORT="rtcol0"></TD></TR>  <TR><TD PORT="ltcol1" ></TD><TD align="left" > alias </TD><TD align="left" > character varying </TD><TD align="left" > PK </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol1"> </TD></TR> <TR><TD PORT="ltcol2" ></TD><TD align="left" > suite </TD><TD align="left" > character varying </TD><TD align="left" > PK </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol2"> </TD></TR> </TABLE>> ];
+
 "suites_info" [shape = plaintext, label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0"> <TR ><TD PORT="ltcol0"> </TD> <TD bgcolor="grey90" border="1" COLSPAN="4"> \N </TD> <TD PORT="rtcol0"></TD></TR>  <TR><TD PORT="ltcol1" ></TD><TD align="left" > name </TD><TD align="left" > character varying </TD><TD align="left" > PK </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol1"> </TD></TR> <TR><TD PORT="ltcol2" ></TD><TD align="left" > version </TD><TD align="left" > character varying </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol2"> </TD></TR> <TR><TD PORT="ltcol3" ></TD><TD align="left" > release_date </TD><TD align="left" > date </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol3"> </TD></TR> <TR><TD PORT="ltcol4" ></TD><TD align="left" > sticky </TD><TD align="left" > boolean </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol4"> </TD></TR> </TABLE>> ];
 
 
@@ -50,4 +52,5 @@ edge [
 "packages":rtcol3 -> "package_names":ltcol1 [label="packages_name_id_fkey"];
 "sloccounts":rtcol2 -> "packages":ltcol1 [label="sloccounts_package_id_fkey"];
 "suites":rtcol2 -> "packages":ltcol1 [label="suites_package_id_fkey"];
+"suites_aliases":rtcol2 -> "suites_info":ltcol1 [label="suites_aliases_suite_fkey"];
 }

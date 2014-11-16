@@ -2366,6 +2366,103 @@
       </para>
     </section>
 
+      <section id="public.table.suites-aliases"
+               xreflabel="public.suites_aliases">
+        <title id="public.table.suites-aliases-title">
+         Table:
+         
+         <structname>suites_aliases</structname>
+        </title>
+ 
+
+
+        <para>
+          <variablelist>
+            <title>
+              Structure of <structname>suites_aliases</structname>
+            </title>
+
+
+            <varlistentry>
+              <term><structfield>alias</structfield></term>
+              <listitem><para>
+                <type>character varying</type>
+
+
+
+
+                      <literal>UNIQUE</literal>
+
+
+
+                <literal>PRIMARY KEY</literal>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              </para>
+
+            </listitem>
+          </varlistentry>
+
+            <varlistentry>
+              <term><structfield>suite</structfield></term>
+              <listitem><para>
+                <type>character varying</type>
+
+
+                <literal>PRIMARY KEY</literal>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                <literal>REFERENCES</literal> <xref linkend="public.table.suites-info"/>
+
+
+              </para>
+
+            </listitem>
+          </varlistentry>
+
+        </variablelist>
+
+
+
+
+
+
+
+
+
+
+      </para>
+    </section>
+
       <section id="public.table.suites-info"
                xreflabel="public.suites_info">
         <title id="public.table.suites-info-title">
@@ -2463,6 +2560,21 @@
 
 
 
+
+
+
+        <itemizedlist>
+          <title>
+            Tables referencing suites_aliases via Foreign Key Constraints
+          </title>
+
+          <listitem>
+            <para>
+              <xref linkend="public.table.suites-aliases"/>
+            </para>
+          </listitem>
+
+        </itemizedlist>
 
 
 
