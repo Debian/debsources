@@ -45,8 +45,8 @@ from debsources.consts import SUITES
 Base = declarative_base()
 
 
-# used for migrations, see scripts under python/migrate/
-DB_SCHEMA_VERSION = 7
+# used for migrations, see scripts under debsources/migrate/
+DB_SCHEMA_VERSION = 8
 
 
 class PackageName(Base):
@@ -210,14 +210,26 @@ class SuiteInfo(Base):
     version = Column(String, nullable=True)
     release_date = Column(Date, nullable=True)
     sticky = Column(Boolean, nullable=False)
+    aliases = relationship("SuiteAlias")
 
-    def __init__(self, name, sticky=False, version=None, release_date=None):
+    def __init__(self, name, sticky=False, version=None, release_date=None,
+                 aliases=[]):
         self.name = name
         if version:
             self.version = version
         if release_date:
             self.release_date = release_date
         self.sticky = sticky
+        if aliases:
+            self.aliases = aliases
+
+
+class SuiteAlias(Base):
+    """ Aliases for suites (ie: unstable for sid) """
+
+    __tablename__ = "suites_aliases"
+    alias = Column(String, primary_key=True)
+    suite = Column(String, ForeignKey('suites_info.name'))
 
 
 class File(Base):

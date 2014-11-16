@@ -273,6 +273,30 @@ class SourceMirror(object):
 
         return suites
 
+    def ls_suites_with_aliases(self):
+        """ list suites, as well as their aliases
+
+        Return value: { suite: [aliases] }
+        Example: { sid: [unstable], jessie: [testing] }
+
+        """
+        suites = {}
+
+        def add_suite(suite):
+            if suite not in suites:
+                suites[suite] = []
+
+        for f in os.listdir(self._dists_dir):
+            path = os.path.join(self._dists_dir, f)
+            if os.path.isdir(path):
+                if not os.path.islink(path):
+                    add_suite(f)
+                else:
+                    add_suite(os.readlink(path))
+                    suites[os.readlink(path)].append(f)
+
+        return suites
+
 
 class SourceMirrorArchive(SourceMirror):
     """Handle for a local Debian source mirror archive, i.e. a mirror of

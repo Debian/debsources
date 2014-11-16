@@ -10,7 +10,8 @@ from debsources.excepts import (
 from debsources.consts import SLOCCOUNT_LANGUAGES
 from debsources import statistics
 from debsources.models import (
-    PackageName, SourceFile, Checksum, Directory, Location, SuiteInfo)
+    PackageName, SourceFile, Checksum, Directory, Location, SuiteInfo,
+    SuiteAlias)
 
 from ..views import GeneralView, app, session
 from ..extract_stats import extract_stats
@@ -304,4 +305,20 @@ class SourceView(GeneralView):
             if version == "latest":  # we search the latest available version
                 return self._handle_latest_version(package, path)
             else:
+                # Check if an alias was used. If positive, handle the request
+                # as if the suite was used instead of the alias
+                check_for_alias = session.query(SuiteAlias) \
+                    .filter(SuiteAlias.alias == version).first()
+                if check_for_alias:
+                    version = check_for_alias.suite
+                try:
+                    versions_w_suites = PackageName.list_versions_w_suites(
+                        session, package)
+                except InvalidPackageOrVersionError:
+                    raise Http404Error("%s not found" % package)
+                for version_suite in versions_w_suites:
+                    if version in version_suite['suites']:
+                        return self._render_location(
+                            package, version_suite['version'], path)
+
                 return self._render_location(package, version, path)

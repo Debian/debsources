@@ -32,7 +32,7 @@ from debsources import statistics
 
 from debsources.consts import DEBIAN_RELEASES, SLOCCOUNT_LANGUAGES
 from debsources.debmirror import SourceMirror, SourcePackage
-from debsources.models import SuiteInfo, Suite, Package, \
+from debsources.models import SuiteInfo, Suite, SuiteAlias, Package, \
     HistorySize, HistorySlocCount
 from debsources.subprocess_workaround import subprocess_setup
 
@@ -241,7 +241,7 @@ def _rm_package(pkg, conf, session, db_package=None):
         logging.exception('failed to remove %s' % pkg)
 
 
-def _add_suite(conf, session, suite, sticky=False):
+def _add_suite(conf, session, suite, sticky=False, aliases=[]):
     """add suite to the table of static suite info
 
     """
@@ -253,9 +253,11 @@ def _add_suite(conf, session, suite, sticky=False):
         suite_reldate = suite_info['date']
         if sticky:
             assert suite_info['archived']
+    db_aliases = [SuiteAlias(alias=alias, suite=suite) for alias in aliases]
     db_suite = SuiteInfo(suite, sticky=sticky,
                          version=suite_version,
-                         release_date=suite_reldate)
+                         release_date=suite_reldate,
+                         aliases=db_aliases)
     if not conf['dry_run'] and 'db' in conf['backends']:
         session.add(db_suite)
 
@@ -338,6 +340,10 @@ def update_suites(status, conf, session, mirror):
 
     insert_q = sql.insert(Suite.__table__)
     insert_params = []
+
+    # load suites aliases
+    suites_aliases = mirror.ls_suites_with_aliases()
+
     for (suite, pkgs) in mirror.suites.iteritems():
         if not conf['dry_run'] and 'db' in conf['backends']:
             session.query(Suite).filter_by(suite=suite).delete()
@@ -368,7 +374,7 @@ def update_suites(status, conf, session, mirror):
 
         if not conf['dry_run'] and 'db' in conf['backends']:
             session.query(SuiteInfo).filter_by(name=suite).delete()
-            _add_suite(conf, session, suite)
+            _add_suite(conf, session, suite, aliases=suites_aliases[suite])
 
     if not conf['dry_run'] and 'db' in conf['backends'] \
        and insert_params:

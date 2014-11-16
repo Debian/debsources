@@ -406,6 +406,16 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
                                      follow_redirects=True).data)
         self.assertIn("2.03-2", rv['path'])
 
+    def test_suite_folder(self):
+        rv = json.loads(self.app.get('/api/src/ledit/sid/',
+                                     follow_redirects=True).data)
+        self.assertIn("2.03-2", rv['path'])
+
+    def test_suite_folder_alias(self):
+        rv = json.loads(self.app.get('/api/src/ledit/unstable/',
+                                     follow_redirects=True).data)
+        self.assertIn("2.03-2", rv['path'])
+
     def test_codesearch_box(self):
         rv = self.app.get('/src/ledit/2.03-2/ledit.ml/')
         self.assertIn('value="package:ledit "', rv.data)
