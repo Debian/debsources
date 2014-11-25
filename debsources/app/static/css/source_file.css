@@ -74,6 +74,7 @@ License: GNU Affero General Public License, version 3 or above.
 /* MESSAGES */
 
 #codetable #messages .message{
+    max-width: 600px; /* avoid overlap with infobox*/
     background-color: #feff6f;
     padding: 10px;
     margin-right: 10px;

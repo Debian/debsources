@@ -26,10 +26,16 @@
       <pre><code id="sourcecode" class="{% if file_language -%}
 					{{ file_language }}{% else %}no-highlight
 					{%- endif %}">{% for (line, highlight) in code -%}
-            <span id="line{{ loop.index }}" class="codeline {% if highlight -%} highlight {%- endif %}">{{ line }}</span>
+             <span id="line{{ loop.index }}" class="codeline {% if highlight -%} highlight {%- endif %}">{{ line }}{% if msg
+             and code.current_line == (msg.position+1) -%}
+                <pre id="messages"><div class="message">{% if msg.title -%}
+                  <strong>{{ msg.title }}</strong><br />
+                  {%- endif %}{% if msg.message -%}
+                     {{ msg.message }}
+                  {%- endif %}</div></pre>{%- endif %}</span>
           {%- endfor %}</code></pre>
     </td>
-    {% if msg -%}
+    <!--{% if msg -%}
     <td>
       <pre id="messages">
         {% for i in range(1, msg.position) -%}
@@ -40,6 +46,6 @@
           {{ msg.message }}
           {%- endif %}</div></pre>
     </td>
-    {%- endif %}
+    {%- endif %}-->
   </tr>
 </table>

@@ -82,7 +82,6 @@ class SourceCodeIterator(object):
             # end of file, we close it
             self.file.close()
             raise StopIteration
-
         return (line, class_)
 
     def get_number_of_lines(self):
