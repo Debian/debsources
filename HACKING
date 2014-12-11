@@ -51,6 +51,10 @@ Local Debsources deployment
   `root_dir` (the absolute path of your local Debsources Git repo) in the
   top-level `[DEFAULT]` section of the configuration file.
 
+  If you plan to use Flask's development server, setting the option
+  serve_static_files to true will permit it to serve javascript files
+  and icon images (normally statically served by Apache).
+
 - do an update run:
 
   $ bin/debsources-update -vv
