@@ -19,6 +19,7 @@
 import os
 import magic
 import stat
+from collections import namedtuple
 
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy import UniqueConstraint, PrimaryKeyConstraint
@@ -463,6 +464,11 @@ class HistorySlocCount(Base):
         self.suite = suite
         self.timestamp = timestamp
 
+# it's used in Location.get_stat
+# to bypass flake8 complaints, we do not inject the global namespace
+# with globals()["LongFMT"] = namedtuple...
+LongFMT = namedtuple("LongFMT", ["type", "perms", "size"])
+
 
 class Location(object):
     """ a location in a package, can be a directory or a file """
@@ -560,6 +566,45 @@ class Location(object):
         return self.path_to.rstrip("/")
 
     @staticmethod
+    def get_stat(sources_path):
+        """
+        Returns the filetype and permissions of the folder/file
+        on the disk, unix-styled.
+        """
+        # When porting to Python3, use stat.filemode directly
+        sources_stat = os.lstat(sources_path)
+        sources_mode, sources_size = sources_stat.st_mode, sources_stat.st_size
+        perm_flags = [
+            (stat.S_IRUSR, "r", "-"),
+            (stat.S_IWUSR, "w", "-"),
+            (stat.S_IXUSR, "x", "-"),
+            (stat.S_IRGRP, "r", "-"),
+            (stat.S_IWGRP, "w", "-"),
+            (stat.S_IXGRP, "x", "-"),
+            (stat.S_IROTH, "r", "-"),
+            (stat.S_IWOTH, "w", "-"),
+            (stat.S_IXOTH, "x", "-"),
+            ]
+        # XXX these flags should be enough.
+        type_flags = [
+            (stat.S_ISLNK, "l"),
+            (stat.S_ISREG, "-"),
+            (stat.S_ISDIR, "d"),
+            ]
+        # add the file type: d/l/-
+        file_type = " "
+        for ft, sign in type_flags:
+            if ft(sources_mode):
+                file_type = sign
+                break
+        file_perms = ""
+        for (flag, do_true, do_false) in perm_flags:
+            file_perms += do_true if (sources_mode & flag) else do_false
+
+        file_size = sources_size
+        return LongFMT(file_type, file_perms, file_size)
+
+    @staticmethod
     def get_path_links(endpoint, path_to):
         """
         returns the path hierarchy with urls, to use with 'You are here:'
@@ -587,6 +632,7 @@ class Directory(object):
         # if the directory is a toplevel one, we remove the .pc folder
         self.sources_path = location.sources_path
         self.toplevel = toplevel
+        self.location = location
 
     def get_listing(self):
         """
@@ -599,7 +645,9 @@ class Directory(object):
                 return "directory"
             else:
                 return "file"
-        listing = sorted(dict(name=f, type=get_type(f))
+        get_stat, join_path = self.location.get_stat, os.path.join
+        listing = sorted(dict(name=f, type=get_type(f),
+                              stat=get_stat(join_path(self.sources_path, f)))
                          for f in os.listdir(self.sources_path))
         if self.toplevel:
             listing = filter(lambda x: x['name'] != ".pc", listing)
@@ -649,28 +697,6 @@ class SourceFile(object):
         if shasum:
             shasum = shasum[0]
         return shasum
-
-    def get_permissions(self):
-        """
-        Returns the permissions of the folder/file on the disk, unix-styled.
-        """
-        flags = [
-            (stat.S_IRUSR, "r", "-"),
-            (stat.S_IWUSR, "w", "-"),
-            (stat.S_IXUSR, "x", "-"),
-            (stat.S_IRGRP, "r", "-"),
-            (stat.S_IWGRP, "w", "-"),
-            (stat.S_IXGRP, "x", "-"),
-            (stat.S_IROTH, "r", "-"),
-            (stat.S_IWOTH, "w", "-"),
-            (stat.S_IXOTH, "x", "-"),
-            ]
-        perms = os.stat(self.sources_path).st_mode
-        unix_style = ""
-        for (flag, do_true, do_false) in flags:
-            unix_style += do_true if (perms & flag) else do_false
-
-        return unix_style
 
     def istextfile(self):
         """True if self is a text file, False if it's not.

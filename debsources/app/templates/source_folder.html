@@ -12,6 +12,7 @@
 {% endblock %}
 
 {% block title %}Folder: {{ directory }}{% endblock %}
+
 {% block source_content %}
 
 {% if pkg_infos %}
@@ -19,27 +20,36 @@
 {{ infobox.render_infobox(pathl[0][0], pathl[1][0], pkg_infos) }}
 {% endif %}
 
-<h2>{{ self.title() }}</h2>
+<h2 id="folder_title">{{ self.title() }}</h2>
 
-<ul id="ls">
-  <li><a href="{{ url_for('source_html', path_to='/'.join(path.split('/')[:-1])) }}">
-      <img src="{{ config['ICONS_FOLDER'] }}22x22/places/folder.png"
-           alt="d " />.. (parent)</a>
-  </li>
+<table>
+  <tr>
+    <td class="item-img"><img src="{{ config['ICONS_FOLDER'] }}22x22/places/folder.png" alt="d " /></td>
+    {% if config["DIR_LS_LONG"] %}<td class="stat-type"></td>{% endif %} <!-- place-holder -->
+    <td class="stat-perms"></td> <!-- place-holder -->
+    {% if config["DIR_LS_LONG"] %}<td class="stat-size"></td>{% endif %} <!-- place-holder -->
+    <td class="item-name"><a href="{{ url_for('source_html', path_to='/'.join(path.split('/')[:-1])) }}">.. (parent)</a></td>
+  </tr>
 
 {% for dir in subdirs %}
-  <li><a href="{{ url_for('source_html', path_to=path+'/'+dir.name) }}">
-      <img src="{{ config['ICONS_FOLDER'] }}22x22/places/folder.png"
-           alt="d " />{{ dir.name }}</a>
-  </li>
+  <tr>
+    <td class="item-img"><img src="{{ config['ICONS_FOLDER'] }}22x22/places/folder.png" alt="d " /></td>
+    {% if config["DIR_LS_LONG"] %}<td class="stat-type"><span>{{ dir.stat.type }}</span></td>{% endif %}
+    <td class="stat-perms"><span>{{ dir.stat.perms }}</span></td>
+    {% if config["DIR_LS_LONG"] %}<td class="stat-size"><span>{{ "{:,d}".format(dir.stat.size) }}</span></td>{% endif %}
+    <td class="item-name"><a href="{{ url_for('source_html', path_to=path+'/'+dir.name) }}">{{ dir.name }}</a></td>
+  </tr>
 {% endfor %}
 
 {% for file_ in subfiles %}
-  <li><a href="{{ url_for('source_html', path_to=path+'/'+file_.name) }}">
-      <img src="{{ config['ICONS_FOLDER'] }}22x22/mimetypes/ascii.png"
-           alt="- " />{{ file_.name }}</a>
-  </li>
+  <tr>
+    <td class="item-img"><img src="{{ config['ICONS_FOLDER'] }}22x22/mimetypes/ascii.png" alt="- " /></td>
+    {% if config["DIR_LS_LONG"] %}<td class="stat-type"><span>{{ file_.stat.type }}</span></td>{% endif %}
+    <td class="stat-perms"><span>{{ file_.stat.perms }}</span></td>
+    {% if config["DIR_LS_LONG"] %}<td class="stat-size"><span>{{ "{:,d}".format(file_.stat.size) }}</span></td>{% endif %}
+    <td class="item-name"><a href="{{ url_for('source_html', path_to=path+'/'+file_.name) }}">{{ file_.name }}</a></td>
+  </tr>
 {% endfor %}
-</ul>
+</table>
 
 {% endblock %}

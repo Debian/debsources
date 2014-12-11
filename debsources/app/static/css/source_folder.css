@@ -3,12 +3,23 @@ Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
 License: GNU Affero General Public License, version 3 or above.
 */
 
-#ls{
-    list-style-type: none;
-}
-
-#ls img{
+table img {
     display: inline;
     vertical-align: middle;
     margin-right: 5px;
+}
+
+#folder_title {
+    display: inline-block;
+    margin-right: 1em;
+}
+
+
+.stat-type, .stat-perms {
+    font-family: "Lucida Console", "Courier", monospace;
+    font-weight: 400;
+}
+
+.stat-type {
+    padding-right: 0;
 }

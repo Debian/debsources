@@ -135,7 +135,12 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         self.assertEqual(rv['path'], "ledit/2.01-6")
         self.assertEqual(rv['package'], "ledit")
         self.assertEqual(rv['directory'], "2.01-6")
-        self.assertIn({'type': "file", 'name': "ledit.ml"}, rv['content'])
+        self.assertIn({"type": "file",
+                       "name": "ledit.ml",
+                       "stat": {"perms": "rw-r--r--",
+                                "size": 45858,
+                                "type": "-"}
+                       }, rv['content'])
 
     def test_source_file(self):
         rv = self.app.get('/src/ledit/2.01-6/ledit.ml/')
@@ -155,8 +160,8 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         # correct number of lines
         self.assertIn('1506 lines', rv.data)
 
-        # permissions of the file
-        self.assertIn('permissions: rw-r--r--', rv.data)
+        # stat of the file
+        self.assertIn('stat: -rw-r--r-- 45,858 bytes', rv.data)
 
         # raw file link
         self.assertIn('<a href="/data/main/l/ledit/2.01-6/ledit.ml">'

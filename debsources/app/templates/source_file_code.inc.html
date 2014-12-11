@@ -2,7 +2,7 @@
   <tr>
     <td>
     file content ({{ nlines }} line{% if nlines > 1 %}s{% endif %})
-    | permissions: {{ permissions }}
+    | stat: {{ stat.type }}{{ stat.perms }} {{ "{:,d}".format(stat.size) }} byte{% if stat.size > 1 %}s{% endif %}
     </td>
     <td style="text-align: right;">
     <a href="{{ url_for('source_html', path_to='/'.join(path.split('/')[:-1])) }}">parent folder</a>

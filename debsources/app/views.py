@@ -470,6 +470,7 @@ class SourceView(GeneralView):
         except (FileOrFolderNotFound, InvalidPackageOrVersionError):
             raise Http404ErrorSuggestions(package, version, path)
 
+        # TODO fix symbolic security, bug #761121
         # if the location is a symbolic link, we 403 (for security reasons)
         if location.issymlink():
             raise Http403Error("Symbolic folder or file")
@@ -501,7 +502,7 @@ class SourceView(GeneralView):
                     package=location.get_package(),
                     content=directory.get_listing(),
                     path=location.get_path_to(),
-                    pkg_infos=pkg_infos
+                    pkg_infos=pkg_infos,
                     )
 
     def _render_file(self, location):
@@ -526,7 +527,7 @@ class SourceView(GeneralView):
                     raw_url=file_.get_raw_url(),
                     path=location.get_path_to(),
                     text_file=file_.istextfile(),
-                    permissions=file_.get_permissions(),
+                    stat=location.get_stat(location.sources_path),
                     checksum=checksum,
                     number_of_duplicates=number_of_duplicates,
                     pkg_infos=pkg_infos
