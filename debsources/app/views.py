@@ -248,6 +248,10 @@ if 'SERVE_STATIC_FILES' in app.config and app.config['SERVE_STATIC_FILES']:
     def javascript(path):
         return flask.send_from_directory('/usr/share/javascript/', path)
 
+    @app.route('/icons/<path:path>')
+    def icons(path):
+        return flask.send_from_directory('/usr/share/icons/', path)
+
 
 # SEARCH #
 
