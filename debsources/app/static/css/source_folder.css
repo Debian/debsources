@@ -3,7 +3,7 @@ Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
 License: GNU Affero General Public License, version 3 or above.
 */
 
-table img {
+.dir-listing img {
     display: inline;
     vertical-align: middle;
     margin-right: 5px;
@@ -14,12 +14,29 @@ table img {
     margin-right: 1em;
 }
 
+.dir-listing tr td {
+    border: none;
+    padding-top: 1px;
+    padding-bottom: 0;
+}
 
+.item-img {
+    padding-right: 0;
+}
 .stat-type, .stat-perms {
     font-family: "Lucida Console", "Courier", monospace;
     font-weight: 400;
+    font-size: small;
 }
-
 .stat-type {
     padding-right: 0;
+}
+.stat-perms {
+    padding-right: 1em;
+}
+.stat-size {
+    padding-left: 0;
+    padding-right: 1em;
+    font-size: small;
+    text-align: right;
 }
