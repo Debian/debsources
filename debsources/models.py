@@ -467,7 +467,7 @@ class HistorySlocCount(Base):
 # it's used in Location.get_stat
 # to bypass flake8 complaints, we do not inject the global namespace
 # with globals()["LongFMT"] = namedtuple...
-LongFMT = namedtuple("LongFMT", ["type", "perms", "size"])
+LongFMT = namedtuple("LongFMT", ["type", "perms", "size", "symlink_dest"])
 
 
 class Location(object):
@@ -607,7 +607,12 @@ class Location(object):
             file_perms += do_true if (sources_mode & flag) else do_false
 
         file_size = sources_size
-        return LongFMT(file_type, file_perms, file_size)
+
+        symlink_dest = None
+        if file_type == "l":
+            symlink_dest = os.readlink(sources_path)
+
+        return LongFMT(file_type, file_perms, file_size, symlink_dest)
 
     @staticmethod
     def get_path_links(endpoint, path_to):

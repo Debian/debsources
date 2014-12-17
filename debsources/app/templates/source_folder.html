@@ -37,7 +37,11 @@
     {% if config["DIR_LS_LONG"] %}<td class="stat-type"><span>{{ dir.stat.type }}</span></td>{% endif %}
     <td class="stat-perms"><span>{{ dir.stat.perms }}</span></td>
     {% if config["DIR_LS_LONG"] %}<td class="stat-size"><span>{{ "{:,d}".format(dir.stat.size) }}</span></td>{% endif %}
-    <td class="item-name"><a href="{{ url_for('source_html', path_to=path+'/'+dir.name) }}">{{ dir.name }}</a></td>
+    <td class="item-name"><a href="{{ url_for('source_html', path_to=path+'/'+dir.name) }}">{{ dir.name }}</a>
+      {% if config["DIR_LS_LONG"] %}
+        {% if dir.stat.symlink_dest is not none %}{{ " → " + dir.stat.symlink_dest }}{% endif %}
+      {% endif %}
+    </td>
   </tr>
 {% endfor %}
 
@@ -47,7 +51,11 @@
     {% if config["DIR_LS_LONG"] %}<td class="stat-type"><span>{{ file_.stat.type }}</span></td>{% endif %}
     <td class="stat-perms"><span>{{ file_.stat.perms }}</span></td>
     {% if config["DIR_LS_LONG"] %}<td class="stat-size"><span>{{ "{:,d}".format(file_.stat.size) }}</span></td>{% endif %}
-    <td class="item-name"><a href="{{ url_for('source_html', path_to=path+'/'+file_.name) }}">{{ file_.name }}</a></td>
+    <td class="item-name"><a href="{{ url_for('source_html', path_to=path+'/'+file_.name) }}">{{ file_.name }}</a>
+      {% if config["DIR_LS_LONG"] %}
+        {% if file_.stat.symlink_dest is not none %}{{ " → " + file_.stat.symlink_dest }}{% endif %}
+      {% endif %}
+    </td>
   </tr>
 {% endfor %}
 </table>
