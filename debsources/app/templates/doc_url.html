@@ -17,7 +17,7 @@
 {% block breadcrumbs %}<a href="{{ url_for('doc') }}">doc</a> / url scheme{% endblock %}
 
 {% block content %}
-{% set url_prefix = "http://" + config.DOMAIN %}
+{% set url_prefix = "//" + config.DOMAIN %}
 
 <h2>{{ self.title() }}</h2>
 
