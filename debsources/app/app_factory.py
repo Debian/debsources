@@ -41,7 +41,7 @@ class AppWrapper(object):
         if config is None:
             self.setup_conf()
         else:
-            self.app.config = config
+            self.app.config.update(config)
 
     def go(self):
         """
