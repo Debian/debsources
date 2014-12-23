@@ -22,6 +22,7 @@ from nose.plugins.attrib import attr
 
 from debsources.tests.db_testing import DbTestFixture
 from debsources.tests.testdata import TEST_DB_NAME
+from debsources.app.app_factory import AppWrapper
 
 
 @attr('webapp')
@@ -54,6 +55,24 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
     def tearDownClass(cls):
         cls.app_wrapper.engine.dispose()
         cls.db_teardown_cls()
+
+    def test_app_config(self):
+        """use existing config to initialize app wrapper"""
+        config = dict(domain="test.debian.test")
+        app_wrapper = AppWrapper(config=config)
+        self.assertEqual(app_wrapper.app.config["domain"],
+                         "test.debian.test")
+
+    def test_invalid_loglevel(self):
+        """test with wrong supplied logging level"""
+        import logging
+        config = dict(LOG_LEVEL="invalid-test")
+        app_wrapper = AppWrapper(config=config)
+        app_wrapper.setup_logging()
+        logger = app_wrapper.app.logger
+        # no name, just know the index
+        # the second handler is our streamhandler.
+        self.assertEqual(logger.handlers[1].level, logging.INFO)
 
     def test_ping(self):
         rv = json.loads(self.app.get('/api/ping/').data)
