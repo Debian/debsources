@@ -25,8 +25,8 @@ Development
   well (short URL: <http://deb.li/debsrceasy>)
 
 [1]: http://git-scm.com/
-[2]: http://anonscm.debian.org/gitweb/?p=qa/debsources.git
-[4]: http://lists.debian.org/debian-qa/
+[2]: https://anonscm.debian.org/gitweb/?p=qa/debsources.git
+[4]: https://lists.debian.org/debian-qa/
 [5]: http://www.oftc.net/
 [6]: https://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=qa.debian.org;tag=debsources
 [7]: https://bugs.debian.org/cgi-bin/pkgreport.cgi?package=qa.debian.org;include=subject:debsources;users=debian-qa@lists.debian.org;tag=gift

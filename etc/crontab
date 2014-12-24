@@ -6,7 +6,7 @@ DEBSRC=/srv/debsources
 # one for codesearch.d.n, just in case.
 
 # # 4 runs a day, ideally after the mirror network has stabilized.
-# # See http://ftp-master.debian.org/#dinstall for the big bang reference.
+# # See https://ftp-master.debian.org/#dinstall for the big bang reference.
 # 1   4,10,16,22 *   *   *   debsources  $DEBSRC/bin/debsources-main
 
 # Extra run on Friday, for synchronization with codesearch.d.n, just in case

@@ -13,7 +13,7 @@
 # details.
 #
 # You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import unittest
 import json
@@ -264,7 +264,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         self.assertEqual(rv["pkg_infos"]["vcs_browser"], p)
         self.assertEqual(rv["pkg_infos"]["vcs_type"], "svn")
         self.assertEqual(rv["pkg_infos"]["pts_link"],
-                         "http://tracker.debian.org/pkg/libcaca")
+                         "https://tracker.debian.org/pkg/libcaca")
         self.assertEqual(rv["pkg_infos"]["ctags_count"], 3145)
 
     def test_pkg_infobox_embed(self):

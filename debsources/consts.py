@@ -14,7 +14,7 @@
 # details.
 #
 # You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import datetime
 
@@ -27,7 +27,7 @@ import datetime
 MAX_KEY_LENGTH = 8000
 
 # this list should be kept in sync with
-# http://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-VCS-fields
+# https://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-VCS-fields
 VCS_TYPES = ("arch", "bzr", "cvs", "darcs", "git", "hg", "mtn", "svn")
 
 # this list should be kept in sync with languages supported by sloccount. A

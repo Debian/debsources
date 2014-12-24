@@ -1,5 +1,5 @@
 /*
-	http://www.debian.org Stylesheet
+	https://www.debian.org Stylesheet
 
 	Copyright 2011 Kalle Söderman
 
@@ -15,7 +15,7 @@
 	this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
 	Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-	The license text can also be found at http://www.gnu.org/copyleft/gpl.html and
+	The license text can also be found at https://www.gnu.org/copyleft/gpl.html and
 	/usr/share/common-licenses/GPL-2 on Debian.
 */
 	
@@ -425,7 +425,7 @@ pre {
 }
 tt, code {
 	font-family: monospace;
-	/* see http://lists.debian.org/debian-www/2011/08/msg00181.html */
+	/* see https://lists.debian.org/debian-www/2011/08/msg00181.html */
 	/* white-space: pre; */
 	color: black;
 }

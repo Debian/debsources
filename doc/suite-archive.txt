@@ -36,4 +36,4 @@ version	name	release date	pkgs	pkgs	notes
 
 7	wheezy	 4 May 2013	~37,000	~17,600	Sources, pool, .dsc
 
-(some data from http://en.wikipedia.org/wiki/Debian#Timeline)
+(some data from https://en.wikipedia.org/wiki/Debian#Timeline)

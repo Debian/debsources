@@ -14,7 +14,7 @@
 # details.
 #
 # You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
 import magic
@@ -99,7 +99,7 @@ class PackageName(Base):
         returns versions with suites
         """
         # FIXME a left outer join on (Package, Suite) is more preferred.
-        # However, per http://stackoverflow.com/a/997467, custom aggregation
+        # However, per https://stackoverflow.com/a/997467, custom aggregation
         # function to concatenate the suite names for the group_by should be
         # defined on database connection level.
         versions = PackageName.list_versions(session, packagename)

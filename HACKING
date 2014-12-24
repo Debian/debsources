@@ -36,7 +36,7 @@ Local Debsources deployment
 
   where debsources is the DB name. The last parameter must be a valid
   SQLAlchemy database URL; see
-  http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls for
+  https://sqlalchemy.readthedocs.org/en/latest/core/engines.html#database-urls for
   details on how to connect to remote databases.
 
 - $ cp doc/examples/sample-config.local.ini etc/config.local.ini
@@ -85,7 +85,7 @@ All new Debsources code should be [PEP8][1] compliant and pass [pyflakes][2]
 validation. Before submitting patches, please make sure that the lines of code
 they touch conform to such requirements.
 
-[1]: http://legacy.python.org/dev/peps/pep-0008/
+[1]: https://www.python.org/dev/peps/pep-0008/
 [2]: https://pypi.python.org/pypi/pyflakes
 
 If you develop on Debian(-based distros), a good way to check that this is the

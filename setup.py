@@ -13,7 +13,7 @@
 # details.
 #
 # You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import glob
 from setuptools import setup, find_packages
@@ -40,6 +40,6 @@ setup(
     long_description=long_description,
     description=description,
     license="AGPL3+",
-    url="http://anonscm.debian.org/gitweb/?p=qa/debsources.git",
+    url="https://anonscm.debian.org/gitweb/?p=qa/debsources.git",
     platforms=['any'],
 )
