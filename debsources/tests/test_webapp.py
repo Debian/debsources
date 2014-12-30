@@ -128,7 +128,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
     def test_packages_list(self):
         rv = json.loads(self.app.get('/api/list/').data)
         self.assertIn({'name': "libcaca"}, rv['packages'])
-        self.assertEqual(len(rv['packages']), 14)
+        self.assertEqual(len(rv['packages']), 16)
 
     def test_by_prefix(self):
         rv = json.loads(self.app.get('/api/prefix/libc/').data)
@@ -245,8 +245,8 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
 
     def test_search_ctag(self):
         rv = json.loads(self.app.get('/api/ctag/?ctag=name').data)
-        self.assertEqual(rv["count"], 88)
-        self.assertEqual(len(rv["results"]), 88)
+        self.assertEqual(rv["count"], 113)
+        self.assertEqual(len(rv["results"]), 113)
 
     def test_search_ctag_within_package(self):
         rv = json.loads(self.app.get(
@@ -283,7 +283,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         self.assertEqual(rv["suite"], "jessie")
         # self.assertEqual(rv["results"]["debian_jessie.ctags"], 21767)
         # self.assertEqual(rv["results"]["debian_jessie.disk_usage"], 43032)
-        self.assertEqual(rv["results"]["debian_jessie.source_files"], 1677)
+        self.assertEqual(rv["results"]["debian_jessie.source_files"], 2038)
         self.assertEqual(rv["results"]["debian_jessie.sloccount.python"], 2916)
 
     def test_stats_all(self):

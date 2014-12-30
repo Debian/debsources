@@ -51,11 +51,11 @@ class Stats(unittest.TestCase, DbTestFixture):
         sizes = {
             'squeeze': 44316,
             'wheezy': 39688,
-            'jessie': 43032,
+            'jessie': 50528,
             'sid': 43032,
-            'experimental': 6520,
+            'experimental': 12968,
         }
-        total_size = 122628
+        total_size = 136572
         self.assertSuiteCountsEqual(sizes, statistics.disk_usage)
         self.assertEqual(total_size, statistics.disk_usage(self.session))
 
@@ -64,11 +64,11 @@ class Stats(unittest.TestCase, DbTestFixture):
         source_packages = {
             'squeeze': 13,
             'wheezy': 12,
-            'jessie': 12,
+            'jessie': 13,
             'sid': 12,
-            'experimental': 1,
+            'experimental': 2,
         }
-        total_source_packages = 31
+        total_source_packages = 33
         self.assertSuiteCountsEqual(source_packages,
                                     statistics.source_packages)
         self.assertEqual(total_source_packages,
@@ -79,38 +79,39 @@ class Stats(unittest.TestCase, DbTestFixture):
         source_files = {
             'squeeze': 2024,
             'wheezy': 1632,
-            'jessie': 1677,
+            'jessie': 2038,
             'sid': 1677,
-            'experimental': 645,
+            'experimental': 1396,
         }
-        total_files = 5489
+        total_files = 6601
         self.assertSuiteCountsEqual(source_files, statistics.source_files)
         self.assertEqual(total_files, statistics.source_files(self.session))
 
     @istest
     def slocCountsMatchReferenceDb(self):
         slocs_jessie = {
-            'ansic': 140353,
+            'ansic': 166724,
             'asm': 65,
             'awk': 25,
             'cpp': 41458,
             'cs': 1213,
             'java': 916,
             'lex': 223,
-            'lisp': 2167,
-            'makefile': 1924,
+            'lisp': 2193,
+            'makefile': 2092,
             'ml': 5044,
             'objc': 836,
-            'perl': 64,
+            'perl': 1199,
             'python': 2916,
             'ruby': 193,
-            'sh': 25022,
+            'sed': 16,
+            'sh': 29984,
             'sql': 237,
             'xml': 14932,
             'yacc': 312,
         }
-        slocs_python = 7760
-        slocs_cpp_exp = 36755
+        slocs_python = 8740
+        slocs_cpp_exp = 87521
         self.assertEqual(slocs_jessie,
                          statistics.sloccount_summary(self.session,
                                                       suite='jessie'))
@@ -123,13 +124,13 @@ class Stats(unittest.TestCase, DbTestFixture):
     @istest
     def ctagsCountsMatchReferenceDb(self):
         ctags = {
-            'squeeze': 30633,
-            'wheezy': 20139,
-            'jessie': 21395,
-            'sid': 21395,
-            'experimental': 4945,
+            'squeeze': 30644,
+            'wheezy': 20150,
+            'jessie': 23444,
+            'sid': 21406,
+            'experimental': 17284,
         }
-        total_ctags = 70166
+        total_ctags = 84576
         self.assertSuiteCountsEqual(ctags, statistics.ctags)
         self.assertEqual(total_ctags, statistics.ctags(self.session))
 
@@ -137,8 +138,8 @@ class Stats(unittest.TestCase, DbTestFixture):
     def slocPerPkgMatchReferenceDb(self):
         LARGEST = ('gnubg', '1.02.000-2', 124353)
         SMALLEST = ('susv3', '6.1', 10)
-        LARGEST_exp = ('ledger', '3.0.0~20130313+b608ed2-1', 45848)
-        SMALLEST_exp = LARGEST_exp
+        LARGEST_exp = ('beignet', '1.0.0-1', 81413)
+        SMALLEST_exp = ('ledger', '3.0.0~20130313+b608ed2-1', 45848)
 
         slocs_all = statistics.sloc_per_package(self.session)
         self.assertEqual(slocs_all[0], LARGEST)
@@ -152,15 +153,15 @@ class Stats(unittest.TestCase, DbTestFixture):
     @istest
     def areaFiltersMatchReferenceDb(self):
         self.assertEqual(statistics.disk_usage(self.session),
-                         122628)
+                         136572)
         self.assertEqual(statistics.disk_usage(self.session, areas=['main']),
-                         104568)
+                         111016)
         self.assertEqual(statistics.disk_usage(self.session,
                                                suite='wheezy', areas=['main']),
                          35824)
 
         area_count = statistics.source_packages(self.session, areas=['main'])
-        self.assertEqual(area_count, 13)
+        self.assertEqual(area_count, 14)
         self.assertLessEqual(area_count,
                              statistics.source_packages(self.session))
 
@@ -170,10 +171,10 @@ class Stats(unittest.TestCase, DbTestFixture):
 
         area_count = statistics.sloccount_lang(self.session,
                                                'ansic', areas=['non-free'])
-        self.assertEqual(area_count, 121155)
+        self.assertEqual(area_count, 147526)
         self.assertLessEqual(area_count,
                              statistics.sloccount_lang(self.session, 'ansic'))
 
         area_count = statistics.ctags(self.session, areas=['main'])
-        self.assertEqual(area_count, 43622)
+        self.assertEqual(area_count, 55994)
         self.assertLessEqual(area_count, statistics.ctags(self.session))

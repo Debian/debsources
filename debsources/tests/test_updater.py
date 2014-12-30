@@ -288,32 +288,32 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
 
     @istest
     def sizeMatchesReferenceDb(self):
-        EXPECTED_SIZE = 122628
+        EXPECTED_SIZE = 136572
         self.assertEqual(EXPECTED_SIZE, self.stats['total.disk_usage'])
 
     @istest
     def statsMatchReferenceDb(self):
         expected_stats = {  # just a few samples
-            'total.ctags': 70166,
-            'debian_sid.ctags': 21395,
-            'debian_squeeze.ctags': 30633,
-            'debian_experimental.disk_usage': 6520,
-            'total.source_files': 5489,
-            'debian_experimental.source_files': 645,
-            'debian_jessie.source_files': 1677,
-            'total.source_packages': 31,
+            'total.ctags': 84576,
+            'debian_sid.ctags': 21406,
+            'debian_squeeze.ctags': 30644,
+            'debian_experimental.disk_usage': 12968,
+            'total.source_files': 6601,
+            'debian_experimental.source_files': 1396,
+            'debian_jessie.source_files': 2038,
+            'total.source_packages': 33,
             'debian_squeeze.source_packages': 13,
             'debian_wheezy.source_packages': 12,
             'debian_sid.sloccount.awk': 25,
             'debian_sid.sloccount.cpp': 41458,
             'debian_squeeze.sloccount.cpp': 36508,
             'debian_wheezy.sloccount.cpp': 37375,
-            'total.sloccount.perl': 1838,
-            'total.sloccount.python': 7760,
+            'total.sloccount.perl': 2973,
+            'total.sloccount.python': 8740,
             'debian_wheezy.sloccount.python': 2798,
             'debian_squeeze.sloccount.ruby': 193,
             'debian_wheezy.sloccount.ruby': 193,
-            'total.sloccount': 759354,
+            'total.sloccount': 873445,
             'debian_squeeze.sloccount': 315750,
         }
         self.assertDictContainsSubset(expected_stats, self.stats)
