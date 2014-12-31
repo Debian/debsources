@@ -105,6 +105,17 @@
     }}/src/<strong>packagename</strong>/<strong>version</strong>/<strong>path/to/file</strong></span>
   <a href="{{ url_prefix }}/src/cowsay/3.03%2Bdfsg1-4/cowsay">See example</a>
 </p>
+<p>
+  If recognized as a text file, the source file will be syntax highlighted,
+  automatically detecting the relevant language. Files not recognized as text
+  files will be offered for download. It is possible to override the detected
+  language appending <tt>?lang=<em>LANGUAGE</em></tt> to the source file
+  URL; <tt><em>LANGUAGE</em></tt> should be one of
+  the <a href="http://highlightjs.readthedocs.org/en/latest/css-classes-reference.html">languages
+  supported by highlight.js</a> (use one of the double-quoted strings in
+  parentheses). <tt>?lang=none</tt> can be used to force displaying a file (as
+  opposed to downloading it) without any syntax highlighting.
+</p>
 
 <p>
   To point a specific line in a source file:
