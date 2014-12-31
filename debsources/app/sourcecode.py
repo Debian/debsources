@@ -19,7 +19,8 @@ from debsources.filetype import get_highlightjs_language
 
 
 class SourceCodeIterator(object):
-    def __init__(self, filepath, hl=None, msg=None, encoding="utf8"):
+    def __init__(self, filepath, hl=None, msg=None, encoding="utf8",
+                 lang=None):
         """
         creates a new SourceCodeIterator object
 
@@ -47,6 +48,7 @@ class SourceCodeIterator(object):
         # TODO: proper generator (but 'with' is not available in jinja2)
 
         self.encoding = encoding
+        self.lang = lang
         self.current_line = 0
         self.number_of_lines = None
         self.msg = msg
@@ -98,7 +100,8 @@ class SourceCodeIterator(object):
         Returns a class name, usable by highlight.hs, to help it to guess
         the source language.
         """
-        return get_highlightjs_language(self.filename, self.firstline)
+        return get_highlightjs_language(self.filename,
+                                        self.firstline, self.lang)
 
     def get_msgdict(self):
         """

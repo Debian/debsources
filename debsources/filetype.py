@@ -205,17 +205,23 @@ def get_filetype_from_filename(filename):
     return None
 
 
-def get_highlightjs_language(filename, firstline):
+def get_highlightjs_language(filename, firstline, lang):
     """
     Returns the highligth.js string corresponding to a language
     (used for syntactic code coloration).
     """
+    if lang is not None:
+        if lang not in highlightjs.itervalues():
+            return None
+        else:
+            return lang
+
     firstline = firstline.rstrip()
-    language = get_filetype(filename, firstline)
-    if language is None or language not in highlightjs.keys():
+    lang = get_filetype(filename, firstline)
+    if lang is None or lang not in highlightjs.keys():
         return None
     else:
-        return highlightjs[language]
+        return highlightjs[lang]
 
 
 def is_text_file(mimetype):

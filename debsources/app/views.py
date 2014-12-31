@@ -607,8 +607,12 @@ def render_source_file_html(templatename, **kwargs):
     else:  # file
         # more work to do with files
 
+        # as long as 'lang' is in keys, then it's a text_file
+        lang = None
+        if 'lang' in request.args:
+            lang = request.args['lang']
         # if the file is not a text file, we redirect to it
-        if not(kwargs['text_file']):
+        elif not(kwargs['text_file']):
             return redirect(kwargs['raw_url'])
 
         sources_path = kwargs['raw_url'].replace(app.config['SOURCES_STATIC'],
@@ -633,7 +637,7 @@ def render_source_file_html(templatename, **kwargs):
 
         # we preprocess the file with SourceCodeIterator
         sourcefile = SourceCodeIterator(
-            sources_path, hl=highlight, msg=msg,)
+            sources_path, hl=highlight, msg=msg, lang=lang)
 
         return render_template(
             templatename,
