@@ -201,6 +201,19 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
                       rv.data)
         self.assertNotIn('<div id="logo">', rv.data)
 
+    def test_source_file_lang(self):
+        rv = self.app.get('/src/make-doc-non-dfsg/4.0-2/doc/make.info-1')
+        # redirection to the raw file.
+        self.assertNotEqual('200', rv.status_code)
+        # no redirection. no highlight
+        rv = self.app.get('/src/make-doc-non-dfsg/4.0-2/doc/'
+                          'make.info-1/?lang=none')
+        self.assertIn('<code id="sourcecode" class="no-highlight">', rv.data)
+        # no redirection. highlight with cpp syntax
+        rv = self.app.get('/src/make-doc-non-dfsg/4.0-2/doc/'
+                          'make.info-1/?lang=cpp')
+        self.assertIn('<code id="sourcecode" class="cpp">', rv.data)
+
     def test_errors(self):
         rv = json.loads(self.app.get('/api/src/blablabla/').data)
         self.assertEqual(rv['error'], 404)
