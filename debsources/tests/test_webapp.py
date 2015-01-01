@@ -161,6 +161,11 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
                                 "type": "-"}
                        }, rv['content'])
 
+    def test_symlink(self):
+        rv = self.app.get('/src/beignet/1.0.0-1/README.md/')
+        # redirects to symlink destination
+        self.assertIn('/src/beignet/1.0.0-1/docs/Beignet.mdwn/', rv.data)
+
     def test_source_file(self):
         rv = self.app.get('/src/ledit/2.01-6/ledit.ml/')
 
