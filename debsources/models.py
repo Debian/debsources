@@ -523,6 +523,12 @@ class Location(object):
             debian_path,
             self.path_to)
 
+        self.version_path = os.path.join(
+            sources_dir,
+            debian_path,
+            package,
+            version)
+
         if not(os.path.exists(self.sources_path)):
             raise FileOrFolderNotFound("%s" % (self.path_to))
 
@@ -539,9 +545,8 @@ class Location(object):
         """ True if sels is a file, False if it's not """
         return os.path.isfile(self.sources_path)
 
-    def issymlink(self):
-        """
-        True if a folder/file is a symbolic link file, False if it's not
+    def is_symlink(self):
+        """ True if a folder/file is a symbolic link file, False if it's not
         """
         return os.path.islink(self.sources_path)
 

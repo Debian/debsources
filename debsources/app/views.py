@@ -470,10 +470,21 @@ class SourceView(GeneralView):
         except (FileOrFolderNotFound, InvalidPackageOrVersionError):
             raise Http404ErrorSuggestions(package, version, path)
 
-        # TODO fix symbolic security, bug #761121
-        # if the location is a symbolic link, we 403 (for security reasons)
-        if location.issymlink():
-            raise Http403Error("Symbolic folder or file")
+        if location.is_symlink():
+            # check if it's secure
+            symlink_dest = os.readlink(location.sources_path)
+            dest = os.path.normpath(  # absolute, target file
+                os.path.join(os.path.dirname(location.sources_path),
+                             symlink_dest))
+            # note: adding trailing slash because normpath drops them
+            if dest.startswith(os.path.normpath(location.version_path) + '/'):
+                # symlink is safe; redirect to its destination
+                return dict(redirect=os.path.normpath(
+                    os.path.join(os.path.dirname(location.path_to),
+                                 symlink_dest)))
+            else:
+                raise Http403Error(
+                    'insecure symlink, pointing outside package/version/')
 
         if location.is_dir():  # folder, we list its content
             return self._render_directory(location)
