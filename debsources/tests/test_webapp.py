@@ -17,6 +17,7 @@
 
 import unittest
 import json
+import os
 
 from nose.plugins.attrib import attr
 
@@ -45,6 +46,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         uri = "postgresql:///" + TEST_DB_NAME
         app_wrapper.app.config["SQLALCHEMY_DATABASE_URI"] = uri
         app_wrapper.app.config['LIST_OFFSET'] = 5
+        app_wrapper.app.testing = True
 
         app_wrapper.go()
 
@@ -163,8 +165,36 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
 
     def test_symlink(self):
         rv = self.app.get('/src/beignet/1.0.0-1/README.md/')
-        # redirects to symlink destination
+
+        # safe symlink
         self.assertIn('/src/beignet/1.0.0-1/docs/Beignet.mdwn/', rv.data)
+
+        # unsafe symlinks (relatives and absolutes)
+
+        sources_dir = os.path.join(self.app_wrapper.app.config['SOURCES_DIR'])
+        s_relative = os.path.join(sources_dir,
+                                  'main/b/beignet/1.0.0-1/relative-link')
+        s_absolute = os.path.join(sources_dir,
+                                  'main/b/beignet/1.0.0-1/absolute-link')
+        try:
+            # create symlinks
+            if not os.path.lexists(s_relative):
+                os.symlink('../../../../non-free/b/bsdgames-nonfree/'
+                           + '2.17-3/debian/control',
+                           s_relative)
+            if not os.path.lexists(s_absolute):
+                os.symlink('/etc/passwd', s_absolute)
+
+            # try to access them via Debsources
+            rv = self.app.get('/src/beignet/1.0.0-1/relative-link/')
+            self.assertEqual(403, rv.status_code)
+            rv = self.app.get('/src/beignet/1.0.0-1/absolute-link/')
+            self.assertEqual(403, rv.status_code)
+        finally:  # clean up
+            if os.path.lexists(s_relative):
+                os.remove(s_relative)
+            if os.path.lexists(s_absolute):
+                os.remove(s_absolute)
 
     def test_source_file(self):
         rv = self.app.get('/src/ledit/2.01-6/ledit.ml/')
@@ -209,7 +239,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
     def test_source_file_lang(self):
         rv = self.app.get('/src/make-doc-non-dfsg/4.0-2/doc/make.info-1')
         # redirection to the raw file.
-        self.assertNotEqual('200', rv.status_code)
+        self.assertEqual(200, rv.status_code)
         # no redirection. no highlight
         rv = self.app.get('/src/make-doc-non-dfsg/4.0-2/doc/'
                           'make.info-1/?lang=none')
