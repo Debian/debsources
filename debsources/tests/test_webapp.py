@@ -237,9 +237,10 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         self.assertNotIn('<div id="logo">', rv.data)
 
     def test_source_file_lang(self):
-        rv = self.app.get('/src/make-doc-non-dfsg/4.0-2/doc/make.info-1')
+        # note we must have a trailing slash here.
+        rv = self.app.get('/src/make-doc-non-dfsg/4.0-2/doc/make.info-1/')
         # redirection to the raw file.
-        self.assertEqual(200, rv.status_code)
+        self.assertEqual(302, rv.status_code)
         # no redirection. no highlight
         rv = self.app.get('/src/make-doc-non-dfsg/4.0-2/doc/'
                           'make.info-1/?lang=none')
