@@ -28,7 +28,7 @@ from debsources.excepts import Http500Error, Http404Error
 # to generate PTS link safely (for internal links we use url_for)
 try:
     from werkzeug.urls import url_quote
-except ImportError:
+except ImportError:  # pragma: no cover
     from urlparse import quote as url_quote
 
 
@@ -48,7 +48,7 @@ class Infobox(object):
                              PackageName.name == self.package)
                      .first())
 
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             raise Http500Error(e)
 
         return infos
@@ -62,7 +62,7 @@ class Infobox(object):
                               Package.name_id == PackageName.id,
                               PackageName.name == self.package)
                       .all())
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             raise Http500Error(e)
 
         return [x[0] for x in suites]
@@ -77,7 +77,7 @@ class Infobox(object):
                             PackageName.name == self.package)
                     .order_by(SlocCount.count.desc())
                     .all())
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             raise Http500Error(e)
 
         return [(x.language, x.count) for x in sloc]
@@ -91,7 +91,7 @@ class Infobox(object):
                               Package.name_id == PackageName.id,
                               PackageName.name == self.package)
                       .all())
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             raise Http500Error(e)
 
         return dict([(x.metric, x.value) for x in metric])
@@ -113,7 +113,7 @@ class Infobox(object):
                                    Package.name_id == PackageName.id,
                                    PackageName.name == self.package)
                            .count())
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             raise Http500Error(e)
 
         return ctags_count
@@ -131,7 +131,7 @@ class Infobox(object):
         pkg_infos = dict()
 
         infos = self._get_direct_infos()
-        if infos is None:
+        if infos is None:  # pragma: no cover
             raise Http404Error()
 
         pkg_infos["area"] = infos.area
