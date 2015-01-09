@@ -115,10 +115,10 @@ var debsources = function(message_pos) {
 
         if (!event.shiftKey || !last_clicked) {
             last_clicked = callerElement;
-            change_hash_without_scroll(callerElement, "L" + callerElement.innerText);
+            change_hash_without_scroll(callerElement, "L" + (callerElement.textContent || callerElement.innerText));
         } else {
-            var first_line = parseInt(last_clicked.innerText);
-            var second_line = parseInt(callerElement.innerText);
+            var first_line = parseInt(last_clicked.textContent || last_clicked.innerText);
+            var second_line = parseInt(callerElement.textContent || callerElement.innerText);
 
             if (second_line < first_line) {
                 var tmp = first_line;
