@@ -30,6 +30,12 @@
     }}/search/<strong>query</strong></span>
   <a href="{{ url_prefix }}/search/hello">See example</a>
 </p>
+<p>
+  A suite parameter can be given to limit search to a given suite.
+  <span class="url">{{ url_prefix
+    }}/search/<strong>query?suite=suite_name</strong></span>
+  <a href="{{ url_prefix }}/search/hello?suite=squeeze">See example</a>
+</p>
 
 <h4>File search</h4>
 <p>
@@ -64,6 +70,12 @@
     }}/prefix/<strong>prefix</strong></span>
   <a href="{{ url_prefix }}/prefix/libz">See example</a>
 </p>
+<p>
+  A suite parameter can be given to limit listing to a given suite.
+  <span class="url">{{ url_prefix
+    }}/prefix/<strong>prefix?suite=suite_name</strong></span>
+  <a href="{{ url_prefix }}/prefix/libz?suite=squeeze">See example</a>
+</p>
 
 <h3>Package versions</h3>
 
@@ -72,6 +84,13 @@
   <span class="url">{{ url_prefix
     }}/src/<strong>packagename</strong></span>
   <a href="{{ url_prefix }}/src/ocaml">See example</a>
+</p>
+
+<p>
+  a suite parameter can be given to limit listing to a given suite.
+  <span class="url">{{ url_prefix
+    }}/src/<strong>packagename?suite=suite_name</strong></span>
+  <a href="{{ url_prefix }}/src/ocaml?suite=squeeze">See example</a>
 </p>
 
 
