@@ -87,6 +87,17 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         self.assertEqual(rv['query'], 'gnubg')
         self.assertEqual(rv['results']['other'], [])
         self.assertEqual(rv['results']['exact'], {'name': "gnubg"})
+        # with suite specified
+        rv = json.loads(self.app.get('/api/search/gnubg/?suite=squeeze').data)
+        self.assertEqual(rv['query'], 'gnubg')
+        self.assertEqual(rv['results']['other'], [])
+        self.assertEqual(rv['results']['exact'], {'name': "gnubg"})
+        # with a non-existing suite name specified
+        rv = json.loads(
+            self.app.get('/api/search/gnubg/?suite=nonexisting').data)
+        self.assertEqual(rv['query'], 'gnubg')
+        self.assertEqual(rv['results']['other'], [])
+        self.assertIsNone(rv['results']['exact'])
 
         # other results
         rv = json.loads(self.app.get('/api/search/gnu/').data)
@@ -94,7 +105,21 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         self.assertEqual(rv['results']['other'], [{'name': "gnubg"}])
         self.assertIsNone(rv['results']['exact'])
 
-    def test_case_insensitive_package_search(self):
+    def test_package_search(self):
+        # test exact search result
+        rv = self.app.get('/search/gnubg/')
+        self.assertIn("/src/gnubg/", rv.data)
+        # with suite specified
+        rv = self.app.get('/search/gnubg/?suite=squeeze')
+        self.assertIn("/src/gnubg/", rv.data)
+        # with a non-existing suite name specified
+        rv = self.app.get('/search/gnubg/?suite=nonexisting')
+        self.assertNotIn("/src/gnubg/", rv.data)
+        # other results
+        rv = self.app.get('/search/gnu/')
+        self.assertIn("/src/gnubg/", rv.data)
+
+    def test_api_case_insensitive_package_search(self):
         # exact search (lower case)
         rv = json.loads(self.app.get('/api/search/gnubg/').data)
         self.assertEqual(rv['query'], 'gnubg')
@@ -104,6 +129,24 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         rv = json.loads(self.app.get('/api/search/GnUbG/').data)
         self.assertEqual(rv['query'], 'GnUbG')
         self.assertEqual(rv['results']['other'], [{'name': "gnubg"}])
+
+        # suite specified (mixed case)
+        rv = json.loads(self.app.get('/api/search/gnubg/?suite=SQueeZe').data)
+        self.assertEqual(rv['query'], 'gnubg')
+        self.assertEqual(rv['results']['exact'], {'name': "gnubg"})
+
+    def test_case_insensitive_package_search(self):
+        # exact search (mixed case)
+        rv = self.app.get('/search/gNuBg/')
+        self.assertIn("/src/gnubg/", rv.data)
+
+        # with suite specified (mixed case)
+        rv = self.app.get('/search/gnubg/?suite=sQuEeZe')
+        self.assertIn("/src/gnubg/", rv.data)
+
+        # other results (mixed case)
+        rv = self.app.get('/search/gNu/')
+        self.assertIn("/src/gnubg/", rv.data)
 
     def test_static_pages(self):
         rv = self.app.get('/')
@@ -135,22 +178,92 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
     def test_api_by_prefix(self):
         rv = json.loads(self.app.get('/api/prefix/libc/').data)
         self.assertIn({'name': "libcaca"}, rv['packages'])
+        # suite specified
+        rv = json.loads(self.app.get('/api/prefix/libc/?suite=squeeze').data)
+        self.assertIn({'name': "libcaca"}, rv['packages'])
+        # a non-existing suite specified
+        rv = json.loads(
+            self.app.get('/api/prefix/libc/?suite=non-exsiting').data)
+        self.assertEqual([], rv['packages'])
+        # special suite name "all" is specified
+        rv = json.loads(self.app.get('/api/prefix/libc/?suite=all').data)
+        self.assertIn({'name': "libcaca"}, rv['packages'])
 
-    def test_case_insensitive_prefix(self):
+    def test_by_prefix(self):
+        rv = self.app.get('/prefix/libc/')
+        self.assertIn("/src/libcaca", rv.data)
+        # suite specified
+        rv = self.app.get('/prefix/libc/?suite=squeeze')
+        self.assertIn("/src/libcaca", rv.data)
+        # a non-existing suite specified
+        rv = self.app.get('/prefix/libc/?suite=non-exsiting')
+        self.assertNotIn("/src/libcaca", rv.data)
+        # special suite name "all" is specified
+        rv = self.app.get('/prefix/libc/?suite=all')
+        self.assertIn("/src/libcaca", rv.data)
+
+    def test_api_case_insensitive_prefix(self):
         rv_lower_case = json.loads(self.app.get('/api/prefix/g/').data)
         rv_upper_case = json.loads(self.app.get('/api/prefix/G/').data)
         self.assertEqual(rv_lower_case['packages'], rv_upper_case['packages'])
+        # suite specified
+        rv_lower_case = json.loads(
+            self.app.get('/api/prefix/g/?suite=squeeze').data)
+        rv_upper_case = json.loads(
+            self.app.get('/api/prefix/G/?suite=SQUEEZE').data)
+        self.assertEqual(rv_lower_case['packages'], rv_upper_case['packages'])
 
-    def test_package(self):
+    def test_case_insensitive_prefix(self):
+        rv_lower_case = self.app.get('/api/prefix/g/').data
+        rv_upper_case = self.app.get('/api/prefix/G/').data
+        self.assertEqual(rv_lower_case, rv_upper_case)
+        # suite specified
+        rv_lower_case = self.app.get('/api/prefix/g/?suite=squeeze').data
+        rv_upper_case = self.app.get('/api/prefix/G/?suite=SQUEEZE').data
+        self.assertEqual(rv_lower_case, rv_upper_case)
+
+    def test_api_package(self):
         rv = json.loads(self.app.get('/api/src/ledit/').data)
         self.assertEqual(rv['path'], "ledit")
         self.assertEqual(len(rv['versions']), 3)
         self.assertEqual(rv['type'], "package")
         # list index/order may be changed
-        _v = [_v for _v in rv['versions'] if _v['version'] == '2.01-6'][0]
+        _v = [v for v in rv['versions'] if v['version'] == '2.01-6'][0]
         self.assertIn('squeeze', _v['suites'])
+        # with suite specified
+        rv = json.loads(self.app.get('/api/src/ledit/?suite=squeeze').data)
+        self.assertEqual(rv['path'], "ledit")
+        self.assertEqual(len(rv['versions']), 1)
+        self.assertEqual(rv['type'], "package")
+        _v = [v for v in rv['versions'] if v['version'] == '2.01-6'][0]
+        self.assertIn('squeeze', _v['suites'])
+        # with a non-existing suite
+        rv = json.loads(
+            self.app.get('/api/src/ledit/?suite=non-existing').data)
+        self.assertEqual(rv['path'], "ledit")
+        self.assertEqual([], rv['versions'])
+        self.assertEqual(rv['type'], "package")
 
-    def test_folder(self):
+    def test_package(self):
+        rv = self.app.get('/src/ledit/')
+        self.assertIn("/src/ledit/2.01-6/", rv.data)
+        self.assertIn("/src/ledit/2.03-1/", rv.data)
+        self.assertIn("/src/ledit/2.03-2/", rv.data)
+        self.assertIn("[jessie, sid]", rv.data)
+        # with suite specified
+        rv = self.app.get('/src/ledit/?suite=squeeze')
+        self.assertIn("/src/ledit/2.01-6/", rv.data)
+        self.assertNotIn("/src/ledit/2.03-1/", rv.data)
+        self.assertNotIn("/src/ledit/2.03-2/", rv.data)
+        self.assertNotIn("[jessie, sid]", rv.data)
+        # with a non-existing suite
+        rv = self.app.get('/src/ledit/?suite=non-existing')
+        self.assertNotIn("/src/ledit/2.01-6/", rv.data)
+        self.assertNotIn("/src/ledit/2.03-1/", rv.data)
+        self.assertNotIn("/src/ledit/2.03-2/", rv.data)
+        self.assertNotIn("[jessie, sid]", rv.data)
+
+    def test_api_folder(self):
         rv = json.loads(self.app.get('/api/src/ledit/2.01-6/').data)
         self.assertEqual(rv['type'], "directory")
         self.assertEqual(rv['path'], "ledit/2.01-6")
