@@ -76,13 +76,13 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         # the second handler is our streamhandler.
         self.assertEqual(logger.handlers[1].level, logging.INFO)
 
-    def test_ping(self):
+    def test_api_ping(self):
         rv = json.loads(self.app.get('/api/ping/').data)
         self.assertEqual(rv["status"], "ok")
         self.assertEqual(rv["http_status_code"], 200)
 
-    def test_package_search(self):
-        # exact search
+    def test_api_package_search(self):
+        # test exact search result
         rv = json.loads(self.app.get('/api/search/gnubg/').data)
         self.assertEqual(rv['query'], 'gnubg')
         self.assertEqual(rv['results']['other'], [])
@@ -127,12 +127,12 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         self.assertIn('source code', rv.data)
         self.assertIn('is available', rv.data)
 
-    def test_packages_list(self):
+    def test_api_packages_list(self):
         rv = json.loads(self.app.get('/api/list/').data)
         self.assertIn({'name': "libcaca"}, rv['packages'])
         self.assertEqual(len(rv['packages']), 16)
 
-    def test_by_prefix(self):
+    def test_api_by_prefix(self):
         rv = json.loads(self.app.get('/api/prefix/libc/').data)
         self.assertIn({'name': "libcaca"}, rv['packages'])
 
@@ -164,7 +164,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
                                 "symlink_dest": None}
                        }, rv['content'])
 
-    def test_symlink_dest(self):
+    def test_api_symlink_dest(self):
         rv = json.loads(self.app.get('/api/src/beignet/1.0.0-1/').data)
         self.assertIn({"type": "file",
                        "name": "README.md",
@@ -261,11 +261,11 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
                           'make.info-1/?lang=cpp')
         self.assertIn('<code id="sourcecode" class="cpp">', rv.data)
 
-    def test_errors(self):
+    def test_api_errors(self):
         rv = json.loads(self.app.get('/api/src/blablabla/').data)
         self.assertEqual(rv['error'], 404)
 
-    def test_latest(self):
+    def test_api_latest(self):
         rv = json.loads(self.app.get('/api/src/ledit/latest/',
                                      follow_redirects=True).data)
         self.assertIn("2.03-2", rv['path'])
@@ -280,7 +280,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         self.assertIn('<a href="/list/3/">Next &raquo;</a>', rv.data)
         self.assertIn('<strong>2</strong>', rv.data)
 
-    def test_file_duplicates(self):
+    def test_api_file_duplicates(self):
         rv = json.loads(self.app.get('/api/src/bsdgames-nonfree/'
                                      '2.17-3/COPYING/').data)
         self.assertEqual(rv["number_of_duplicates"], 3)
@@ -288,7 +288,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
                          ("be43f81c20961702327c10e9bd5f5a9a2b1cc"
                           "eea850402ea562a9a76abcfa4bf"))
 
-    def test_checksum_search(self):
+    def test_api_checksum_search(self):
         rv = json.loads(self.app.get(
             '/api/sha256/?checksum=be43f81c20961702327'
             'c10e9bd5f5a9a2b1cceea850402ea562a9a76abcf'
@@ -296,25 +296,25 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         self.assertEqual(rv["count"], 3)
         self.assertEqual(len(rv["results"]), 3)
 
-    def test_checksum_search_within_package(self):
+    def test_api_checksum_search_within_package(self):
         rv = json.loads(self.app.get(
             '/api/sha256/?checksum=4f721b8e5b0add185d6'
             'af7a93e577638d25eaa5c341297d95b4a27b7635b'
             '4d3f&package=susv2').data)
         self.assertEqual(rv["count"], 1)
 
-    def test_search_ctag(self):
+    def test_api_search_ctag(self):
         rv = json.loads(self.app.get('/api/ctag/?ctag=name').data)
         self.assertEqual(rv["count"], 113)
         self.assertEqual(len(rv["results"]), 113)
 
-    def test_search_ctag_within_package(self):
+    def test_api_search_ctag_within_package(self):
         rv = json.loads(self.app.get(
             '/api/ctag/?ctag=name&package=ledger').data)
         self.assertEqual(rv["count"], 14)
         self.assertEqual(len(rv["results"]), 14)
 
-    def test_pkg_infobox(self):
+    def test_api_pkg_infobox(self):
         rv = json.loads(self.app.get('/api/src/libcaca/0.99.beta17-1/').data)
         self.assertEqual(rv["pkg_infos"]["suites"], ["squeeze"])
         self.assertEqual(rv["pkg_infos"]["area"], "main")
@@ -338,7 +338,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         self.assertIn('<div id="pkginfobox" class="pkginfobox_large">',
                       rv.data)
 
-    def test_stats_suite(self):
+    def test_api_stats_suite(self):
         rv = json.loads(self.app.get('/api/stats/jessie/').data)
         self.assertEqual(rv["suite"], "jessie")
         # self.assertEqual(rv["results"]["debian_jessie.ctags"], 21767)
@@ -346,7 +346,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         self.assertEqual(rv["results"]["debian_jessie.source_files"], 2038)
         self.assertEqual(rv["results"]["debian_jessie.sloccount.python"], 2916)
 
-    def test_stats_all(self):
+    def test_api_stats_all(self):
         rv = json.loads(self.app.get('/api/stats/').data)
         self.assertEqual(sorted(rv["all_suites"]),
                          ["debian_experimental", "debian_jessie", "debian_sid",
