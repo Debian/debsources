@@ -37,13 +37,13 @@ from debsources.excepts import (
     Http500Error, Http404Error, Http404ErrorSuggestions, Http403Error)
 from debsources.models import (
     Ctag, Package, PackageName, Checksum, Location, Directory,
-    SourceFile, File)
+    SourceFile, File, Suite)
 from debsources.app.sourcecode import SourceCodeIterator
 from debsources.app.forms import SearchForm
 from debsources.app.infobox import Infobox
 
 from debsources.app.extract_stats import extract_stats
-from debsources.consts import SLOCCOUNT_LANGUAGES
+from debsources.consts import SLOCCOUNT_LANGUAGES, SUITES
 from debsources import statistics
 
 from debsources.app.pagination import Pagination
@@ -259,8 +259,11 @@ if 'SERVE_STATIC_FILES' in app.config and app.config['SERVE_STATIC_FILES']:
 def receive_search():
     searchform = SearchForm(request.form)
     if searchform.validate_on_submit():
-        return redirect(url_for("search_html",
-                                query=searchform.query.data))
+        params = dict(query=searchform.query.data)
+        suite = searchform.suite.data
+        if suite:
+            params["suite"] = suite
+        return redirect(url_for("search_html", **params))
     else:
         # we return the form, to display the errors
         return render_template('index.html', searchform=searchform)
@@ -274,18 +277,44 @@ class SearchView(GeneralView):
     def get_objects(self, query=None):
         """ processes the search query and renders the results in a dict """
         query = query.replace('%', '').replace('_', '')
-        try:
-            exact_matching = (session.query(PackageName)
-                              .filter_by(name=query)
-                              .first())
+        suite = request.args.get("suite") or ""
+        suite = suite.lower()
+        if suite == "all":
+            suite = ""
+        # if suite is not specified
+        if not suite:
+            try:
+                exact_matching = (session.query(PackageName)
+                                  .filter_by(name=query)
+                                  .first())
 
-            other_results = (session.query(PackageName)
-                             .filter(sql_func.lower(PackageName.name)
-                                     .contains(query.lower()))
-                             .order_by(PackageName.name)
-                             )
-        except Exception as e:
-            raise Http500Error(e)  # db problem, ...
+                other_results = (session.query(PackageName)
+                                 .filter(sql_func.lower(PackageName.name)
+                                         .contains(query.lower()))
+                                 .order_by(PackageName.name)
+                                 )
+            except Exception as e:
+                raise Http500Error(e)  # db problem, ...
+        else:
+            try:
+                exact_matching = (session.query(PackageName)
+                                  .filter(sql_func.lower(Suite.suite)
+                                          == suite)
+                                  .filter(Suite.package_id == Package.id)
+                                  .filter(Package.name_id == PackageName.id)
+                                  .filter(PackageName.name == query)
+                                  .first())
+
+                other_results = (session.query(PackageName)
+                                 .filter(sql_func.lower(Suite.suite)
+                                         == suite)
+                                 .filter(Suite.package_id == Package.id)
+                                 .filter(Package.name_id == PackageName.id)
+                                 .filter(sql_func.lower(PackageName.name)
+                                         .contains(query.lower()))
+                                 .order_by(PackageName.name))
+            except Exception as e:
+                raise Http500Error(e)  # db problem, ...
 
         if exact_matching is not None:
             exact_matching = exact_matching.to_dict()
@@ -318,7 +347,7 @@ app.add_url_rule('/api/search/<query>/', view_func=SearchView.as_view(
 
 class AdvancedSearchView(GeneralView):
     def get_objects(self):
-        return dict()
+        return dict(suites_list=SUITES["all"])
 
 # ADVANCED SEARCH (HTML)
 app.add_url_rule('/advancedsearch/', view_func=AdvancedSearchView.as_view(
@@ -404,17 +433,36 @@ app.add_url_rule('/api/list/', view_func=ListpackagesView.as_view(
 
 class PrefixView(GeneralView):
     def get_objects(self, prefix='a'):
-        """ returns the packages beginning with prefix """
+        """ returns the packages beginning with prefix
+            and belonging to suite if specified.
+        """
         prefix = prefix.lower()
+        suite = request.args.get("suite") or ""
+        suite = suite.lower()
+        if suite == "all":
+            suite = ""
         if prefix in PackageName.get_packages_prefixes(
                 app.config["CACHE_DIR"]):
             try:
-                packages = (session.query(PackageName)
-                            .filter(sql_func.lower(PackageName.name)
-                                    .startswith(prefix))
-                            .order_by(PackageName.name)
-                            .all()
-                            )
+                if not suite:
+                    packages = (session.query(PackageName)
+                                .filter(sql_func.lower(PackageName.name)
+                                        .startswith(prefix))
+                                .order_by(PackageName.name)
+                                .all()
+                                )
+                else:
+                    packages = (session.query(PackageName)
+                                .filter(sql_func.lower(Suite.suite)
+                                        == suite)
+                                .filter(Suite.package_id == Package.id)
+                                .filter(Package.name_id == PackageName.id)
+                                .filter(sql_func.lower(PackageName.name)
+                                        .startswith(prefix))
+                                .order_by(PackageName.name)
+                                .all()
+                                )
+
                 packages = [p.to_dict() for p in packages]
             except Exception as e:
                 raise Http500Error(e)
@@ -422,6 +470,7 @@ class PrefixView(GeneralView):
                         prefix=prefix)
         else:
             raise Http404Error("prefix unknown: %s" % str(prefix))
+
 
 # PACKAGES LIST BY PREFIX ROUTING (HTML)
 app.add_url_rule('/prefix/<prefix>/', view_func=PrefixView.as_view(
@@ -445,10 +494,14 @@ class SourceView(GeneralView):
         """
         renders the package page (which lists available versions)
         """
+        suite = request.args.get("suite") or ""
+        suite = suite.lower()
+        if suite == "all":
+            suite = ""
         # we list the version with suites it belongs to
         try:
             versions_w_suites = PackageName.list_versions_w_suites(
-                session, packagename)
+                session, packagename, suite)
         except InvalidPackageOrVersionError:
             raise Http404Error("%s not found" % packagename)
 

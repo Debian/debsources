@@ -27,6 +27,7 @@ from sqlalchemy import Index
 from sqlalchemy import Boolean, Date, DateTime, Integer, LargeBinary, String
 from sqlalchemy import Enum
 from sqlalchemy import and_
+from sqlalchemy import func as sql_func
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -77,7 +78,11 @@ class PackageName(Base):
         return prefixes
 
     @staticmethod
-    def list_versions(session, packagename):
+    def list_versions(session, packagename, suite=""):
+        """
+        return all versions of a packagename. if suite is specified, only
+        versions contained in that suite are returned.
+        """
         try:
             name_id = session.query(PackageName) \
                              .filter(PackageName.name == packagename) \
@@ -85,8 +90,16 @@ class PackageName(Base):
         except Exception:
             raise InvalidPackageOrVersionError(packagename)
         try:
-            versions = session.query(Package) \
-                              .filter(Package.name_id == name_id).all()
+            if not suite:
+                versions = session.query(Package) \
+                                  .filter(Package.name_id == name_id).all()
+            else:
+                versions = (session.query(Package)
+                                   .filter(Package.name_id == name_id)
+                                   .filter(sql_func.lower(Suite.suite)
+                                           == suite)
+                                   .filter(Suite.package_id == Package.id)
+                                   .all())
         except Exception:
             raise InvalidPackageOrVersionError(packagename)
         # we sort the versions according to debian versions rules
@@ -94,15 +107,16 @@ class PackageName(Base):
         return versions
 
     @staticmethod
-    def list_versions_w_suites(session, packagename):
+    def list_versions_w_suites(session, packagename, suite=""):
         """
-        returns versions with suites
+        return versions with suites. if suite is provided, then only return
+        versions contained in that suite.
         """
         # FIXME a left outer join on (Package, Suite) is more preferred.
         # However, per https://stackoverflow.com/a/997467, custom aggregation
         # function to concatenate the suite names for the group_by should be
         # defined on database connection level.
-        versions = PackageName.list_versions(session, packagename)
+        versions = PackageName.list_versions(session, packagename, suite)
         versions_w_suites = []
         try:
             for v in versions:
