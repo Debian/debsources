@@ -23,3 +23,4 @@ from flask.ext.wtf import Form
 
 class SearchForm(Form):
     query = TextField('package name', validators=[Required()])
+    suite = TextField('suite name')

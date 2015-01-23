@@ -27,6 +27,17 @@
       <td><label for="input_package_package">package</label></td>
       <td><input type="text" name="query" id="input_package_package" /></td>
     </tr>
+    <tr>
+      <td><lable for="filer_by_suite">filter by suite</label></td>
+      <td>
+        <select id="suites_list" name="suite">
+            <option value="all" selected>all</option>
+            {%- for suite in suites_list %}
+              <option value="{{suite}}">{{suite}}</option>
+            {%- endfor %}
+        </select>
+      </td>
+    </tr>
   </table>
   <input type="submit" value="Search package" />
 </form>
