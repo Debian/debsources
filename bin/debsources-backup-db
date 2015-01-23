@@ -34,6 +34,7 @@ conf_get () {
     local key="$1"
     local value=$(grep "^${key}:" "$conffile" | head -n 1 | awk '{ print $2 }')
     value=$(echo $value | sed "s|%(root_dir)s|${root_dir}|")
+    value=$(echo $value | sed "s|%(log_dir)s|${log_dir}|")
     if [ -z "$value" ] ; then
 	err "required configuration value $key not found in $conffile, abort."
     fi

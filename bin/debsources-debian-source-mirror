@@ -31,6 +31,7 @@ conf_get () {
     local key="$1"
     local value=$(grep "^${key}:" "$conffile" | awk '{ print $2 }')
     value=$(echo $value | sed "s|%(root_dir)s|${root_dir}|")
+    value=$(echo $value | sed "s|%(log_dir)s|${log_dir}|")
     if [ -z "$value" ] ; then
 	echo "debsources-debian-source-mirror: required configuration value $key not found in $conffile, abort." 1>&2
     fi
