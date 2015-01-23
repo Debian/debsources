@@ -326,7 +326,7 @@ class SearchView(GeneralView):
 
         results = dict(exact=exact_matching,
                        other=other_results)
-        return dict(results=results, query=query)
+        return dict(results=results, query=query, suite=suite)
 
 # SEARCH ROUTE (HTML)
 app.add_url_rule('/search/<query>/', view_func=SearchView.as_view(

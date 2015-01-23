@@ -49,11 +49,16 @@ https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginati
   {%- endfor %}
 {% endmacro %}
 
-{% macro listpackages(packages) -%}
+{% macro listpackages(packages, suite) -%}
     <ul class="listcolumn">
       {% for package in packages %}
-        <li><a href="{{ url_for('source_html', path_to=package.name) }}">
-            {{ package.name }}</a></li>
+        {% if suite %}
+          <li><a href="{{ url_for('source_html', path_to=package.name, suite=suite) }}">
+              {{ package.name }}</a></li>
+        {% else %}
+          <li><a href="{{ url_for('source_html', path_to=package.name) }}">
+              {{ package.name }}</a></li>
+        {% endif %}
       {% endfor %}
     </ul>
   <br style="clear: left" />
