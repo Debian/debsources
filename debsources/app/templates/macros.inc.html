@@ -63,3 +63,9 @@ https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginati
     </ul>
   <br style="clear: left" />
 {%- endmacro %}
+
+{% macro show_suite(suite) %}
+  {%if suite %}
+    <p id="suite_filter">In suite <em>{{ suite }}</em></p>
+  {% endif %}
+{% endmacro %}

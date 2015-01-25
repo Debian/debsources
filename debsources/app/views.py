@@ -467,7 +467,8 @@ class PrefixView(GeneralView):
             except Exception as e:
                 raise Http500Error(e)
             return dict(packages=packages,
-                        prefix=prefix)
+                        prefix=prefix,
+                        suite=suite)
         else:
             raise Http404Error("prefix unknown: %s" % str(prefix))
 
@@ -509,6 +510,7 @@ class SourceView(GeneralView):
                     package=packagename,
                     versions=versions_w_suites,
                     path=path_to,
+                    suite=suite,
                     )
 
     def _render_location(self, package, version, path):

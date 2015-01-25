@@ -14,6 +14,7 @@
 {% block title %}Package: {{ package }}{% endblock %}
 {% block source_content %}
 <h2>{{ self.title() }}</h2>
+{{ macros.show_suite(suite) }}
 
 <ul id="ls">
 {% for v in versions %}
