@@ -91,7 +91,7 @@ they touch conform to such requirements.
 If you develop on Debian(-based distros), a good way to check that this is the
 case is:
 
-    # apt-get install flake8
+    # apt-get install python-flake8
     $ flake8 file1.py file2.py ...
 
 You can add a pre-commit hook to automatically test PEP8 compliance:
