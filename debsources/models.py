@@ -626,7 +626,7 @@ class Location(object):
         if file_type == "l":
             symlink_dest = os.readlink(sources_path)
 
-        return LongFMT(file_type, file_perms, file_size, symlink_dest)
+        return vars(LongFMT(file_type, file_perms, file_size, symlink_dest))
 
     @staticmethod
     def get_path_links(endpoint, path_to):
