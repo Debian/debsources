@@ -56,6 +56,16 @@ class AppWrapper(object):
         # importing the views creates all the routing for the app
         from debsources.app import views  # NOQA
 
+        # setup blueprint
+        self.setup_blueprints()
+
+    def setup_blueprints(self):
+        if self.app.config.get('BLUEPRINT_COPYRIGHT'):
+            from debsources.app.copyright import bp_copyright
+            # add a url-prefix
+            self.app.register_blueprint(bp_copyright,
+                                        url_prefix='/copyright')
+
     def setup_conf(self):
         """
         Sets up the configuration, getting it from mainlib.
