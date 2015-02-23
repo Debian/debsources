@@ -1,0 +1,66 @@
+{#
+  Copyright (C) 2013  Matthieu Caneill, Stefano Zacchiroli
+  License: GNU Affero General Public License, version 3 or above.
+#}
+
+{% extends "sources/base.html" %}
+
+{% import "sources/_macros.html" as macros %}
+
+{% block title %}Debian Sources{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+
+<div id="index_menu">
+
+<h1 class="h1mainpage">{{ self.title() }}</h1>
+<h3><em>All Debian source are belong to us</em> &emsp;
+  <small>&mdash; Anonymous</small>
+  <sup><a href="https://en.wikipedia.org/wiki/All_your_base_are_belong_to_us"><span style="font-family: monospace; color: black;">[^]</span></a></sup>
+</h3>
+<p>Browse through the source code of the
+  <a href="https://www.debian.org">Debian</a> operating system.
+  <a href="{{ url_for('.doc_overview') }}">Read more…</a></p>
+<table>
+  <tr>
+    <td id="browse">
+      <p><strong>Browse</strong> by prefix</p>
+      <p>{{ macros.render_packages_prefixes(packages_prefixes) }}</p>
+    </td>
+    <td id="search">
+      <p><strong>Search</strong></p>
+      <ul style="list-style-type: none">
+	<li>by <em>package name</em>:<br />
+	  {{ macros.search_form(search_form, value=query, display="inline", size="25", autofocus=True, id="query-2") }}
+	</li>
+	<li>the <em>source code</em>
+	  <small>(via <a href="https://codesearch.debian.net">codesearch</a>)</small>:<br />
+	  <form name="codesearch" method="get"
+		action="https://codesearch.debian.net/search">
+            <input type="text" name="q" size="25" />
+            <input type="submit" value="Search code" />
+	  </form>
+	</li>
+      </ul>
+    </td>
+  </tr>
+</table>
+
+</div>
+
+{% if news -%}
+<h3><a name="news">News</a></h3>
+{{ news|safe }}
+{% endif %}
+
+{% endblock %}
+
+{# show the background debian image #}
+{% block bg_wrapper %}
+<div id="bg_wrapper" style="background-image: url('{{ url_for('static', filename='img/debsources.png') }}');">
+  <div id="content">{{ self.content() }}</div>
+  <footer id="footer">{{ self.footer() }}</footer>
+</div>
+{% endblock %}
