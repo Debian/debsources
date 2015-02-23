@@ -66,6 +66,12 @@ class AppWrapper(object):
             self.app.register_blueprint(bp_copyright,
                                         url_prefix='/copyright')
 
+        if self.app.config.get('BLUEPRINT_SOURCES'):
+            from debsources.app.sources import bp_sources
+            # add a url-prefix
+            self.app.register_blueprint(bp_sources,
+                                        url_prefix='/sources')
+
     def setup_conf(self):
         """
         Sets up the configuration, getting it from mainlib.
