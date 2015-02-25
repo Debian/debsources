@@ -419,3 +419,47 @@ class CtagView(GeneralView):
                     page=page,
                     package=package,
                     pagination=pagination)
+
+
+class PrefixView(GeneralView):
+
+    def get_objects(self, prefix='a'):
+        """
+        returns the packages beginning with prefix
+        and belonging to suite if specified.
+        """
+        prefix = prefix.lower()
+        suite = request.args.get("suite") or ""
+        suite = suite.lower()
+        if suite == "all":
+            suite = ""
+        if prefix in PackageName.get_packages_prefixes(
+                app.config["CACHE_DIR"]):
+            try:
+                if not suite:
+                    packages = (session.query(PackageName)
+                                .filter(sql_func.lower(PackageName.name)
+                                        .startswith(prefix))
+                                .order_by(PackageName.name)
+                                .all()
+                                )
+                else:
+                    packages = (session.query(PackageName)
+                                .filter(sql_func.lower(Suite.suite)
+                                        == suite)
+                                .filter(Suite.package_id == Package.id)
+                                .filter(Package.name_id == PackageName.id)
+                                .filter(sql_func.lower(PackageName.name)
+                                        .startswith(prefix))
+                                .order_by(PackageName.name)
+                                .all()
+                                )
+
+                packages = [p.to_dict() for p in packages]
+            except Exception as e:
+                raise Http500Error(e)
+            return dict(packages=packages,
+                        prefix=prefix,
+                        suite=suite)
+        else:
+            raise Http404Error("prefix unknown: %s" % str(prefix))

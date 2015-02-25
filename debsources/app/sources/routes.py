@@ -2,7 +2,7 @@ from . import bp_sources
 
 from ..app.helper import bind_render
 from ..app.views import (
-    DocView, AboutView, SearchView, CtagView, ChecksumView)
+    DocView, AboutView, SearchView, CtagView, ChecksumView, PrefixView)
 from ..app.views import ErrorHandler
 
 from .views import IndexView, StatsView
@@ -116,3 +116,12 @@ bp_sources.add_url_rule(
         render_func=bind_render('sources/ctag.html'),
         err_func=ErrorHandler('sources'),
         pagination=True))
+
+
+# PREFIXVIEW
+bp_sources.add_url_rule(
+    '/prefix/<prefix>',
+    view_func=PrefixView.as_view(
+        'prefix',
+        render_func=bind_render('sources/prefix.html'),
+        err_func=ErrorHandler('sources'),))
