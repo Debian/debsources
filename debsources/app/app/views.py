@@ -306,3 +306,75 @@ class SearchView(GeneralView):
         else:
             # we return the form, to display the errors
             return self.render_func(searchform=searchform)
+
+
+class ChecksumView(GeneralView):
+
+    def _files_with_sum(checksum, slice_=None, package=None):
+        """
+        Returns a list of files whose hexdigest is checksum.
+        You can slice the results, passing slice=(start, end).
+        """
+        results = (session.query(PackageName.name.label("package"),
+                                    Package.version.label("version"),
+                                    Checksum.file_id.label("file_id"),
+                                    File.path.label("path"))
+                    .filter(Checksum.sha256 == checksum)
+                    .filter(Checksum.package_id == Package.id)
+                    .filter(Checksum.file_id == File.id)
+                    .filter(Package.name_id == PackageName.id)
+                    )
+        if package is not None and package != "":
+            results = results.filter(PackageName.name == package)
+
+        results = results.order_by("package", "version", "path")
+
+        if slice_ is not None:
+            results = results.slice(slice_[0], slice_[1])
+        results = results.all()
+
+        return [dict(path=res.path,
+                        package=res.package,
+                        version=res.version)
+                for res in results]
+
+
+    def get_objects(self, **kwargs):
+        """
+        Returns the files whose checksum corresponds to the one given.
+        """
+        try:
+            page = int(request.args.get("page"))
+        except:
+            page = 1
+        checksum = request.args.get("checksum")
+        package = request.args.get("package") or None
+
+        # we count the number of results:
+        count = (session.query(sql_func.count(Checksum.id))
+                 .filter(Checksum.sha256 == checksum))
+        if package is not None and package != "":  # (only within the package)
+            count = (count.filter(PackageName.name == package)
+                     .filter(Checksum.package_id == Package.id)
+                     .filter(Package.name_id == PackageName.id))
+        count = count.first()[0]
+
+        # pagination:
+        if self.d.get('pagination'):
+            offset = int(current_app.config.get("LIST_OFFSET") or 60)
+            start = (page - 1) * offset
+            end = start + offset
+            slice_ = (start, end)
+            pagination = Pagination(page, offset, count)
+        else:
+            pagination = None
+            slice_ = None
+
+        # finally we get the files list
+        results = self._files_with_sum(checksum, slice_=slice_, package=package)
+
+        return dict(results=results,
+                    sha256=checksum,
+                    count=count,
+                    page=page,
+                    pagination=pagination)

@@ -95,3 +95,13 @@ bp_sources.add_url_rule(
         render_func=bind_render('sources/search.html'),
         err_func=ErrorHandler('sources'),
         get_objects='query',))
+
+
+# ChecksumView
+bp_sources.add_url_rule(
+    '/sha256/',
+    view_func=ChecksumView.as_view(
+        'checksum',
+        render_func=bind_render('sources/checksum.html'),
+        err_func=ErrorHandler('sources'),
+        pagination=True))
