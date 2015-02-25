@@ -2,17 +2,20 @@ from . import bp_sources
 
 from ..app.helper import bind_render
 from ..app.views import (
-    DocView, AboutView, SearchView, CtagView, ChecksumView, PrefixView,
-    ListPackagesView)
+    IndexView, DocView, AboutView, SearchView, CtagView, ChecksumView,
+    PrefixView, ListPackagesView)
 from ..app.views import ErrorHandler
 
 from .views import IndexView, StatsView
 
 
+# INDEXVIEW
 bp_sources.add_url_rule(
     '/',
     view_func=IndexView.as_view(
-        'index'))
+        'index',
+        render_func=bind_render('sources/index.html'),
+        news_html='sources_news.html'))
 
 
 # DOCVIEW

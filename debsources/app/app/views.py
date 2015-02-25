@@ -189,6 +189,16 @@ class GeneralView(View):
             return self.err_func(e, http=403)
 
 
+# for '/'
+class IndexView(GeneralView):
+
+    def get_objects(self, **kwargs):
+        news_file = os.path.join(current_app.config["LOCAL_DIR"],
+                                 self.d['news_html'])
+        news = local_info.read_html(news_file)
+        return dict(news=news)
+
+
 # for /docs/*
 class DocView(GeneralView):
     """
