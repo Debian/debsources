@@ -1,7 +1,7 @@
 from . import bp_sources
 
 from ..app.helper import bind_render
-from ..app.views import DocView, AboutView
+from ..app.views import DocView, AboutView, SearchView
 from ..app.views import ErrorHandler
 
 from .views import IndexView, StatsView
@@ -67,3 +67,31 @@ bp_sources.add_url_rule(
         render_func=bind_render('sources/stats_suite.html'),
         err_func=ErrorHandler('sources'),
         get_objects='stats_suite',))
+
+
+# SEARCHVIEW
+bp_sources.add_url_rule(
+    '/search/',
+    view_func=SearchView.as_view(
+        'recv_search',
+        render_func=bind_render('sources/index.html'),
+        recv_search=True),
+    methods=['GET', 'POST'])
+
+
+bp_sources.add_url_rule(
+    '/advanced-search/',
+    view_func=SearchView.as_view(
+        'advanced_search',
+        render_func=bind_render('sources/search_advanced.html'),
+        err_func=ErrorHandler('sources'),
+        get_objects='advanced',))
+
+
+bp_sources.add_url_rule(
+    '/search/<query>',
+    view_func=SearchView.as_view(
+        'search',
+        render_func=bind_render('sources/search.html'),
+        err_func=ErrorHandler('sources'),
+        get_objects='query',))

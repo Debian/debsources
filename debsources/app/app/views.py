@@ -22,6 +22,8 @@ import os
 from flask import jsonify, render_template, request, url_for
 from flask.views import View
 
+from sqlalchemy import func as sql_func
+
 from debsources.excepts import (
     InvalidPackageOrVersionError, FileOrFolderNotFound,
     Http500Error, Http404Error, Http404ErrorSuggestions, Http403Error)
@@ -30,6 +32,7 @@ from debsources.models import (
     SourceFile, File, Suite)
 from debsources.sqla_session import _close_session
 from debsources import local_info
+from debsources.consts import SUITES
 # XXX from the original apps
 from debsources.app.forms import SearchForm
 
@@ -198,3 +201,108 @@ class AboutView(GeneralView):
     """
     Renders page for /about/
     """
+
+
+class SearchView(GeneralView):
+
+    def dispatch_request(self, **kwargs):
+        if self.d.get('recv_search'):
+            return self.recv_search()
+        else:
+            return super(SearchView, self).dispatch_request(**kwargs)
+
+    def get_query(self, query=''):
+        """
+        processes the search query and renders the results in a dict
+        """
+        query = query.replace('%', '').replace('_', '')
+        suite = request.args.get("suite") or ""
+        suite = suite.lower()
+        if suite == "all":
+            suite = ""
+        # if suite is not specified
+        if not suite:
+            try:
+                exact_matching = (session.query(PackageName)
+                                  .filter_by(name=query)
+                                  .first())
+
+                other_results = (session.query(PackageName)
+                                 .filter(sql_func.lower(PackageName.name)
+                                         .contains(query.lower()))
+                                 .order_by(PackageName.name)
+                                 )
+            except Exception as e:
+                raise Http500Error(e)  # db problem, ...
+        else:
+            try:
+                exact_matching = (session.query(PackageName)
+                                  .filter(sql_func.lower(Suite.suite)
+                                          == suite)
+                                  .filter(Suite.package_id == Package.id)
+                                  .filter(Package.name_id == PackageName.id)
+                                  .filter(PackageName.name == query)
+                                  .first())
+
+                other_results = (session.query(PackageName)
+                                 .filter(sql_func.lower(Suite.suite)
+                                         == suite)
+                                 .filter(Suite.package_id == Package.id)
+                                 .filter(Package.name_id == PackageName.id)
+                                 .filter(sql_func.lower(PackageName.name)
+                                         .contains(query.lower()))
+                                 .order_by(PackageName.name))
+            except Exception as e:
+                raise Http500Error(e)  # db problem, ...
+
+        if exact_matching is not None:
+            exact_matching = exact_matching.to_dict()
+        if other_results is not None:
+            other_results = [o.to_dict() for o in other_results]
+            # we exclude the 'exact' matching from other_results:
+            other_results = filter(lambda x: x != exact_matching,
+                                   other_results)
+
+        results = dict(exact=exact_matching,
+                       other=other_results)
+        return dict(results=results, query=query, suite=suite)
+
+        query = query.replace('%', '').replace('_', '')
+        suite = request.args.get("suite") or ""
+        suite = suite.lower()
+        if suite == "all":
+            suite = ""
+
+        try:
+            exact_matching, other_results = q.search_query(
+                session, query, suite)
+        except Exception as e:
+            raise HTTP500Error(e)  # db problem, ...
+
+        if exact_matching is not None:
+            exact_matching = exact_matching.to_dict()
+        if other_results is not None:
+            other_results = [o.to_dict() for o in other_results]
+            # we exclude the 'exact' matching from other_results:
+            other_results = filter(lambda x: x != exact_matching,
+                                   other_results)
+
+        results = dict(exact=exact_matching,
+                       other=other_results)
+        return dict(results=results, query=query, suite=suite)
+
+    def get_advanced(self):
+        return dict(suites_list=SUITES["all"])
+
+    # for '/search/'
+    def recv_search(self, **kwargs):
+        searchform = SearchForm(request.form)
+        if searchform.validate_on_submit():
+            params = dict(query=searchform.query.data)
+            suite = searchform.suite.data
+            if suite:
+                params["suite"] = suite
+            return redirect(url_for(".search", **params))
+        else:
+            # we return the form, to display the errors
+            return self.render_func(searchform=searchform)
