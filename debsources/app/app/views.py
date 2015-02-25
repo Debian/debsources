@@ -378,3 +378,44 @@ class ChecksumView(GeneralView):
                     count=count,
                     page=page,
                     pagination=pagination)
+
+
+class CtagView(GeneralView):
+
+    def get_objects(self):
+        """
+        Returns the places where ctag are found.
+        (limit to package if package is not None)
+        """
+        try:
+            page = int(request.args.get("page"))
+        except:
+            page = 1
+        ctag = request.args.get("ctag")
+        package = request.args.get("package") or None
+
+        # pagination:
+        if self.d.get('pagination'):
+            try:
+                offset = current_app.config.get("LIST_OFFSET")
+            except:
+                offset = 60
+            start = (page - 1) * offset
+            end = start + offset
+            slice_ = (start, end)
+        else:
+            pagination = None
+            slice_ = None
+        count, results = Ctag.find_ctag(session, ctag, slice_=slice_,
+                                          package=package)
+        if self.d.get('pagination'):
+            pagination = Pagination(page, offset, count)
+        else:
+            pagination = None
+
+        return dict(results=results,
+                    ctag=ctag,
+                    count=count,
+                    page=page,
+                    package=package,
+                    pagination=pagination)

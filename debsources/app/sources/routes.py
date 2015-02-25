@@ -1,7 +1,8 @@
 from . import bp_sources
 
 from ..app.helper import bind_render
-from ..app.views import DocView, AboutView, SearchView
+from ..app.views import (
+    DocView, AboutView, SearchView, CtagView, ChecksumView)
 from ..app.views import ErrorHandler
 
 from .views import IndexView, StatsView
@@ -103,5 +104,15 @@ bp_sources.add_url_rule(
     view_func=ChecksumView.as_view(
         'checksum',
         render_func=bind_render('sources/checksum.html'),
+        err_func=ErrorHandler('sources'),
+        pagination=True))
+
+
+# CtagView
+bp_sources.add_url_rule(
+    '/ctag/',
+    view_func=CtagView.as_view(
+        'ctag',
+        render_func=bind_render('sources/ctag.html'),
         err_func=ErrorHandler('sources'),
         pagination=True))
