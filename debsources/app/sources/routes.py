@@ -2,7 +2,8 @@ from . import bp_sources
 
 from ..app.helper import bind_render
 from ..app.views import (
-    DocView, AboutView, SearchView, CtagView, ChecksumView, PrefixView)
+    DocView, AboutView, SearchView, CtagView, ChecksumView, PrefixView,
+    ListPackagesView)
 from ..app.views import ErrorHandler
 
 from .views import IndexView, StatsView
@@ -125,3 +126,13 @@ bp_sources.add_url_rule(
         'prefix',
         render_func=bind_render('sources/prefix.html'),
         err_func=ErrorHandler('sources'),))
+
+
+# LISTPACKAGESVIEW
+bp_sources.add_url_rule(
+    '/list/<int:page>',
+    view_func=ListPackagesView.as_view(
+        'list_packages',
+        render_func=bind_render('sources/list.html'),
+        err_func=ErrorHandler('sources'),
+        pagination=True))

@@ -463,3 +463,41 @@ class PrefixView(GeneralView):
                         suite=suite)
         else:
             raise Http404Error("prefix unknown: %s" % str(prefix))
+
+
+class ListPackagesView(GeneralView):
+    def get_objects(self, page=1):
+        if not self.d.get('pagination'):  # api form, we retrieve all packages
+            try:
+                packages = (session.query(PackageName)
+                            .order_by(PackageName.name)
+                            .all()
+                            )
+                packages = [p.to_dict() for p in packages]
+                return dict(packages=packages)
+            except Exception as e:
+                raise Http500Error(e)
+        else:  # we paginate
+            # WARNING: not serializable (TODO: serialize Pagination obj)
+            try:
+                offset = int(app.config.get("LIST_OFFSET") or 60)
+
+                # we calculate the range of results
+                start = (page - 1) * offset
+                end = start + offset
+
+                count_packages = (session.query(PackageName)
+                                  .count()
+                                  )
+                packages = (session.query(PackageName)
+                            .order_by(PackageName.name)
+                            .slice(start, end)
+                            )
+                pagination = Pagination(page, offset, count_packages)
+
+                return dict(packages=packages,
+                            page=page,
+                            pagination=pagination)
+
+            except Exception as e:
+                raise Http500Error(e)
