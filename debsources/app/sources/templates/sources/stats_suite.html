@@ -1,0 +1,46 @@
+{#
+  Copyright (C) 2014  Matthieu Caneill <matthieu.caneill@gmail.com>
+  License: GNU Affero General Public License, version 3 or above.
+#}
+{# copied from templates/stats_suite.html #}
+
+{% extends "sources/base.html" %}
+
+{% block title %}Statistics: {{ suite }}{% endblock %}
+
+{% block breadcrumbs %}<a href="{{ url_for('.stats') }}">stats</a> / {{ suite }}{% endblock %}
+
+{% block content %}
+
+<h2>{{ self.title() }}</h2>
+
+{% set suite = "debian_" + suite %}
+
+<ul>
+  <li>Source files: {{ results[suite + ".source_files"] | format_big_num }}</li>
+  <li>Source packages: {{ results[suite + ".source_packages"] | format_big_num }}</li>
+  <li>Disk usage: {{ results[suite + ".disk_usage"] | format_big_num }} kB</li>
+  <li>Ctags: {{ results[suite + ".ctags"] | format_big_num }}</li>
+  <li>Source lines of code: {{ results[suite + ".sloccount"] | format_big_num }}
+    <span class="sidechart">
+    <a href="{{ url_for('static',
+	     filename='img/stats/' + suite[7:] + '-sloc_pie-current.png') }}">
+      <img src="{{ url_for('static',
+		filename='img/stats/' + suite[7:] + '-sloc_pie-current.png') }}" />
+    </a>
+    </span>
+    <ul>
+      {% for lang in languages|sort %}
+        <li>{{ lang }}: {{ results[suite + ".sloccount." + lang] | format_big_num }}</li>
+      {% endfor %}
+    </ul>
+  </li>
+</ul>
+
+
+<h3>Historical trends</h3>
+
+{% import "sources/stats_trends.inc.html" as stats_trends %}
+{{ stats_trends.render_trends(suite[7:]) }}
+
+{% endblock %}

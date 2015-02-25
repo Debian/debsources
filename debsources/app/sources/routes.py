@@ -2,7 +2,9 @@ from . import bp_sources
 
 from ..app.helper import bind_render
 from ..app.views import DocView, AboutView
-from .views import IndexView
+from ..app.views import ErrorHandler
+
+from .views import IndexView, StatsView
 
 
 bp_sources.add_url_rule(
@@ -46,3 +48,22 @@ bp_sources.add_url_rule(
     view_func=AboutView.as_view(
         'about',
         render_func=bind_render('sources/about.html'),))
+
+
+# STATSVIEW
+bp_sources.add_url_rule(
+    '/stats/',
+    view_func=StatsView.as_view(
+        'stats',
+        render_func=bind_render('sources/stats.html'),
+        err_func=ErrorHandler('sources'),
+        get_objects='stats',))
+
+
+bp_sources.add_url_rule(
+    '/stats/<suite>/',
+    view_func=StatsView.as_view(
+        'stats_suite',
+        render_func=bind_render('sources/stats_suite.html'),
+        err_func=ErrorHandler('sources'),
+        get_objects='stats_suite',))

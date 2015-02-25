@@ -1,0 +1,45 @@
+{#
+  Copyright (C) 2014  Matthieu Caneill <matthieu.caneill@gmail.com>
+  License: GNU Affero General Public License, version 3 or above.
+#}
+
+
+{% macro render_trends(suite) %}
+
+{% set granularities = ['1-month', '1-year', '5-years', '20-years'] %}
+
+{% macro historical_trend(metric) -%}
+  {% for g in granularities %}
+  <div class="stats">
+    <a href="{{ url_for('static',
+	     filename='img/stats/' + suite + '-' + metric + '-' + g + '.png') }}">
+      <img src="{{ url_for('static',
+		filename='img/stats/' + suite + '-' + metric + '-' + g + '.png') }}" />
+    </a>
+    <span>{{ g }}</span>
+  </div>
+  {% endfor %}
+{%- endmacro %}
+
+
+<h4 class="clear_float"><a name="hist_disk_usage">Disk usage</a></h4>
+{{ historical_trend('disk_usage') }}
+
+
+<h4 class="clear_float"><a name="hist_sloc">Source lines of code</a></h4>
+{{ historical_trend('sloc') }}
+
+
+<h4 class="clear_float"><a name="hist_source_pkgs">Source packages</a></h4>
+{{ historical_trend('source_packages') }}
+
+
+<h4 class="clear_float"><a name="hist_source_files">Source files</a></h4>
+{{ historical_trend('source_files') }}
+
+
+<h4 class="clear_float"><a name="hist_ctags">Ctags</a></h4>
+{{ historical_trend('ctags') }}
+
+
+{% endmacro %}
