@@ -1,7 +1,7 @@
 from . import bp_sources
 
 from ..app.helper import bind_render
-from ..app.views import DocView
+from ..app.views import DocView, AboutView
 from .views import IndexView
 
 
@@ -38,3 +38,11 @@ bp_sources.add_url_rule(
     view_func=DocView.as_view(
         'doc_overview',
         render_func=bind_render('sources/doc_overview.html'),))
+
+
+# ABOUTVIEW
+bp_sources.add_url_rule(
+    '/about/',
+    view_func=AboutView.as_view(
+        'about',
+        render_func=bind_render('sources/about.html'),))
