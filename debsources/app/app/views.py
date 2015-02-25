@@ -184,3 +184,17 @@ class GeneralView(View):
             return self.err_func(e, http=404)
         except Http403Error as e:
             return self.err_func(e, http=403)
+
+
+# for /docs/*
+class DocView(GeneralView):
+    """
+    Renders page for /doc/*
+    """
+
+
+# for /about/
+class AboutView(GeneralView):
+    """
+    Renders page for /about/
+    """
