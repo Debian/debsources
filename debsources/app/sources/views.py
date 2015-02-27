@@ -71,10 +71,13 @@ class SourceView(GeneralView):
         except InvalidPackageOrVersionError:
             raise Http404Error("%s not found" % packagename)
 
-        self.render_func = bind_render(
-            'sources/source_package.html',
-            # we simply add pathl (for use with "You are here:")
-            pathl=Location.get_path_links('.source', path_to))
+        if self.d.get('api'):
+            self.render_func = jsonify
+        else:
+            self.render_func = bind_render(
+                'sources/source_package.html',
+                # we simply add pathl (for use with "You are here:")
+                pathl=Location.get_path_links('.source', path_to))
 
         return dict(type="package",
                     package=packagename,
@@ -143,11 +146,14 @@ class SourceView(GeneralView):
         content=directory.get_listing()
         path=location.get_path_to()
 
-        self.render_func = bind_render(
-            'sources/source_folder.html',
-            subdirs=filter(lambda x: x['type'] == "directory", content),
-            subfiles=filter(lambda x: x['type'] == "file", content),
-            pathl=Location.get_path_links(".source", path),)
+        if self.d.get('api'):
+            self.render_func = jsonify
+        else:
+            self.render_func = bind_render(
+                'sources/source_folder.html',
+                subdirs=filter(lambda x: x['type'] == "directory", content),
+                subfiles=filter(lambda x: x['type'] == "file", content),
+                pathl=Location.get_path_links(".source", path),)
 
         return dict(type="directory",
                     directory=location.get_deepest_element(),
@@ -162,19 +168,31 @@ class SourceView(GeneralView):
         renders a file
         """
         file_ = SourceFile(location)
-
         checksum = file_.get_sha256sum(session)
         number_of_duplicates = (session.query(sql_func.count(Checksum.id))
                                 .filter(Checksum.sha256 == checksum)
                                 .first()[0])
-
         pkg_infos = Infobox(session,
                             location.get_package(),
                             location.get_version()).get_infos()
-
         text_file=file_.istextfile()
         raw_url=file_.get_raw_url()
-        # prepare the render func
+
+        if self.d.get('api'):
+            self.render_func = jsonify
+            return dict(type="file",
+                        file=location.get_deepest_element(),
+                        package=location.get_package(),
+                        mime=file_.get_mime(),
+                        raw_url=raw_url,
+                        path=path,
+                        text_file=text_file,
+                        stat=location.get_stat(location.sources_path),
+                        checksum=checksum,
+                        number_of_duplicates=number_of_duplicates,
+                        pkg_infos=pkg_infos
+                        )
+        # prepare the non-api render func
         self.render_func = None
         # more work to do with files
         # as long as 'lang' is in keys, then it's a text_file
@@ -185,6 +203,7 @@ class SourceView(GeneralView):
         elif not text_file:
             self.render_func = redirect(raw_url)
 
+        # set render func (non-api form)
         if not self.render_func:
             sources_path = raw_url.replace(current_app.config['SOURCES_STATIC'],
                                            current_app.config['SOURCES_DIR'],
@@ -212,7 +231,7 @@ class SourceView(GeneralView):
             path=location.get_path_to()
 
             self.render_func = bind_render(
-                'sources/source_file.html',
+                self.d['templatename'],
                 nlines=sourcefile.get_number_of_lines(),
                 pathl=Location.get_path_links(".source", path),
                 file_language=sourcefile.get_file_language(),

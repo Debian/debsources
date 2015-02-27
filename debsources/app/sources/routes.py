@@ -237,7 +237,8 @@ bp_sources.add_url_rule(
     view_func=SourceView.as_view(
         'source',
         # the render func is set by the views.
-        err_func=ErrorHandler('sources')))
+        err_func=ErrorHandler('sources'),
+        templatename='sources/source_file.html'))
 
 
 # api
