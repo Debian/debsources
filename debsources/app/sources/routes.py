@@ -18,6 +18,14 @@ def skeleton_variables():
     return dict(site_name=site_name,)
 
 
+# site errors
+# 500 handler cannot be registered on a blueprint
+bp_sources.errorhandler(403)(
+        lambda e: (ErrorHandler(bp_name='sources')(e, http=403), 403))
+bp_sources.errorhandler(404)(
+        lambda e: (ErrorHandler(bp_name='sources')(e, http=404), 404))
+
+
 # INDEXVIEW
 bp_sources.add_url_rule(
     '/',
