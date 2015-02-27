@@ -10,7 +10,7 @@ from ..app.views import (
     PrefixView, ListPackagesView)
 from ..app.views import ErrorHandler
 
-from .views import StatsView
+from .views import StatsView, SourceView
 
 # context vars
 @bp_sources.context_processor
@@ -149,3 +149,12 @@ bp_sources.add_url_rule(
         render_func=bind_render('sources/list.html'),
         err_func=ErrorHandler('sources'),
         pagination=True))
+
+
+# SOURCEVIEW
+bp_sources.add_url_rule(
+    '/src/<path:path_to>/',
+    view_func=SourceView.as_view(
+        'source',
+        # the render func is set by the views.
+        err_func=ErrorHandler('sources')))

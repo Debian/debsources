@@ -16,8 +16,6 @@
             href="{{ url_for('static', filename='css/base.css') }}" />
       <link rel="shortcut icon"
             href="{{ url_for('static', filename='favicon.ico') }}" />
-      {# for site specific css #}
-      {% block site_style %}{% endblock %}
       {# title_suffix could be like 'Debian sources' or 'Debian copyright' #}
       <title>{% block title %}{% endblock %}{% block title_suffix %}{% endblock %}</title>
     {% endblock %}
