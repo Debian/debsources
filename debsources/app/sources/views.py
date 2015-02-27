@@ -12,13 +12,6 @@ from ..app.views import GeneralView
 from ..app.views import app, session
 
 
-# this is just a placeholder
-class IndexView(GeneralView):
-
-    def dispatch_request(self):
-        return "Hello World"
-
-
 class StatsView(GeneralView):
 
     def get_stats_suite(self, suite, **kwargs):

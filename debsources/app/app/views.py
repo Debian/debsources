@@ -19,7 +19,7 @@
 
 import os
 
-from flask import jsonify, render_template, request, url_for
+from flask import current_app, jsonify, render_template, request, url_for
 from flask.views import View
 
 from sqlalchemy import func as sql_func
@@ -35,6 +35,7 @@ from debsources import local_info
 from debsources.consts import SUITES
 # XXX from the original apps
 from debsources.app.forms import SearchForm
+from debsources.app.pagination import Pagination
 
 from debsources.app import app_wrapper
 app = app_wrapper.app
@@ -53,6 +54,7 @@ def shutdown_session(exception=None):
 @app.context_processor
 def skeleton_variables():
     update_ts_file = os.path.join(app.config['CACHE_DIR'], 'last-update')
+    # TODO, this part should be moved to per blueprint context processor
     last_update = local_info.read_update_ts(update_ts_file)
 
     packages_prefixes = PackageName.get_packages_prefixes(
@@ -181,12 +183,15 @@ class GeneralView(View):
         try:
             context = self.get_objects(**kwargs)
             return self.render_func(**context)
-        except Http500Error as e:
-            return self.err_func(e, http=500)
-        except Http404Error as e:
-            return self.err_func(e, http=404)
-        except Http403Error as e:
-            return self.err_func(e, http=403)
+        # for debug, we comment it.
+        # except Http500Error as e:
+        #     return self.err_func(e, http=500)
+        # except Http404Error as e:
+        #     return self.err_func(e, http=404)
+        # except Http403Error as e:
+        #     return self.err_func(e, http=403)
+        except:
+            raise
 
 
 # for '/'

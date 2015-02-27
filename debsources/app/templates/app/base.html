@@ -28,8 +28,19 @@
         <div id="logo">
           <a href="https://www.debian.org" title="Debian Home"><img src="{{ url_for('static', filename='img/debian-50.png') }}" alt="Debian"></a>
         </div> <!-- end logo -->
-        <p class="section"><a href="/">{{ site_name }}</a></p>
-        {% block searchbox %}{% endblock %}
+        <p class="section"><a href="{{ url_for('.index') }}">DEB{{ site_name }}</a></p>
+        <div id="searchbox">
+            {{ macros.searchform(searchform, display="inline", value=query, placeholder="package name", id="query-1") }}
+            <form name="codesearch" method="get"
+            action="https://codesearch.debian.net/search">
+              <input name="q"
+              {%- if package %} value="package:{{ package }} "
+              {%- else %} placeholder="code regex"
+              {%- endif %}
+              type="text" />
+              <input type="submit" value="Search code" />
+            </form>
+        </div>   <!-- end sitetools -->
       </div> <!-- end upperheader -->
 
       <nav id="navbar">

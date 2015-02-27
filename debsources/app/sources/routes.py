@@ -1,3 +1,7 @@
+import os
+
+from flask import current_app
+
 from . import bp_sources
 
 from ..app.helper import bind_render
@@ -6,7 +10,13 @@ from ..app.views import (
     PrefixView, ListPackagesView)
 from ..app.views import ErrorHandler
 
-from .views import IndexView, StatsView
+from .views import StatsView
+
+# context vars
+@bp_sources.context_processor
+def skeleton_variables():
+    site_name = bp_sources.name
+    return dict(site_name=site_name,)
 
 
 # INDEXVIEW

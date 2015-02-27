@@ -2,10 +2,8 @@
   Copyright (C) 2013  Matthieu Caneill, Stefano Zacchiroli
   License: GNU Affero General Public License, version 3 or above.
 #}
-
+{# copied from templates/index.html #}
 {% extends "sources/base.html" %}
-
-{% import "sources/_macros.html" as macros %}
 
 {% block title %}Debian Sources{% endblock %}
 
@@ -13,7 +11,7 @@
 
 {% block content %}
 
-<div id="index_menu">
+<div id="indexmenu">
 
 <h1 class="h1mainpage">{{ self.title() }}</h1>
 <h3><em>All Debian source are belong to us</em> &emsp;
@@ -33,7 +31,7 @@
       <p><strong>Search</strong></p>
       <ul style="list-style-type: none">
 	<li>by <em>package name</em>:<br />
-	  {{ macros.search_form(search_form, value=query, display="inline", size="25", autofocus=True, id="query-2") }}
+	  {{ macros.searchform(searchform, value=query, display="inline", size="25", autofocus=True, id="query-2") }}
 	</li>
 	<li>the <em>source code</em>
 	  <small>(via <a href="https://codesearch.debian.net">codesearch</a>)</small>:<br />
