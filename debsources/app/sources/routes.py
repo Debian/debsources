@@ -7,7 +7,7 @@ from . import bp_sources
 from ..app.helper import bind_render
 from ..app.views import (
     IndexView, DocView, AboutView, SearchView, CtagView, ChecksumView,
-    PrefixView, ListPackagesView, InfoPackageView, ErrorHandler)
+    PrefixView, ListPackagesView, InfoPackageView, Ping, ErrorHandler)
 
 from .views import StatsView, SourceView
 
@@ -24,6 +24,13 @@ bp_sources.errorhandler(403)(
         lambda e: (ErrorHandler(bp_name='sources')(e, http=403), 403))
 bp_sources.errorhandler(404)(
         lambda e: (ErrorHandler(bp_name='sources')(e, http=404), 404))
+
+
+# ping service
+bp_sources.add_url_rule(
+        '/api/ping/',
+        view_func=Ping.as_view(
+            'ping',))
 
 
 # INDEXVIEW

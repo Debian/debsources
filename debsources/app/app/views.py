@@ -195,6 +195,23 @@ class GeneralView(View):
             raise
 
 
+# PING #
+# this is used to check the health of the service
+# for example by codesearch.debian.net
+# If we want to stop traffic from codesearch.d.n, just return 500 error
+class Ping(View):
+    def dispatch_request(self):
+        update_ts_file = os.path.join(current_app.config['CACHE_DIR'], 'last-update')
+        last_update = local_info.read_update_ts(update_ts_file)
+        try:
+            session.query(Package).first().id  # database check
+        except:
+            return jsonify(dict(status="db error", http_status_code=500)), 500
+        return jsonify(dict(status="ok",
+                            http_status_code=200,
+                            last_update=last_update))
+
+
 # for '/'
 class IndexView(GeneralView):
 
