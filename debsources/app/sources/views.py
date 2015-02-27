@@ -107,8 +107,12 @@ class SourceView(GeneralView):
                 redirect_url = os.path.normpath(
                     os.path.join(os.path.dirname(location.path_to), symlink_dest))
 
-                self.render_func = redirect(url_for('.source',
-                                            path_to=redirect_url))
+                if self.d.get('api'):
+                    self.render_func = redirect(url_for('.api_source',
+                                                path_to=redirect_url))
+                else:
+                    self.render_func = redirect(url_for('.source',
+                                                path_to=redirect_url))
                 return dict(redirect=redirect_url)
             else:
                 raise Http403Error(
@@ -248,8 +252,12 @@ class SourceView(GeneralView):
         else:
             redirect_url = '/'.join([package, version, path])
 
-        self.render_func = redirect(url_for('.source',
-                                    path_to=redirect_url))
+        if self.d.get('api'):
+            self.render_func = redirect(url_for('.api_source',
+                                        path_to=redirect_url))
+        else:
+            self.render_func = redirect(url_for('.source',
+                                        path_to=redirect_url))
 
         return dict(redirect=redirect_url)
 

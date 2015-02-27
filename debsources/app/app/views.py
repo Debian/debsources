@@ -43,6 +43,19 @@ app = app_wrapper.app
 session = app_wrapper.session
 
 
+# static file serving
+if 'SERVE_STATIC_FILES' in app.config and app.config['SERVE_STATIC_FILES']:
+    import flask
+
+    @app.route('/javascript/<path:path>')
+    def javascript(path):
+        return flask.send_from_directory('/usr/share/javascript/', path)
+
+    @app.route('/icons/<path:path>')
+    def icons(path):
+        return flask.send_from_directory('/usr/share/icons/', path)
+
+
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     _close_session(session)

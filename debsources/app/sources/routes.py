@@ -89,6 +89,14 @@ bp_sources.add_url_rule(
         get_objects='stats',))
 
 
+# api
+bp_sources.add_url_rule(
+    '/api/stats/',
+    view_func=StatsView.as_view(
+        'api_stats',
+        err_func=ErrorHandler(mode='json')))
+
+
 bp_sources.add_url_rule(
     '/stats/<suite>/',
     view_func=StatsView.as_view(
@@ -96,6 +104,15 @@ bp_sources.add_url_rule(
         render_func=bind_render('sources/stats_suite.html'),
         err_func=ErrorHandler('sources'),
         get_objects='stats_suite',))
+
+
+# api
+bp_sources.add_url_rule(
+    '/api/stats/<suite>/',
+    view_func=StatsView.as_view(
+        'api_stats',
+        err_func=ErrorHandler(mode='json')))
+
 
 
 # SEARCHVIEW
@@ -109,12 +126,21 @@ bp_sources.add_url_rule(
 
 
 bp_sources.add_url_rule(
-    '/advanced-search/',
+    '/advancedsearch/',
     view_func=SearchView.as_view(
         'advanced_search',
         render_func=bind_render('sources/search_advanced.html'),
         err_func=ErrorHandler('sources'),
         get_objects='advanced',))
+
+
+# api
+app.add_url_rule(
+    '/api/advancedsearch/',
+    view_func=AdvancedSearchView.as_view(
+        'api_advanced_search',
+        err_func=ErrorHandler(mode='json')))
+
 
 
 bp_sources.add_url_rule(
@@ -124,6 +150,14 @@ bp_sources.add_url_rule(
         render_func=bind_render('sources/search.html'),
         err_func=ErrorHandler('sources'),
         get_objects='query',))
+
+
+# api
+bp_sources.add_url_rule(
+    '/api/search/<query>/',
+    view_func=SearchView.as_view(
+        'api_search',
+        err_func=ErrorHandler(mode='json')))
 
 
 # ChecksumView
@@ -136,6 +170,14 @@ bp_sources.add_url_rule(
         pagination=True))
 
 
+# api
+bp_sources.add_url_rule(
+    '/api/sha256/',
+    view_func=ChecksumView.as_view(
+        'api_checksum',
+        err_func=ErrorHandler(mode='json')))
+
+
 # CtagView
 bp_sources.add_url_rule(
     '/ctag/',
@@ -146,6 +188,14 @@ bp_sources.add_url_rule(
         pagination=True))
 
 
+# api
+bp_sources.add_url_rule(
+    '/api/ctag/',
+    view_func=CtagView.as_view(
+        'api_ctag',
+        err_func=ErrorHandler(mode='json')))
+
+
 # PREFIXVIEW
 bp_sources.add_url_rule(
     '/prefix/<prefix>',
@@ -153,6 +203,14 @@ bp_sources.add_url_rule(
         'prefix',
         render_func=bind_render('sources/prefix.html'),
         err_func=ErrorHandler('sources'),))
+
+
+# api
+bp_sources.add_url_rule(
+    '/api/prefix/<prefix>/',
+    view_func=PrefixView.as_view(
+        'api_prefix',
+        err_func=ErrorHandler(mode='json')))
 
 
 # LISTPACKAGESVIEW
@@ -165,6 +223,14 @@ bp_sources.add_url_rule(
         pagination=True))
 
 
+# api
+bp_sources.add_url_rule(
+    '/api/list/',
+    view_func=ListpackagesView.as_view(
+        'api_list_packages',
+        err_func=ErrorHandler(mode='json'))))
+
+
 # SOURCEVIEW
 bp_sources.add_url_rule(
     '/src/<path:path_to>/',
@@ -174,6 +240,15 @@ bp_sources.add_url_rule(
         err_func=ErrorHandler('sources')))
 
 
+# api
+bp_sources.add_url_rule(
+    '/api/src/<path:path_to>/',
+    view_func=SourceView.as_view(
+        'api_source',
+        err_func=ErrorHandler(mode='json'),
+        api=True))
+
+
 # INFO PER-VERSION
 bp_sources.add_url_rule(
     '/info/package/<package>/<version>/',
@@ -181,3 +256,11 @@ bp_sources.add_url_rule(
         'info_package',
         render_func=bind_render('sources/infopackage.html'),
         err_func=ErrorHandler('sources'),))
+
+
+# api
+bp_sources.add_url_rule(
+    '/api/info/package/<package>/<version>/',
+    view_func=InfoPackageView.as_view(
+        'api_info_package',
+        err_func=ErrorHandler(mode='json')))
