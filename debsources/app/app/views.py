@@ -19,7 +19,8 @@
 
 import os
 
-from flask import current_app, jsonify, render_template, request, url_for
+from flask import (
+    current_app, jsonify, render_template, request, url_for, redirect)
 from flask.views import View
 
 from sqlalchemy import func as sql_func
@@ -325,6 +326,7 @@ class SearchView(GeneralView):
 
 class ChecksumView(GeneralView):
 
+    @staticmethod
     def _files_with_sum(checksum, slice_=None, package=None):
         """
         Returns a list of files whose hexdigest is checksum.
@@ -412,7 +414,7 @@ class CtagView(GeneralView):
         # pagination:
         if self.d.get('pagination'):
             try:
-                offset = current_app.config.get("LIST_OFFSET")
+                offset = int(current_app.config.get("LIST_OFFSET"))
             except:
                 offset = 60
             start = (page - 1) * offset
