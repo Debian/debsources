@@ -228,7 +228,7 @@ bp_sources.add_url_rule(
     '/api/list/',
     view_func=ListpackagesView.as_view(
         'api_list_packages',
-        err_func=ErrorHandler(mode='json'))))
+        err_func=ErrorHandler(mode='json')))
 
 
 # SOURCEVIEW
@@ -250,6 +250,24 @@ bp_sources.add_url_rule(
         api=True))
 
 
+# SOURCE FILE EMBEDDED ROUTING
+bp_sources.add_url_rule(
+    '/embed/file/<path:path_to>/',
+    view_func=SourceView.as_view(
+        'embedded_source',
+        err_func=ErrorHandler('sources'),
+        templatename="source_file_embedded.html"))
+
+
+# we redirect the old used embedded file page (/embedded/<path>)
+# to the new one (/embed/file/<path>)
+@bp_sources.route("/embedded/<path:path_to>/")
+def old_embedded_file(path_to, **kwargs):
+    return redirect(url_for(".embedded_source",
+                            path_to=path_to,
+                            **request.args))
+
+
 # INFO PER-VERSION
 bp_sources.add_url_rule(
     '/info/package/<package>/<version>/',
@@ -265,3 +283,13 @@ bp_sources.add_url_rule(
     view_func=InfoPackageView.as_view(
         'api_info_package',
         err_func=ErrorHandler(mode='json')))
+
+
+
+# INFO PER-VERSION (EMBEDDED)
+bp_sources.add_url_rule(
+    '/embed/pkginfo/<package>/<version>/',
+    view_func=InfoPackageView.as_view(
+        'sources/embedded_info_package_html',
+        render_func=bind_render('sources/infopackage_embed.html'),
+        err_func=ErrorHandler('sources')))
