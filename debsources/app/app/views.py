@@ -516,3 +516,12 @@ class ListPackagesView(GeneralView):
 
             except Exception as e:
                 raise Http500Error(e)
+
+
+# INFO PAGES #
+class InfoPackageView(GeneralView):
+    def get_objects(self, package, version):
+        pkg_infos = Infobox(session, package, version).get_infos()
+        return dict(pkg_infos=pkg_infos,
+                    package=package,
+                    version=version)

@@ -7,8 +7,7 @@ from . import bp_sources
 from ..app.helper import bind_render
 from ..app.views import (
     IndexView, DocView, AboutView, SearchView, CtagView, ChecksumView,
-    PrefixView, ListPackagesView)
-from ..app.views import ErrorHandler
+    PrefixView, ListPackagesView, InfoPackageView, ErrorHandler)
 
 from .views import StatsView, SourceView
 
@@ -158,3 +157,12 @@ bp_sources.add_url_rule(
         'source',
         # the render func is set by the views.
         err_func=ErrorHandler('sources')))
+
+
+# INFO PER-VERSION
+bp_sources.add_url_rule(
+    '/info/package/<package>/<version>/',
+    view_func=InfoPackageView.as_view(
+        'info_package',
+        render_func=bind_render('sources/infopackage.html'),
+        err_func=ErrorHandler('sources'),))

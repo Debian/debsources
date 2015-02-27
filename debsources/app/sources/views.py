@@ -168,8 +168,8 @@ class SourceView(GeneralView):
                             location.get_package(),
                             location.get_version()).get_infos()
 
-        text_file=file_.istextfile(),
-        raw_url=file_.get_raw_url(),
+        text_file=file_.istextfile()
+        raw_url=file_.get_raw_url()
         # prepare the render func
         self.render_func = None
         # more work to do with files
@@ -205,7 +205,7 @@ class SourceView(GeneralView):
             # we preprocess the file with SourceCodeIterator
             sourcefile = SourceCodeIterator(
                 sources_path, hl=highlight, msg=msg, lang=lang)
-            path=location.get_path_to(),
+            path=location.get_path_to()
 
             self.render_func = bind_render(
                 'sources/source_file.html',
@@ -220,6 +220,7 @@ class SourceView(GeneralView):
                     package=location.get_package(),
                     mime=file_.get_mime(),
                     raw_url=raw_url,
+                    path=path,
                     text_file=text_file,
                     stat=location.get_stat(location.sources_path),
                     checksum=checksum,
@@ -274,9 +275,3 @@ class SourceView(GeneralView):
                 return self._handle_latest_version(package, path)
             else:
                 return self._render_location(package, version, path)
-
-
-def render_source_file_html(templatename, **kwargs):
-    """ preprocess useful variables for the html templates """
-
-
