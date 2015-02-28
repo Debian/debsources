@@ -8,7 +8,7 @@
 {% block head %}
 {{ super() }}
 <link rel="stylesheet" type="text/css"
-      href="{{ url_for('static', filename='css/source_folder.css') }}" />
+      href="{{ url_for('.static', filename='css/source_folder.css') }}" />
 {% endblock %}
 
 {% block title %}Package: {{ package }}{% endblock %}

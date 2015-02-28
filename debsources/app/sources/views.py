@@ -12,12 +12,12 @@ from debsources import statistics
 from debsources.models import (
     PackageName, SourceFile, Checksum, Directory, Location)
 
-from ..app.views import GeneralView
+from ..views import GeneralView
 
-from ..app.views import app, session
+from ..views import app, session
 from ..infobox import Infobox
 from ..sourcecode import SourceCodeIterator
-from ..app.helper import bind_render
+from ..helper import bind_render, bind_redirect
 
 
 class StatsView(GeneralView):
@@ -111,11 +111,11 @@ class SourceView(GeneralView):
                     os.path.join(os.path.dirname(location.path_to), symlink_dest))
 
                 if self.d.get('api'):
-                    self.render_func = redirect(url_for('.api_source',
-                                                path_to=redirect_url))
+                    self.render_func = bind_redirect(url_for('.api_source',
+                                                     path_to=redirect_url))
                 else:
-                    self.render_func = redirect(url_for('.source',
-                                                path_to=redirect_url))
+                    self.render_func = bind_redirect(url_for('.source',
+                                                     path_to=redirect_url))
                 return dict(redirect=redirect_url)
             else:
                 raise Http403Error(
@@ -177,6 +177,7 @@ class SourceView(GeneralView):
                             location.get_version()).get_infos()
         text_file=file_.istextfile()
         raw_url=file_.get_raw_url()
+        path=location.get_path_to()
 
         if self.d.get('api'):
             self.render_func = jsonify
@@ -201,7 +202,7 @@ class SourceView(GeneralView):
             lang = request.args['lang']
         # if the file is not a text file, we redirect to it
         elif not text_file:
-            self.render_func = redirect(raw_url)
+            self.render_func = bind_redirect(raw_url)
 
         # set render func (non-api form)
         if not self.render_func:
@@ -228,7 +229,6 @@ class SourceView(GeneralView):
             # we preprocess the file with SourceCodeIterator
             sourcefile = SourceCodeIterator(
                 sources_path, hl=highlight, msg=msg, lang=lang)
-            path=location.get_path_to()
 
             self.render_func = bind_render(
                 self.d['templatename'],
@@ -272,10 +272,10 @@ class SourceView(GeneralView):
             redirect_url = '/'.join([package, version, path])
 
         if self.d.get('api'):
-            self.render_func = redirect(url_for('.api_source',
+            self.render_func = bind_redirect(url_for('.api_source',
                                         path_to=redirect_url))
         else:
-            self.render_func = redirect(url_for('.source',
+            self.render_func = bind_redirect(url_for('.source',
                                         path_to=redirect_url))
 
         return dict(redirect=redirect_url)

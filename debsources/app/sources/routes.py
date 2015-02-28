@@ -2,14 +2,14 @@ import os
 
 from flask import current_app
 
-from . import bp_sources
-
-from ..app.helper import bind_render
-from ..app.views import (
+from ..helper import bind_render
+from ..views import (
     IndexView, DocView, AboutView, SearchView, CtagView, ChecksumView,
     PrefixView, ListPackagesView, InfoPackageView, Ping, ErrorHandler)
 
 from .views import StatsView, SourceView
+
+from . import bp_sources
 
 # context vars
 @bp_sources.context_processor
@@ -110,9 +110,9 @@ bp_sources.add_url_rule(
 bp_sources.add_url_rule(
     '/api/stats/<suite>/',
     view_func=StatsView.as_view(
-        'api_stats',
-        err_func=ErrorHandler(mode='json')))
-
+        'api_stats_suite',
+        err_func=ErrorHandler(mode='json'),
+        get_objects='stats_suite'))
 
 
 # SEARCHVIEW
@@ -135,9 +135,9 @@ bp_sources.add_url_rule(
 
 
 # api
-app.add_url_rule(
+bp_sources.add_url_rule(
     '/api/advancedsearch/',
-    view_func=AdvancedSearchView.as_view(
+    view_func=SearchView.as_view(
         'api_advanced_search',
         err_func=ErrorHandler(mode='json')))
 
@@ -226,7 +226,7 @@ bp_sources.add_url_rule(
 # api
 bp_sources.add_url_rule(
     '/api/list/',
-    view_func=ListpackagesView.as_view(
+    view_func=ListPackagesView.as_view(
         'api_list_packages',
         err_func=ErrorHandler(mode='json')))
 
