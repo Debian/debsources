@@ -26,11 +26,9 @@ from flask.views import View
 from sqlalchemy import func as sql_func
 
 from debsources.excepts import (
-    InvalidPackageOrVersionError, FileOrFolderNotFound,
     Http500Error, Http404Error, Http404ErrorSuggestions, Http403Error)
 from debsources.models import (
-    Ctag, Package, PackageName, Checksum, Location, Directory,
-    SourceFile, File, Suite)
+    Ctag, Package, PackageName, Checksum, File, Suite)
 from debsources.sqla_session import _close_session
 from debsources import local_info
 from debsources.consts import SUITES
@@ -207,12 +205,15 @@ class GeneralView(View):
         try:
             context = self.get_objects(**kwargs)
             return self.render_func(**context)
-        except Http500Error as e:
-            return self.err_func(e, http=500)
         except Http404Error as e:
             return self.err_func(e, http=404)
         except Http403Error as e:
             return self.err_func(e, http=403)
+        except Http500Error as e:
+            return self.err_func(e, http=500)
+        # do not propagate the exception
+        except Exception as e:
+            return self.err_func(e, http=500)
 
 
 # PING #
@@ -221,7 +222,8 @@ class GeneralView(View):
 # If we want to stop traffic from codesearch.d.n, just return 500 error
 class Ping(View):
     def dispatch_request(self):
-        update_ts_file = os.path.join(current_app.config['CACHE_DIR'], 'last-update')
+        update_ts_file = os.path.join(
+            current_app.config['CACHE_DIR'], 'last-update')
         last_update = local_info.read_update_ts(update_ts_file)
         try:
             session.query(Package).first().id  # database check
@@ -320,30 +322,6 @@ class SearchView(GeneralView):
                        other=other_results)
         return dict(results=results, query=query, suite=suite)
 
-        query = query.replace('%', '').replace('_', '')
-        suite = request.args.get("suite") or ""
-        suite = suite.lower()
-        if suite == "all":
-            suite = ""
-
-        try:
-            exact_matching, other_results = q.search_query(
-                session, query, suite)
-        except Exception as e:
-            raise HTTP500Error(e)  # db problem, ...
-
-        if exact_matching is not None:
-            exact_matching = exact_matching.to_dict()
-        if other_results is not None:
-            other_results = [o.to_dict() for o in other_results]
-            # we exclude the 'exact' matching from other_results:
-            other_results = filter(lambda x: x != exact_matching,
-                                   other_results)
-
-        results = dict(exact=exact_matching,
-                       other=other_results)
-        return dict(results=results, query=query, suite=suite)
-
     def get_advanced(self):
         return dict(suites_list=SUITES["all"])
 
@@ -370,14 +348,14 @@ class ChecksumView(GeneralView):
         You can slice the results, passing slice=(start, end).
         """
         results = (session.query(PackageName.name.label("package"),
-                                    Package.version.label("version"),
-                                    Checksum.file_id.label("file_id"),
-                                    File.path.label("path"))
-                    .filter(Checksum.sha256 == checksum)
-                    .filter(Checksum.package_id == Package.id)
-                    .filter(Checksum.file_id == File.id)
-                    .filter(Package.name_id == PackageName.id)
-                    )
+                                 Package.version.label("version"),
+                                 Checksum.file_id.label("file_id"),
+                                 File.path.label("path"))
+                   .filter(Checksum.sha256 == checksum)
+                   .filter(Checksum.package_id == Package.id)
+                   .filter(Checksum.file_id == File.id)
+                   .filter(Package.name_id == PackageName.id)
+                   )
         if package is not None and package != "":
             results = results.filter(PackageName.name == package)
 
@@ -388,10 +366,9 @@ class ChecksumView(GeneralView):
         results = results.all()
 
         return [dict(path=res.path,
-                        package=res.package,
-                        version=res.version)
+                     package=res.package,
+                     version=res.version)
                 for res in results]
-
 
     def get_objects(self, **kwargs):
         """
@@ -425,7 +402,8 @@ class ChecksumView(GeneralView):
             slice_ = None
 
         # finally we get the files list
-        results = self._files_with_sum(checksum, slice_=slice_, package=package)
+        results = self._files_with_sum(
+            checksum, slice_=slice_, package=package)
 
         return dict(results=results,
                     sha256=checksum,
@@ -461,7 +439,7 @@ class CtagView(GeneralView):
             pagination = None
             slice_ = None
         count, results = Ctag.find_ctag(session, ctag, slice_=slice_,
-                                          package=package)
+                                        package=package)
         if self.d.get('pagination'):
             pagination = Pagination(page, offset, count)
         else:

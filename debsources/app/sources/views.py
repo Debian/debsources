@@ -1,13 +1,13 @@
 import os
 
-from flask import current_app, redirect, request, jsonify, url_for
+from flask import current_app, request, jsonify, url_for
 from sqlalchemy import func as sql_func
 from debian.debian_support import version_compare
 
 from debsources.excepts import (
     Http403Error, Http404ErrorSuggestions, Http404Error, FileOrFolderNotFound,
     InvalidPackageOrVersionError)
-from debsources.consts import SLOCCOUNT_LANGUAGES, SUITES
+from debsources.consts import SLOCCOUNT_LANGUAGES
 from debsources.app.extract_stats import extract_stats
 from debsources import statistics
 from debsources.models import (
@@ -27,14 +27,14 @@ class StatsView(GeneralView):
         if suite not in statistics.suites(session, 'all'):
             raise Http404Error()  # security, to avoid suite='../../foo',
             # to include <img>s, etc.
-        stats_file = os.path.join(current_app.config["CACHE_DIR"], "stats.data")
+        stats_file = os.path.join(current_app.config["CACHE_DIR"],
+                                  "stats.data")
         res = extract_stats(filename=stats_file,
                             filter_suites=["debian_" + suite])
 
         return dict(results=res,
                     languages=SLOCCOUNT_LANGUAGES,
                     suite=suite)
-
 
     def get_stats(self):
         stats_file = os.path.join(app.config["CACHE_DIR"], "stats.data")
@@ -109,7 +109,8 @@ class SourceView(GeneralView):
             if dest.startswith(os.path.normpath(location.version_path) + '/'):
                 # symlink is safe; redirect to its destination
                 redirect_url = os.path.normpath(
-                    os.path.join(os.path.dirname(location.path_to), symlink_dest))
+                    os.path.join(os.path.dirname(location.path_to),
+                                 symlink_dest))
 
                 if self.d.get('api'):
                     self.render_func = bind_redirect(url_for('.api_source',
@@ -140,12 +141,11 @@ class SourceView(GeneralView):
         # (if path == "", then the dir is toplevel, and we don't want
         # the .pc directory)
 
-        pkg_infos = Infobox(session,
-                            location.get_package(),
+        pkg_infos = Infobox(session, location.get_package(),
                             location.get_version()).get_infos()
 
-        content=directory.get_listing()
-        path=location.get_path_to()
+        content = directory.get_listing()
+        path = location.get_path_to()
 
         if self.d.get('api'):
             self.render_func = jsonify
@@ -176,9 +176,9 @@ class SourceView(GeneralView):
         pkg_infos = Infobox(session,
                             location.get_package(),
                             location.get_version()).get_infos()
-        text_file=file_.istextfile()
-        raw_url=file_.get_raw_url()
-        path=location.get_path_to()
+        text_file = file_.istextfile()
+        raw_url = file_.get_raw_url()
+        path = location.get_path_to()
 
         if self.d.get('api'):
             self.render_func = jsonify
@@ -207,13 +207,15 @@ class SourceView(GeneralView):
 
         # set render func (non-api form)
         if not self.render_func:
-            sources_path = raw_url.replace(current_app.config['SOURCES_STATIC'],
-                                           current_app.config['SOURCES_DIR'],
-                                           1)
+            sources_path = raw_url.replace(
+                current_app.config['SOURCES_STATIC'],
+                current_app.config['SOURCES_DIR'],
+                1)
             # ugly, but better than global variable,
             # and better than re-requesting the db
             # TODO: find proper solution for retrieving souces_path
-            # (without putting it in kwargs, we don't want it in json rendering eg)
+            # (without putting it in kwargs, we don't want it in
+            # json rendering eg)
 
             # we get the variables for highlighting and message (if they exist)
             try:
@@ -274,10 +276,10 @@ class SourceView(GeneralView):
 
         if self.d.get('api'):
             self.render_func = bind_redirect(url_for('.api_source',
-                                        path_to=redirect_url))
+                                             path_to=redirect_url))
         else:
             self.render_func = bind_redirect(url_for('.source',
-                                        path_to=redirect_url))
+                                             path_to=redirect_url))
 
         return dict(redirect=redirect_url)
 

@@ -23,7 +23,7 @@ with open('requirements.txt') as f:
                         if not l.startswith('#')]
 
 description = 'Browse, query and make stats on Debian packages source code.'
-long_description = (
+long_description = (  # NOQA
 'This tool allows you to set up a Debsources instance, and synchronize\n'
 'the packages sources you want, in order to browse them via a web\n'
 'application, produce statistics through plugins, and play with source code.')
@@ -33,7 +33,7 @@ setup(
     version='0.1',
     packages=find_packages(),
     install_requires=install_requires,
-    scripts = glob.glob('bin/debsources-*'),
+    scripts=glob.glob('bin/debsources-*'),
     include_package_data=True,
     author="Stefano Zacchiroli, Matthieu Caneill",
     author_email="info@sources.debian.net",

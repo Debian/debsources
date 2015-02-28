@@ -1,6 +1,4 @@
-import os
-
-from flask import current_app
+from flask import redirect, url_for, request
 
 from ..helper import bind_render
 from ..views import (
@@ -11,6 +9,7 @@ from .views import StatsView, SourceView
 
 from . import bp_sources
 
+
 # context vars
 @bp_sources.context_processor
 def skeleton_variables():
@@ -19,18 +18,19 @@ def skeleton_variables():
 
 
 # site errors
-# 500 handler cannot be registered on a blueprint
-bp_sources.errorhandler(403)(
-        lambda e: (ErrorHandler(bp_name='sources')(e, http=403), 403))
-bp_sources.errorhandler(404)(
-        lambda e: (ErrorHandler(bp_name='sources')(e, http=404), 404))
+# XXX 500 handler cannot be registered on a blueprint
+# TODO see debsources.app.view#errorhandler section
+# bp_sources.errorhandler(403)(
+#         lambda e: (ErrorHandler(bp_name='sources')(e, http=403), 403))
+# bp_sources.errorhandler(404)(
+#         lambda e: (ErrorHandler(bp_name='sources')(e, http=404), 404))
 
 
 # ping service
 bp_sources.add_url_rule(
-        '/api/ping/',
-        view_func=Ping.as_view(
-            'ping',))
+    '/api/ping/',
+    view_func=Ping.as_view(
+        'ping',))
 
 
 # INDEXVIEW
@@ -141,7 +141,6 @@ bp_sources.add_url_rule(
     view_func=SearchView.as_view(
         'api_advanced_search',
         err_func=ErrorHandler(mode='json')))
-
 
 
 bp_sources.add_url_rule(
@@ -285,7 +284,6 @@ bp_sources.add_url_rule(
     view_func=InfoPackageView.as_view(
         'api_info_package',
         err_func=ErrorHandler(mode='json')))
-
 
 
 # INFO PER-VERSION (EMBEDDED)
