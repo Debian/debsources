@@ -105,15 +105,18 @@ app.jinja_env.globals['url_for_other_page'] = url_for_other_page
 # ERRORS
 class ErrorHandler(object):
 
-    def __init__(self, bp_name='', mode='html'):
+    def __init__(self, bp_name='', mode='html', http=404):
         self.mode = mode
         self.bp_name = bp_name
+        self.http = http
 
-    def __call__(self, error, http=404):
+    def __call__(self, error, http=None):
+        if http is not None:
+            self.http = http
         try:
-            method = getattr(self, 'error_{}'.format(http))
+            method = getattr(self, 'error_{}'.format(self.http))
         except:
-            raise Exception("Unimplemented HTTP error: {}".format(http))
+            raise Exception("Unimplemented HTTP error: {}".format(self.http))
         return method(error)
 
     def bp_path(self, tpl):
@@ -152,13 +155,20 @@ class ErrorHandler(object):
             return jsonify(dict(error=500))
         else:
             return render_template(
-                self.bp_path(self.bp_name, '500.html')), 500
+                self.bp_path('500.html')), 500
 
 
-# XXX blueprints will have its own error handler
-app.errorhandler(403)(lambda _: ("Forbidden", 403))
-app.errorhandler(404)(lambda _: ("File not Found", 404))
-app.errorhandler(500)(lambda _: ("Server Error", 500))
+# TODO blueprints should have its own error handler
+# this indicates, at least for the 500 internal errorhandler,
+# which could only be set under application context under flask,
+# should be aware of which bp is active.
+#
+# app.errorhandler(403)(lambda _: ("Forbidden", 403))
+# app.errorhandler(404)(lambda _: ("File not Found", 404))
+# app.errorhandler(500)(lambda _: ("Server Error", 500))
+app.errorhandler(403)(ErrorHandler('sources', http=403))
+app.errorhandler(404)(ErrorHandler('sources', http=404))
+app.errorhandler(500)(ErrorHandler('sources', http=500))
 
 
 # FOR BOTH RENDERING AND API
@@ -197,15 +207,12 @@ class GeneralView(View):
         try:
             context = self.get_objects(**kwargs)
             return self.render_func(**context)
-        # for debug, we comment it.
-        # except Http500Error as e:
-        #     return self.err_func(e, http=500)
-        # except Http404Error as e:
-        #     return self.err_func(e, http=404)
-        # except Http403Error as e:
-        #     return self.err_func(e, http=403)
-        except:
-            raise
+        except Http500Error as e:
+            return self.err_func(e, http=500)
+        except Http404Error as e:
+            return self.err_func(e, http=404)
+        except Http403Error as e:
+            return self.err_func(e, http=403)
 
 
 # PING #
