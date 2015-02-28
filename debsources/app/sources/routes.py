@@ -65,7 +65,7 @@ bp_sources.add_url_rule(
 
 
 bp_sources.add_url_rule(
-    '/doc/overview',
+    '/doc/overview/',
     view_func=DocView.as_view(
         'doc_overview',
         render_func=bind_render('sources/doc_overview.html'),))
@@ -94,7 +94,8 @@ bp_sources.add_url_rule(
     '/api/stats/',
     view_func=StatsView.as_view(
         'api_stats',
-        err_func=ErrorHandler(mode='json')))
+        err_func=ErrorHandler(mode='json'),
+        get_objects='stats',))
 
 
 bp_sources.add_url_rule(
@@ -144,7 +145,7 @@ bp_sources.add_url_rule(
 
 
 bp_sources.add_url_rule(
-    '/search/<query>',
+    '/search/<query>/',
     view_func=SearchView.as_view(
         'search',
         render_func=bind_render('sources/search.html'),
@@ -157,7 +158,8 @@ bp_sources.add_url_rule(
     '/api/search/<query>/',
     view_func=SearchView.as_view(
         'api_search',
-        err_func=ErrorHandler(mode='json')))
+        err_func=ErrorHandler(mode='json'),
+        get_objects='query'))
 
 
 # ChecksumView
@@ -198,7 +200,7 @@ bp_sources.add_url_rule(
 
 # PREFIXVIEW
 bp_sources.add_url_rule(
-    '/prefix/<prefix>',
+    '/prefix/<prefix>/',
     view_func=PrefixView.as_view(
         'prefix',
         render_func=bind_render('sources/prefix.html'),
@@ -215,7 +217,7 @@ bp_sources.add_url_rule(
 
 # LISTPACKAGESVIEW
 bp_sources.add_url_rule(
-    '/list/<int:page>',
+    '/list/<int:page>/',
     view_func=ListPackagesView.as_view(
         'list_packages',
         render_func=bind_render('sources/list.html'),
@@ -256,7 +258,7 @@ bp_sources.add_url_rule(
     view_func=SourceView.as_view(
         'embedded_source',
         err_func=ErrorHandler('sources'),
-        templatename="source_file_embedded.html"))
+        templatename="sources/source_file_embedded.html"))
 
 
 # we redirect the old used embedded file page (/embedded/<path>)

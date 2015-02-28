@@ -15,7 +15,7 @@ The file you are looking for might exist in one of the following
 versions:
 <ul>
 {% for s in suggestions %}
-  <li><a href="{{ url_for('source_html', path_to=s) }}">{{ s }}</a></li>
+  <li><a href="{{ url_for('.source', path_to=s) }}">{{ s }}</a></li>
 {% endfor %}
 </ul>
 </p>

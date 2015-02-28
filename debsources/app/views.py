@@ -34,9 +34,9 @@ from debsources.models import (
 from debsources.sqla_session import _close_session
 from debsources import local_info
 from debsources.consts import SUITES
-# XXX from the original apps
-from debsources.app.forms import SearchForm
-from debsources.app.pagination import Pagination
+from .forms import SearchForm
+from .pagination import Pagination
+from .infobox import Infobox
 
 from debsources.app import app_wrapper
 app = app_wrapper.app
