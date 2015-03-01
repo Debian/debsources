@@ -95,6 +95,18 @@ def sloc_pie(slocs, fname):
     logging.debug('generate sloccount pie chart to %s...' % fname)
     plt.figure()
     langs, slocs = _split_series(list(slocs.iteritems()))
-    plt.pie(slocs, labels=langs, autopct='%1.1f%%')
+    modified_langs = ["Other: ", "Other"]
+    modified_slocs = [0]
+    for i, sloc in enumerate(slocs):
+        if sloc > sum(slocs) * 5 / 100:
+            modified_slocs.append(sloc)
+            modified_langs.append(langs[i])
+        else:
+            modified_slocs[0] = (sloc + modified_slocs[0])
+            modified_langs[0] = modified_langs[0] + " " + langs[i]
+            if i % 12 == 0 and i != 0:
+                modified_langs[0] = modified_langs[0] + "\n"
+    plt.pie(modified_slocs, labels=modified_langs[1:], autopct='%1.1f%%')
+    plt.figtext(.02, .02, modified_langs[0])
     plt.savefig(fname)
     plt.close()
