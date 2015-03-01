@@ -35,8 +35,9 @@ from debsources.consts import SUITES
 from .forms import SearchForm
 from .pagination import Pagination
 from .infobox import Infobox
+from .helper import format_big_num, url_for_other_page
 
-from debsources.app import app_wrapper
+from . import app_wrapper
 app = app_wrapper.app
 session = app_wrapper.session
 
@@ -81,31 +82,17 @@ def skeleton_variables():
                 credits=credits)
 
 
-# jinja settings
-def format_big_num(num):
-    try:
-        res = "{:,}".format(num)
-    except:
-        res = num
-    return res
-
+# jinja2 settings
 app.jinja_env.filters['format_big_num'] = format_big_num
-
-
-def url_for_other_page(page):
-    args = dict(request.args.copy())
-    args['page'] = page
-    return url_for(request.endpoint, **args)
 app.jinja_env.globals['url_for_other_page'] = url_for_other_page
-# end jinja settings
 
 
 # ERRORS
 class ErrorHandler(object):
 
     def __init__(self, bp_name='', mode='html', http=404):
-        self.mode = mode
         self.bp_name = bp_name
+        self.mode = mode
         self.http = http
 
     def __call__(self, error, http=None):
@@ -156,24 +143,24 @@ class ErrorHandler(object):
                 self.bp_path('500.html')), 500
 
 
-# TODO blueprints should have its own error handler
-# this indicates, at least for the 500 internal errorhandler,
-# which could only be set under application context under flask,
-# should be aware of which bp is active.
-#
+# TODO unlike 403,404, which could be registered per blueprint,
+# there could be only one 500 error handler for the whole app.
+# thus, the 500 handler should be aware of the active blueprint,
+# so that correct page template will be rendered for the blueprint.
+# we should avoid hard-coding the 'source'
+app.errorhandler(500)(ErrorHandler('sources', http=500))
+
+# following is a plain text, bp-agnostic one.
 # app.errorhandler(403)(lambda _: ("Forbidden", 403))
 # app.errorhandler(404)(lambda _: ("File not Found", 404))
 # app.errorhandler(500)(lambda _: ("Server Error", 500))
-app.errorhandler(403)(ErrorHandler('sources', http=403))
-app.errorhandler(404)(ErrorHandler('sources', http=404))
-app.errorhandler(500)(ErrorHandler('sources', http=500))
 
 
 # FOR BOTH RENDERING AND API
 class GeneralView(View):
     def __init__(self,
                  render_func=jsonify,
-                 err_func=lambda *args, **kwargs: "OOPS! Error occurred.",
+                 err_func=ErrorHandler(mode='json'),
                  get_objects=None,
                  **kwargs):
         """
@@ -205,10 +192,10 @@ class GeneralView(View):
         try:
             context = self.get_objects(**kwargs)
             return self.render_func(**context)
-        except Http404Error as e:
-            return self.err_func(e, http=404)
         except Http403Error as e:
             return self.err_func(e, http=403)
+        except Http404Error as e:
+            return self.err_func(e, http=404)
         except Http500Error as e:
             return self.err_func(e, http=500)
         # do not propagate the exception

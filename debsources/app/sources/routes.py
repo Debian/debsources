@@ -1,4 +1,4 @@
-from flask import redirect, url_for, request
+from flask import redirect, url_for, request, jsonify
 
 from ..helper import bind_render
 from ..views import (
@@ -6,7 +6,6 @@ from ..views import (
     PrefixView, ListPackagesView, InfoPackageView, Ping, ErrorHandler)
 
 from .views import StatsView, SourceView
-
 from . import bp_sources
 
 
@@ -20,10 +19,10 @@ def skeleton_variables():
 # site errors
 # XXX 500 handler cannot be registered on a blueprint
 # TODO see debsources.app.view#errorhandler section
-# bp_sources.errorhandler(403)(
-#         lambda e: (ErrorHandler(bp_name='sources')(e, http=403), 403))
-# bp_sources.errorhandler(404)(
-#         lambda e: (ErrorHandler(bp_name='sources')(e, http=404), 404))
+bp_sources.errorhandler(403)(
+    lambda e: (ErrorHandler(bp_name='sources')(e, http=403), 403))
+bp_sources.errorhandler(404)(
+    lambda e: (ErrorHandler(bp_name='sources')(e, http=404), 404))
 
 
 # ping service
@@ -39,6 +38,7 @@ bp_sources.add_url_rule(
     view_func=IndexView.as_view(
         'index',
         render_func=bind_render('sources/index.html'),
+        err_func=ErrorHandler('sources'),
         news_html='sources_news.html'))
 
 
@@ -47,28 +47,32 @@ bp_sources.add_url_rule(
     '/doc/',
     view_func=DocView.as_view(
         'doc',
-        render_func=bind_render('sources/doc.html'),))
+        render_func=bind_render('sources/doc.html'),
+        err_func=ErrorHandler('sources'),))
 
 
 bp_sources.add_url_rule(
     '/doc/url/',
     view_func=DocView.as_view(
         'doc_url',
-        render_func=bind_render('sources/doc_url.html'),))
+        render_func=bind_render('sources/doc_url.html'),
+        err_func=ErrorHandler('sources'),))
 
 
 bp_sources.add_url_rule(
     '/doc/api/',
     view_func=DocView.as_view(
         'doc_api',
-        render_func=bind_render('sources/doc_api.html'),))
+        render_func=bind_render('sources/doc_api.html'),
+        err_func=ErrorHandler('sources'),))
 
 
 bp_sources.add_url_rule(
     '/doc/overview/',
     view_func=DocView.as_view(
         'doc_overview',
-        render_func=bind_render('sources/doc_overview.html'),))
+        render_func=bind_render('sources/doc_overview.html'),
+        err_func=ErrorHandler('sources'),))
 
 
 # ABOUTVIEW
@@ -76,7 +80,8 @@ bp_sources.add_url_rule(
     '/about/',
     view_func=AboutView.as_view(
         'about',
-        render_func=bind_render('sources/about.html'),))
+        render_func=bind_render('sources/about.html'),
+        err_func=ErrorHandler('sources'),))
 
 
 # STATSVIEW
@@ -112,6 +117,7 @@ bp_sources.add_url_rule(
     '/api/stats/<suite>/',
     view_func=StatsView.as_view(
         'api_stats_suite',
+        render_func=jsonify,
         err_func=ErrorHandler(mode='json'),
         get_objects='stats_suite'))
 
@@ -122,6 +128,7 @@ bp_sources.add_url_rule(
     view_func=SearchView.as_view(
         'recv_search',
         render_func=bind_render('sources/index.html'),
+        err_func=ErrorHandler('sources'),
         recv_search=True),
     methods=['GET', 'POST'])
 
@@ -140,6 +147,7 @@ bp_sources.add_url_rule(
     '/api/advancedsearch/',
     view_func=SearchView.as_view(
         'api_advanced_search',
+        render_func=jsonify,
         err_func=ErrorHandler(mode='json')))
 
 
@@ -157,6 +165,7 @@ bp_sources.add_url_rule(
     '/api/search/<query>/',
     view_func=SearchView.as_view(
         'api_search',
+        render_func=jsonify,
         err_func=ErrorHandler(mode='json'),
         get_objects='query'))
 
@@ -176,6 +185,7 @@ bp_sources.add_url_rule(
     '/api/sha256/',
     view_func=ChecksumView.as_view(
         'api_checksum',
+        render_func=jsonify,
         err_func=ErrorHandler(mode='json')))
 
 
@@ -194,6 +204,7 @@ bp_sources.add_url_rule(
     '/api/ctag/',
     view_func=CtagView.as_view(
         'api_ctag',
+        render_func=jsonify,
         err_func=ErrorHandler(mode='json')))
 
 
@@ -211,6 +222,7 @@ bp_sources.add_url_rule(
     '/api/prefix/<prefix>/',
     view_func=PrefixView.as_view(
         'api_prefix',
+        render_func=jsonify,
         err_func=ErrorHandler(mode='json')))
 
 
@@ -229,6 +241,7 @@ bp_sources.add_url_rule(
     '/api/list/',
     view_func=ListPackagesView.as_view(
         'api_list_packages',
+        render_func=jsonify,
         err_func=ErrorHandler(mode='json')))
 
 
@@ -283,6 +296,7 @@ bp_sources.add_url_rule(
     '/api/info/package/<package>/<version>/',
     view_func=InfoPackageView.as_view(
         'api_info_package',
+        render_func=jsonify,
         err_func=ErrorHandler(mode='json')))
 
 

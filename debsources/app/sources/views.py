@@ -8,14 +8,12 @@ from debsources.excepts import (
     Http403Error, Http404ErrorSuggestions, Http404Error, FileOrFolderNotFound,
     InvalidPackageOrVersionError)
 from debsources.consts import SLOCCOUNT_LANGUAGES
-from debsources.app.extract_stats import extract_stats
 from debsources import statistics
 from debsources.models import (
     PackageName, SourceFile, Checksum, Directory, Location)
 
-from ..views import GeneralView
-
-from ..views import app, session
+from ..views import GeneralView, app, session
+from ..extract_stats import extract_stats
 from ..infobox import Infobox
 from ..sourcecode import SourceCodeIterator
 from ..helper import bind_render, bind_redirect
