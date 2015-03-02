@@ -459,6 +459,14 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         self.assertEqual(rv["results"]["debian_jessie.source_files"], 2038)
         self.assertEqual(rv["results"]["debian_jessie.sloccount.python"], 2916)
 
+    def test_api_released_suite(self):
+        rv = json.loads(self.app.get('/api/stats/wheezy/').data)
+        self.assertEqual(rv["suite"], "wheezy")
+        self.assertEqual(rv["results"]["debian_wheezy.sloccount.cpp"], 37375)
+        self.assertEqual(rv["results"]["debian_wheezy.source_packages"], 12)
+        self.assertEqual(rv["rel_date"], "2013-05-04")
+        self.assertEqual(rv["rel_version"], "7")
+
     def test_api_stats_all(self):
         rv = json.loads(self.app.get('/api/stats/').data)
         self.assertEqual(sorted(rv["all_suites"]),

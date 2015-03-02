@@ -16,6 +16,12 @@
 {% set suite = "debian_" + suite %}
 
 <ul>
+  {% if rel_date != "None" %}
+  <li>Release date: {{rel_date}}</li>
+  {% endif %}
+  {% if rel_version != None %}
+  <li>Release version: {{rel_version}}</li>
+  {% endif %}
   <li>Source files: {{ results[suite + ".source_files"] | format_big_num }}</li>
   <li>Source packages: {{ results[suite + ".source_packages"] | format_big_num }}</li>
   <li>Disk usage: {{ results[suite + ".disk_usage"] | format_big_num }} kB</li>

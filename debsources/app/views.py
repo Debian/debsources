@@ -37,7 +37,7 @@ from debsources.excepts import (
     Http500Error, Http404Error, Http404ErrorSuggestions, Http403Error)
 from debsources.models import (
     Ctag, Package, PackageName, Checksum, Location, Directory,
-    SourceFile, File, Suite)
+    SourceFile, File, Suite, SuiteInfo)
 from debsources.app.sourcecode import SourceCodeIterator
 from debsources.app.forms import SearchForm
 from debsources.app.infobox import Infobox
@@ -977,10 +977,13 @@ class StatsView(GeneralView):
         stats_file = os.path.join(app.config["CACHE_DIR"], "stats.data")
         res = extract_stats(filename=stats_file,
                             filter_suites=["debian_" + suite])
+        info = session.query(SuiteInfo).filter(SuiteInfo.name == suite).first()
 
         return dict(results=res,
                     languages=SLOCCOUNT_LANGUAGES,
-                    suite=suite)
+                    suite=suite,
+                    rel_date=str(info.release_date),
+                    rel_version=info.version)
 
 # STATS FOR ONE SUITE (HTML)
 app.add_url_rule('/stats/<suite>/',
