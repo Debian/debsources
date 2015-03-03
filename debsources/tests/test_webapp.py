@@ -15,15 +15,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import unittest
+import datetime
 import json
 import os
+import unittest
 
 from nose.plugins.attrib import attr
 
+from debsources.app.app_factory import AppWrapper
 from debsources.tests.db_testing import DbTestFixture
 from debsources.tests.testdata import TEST_DB_NAME
-from debsources.app.app_factory import AppWrapper
 
 
 @attr('webapp')
@@ -464,7 +465,8 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         self.assertEqual(rv["suite"], "wheezy")
         self.assertEqual(rv["results"]["debian_wheezy.sloccount.cpp"], 37375)
         self.assertEqual(rv["results"]["debian_wheezy.source_packages"], 12)
-        self.assertEqual(rv["rel_date"], "2013-05-04")
+        wheezy_rel = datetime.datetime.strptime("04052013", "%d%m%Y").date()
+        self.assertEqual(rv["rel_date"], str(wheezy_rel))
         self.assertEqual(rv["rel_version"], "7")
 
     def test_api_stats_all(self):
