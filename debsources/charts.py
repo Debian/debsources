@@ -49,7 +49,8 @@ def size_plot(series, fname):
 
     plt.figure()
     plt.plot(ts, values, linestyle='-', marker='o')
-    plt.savefig(fname)
+    plt.xticks(rotation=30)
+    plt.savefig(fname, bbox_inches='tight')
     plt.close()
 
 
@@ -79,6 +80,7 @@ def sloc_plot(multiseries, fname):
 
     # plt.legend(bbox_to_anchor=(0., 1.02, 1., .102),
     # plt.legend(bbox_to_anchor=(0, -0.04),
+    plt.xticks(rotation=30)
     plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), mode='expand',
                loc='lower left', ncol=7,
                prop={'size': 8})
