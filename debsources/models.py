@@ -19,6 +19,7 @@
 import os
 import magic
 import stat
+import fnmatch
 from collections import namedtuple
 
 from sqlalchemy import Column, ForeignKey
@@ -652,11 +653,10 @@ class Location(object):
 class Directory(object):
     """ a folder in a package """
 
-    def __init__(self, location, toplevel=False):
-        # if the directory is a toplevel one, we remove the .pc folder
+    def __init__(self, location, hidden_files=[]):
         self.sources_path = location.sources_path
-        self.toplevel = toplevel
         self.location = location
+        self.hidden_files = hidden_files
 
     def get_listing(self):
         """
@@ -670,11 +670,17 @@ class Directory(object):
             else:
                 return "file"
         get_stat, join_path = self.location.get_stat, os.path.join
-        listing = sorted(dict(name=f, type=get_type(f),
+        listing = sorted(dict(name=f, type=get_type(f), hidden=False,
                               stat=get_stat(join_path(self.sources_path, f)))
                          for f in os.listdir(self.sources_path))
-        if self.toplevel:
-            listing = filter(lambda x: x['name'] != ".pc", listing)
+
+        for hidden_file in self.hidden_files:
+            for f in listing:
+                full_path = os.path.join(self.location.sources_path, f['name'])
+                if f['type'] == "directory":
+                    full_path += "/"
+                f['hidden'] = (f['hidden']
+                               or fnmatch.fnmatch(full_path, hidden_file))
 
         return listing
 

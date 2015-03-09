@@ -41,7 +41,9 @@ DEFAULT_CONFIG.update({
         'force_triggers': [],
         'single_transaction': 'true',
         },
-    'webapp': {},
+    'webapp': {
+        'hidden_files': '*/*.pc/'
+    },
 })
 
 LOG_FMT_FILE = '%(asctime)s %(module)s:%(levelname)s %(message)s'

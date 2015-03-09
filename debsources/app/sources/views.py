@@ -137,10 +137,8 @@ class SourceView(GeneralView):
         """
         renders a directory, lists subdirs and subfiles
         """
-        directory = Directory(location, toplevel=(location.get_path() == ""))
-
-        # (if path == "", then the dir is toplevel, and we don't want
-        # the .pc directory)
+        hidden_files = app.config['HIDDEN_FILES'].split(" ")
+        directory = Directory(location, hidden_files)
 
         pkg_infos = Infobox(session, location.get_package(),
                             location.get_version()).get_infos()

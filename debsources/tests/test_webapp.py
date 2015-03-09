@@ -272,8 +272,29 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         self.assertEqual(rv['directory'], "2.01-6")
         self.assertIn({"type": "file",
                        "name": "ledit.ml",
+                       "hidden": False,
                        "stat": {"perms": "rw-r--r--",
                                 "size": 45858,
+                                "type": "-",
+                                "symlink_dest": None}
+                       }, rv['content'])
+
+    def test_api_hidden_files_folder(self):
+        rv = json.loads(self.app.get('/api/src/nvidia-xconfig/319.72-1/').data)
+        self.assertIn({"type": "directory",
+                       "name": ".pc",
+                       "hidden": True,
+                       "stat": {"perms": "rwxr-xr-x",
+                                "size": 4096,
+                                "type": "d",
+                                "symlink_dest": None}
+                       }, rv['content'])
+
+        self.assertIn({"type": "file",
+                       "name": "lscf.c",
+                       "hidden": False,
+                       "stat": {"perms": "rw-r--r--",
+                                "size": 11940,
                                 "type": "-",
                                 "symlink_dest": None}
                        }, rv['content'])
@@ -282,6 +303,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         rv = json.loads(self.app.get('/api/src/beignet/1.0.0-1/').data)
         self.assertIn({"type": "file",
                        "name": "README.md",
+                       "hidden": False,
                        "stat": {"perms": "rwxrwxrwx",
                                 "size": 17,
                                 "type": "l",
