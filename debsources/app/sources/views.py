@@ -10,7 +10,7 @@ from debsources.excepts import (
 from debsources.consts import SLOCCOUNT_LANGUAGES
 from debsources import statistics
 from debsources.models import (
-    PackageName, SourceFile, Checksum, Directory, Location)
+    PackageName, SourceFile, Checksum, Directory, Location, SuiteInfo)
 
 from ..views import GeneralView, app, session
 from ..extract_stats import extract_stats
@@ -29,10 +29,13 @@ class StatsView(GeneralView):
                                   "stats.data")
         res = extract_stats(filename=stats_file,
                             filter_suites=["debian_" + suite])
+        info = session.query(SuiteInfo).filter(SuiteInfo.name == suite).first()
 
         return dict(results=res,
                     languages=SLOCCOUNT_LANGUAGES,
-                    suite=suite)
+                    suite=suite,
+                    rel_date=str(info.release_date),
+                    rel_version=info.version)
 
     def get_stats(self):
         stats_file = os.path.join(app.config["CACHE_DIR"], "stats.data")
