@@ -40,3 +40,15 @@ License: GNU Affero General Public License, version 3 or above.
     font-size: small;
     text-align: right;
 }
+
+.hidden_file {
+    display: none;
+}
+
+.hidden_file.visible {
+    display: table-row;
+}
+
+#btn_toggle_hidden_files {
+	font-size: 0.8em;
+}

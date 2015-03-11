@@ -153,6 +153,7 @@ class SourceView(GeneralView):
                 'sources/source_folder.html',
                 subdirs=filter(lambda x: x['type'] == "directory", content),
                 subfiles=filter(lambda x: x['type'] == "file", content),
+                nb_hidden_files=sum(1 for f in content if f['hidden']),
                 pathl=Location.get_path_links(".source", path),)
 
         return dict(type="directory",
