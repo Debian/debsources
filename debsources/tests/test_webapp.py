@@ -483,5 +483,11 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         link2 = '<a href="/src/libcaca/0.99.beta17-1/src/cacaview.c/">'
         self.assertIn(link2, rv.data)
 
+    def test_bp_copyright_setup(self):
+        if self.app_wrapper.app.config.get('BLUEPRINT_COPYRIGHT'):
+            rv = self.app.get('/copyright/')
+            self.assertEqual(200, rv.status_code)
+
+
 if __name__ == '__main__':
     unittest.main(exit=False)
