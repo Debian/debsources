@@ -1,7 +1,7 @@
 backup
 cache
 local
-sources
+/sources
 *.pyc
 etc/config.local.ini
 .coverage

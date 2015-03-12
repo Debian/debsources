@@ -1,0 +1,18 @@
+{#
+  Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
+  License: GNU Affero General Public License, version 3 or above.
+#}
+{# copied from templates/prefix.html #}
+{% extends "sources/base.html" %}
+
+{% block title %}Package list: prefix {{ prefix }}{% endblock %}
+
+{% block breadcrumbs %}packages by prefix / {{ prefix }}{% endblock %}
+
+{% block content %}
+
+<h2>{{ self.title() }}</h2>
+{{ macros.show_suite(suite) }}
+{{ macros.listpackages(packages, suite) }}
+
+{% endblock %}

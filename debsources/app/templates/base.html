@@ -2,21 +2,22 @@
     Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
     License: GNU Affero General Public License, version 3 or above.
 #}
-
-{% import "macros.inc.html" as macros %}
+{# XXX copyed from templates/base.html #}
+{% import "_macros.html" as macros %}
 
 <!doctype html>
 <html>
   <head>
     {% block head %}
-    <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css"
-          href="{{ url_for('static', filename='css/debian.css') }}" />
-    <link rel="stylesheet" type="text/css"
-          href="{{ url_for('static', filename='css/base.css') }}" />
-    <link rel="shortcut icon"
-          href="{{ url_for('static', filename='favicon.ico') }}" />
-    <title>{% block title %}{% endblock %} | Debian sources</title>
+      <meta charset="UTF-8">
+      <link rel="stylesheet" type="text/css"
+            href="{{ url_for('static', filename='css/debian.css') }}" />
+      <link rel="stylesheet" type="text/css"
+            href="{{ url_for('static', filename='css/base.css') }}" />
+      <link rel="shortcut icon"
+            href="{{ url_for('static', filename='favicon.ico') }}" />
+      {# title_suffix could be like 'Debian sources' or 'Debian copyright' #}
+      <title>{% block title %}{% endblock %}{% block title_suffix %}{% endblock %}</title>
     {% endblock %}
   </head>
   <body>
@@ -25,48 +26,41 @@
         <div id="logo">
           <a href="https://www.debian.org" title="Debian Home"><img src="{{ url_for('static', filename='img/debian-50.png') }}" alt="Debian"></a>
         </div> <!-- end logo -->
-        <p class="section"><a href="/">Debsources</a></p>
-	<div id="searchbox">
-	    {{ macros.searchform(searchform, display="inline",
-	                         value=query, placeholder="package name",
-	                         id="query-1") }}
-	    <form name="codesearch" method="get"
-		  action="https://codesearch.debian.net/search">
-	      <input name="q"
-		     {%- if package %} value="package:{{ package }} "
-		     {%- else %} placeholder="code regex"
-		     {%- endif %}
-		     type="text" />
-	      <input type="submit" value="Search code" />
-	    </form>
-	</div>   <!-- end sitetools -->
+        <p class="section"><a href="{{ url_for('.index') }}">DEB{{ site_name }}</a></p>
+        <div id="searchbox">
+            {{ macros.searchform(searchform, display="inline", value=query, placeholder="package name", id="query-1") }}
+            <form name="codesearch" method="get"
+            action="https://codesearch.debian.net/search">
+              <input name="q"
+              {%- if package %} value="package:{{ package }} "
+              {%- else %} placeholder="code regex"
+              {%- endif %}
+              type="text" />
+              <input type="submit" value="Search code" />
+            </form>
+        </div>   <!-- end sitetools -->
       </div> <!-- end upperheader -->
-      <!--UdmComment-->
+
       <nav id="navbar">
         <p class="hidecss"><a href="#content">Skip Quicknav</a></p>
-        <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="{{ url_for('advanced_search_html') }}">Search</a></li>
-          <li><a href="{{ url_for('doc') }}">Documentation</a></li>
-          <li><a href="{{ url_for('stats_all_html') }}">Stats</a></li>
-          <li><a href="{{ url_for('about') }}">About</a></li>
-        </ul>
+        {% block nav %}{% endblock %}
       </nav> <!-- end navbar -->
+
       <p id="breadcrumbs">{% block breadcrumbs %}{% endblock %}</p>
     </header> <!-- end header -->
-    {% if request.endpoint == "index" %}
-      <div id="bg-wrapper" style="background-image: url('{{ url_for('static',
-       filename='img/debsources.png') }}');">
-    {% endif %}
-    <div id="content">
-      {% block content %}
-      {% endblock %}
-    </div>
-    <footer id="footer">
-      {% include "footer.inc.html" %}
-    </footer>
-    {% if request.endpoint == "index" %}
+
+    {% block bg_wrapper %}
+      <div id="content">
+        {% block content %}
+        {% endblock %}
       </div>
-    {% endif %}
+
+      <footer id="footer">
+        {% block footer %}
+          {% include site_name+"/footer.inc.html" %}
+        {% endblock %}
+      </footer>
+    {% endblock %}
+
   </body>
 </html>

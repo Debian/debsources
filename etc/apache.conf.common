@@ -49,6 +49,7 @@
 	Alias /robots.txt /srv/www/debsources/public_html/robots.txt
 	Alias /data/ /srv/debsources/sources/
 	Alias /static/stats/ /srv/debsources/cache/stats/
+	Alias /static/sources/ /srv/debsources/debsources/app/sources/static/
 	Alias /static/ /srv/debsources/debsources/app/static/
 	Alias /icons/ /usr/share/icons/
 	Alias /private/ /srv/www/debsources/public_html/private/
