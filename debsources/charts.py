@@ -100,7 +100,7 @@ def sloc_pie(slocs, fname):
     modified_langs = ["Other: ", "Other"]
     modified_slocs = [0]
     for i, sloc in enumerate(slocs):
-        if sloc > sum(slocs) * 5 / 100:
+        if sloc > sum(slocs) * 2 / 100:
             modified_slocs.append(sloc)
             modified_langs.append(langs[i])
         else:
