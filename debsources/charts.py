@@ -17,9 +17,11 @@
 
 import logging
 import matplotlib
+import operator
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import numpy as np
 
 from itertools import cycle
 
@@ -54,9 +56,11 @@ def size_plot(series, fname):
     plt.close()
 
 
-LINE_COLORS = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+COLORS = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
 LINE_MARKERS = ['o', '^', 's', '*', '+', 'x', 'v']
-LINE_STYLES = [c + m + '-' for m in LINE_MARKERS for c in LINE_COLORS]
+LINE_STYLES = [c + m + '-' for m in LINE_MARKERS for c in COLORS]
+CHART_TEXTURES = ["/", "-", "+", "x", "o", ".", "*"]
+CHART_STYLES = [c + t for t in CHART_TEXTURES for c in COLORS]
 
 
 def sloc_plot(multiseries, fname):
@@ -112,3 +116,74 @@ def sloc_pie(slocs, fname):
     plt.figtext(.02, .02, modified_langs[0])
     plt.savefig(fname)
     plt.close()
+
+
+def bar_chart(sloc_per_suite, suites, fname, N):
+    """plot a bar chart of top-`N` languages of the `suites` using the
+    sloccount available in `sloc_per_suite`. Save the chart in `fname`.
+
+    """
+    logging.debug('generate sloccount bat chart to %s...' % fname)
+
+    try:
+        latest_release = sloc_per_suite[-2]
+    except IndexError:
+        if len(sloc_per_suite) == 1:
+            logging.warn('sloc bar chart failed '
+                         + 'as only one suite is available')
+            return
+        else:
+            logging.warn('sloc bar chart failed '
+                         + 'as there are no suites to plot')
+            return
+    # Verify N is at most the maximum languages in a suite
+    if N >= len(latest_release):
+        N = len(latest_release) - 1
+
+    # Generate data
+    latest = sorted(latest_release.items(),
+                    key=operator.itemgetter(1), reverse=True)
+    keys = [couple[0] for couple in latest[0:N]]
+    important = []
+    for key in keys:
+        slocs = []
+        for i in range(0, len(suites)):
+            slocs.append(sloc_per_suite[i][key]
+                         if key in sloc_per_suite[i].keys() else 0)
+        important.append(slocs)
+    plt.figure()
+    ind = np.arange(len(suites))
+    width = 0.33
+
+    styles = cycle(CHART_STYLES)
+    c, t = styles.next()
+    bar_charts = []
+    # Add first language without anything on bottom
+    bar_charts.append(plt.bar(ind, important[0], width, color=c, hatch=t))
+    # Add the rest of the languages
+    for i in range(1, len(keys)):
+        c, t = styles.next()
+        bar_charts.append(plt.bar(ind, important[i], width,
+                                  color=c, hatch=t,
+                                  bottom=bottom_sum(important[0:i],
+                                                    len(suites))))
+
+    plt.ylabel('SLOC')
+    plt.xticks(ind + width / 2., (suites))
+    plt.legend((p[0] for p in bar_charts),
+               (keys), loc='center left', bbox_to_anchor=(1, 0.5))
+    plt.savefig(fname, bbox_inches='tight')
+    plt.close()
+
+
+def bottom_sum(items, n):
+    """calculate the bottom argument for the bar chart by calculating the
+    existing stack sloc available in `items` for a number `n` of suites.
+    Return the stack
+
+    """
+    b_sum = [0] * n
+    for item in items:
+        for z, i in enumerate(item):
+            b_sum[z] += i
+    return b_sum

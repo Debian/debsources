@@ -541,16 +541,26 @@ def update_charts(status, conf, session, suites=None):
                 charts.sloc_plot(mseries, chart_file)
 
     # sloccount: current pie charts
+    sloc_per_suite = []
     for suite in suites + ['ALL']:
         sloc_suite = suite
         if sloc_suite == 'ALL':
             sloc_suite = None
         slocs = statistics.sloccount_summary(session, suite=sloc_suite)
+        if suite not in ['ALL']:
+            sloc_per_suite.append(slocs)
         chart_file = os.path.join(conf['cache_dir'], 'stats',
                                   '%s-sloc_pie-current.png' % suite)
         if not conf['dry_run']:
             charts.sloc_pie(slocs, chart_file)
 
+    # sloccount: bar chart plot
+    if 'charts_top_langs' in conf.keys():
+        top_langs = int(conf['charts_top_langs'])
+    else:
+        top_langs = 6
+    chart_file = os.path.join(conf['cache_dir'], 'stats', 'sloc_bar_plot.png')
+    charts.bar_chart(sloc_per_suite, suites, chart_file, top_langs)
 
 # update stages
 (STAGE_EXTRACT,
