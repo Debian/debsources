@@ -104,7 +104,10 @@
   or:
   <span class="url">{{ url_prefix
     }}/api/src/<strong>packagename</strong>/latest</span>
-  to use automatically the latest available version of the package.
+  to point to the latest known version of the package; or even:
+  <span class="url">{{ url_prefix
+    }}/api/src/<strong>packagename</strong>/suite</span>
+  to point to the version of the package in a given Debian suite/release.
   <br />
   <a href="{{ url_prefix }}/src/cowsay/3.03%2Bdfsg1-4">See example</a>
 </p>
