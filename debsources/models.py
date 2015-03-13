@@ -229,7 +229,7 @@ class SuiteAlias(Base):
 
     __tablename__ = "suites_aliases"
     alias = Column(String, primary_key=True)
-    suite = Column(String, ForeignKey('suites_info.name'))
+    suite = Column(String, ForeignKey('suites_info.name', ondelete='CASCADE'))
 
 
 class File(Base):
