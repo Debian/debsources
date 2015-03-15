@@ -162,10 +162,17 @@
 <ul>
   <li><strong>hl=1:5,10,13:16</strong> -- highlights the lines: 1 to 5, 10, 13 to 16</li>
   <li><strong>msg=5:title:message</strong> -- adds a popup message near line 5 (the title cannot contain the ':' symbol)</li>
+  <li>You can add more than one popup message by adding more <strong>msg</strong> arguments using the same syntax.</li>
 </ul>
 
 <p>
-  <a href="{{ url_prefix }}/src/cowsay/3.03%2Bdfsg1-4/cowsay?hl=22:28&amp;msg=22:Cowsay:See?%20Cowsay%20variables%20are%20declared%20here.#L22">See complete example</a>
+  <a href="{{ url_prefix
+  }}/src/cowsay/3.03%2Bdfsg1-4/cowsay?hl=22:28&amp;msg=22:Cowsay:See?%20Cowsay%20variables%20are%20declared%20here.#L22">See example</a>
+  (highlight and one popup)
+  <br />
+  <a href="{{ url_prefix
+ }}/src/cowsay/3.03%2Bdfsg1-4/cowsay?hl=22:28&msg=22:Cowsay:See? Cowsay variables are declared here.&msg=43:Cowsay:See? If-else statement are like that.#L44">See example</a>
+  (highlight and two popups)
 </p>
 
 <h3>Infobox</h3>
