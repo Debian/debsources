@@ -28,21 +28,25 @@
  */
 
 var debsources = {
-	source_file: function(message_pos) {
+	source_file: function() {
 		var print_lines = function() {
-			var position = message_pos;
-			var msgbox = document.getElementById('messages');
-			var index = document.getElementById('sourceslinenumbers');
-			var divHeight = msgbox.offsetHeight;
-			var lineHeight = parseInt(window.getComputedStyle(index).getPropertyValue('line-height'),10);
-			var lines = Math.ceil(divHeight / lineHeight)+1; // always insert one more line below the last line of code
+			var messages = document.querySelectorAll("pre.messages")
+			for (i = 0; i < messages.length; ++i) {
+				var msgbox = messages[i];
+				var position = msgbox.getAttribute("data-position");
+				var index = document.getElementById('sourceslinenumbers');
+				var divHeight = msgbox.offsetHeight;
+				var lineHeight = parseInt(window.getComputedStyle(index).getPropertyValue('line-height'),10);
+				var lines = Math.ceil(divHeight / lineHeight)+1; // always insert one more line below the last line of code
 
-			for(i=0; i<lines; ++i){
-				var element = document.createElement('a');
-				var s = '<a></a><br>'; // lines corr. messages do no need indexes
-				element.innerHTML = s;
-				var refnode = document.getElementById('L'+position.toString());
-				refnode.parentNode.insertBefore(element,refnode.nextSibling);} //insert after the node with assigned position
+				for(j=0; j<lines; ++j){
+					var element = document.createElement('a');
+					var s = '<a></a><br>'; // lines corr. messages do no need indexes
+					element.innerHTML = s;
+					var refnode = document.getElementById('L'+position.toString());
+					refnode.parentNode.insertBefore(element,refnode.nextSibling);
+				} //insert after the node with assigned position
+			}
 		};
 
 		function highlight_lines(start, end) {

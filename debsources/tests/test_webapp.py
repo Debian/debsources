@@ -377,6 +377,20 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         rv = self.app.get('/src/ledit/2.01-6/README/')
         self.assertIn('<code id="sourcecode" class="no-highlight">', rv.data)
 
+    def test_popup(self):
+        # One popup
+        rv = self.app.get('src/ledit/2.01-6/go.ml/?msg=22:Cowsay:See? \
+                          %20Cowsay%20variables%20are%20declared%20here.')
+        self.assertIn('<pre class="messages" data-position="22">', rv.data)
+
+        # two popups
+        rv = self.app.get('src/ledit/2.01-6/go.ml/?msg=22:Cowsay:See? \
+                          %20Cowsay%20variables%20are%20declared%20here. \
+                          &msg=10:Cowsay:See? \
+                          %20Cowsay%20variables%20are%20declared%20here')
+        self.assertIn('<pre class="messages" data-position="22">', rv.data)
+        self.assertIn('<pre class="messages" data-position="10">', rv.data)
+
     def test_source_file_embedded(self):
         rv = self.app.get('/embed/file/ledit/2.01-6/ledit.ml/')
         self.assertIn('<code id="sourcecode" class="ocaml">', rv.data)

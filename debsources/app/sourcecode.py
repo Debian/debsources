@@ -51,7 +51,7 @@ class SourceCodeIterator(object):
         self.lang = lang
         self.current_line = 0
         self.number_of_lines = None
-        self.msg = msg
+        self.msgs = msg
         self.hls = set()
         if hl is not None:
             hlranges = hl.split(',')
@@ -108,20 +108,23 @@ class SourceCodeIterator(object):
         returns a dict(position=, title=, message=) generated from
         the string message (position:title:message)
         """
-        if self.msg is None:
+        if self.msgs is None:
             return dict()
-        msgsplit = self.msg.split(':')
-        msgdict = dict()
-        try:
-            msgdict['position'] = int(msgsplit[0])
-        except ValueError:
-            msgdict['position'] = 1
-        try:
-            msgdict['title'] = msgsplit[1]
-        except IndexError:
-            msgdict['title'] = ""
-        try:
-            msgdict['message'] = ":".join(msgsplit[2:])
-        except IndexError:
-            msgdict['message'] = ""
-        return msgdict
+        msg_list = []
+        for msg in self.msgs:
+            msgsplit = msg.split(':')
+            msgdict = dict()
+            try:
+                msgdict['position'] = int(msgsplit[0])
+            except ValueError:
+                msgdict['position'] = 1
+            try:
+                msgdict['title'] = msgsplit[1]
+            except IndexError:
+                msgdict['title'] = ""
+            try:
+                msgdict['message'] = ":".join(msgsplit[2:])
+            except IndexError:
+                msgdict['message'] = ""
+            msg_list.append(msgdict)
+        return msg_list

@@ -224,7 +224,7 @@ class SourceView(GeneralView):
             except (KeyError, ValueError, TypeError):
                 highlight = None
             try:
-                msg = request.args.get('msg')
+                msg = request.args.getlist('msg')
                 if msg == "":
                     msg = None  # we don't want empty messages
             except (KeyError, ValueError, TypeError):
@@ -239,7 +239,7 @@ class SourceView(GeneralView):
                 nlines=sourcefile.get_number_of_lines(),
                 pathl=Location.get_path_links(".source", path),
                 file_language=sourcefile.get_file_language(),
-                msg=sourcefile.get_msgdict(),
+                msgs=sourcefile.get_msgdict(),
                 code=sourcefile)
 
         return dict(type="file",
