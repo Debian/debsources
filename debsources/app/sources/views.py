@@ -255,6 +255,16 @@ class SourceView(GeneralView):
                     pkg_infos=pkg_infos
                     )
 
+    def _redirect_to_url(self, redirect_url):
+        if self.d.get('api'):
+            self.render_func = bind_redirect(url_for('.api_source',
+                                             path_to=redirect_url))
+        else:
+            self.render_func = bind_redirect(url_for('.source',
+                                             path_to=redirect_url))
+
+        return dict(redirect=redirect_url)
+
     def _handle_latest_version(self, package, path):
         """
         redirects to the latest version for the requested page,
@@ -275,14 +285,7 @@ class SourceView(GeneralView):
         else:
             redirect_url = '/'.join([package, version, path])
 
-        if self.d.get('api'):
-            self.render_func = bind_redirect(url_for('.api_source',
-                                             path_to=redirect_url))
-        else:
-            self.render_func = bind_redirect(url_for('.source',
-                                             path_to=redirect_url))
-
-        return dict(redirect=redirect_url)
+        return self._redirect_to_url(redirect_url)
 
     def get_objects(self, path_to):
         """
@@ -316,9 +319,12 @@ class SourceView(GeneralView):
                         session, package)
                 except InvalidPackageOrVersionError:
                     raise Http404Error("%s not found" % package)
-                for version_suite in versions_w_suites:
-                    if version in version_suite['suites']:
-                        return self._render_location(
-                            package, version_suite['version'], path)
+
+                versions = sorted([v['version'] for v in versions_w_suites
+                                  if version in v['suites']],
+                                  cmp=version_compare)
+                if versions:
+                    redirect_url = '/'.join([package, versions[-1]])
+                    return self._redirect_to_url(redirect_url)
 
                 return self._render_location(package, version, path)

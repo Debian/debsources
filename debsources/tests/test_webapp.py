@@ -431,6 +431,16 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
                                      follow_redirects=True).data)
         self.assertIn("2.03-2", rv['path'])
 
+    def test_multiple_versions_in_suite(self):
+        rv = json.loads(self.app.get('/api/src/patch/sid/',
+                                     follow_redirects=True).data)
+        self.assertIn('2.7.5-1', rv['path'])
+
+    def test_multiple_versions_in_suite_alias(self):
+        rv = json.loads(self.app.get('/api/src/patch/unstable/',
+                                     follow_redirects=True).data)
+        self.assertIn('2.7.5-1', rv['path'])
+
     def test_codesearch_box(self):
         rv = self.app.get('/src/ledit/2.03-2/ledit.ml/')
         self.assertIn('value="package:ledit "', rv.data)
