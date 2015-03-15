@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
+# Copyright (C) 2013-2015  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -288,32 +288,32 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
 
     @istest
     def sizeMatchesReferenceDb(self):
-        EXPECTED_SIZE = 136572
+        EXPECTED_SIZE = 180732
         self.assertEqual(EXPECTED_SIZE, self.stats['total.disk_usage'])
 
     @istest
     def statsMatchReferenceDb(self):
         expected_stats = {  # just a few samples
-            'total.ctags': 84576,
-            'debian_sid.ctags': 21406,
+            'total.ctags': 116089,
+            'debian_sid.ctags': 28352,
             'debian_squeeze.ctags': 30644,
             'debian_experimental.disk_usage': 12968,
-            'total.source_files': 6601,
+            'total.source_files': 9333,
             'debian_experimental.source_files': 1396,
             'debian_jessie.source_files': 2038,
-            'total.source_packages': 33,
+            'total.source_packages': 36,
             'debian_squeeze.source_packages': 13,
             'debian_wheezy.source_packages': 12,
             'debian_sid.sloccount.awk': 25,
             'debian_sid.sloccount.cpp': 41458,
             'debian_squeeze.sloccount.cpp': 36508,
             'debian_wheezy.sloccount.cpp': 37375,
-            'total.sloccount.perl': 2973,
-            'total.sloccount.python': 8740,
+            'total.sloccount.perl': 4325,
+            'total.sloccount.python': 9193,
             'debian_wheezy.sloccount.python': 2798,
             'debian_squeeze.sloccount.ruby': 193,
             'debian_wheezy.sloccount.ruby': 193,
-            'total.sloccount': 873445,
+            'total.sloccount': 1250618,
             'debian_squeeze.sloccount': 315750,
         }
         self.assertDictContainsSubset(expected_stats, self.stats)

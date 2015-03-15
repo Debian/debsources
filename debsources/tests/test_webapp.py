@@ -1,4 +1,5 @@
 # Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
+#               2015  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
 #
@@ -174,7 +175,7 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
     def test_api_packages_list(self):
         rv = json.loads(self.app.get('/api/list/').data)
         self.assertIn({'name': "libcaca"}, rv['packages'])
-        self.assertEqual(len(rv['packages']), 16)
+        self.assertEqual(len(rv['packages']), 18)
 
     def test_api_by_prefix(self):
         rv = json.loads(self.app.get('/api/prefix/libc/').data)
@@ -451,8 +452,8 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
 
     def test_api_search_ctag(self):
         rv = json.loads(self.app.get('/api/ctag/?ctag=name').data)
-        self.assertEqual(rv["count"], 113)
-        self.assertEqual(len(rv["results"]), 113)
+        self.assertEqual(rv["count"], 193)
+        self.assertEqual(len(rv["results"]), 193)
 
     def test_api_search_ctag_within_package(self):
         rv = json.loads(self.app.get(
@@ -504,10 +505,11 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
     def test_api_stats_all(self):
         rv = json.loads(self.app.get('/api/stats/').data)
         self.assertEqual(sorted(rv["all_suites"]),
-                         ["debian_experimental", "debian_jessie", "debian_sid",
-                          "debian_squeeze", "debian_wheezy"])
+                         ["debian_etch", "debian_experimental",
+                          "debian_jessie", "debian_sid", "debian_squeeze",
+                          "debian_wheezy"])
         self.assertIn("ansic", rv["languages"])
-        self.assertEqual(rv["results"]["debian_sid.sloccount.ansic"], 140353)
+        self.assertEqual(rv["results"]["debian_sid.sloccount.ansic"], 208800)
 
     def test_suggestions_when_404(self):
         rv = self.app.get('/src/libcaca/0.NOPE.beta17-1/src/cacaview.c/')
