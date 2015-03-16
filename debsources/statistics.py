@@ -18,6 +18,7 @@
 """Compute several statistics about Debsouces content
 
 """
+from __future__ import absolute_import
 
 import logging
 import os
@@ -28,6 +29,7 @@ from sqlalchemy import func as sql_func
 from debsources.consts import SLOCCOUNT_LANGUAGES, SUITES
 from debsources.models import Checksum, Ctag, Metric, SlocCount, \
     Suite, SuiteInfo, Package, PackageName
+import six
 
 
 def _count(query):
@@ -52,11 +54,11 @@ def suites(session, suites='release'):
     two sets
 
     """
-    if suites not in SUITES.keys():
+    if suites not in list(SUITES.keys()):
         raise ValueError('unknown set of suites: %s' % suites)
 
     db_suites = [row[0] for row in session.query(distinct(Suite.suite))]
-    db_suites = filter(lambda s: s in SUITES[suites], db_suites)
+    db_suites = [s for s in db_suites if s in SUITES[suites]]
     by_release_date = lambda s1, s2: cmp(SUITES[suites].index(s1),
                                          SUITES[suites].index(s2))
     return sorted(db_suites, cmp=by_release_date)
@@ -368,6 +370,6 @@ def save_metadata_cache(stats, fname):
 
     """
     with open(fname + '.new', 'w') as out:
-        for k, v in sorted(stats.iteritems()):
+        for k, v in sorted(six.iteritems(stats)):
             out.write('%s\t%d\n' % (k, v))
     os.rename(fname + '.new', fname)

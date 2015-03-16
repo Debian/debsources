@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
@@ -23,6 +24,7 @@ import subprocess
 from debsources import db_storage
 
 from debsources.models import SlocCount
+import six
 
 
 conf = None
@@ -101,7 +103,7 @@ def add_package(session, pkg, pkgdir, file_table):
             # ASSUMPTION: if *a* loc count of this package has already been
             # added to the db in the past, then *all* of them have, as
             # additions are part of the same transaction
-            for (lang, locs) in slocs.iteritems():
+            for (lang, locs) in six.iteritems(slocs):
                 sloccount = SlocCount(db_package, lang, locs)
                 session.add(sloccount)
 

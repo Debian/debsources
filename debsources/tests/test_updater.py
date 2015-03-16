@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 # Copyright (C) 2013-2015  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
@@ -37,6 +39,7 @@ from debsources.tests.db_testing import DbTestFixture, DB_COMPARE_QUERIES
 from debsources.tests.updater_testing import mk_conf
 from debsources.subprocess_workaround import subprocess_setup
 from debsources.tests.testdata import *  # NOQA
+import six
 
 
 def compare_dirs(dir1, dir2, exclude=[]):
@@ -52,7 +55,7 @@ def compare_dirs(dir1, dir2, exclude=[]):
                                 [dir1, dir2],
                                 preexec_fn=subprocess_setup)
         return True, None
-    except subprocess.CalledProcessError, e:
+    except subprocess.CalledProcessError as e:
         return False, e.output
 
 
@@ -67,7 +70,7 @@ def compare_files(file1, file2):
         subprocess.check_output(['diff', '-Nu', file1, file2],
                                 preexec_fn=subprocess_setup)
         return True, None
-    except subprocess.CalledProcessError, e:
+    except subprocess.CalledProcessError as e:
         return False, e.output
 
 
@@ -77,17 +80,17 @@ def db_mv_tables_to_schema(session, new_schema):
     then recreate the corresponding (empty) tables under 'public'
     """
     session.execute('CREATE SCHEMA %s' % new_schema)
-    for tblname, table in models.Base.metadata.tables.items():
+    for tblname, table in list(models.Base.metadata.tables.items()):
         session.execute('ALTER TABLE %s SET SCHEMA %s'
                         % (tblname, new_schema))
         session.execute(sqlalchemy.schema.CreateTable(table))
 
 
 def assert_db_schema_equal(test_subj, expected_schema, actual_schema):
-    for tbl, q in DB_COMPARE_QUERIES.iteritems():
-        expected = [dict(r.items()) for r in
+    for tbl, q in six.iteritems(DB_COMPARE_QUERIES):
+        expected = [dict(list(r.items())) for r in
                     test_subj.session.execute(q % {'schema': expected_schema})]
-        actual = [dict(r.items()) for r in
+        actual = [dict(list(r.items())) for r in
                   test_subj.session.execute(q % {'schema': actual_schema})]
         test_subj.assertSequenceEqual(expected, actual,
                                       msg='table %s differs from reference'
@@ -97,7 +100,7 @@ def assert_db_schema_equal(test_subj, expected_schema, actual_schema):
 def assert_dir_equal(test_subj, dir1, dir2, exclude=[]):
     dir_eq, dir_diff = compare_dirs(dir1, dir2, exclude)
     if not dir_eq:
-        print dir_diff
+        print(dir_diff)
     test_subj.assertTrue(dir_eq, 'file system storages differ')
 
 

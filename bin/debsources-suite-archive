@@ -17,6 +17,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
+from __future__ import print_function
+
 import argparse
 import logging
 import sqlalchemy
@@ -58,10 +61,10 @@ def main():
         if args.action == 'add':
             archiver.add_suite(conf, session, args.suite, archive)
         elif args.action == 'list':
-            print "# name\tindexed\tavailable"
+            print("# name\tindexed\tavailable")
             for (suite, present) in \
-                    archiver.list_suites(conf, session, archive).items():
-                print '%s\t%s\t%s' % (suite, present['db'], present['archive'])
+                    list(archiver.list_suites(conf, session, archive).items()):
+                print('%s\t%s\t%s' % (suite, present['db'], present['archive']))
         elif args.action == 'remove':
             archiver.remove_suite(conf, session, args.suite)
         if conf['single_transaction']:

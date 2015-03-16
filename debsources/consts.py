@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright (C) 2013       Matthieu Caneill <matthieu.caneill@gmail.com>
 #               2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
@@ -121,4 +122,4 @@ for s in SUITES['release']:
 SUITES['devel'].append('experimental')
 SUITES['all'].append('experimental')
 
-DPKG_EXTRACT_UMASK = 0022
+DPKG_EXTRACT_UMASK = 0o022

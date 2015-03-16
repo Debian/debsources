@@ -16,11 +16,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """handle the archive of sticky suites"""
+from __future__ import absolute_import
 
 import logging
 import os
-import statistics
-import updater
+from . import statistics
+from . import updater
 
 from sqlalchemy import sql
 
@@ -70,7 +71,7 @@ def _remove_stats_for(conf, session, suite):
         # remove newly orphan keys from stats.data
         stats_file = os.path.join(conf['cache_dir'], 'stats.data')
         stats = statistics.load_metadata_cache(stats_file)
-        for k in stats.keys():
+        for k in list(stats.keys()):
             if k.startswith('debian_' + suite + '.'):
                 del(stats[k])
         statistics.save_metadata_cache(stats, stats_file)
@@ -158,8 +159,7 @@ def remove_suite(conf, session, suite):
                 else:
                     updater._rm_package(pkg, conf, session, db_package=package)
             else:
-                other_sticky_suites = filter(lambda s: s in sticky_suites,
-                                             other_suites)
+                other_sticky_suites = [s for s in other_suites if s in sticky_suites]
                 if not other_sticky_suites and not conf['dry_run']:
                     # package is only listed in "live" suites, drop sticky flag
                     logging.debug('clearing sticky bit on %s' % pkg)

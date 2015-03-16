@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
 #
 # This file is part of Debsources.
@@ -17,13 +18,15 @@
 
 
 import re
+import six
+from six.moves import range
 
 # Languages constants
 (PYTHON, RUBY, PERL, PHP, SCALA, GO, XML, HTML, MARKDOWN, CSS, JSON,
  JAVASCRIPT, COFFEESCRIPT, ACTIONSCRIPT, VBSCRIPT, LUA, JAVA, C, CPP,
  OBJECTIVEC, VALA, CSHARP, D, SQL, LISP, CLOJURE, INI, APACHE, CMAKE, VHDL,
  DIFF, BASH, TEX, BRAINFUCK, HASKELL, ERLANG, RUST, R, OCAML, SCILAB) \
-    = range(40)
+    = list(range(40))
 
 # Languages strings used by highlight.js
 highlightjs = {
@@ -175,7 +178,7 @@ def get_filetype_from_firstline(firstline):
             interp = interp.split()[-1]
         else:  # shebang #!/usr/bin/foo
             pass
-        if interp in shebangs.keys():
+        if interp in list(shebangs.keys()):
             return shebangs[interp]
         else:
             return None
@@ -211,14 +214,14 @@ def get_highlightjs_language(filename, firstline, lang):
     (used for syntactic code coloration).
     """
     if lang is not None:
-        if lang not in highlightjs.itervalues():
+        if lang not in six.itervalues(highlightjs):
             return None
         else:
             return lang
 
     firstline = firstline.rstrip()
     lang = get_filetype(filename, firstline)
-    if lang is None or lang not in highlightjs.keys():
+    if lang is None or lang not in list(highlightjs.keys()):
         return None
     else:
         return highlightjs[lang]

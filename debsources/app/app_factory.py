@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
 #
 # This file is part of Debsources.

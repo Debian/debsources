@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright (C) 2013-2015  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
@@ -23,6 +24,7 @@ from nose.plugins.attrib import attr
 from debsources import statistics
 
 from debsources.tests.db_testing import DbTestFixture
+import six
 
 
 @attr('infra')
@@ -40,7 +42,7 @@ class Stats(unittest.TestCase, DbTestFixture):
         self.maxDiff = None
 
     def assertSuiteCountsEqual(self, expected, query_method):
-        for suite, expected_count in expected.iteritems():
+        for suite, expected_count in six.iteritems(expected):
             actual_count = query_method(self.session, suite=suite)
             self.assertEqual(expected_count, actual_count,
                              '%d != %d for suite %s' %

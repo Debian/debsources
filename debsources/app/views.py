@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright (C) 2013-2014  Matthieu Caneill <matthieu.caneill@gmail.com>
 #
 # This file is part of Debsources.
@@ -37,6 +38,7 @@ from .infobox import Infobox
 from .helper import format_big_num, url_for_other_page
 
 from . import app_wrapper
+import six
 app = app_wrapper.app
 session = app_wrapper.session
 
@@ -122,7 +124,7 @@ class ErrorHandler(object):
                 possible_versions = qry.pkg_names_list_versions(
                     session, error.package)
                 suggestions = ['/'.join(
-                    filter(None, [error.package, v.version, error.path]))
+                    [_f for _f in [error.package, v.version, error.path] if _f])
                     for v in possible_versions]
                 return render_template(self.bp_path('404_suggestions.html'),
                                        suggestions=suggestions), 404
@@ -171,7 +173,7 @@ class GeneralView(View):
         self.err_func = err_func
 
         if get_objects:
-            if isinstance(get_objects, basestring):
+            if isinstance(get_objects, six.string_types):
                 self.get_objects = getattr(self, "get_"+get_objects)
             else:
                 # we don't check if it's a callable.
@@ -283,8 +285,7 @@ class SearchView(GeneralView):
         if other_results is not None:
             other_results = [o.to_dict() for o in other_results]
             # we exclude the 'exact' matching from other_results:
-            other_results = filter(lambda x: x != exact_matching,
-                                   other_results)
+            other_results = [x for x in other_results if x != exact_matching]
 
         results = dict(exact=exact_matching,
                        other=other_results)

@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #               2014 Matthieu Caneill <matthieu.caneill@gmail.com>
 #
@@ -16,7 +17,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import ConfigParser as configparser
+import six.moves.configparser as configparser
 import importlib
 import logging
 import os
@@ -26,6 +27,7 @@ from collections import defaultdict
 from debian import deb822
 
 from debsources import updater
+from six.moves import map
 
 # TODO split configuration entry to a separate file: it's too complex
 # TODO more uniform handling of config typing/defaults: it's too brittle
@@ -202,7 +204,7 @@ def add_arguments(cmdline):
                          'performed. Can be specified multiple times. Warning:'
                          'using this you can mess up the update logic, use at'
                          'your own risk.' %
-                         map(updater.pp_stage, updater.UPDATE_STAGES),
+                         list(map(updater.pp_stage, updater.UPDATE_STAGES)),
                          dest='stages')
     cmdline.add_argument('--trigger', '-t',
                          metavar='EVENT/HOOK',
@@ -259,7 +261,7 @@ def conf_warnings(conf):
         logging.warn('only using backends: %s' % list(conf['backends']))
     if conf['stages'] != updater.UPDATE_STAGES:
         logging.warn('only doing stages: %s' %
-                     map(updater.pp_stage, conf['stages']))
+                     list(map(updater.pp_stage, conf['stages'])))
     if conf['force_triggers']:
         logging.warn('forcing triggers: %s' % conf['force_triggers'])
 

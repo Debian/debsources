@@ -1,6 +1,8 @@
+from __future__ import absolute_import
 # from http://flask.pocoo.org/snippets/44/
 
 from math import ceil
+from six.moves import range
 
 
 class Pagination(object):
@@ -24,7 +26,7 @@ class Pagination(object):
     def iter_pages(self, left_edge=2, left_current=5,
                    right_current=5, right_edge=2):
         last = 0
-        for num in xrange(1, self.pages + 1):
+        for num in range(1, self.pages + 1):
             if num <= left_edge or \
                (num > self.page - left_current - 1 and
                 num < self.page + right_current) or \
