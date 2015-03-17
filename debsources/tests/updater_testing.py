@@ -1,7 +1,8 @@
-from __future__ import absolute_import
 # Copyright (C) 2014  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
+
+from __future__ import absolute_import
 
 import os
 

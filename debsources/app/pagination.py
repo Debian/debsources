@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+
 # from http://flask.pocoo.org/snippets/44/
 
 from math import ceil

@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 # Copyright (C) 2013  Matthieu Caneill <matthieu.caneill@gmail.com>
 #
 # This file is part of Debsources.
@@ -15,6 +14,8 @@ from __future__ import absolute_import
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+from __future__ import absolute_import
 
 from debsources.filetype import get_highlightjs_language
 import six

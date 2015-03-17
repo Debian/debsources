@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-from __future__ import print_function
 # Copyright (C) 2013-2015  Stefano Zacchiroli <zack@upsilon.cc>
 #
 # This file is part of Debsources.
@@ -16,6 +14,9 @@ from __future__ import print_function
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+from __future__ import absolute_import
+from __future__ import print_function
 
 import glob
 import logging

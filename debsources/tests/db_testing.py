@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 # Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
 #                    2014  Matthieu Caneill <matthieu.caneill@gmail.com>
 #
@@ -16,6 +15,8 @@ from __future__ import absolute_import
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+from __future__ import absolute_import
 
 import os
 import sqlalchemy

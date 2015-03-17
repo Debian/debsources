@@ -18,6 +18,7 @@
 """Compute several statistics about Debsouces content
 
 """
+
 from __future__ import absolute_import
 
 import logging
