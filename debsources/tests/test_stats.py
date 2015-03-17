@@ -19,13 +19,14 @@ from __future__ import absolute_import
 
 import unittest
 
+import six
+
 from nose.tools import istest
 from nose.plugins.attrib import attr
 
 from debsources import statistics
 
 from debsources.tests.db_testing import DbTestFixture
-import six
 
 
 @attr('infra')

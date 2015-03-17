@@ -20,6 +20,7 @@ from __future__ import absolute_import
 # XXX copied from app/views.py
 
 import os
+import six
 
 from flask import (
     current_app, jsonify, render_template, request, url_for, redirect)
@@ -39,7 +40,6 @@ from .infobox import Infobox
 from .helper import format_big_num, url_for_other_page
 
 from . import app_wrapper
-import six
 app = app_wrapper.app
 session = app_wrapper.session
 

@@ -17,8 +17,9 @@
 
 from __future__ import absolute_import
 
-from debsources import statistics
 import six
+
+from debsources import statistics
 
 
 def extract_stats(filter_suites=None, filename="cache/stats.data"):

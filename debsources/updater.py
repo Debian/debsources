@@ -23,6 +23,10 @@ import os
 import string
 import subprocess
 
+import six
+from six.moves import map
+from six.moves import range
+
 from datetime import datetime
 from email.utils import formatdate
 from sqlalchemy import sql, not_
@@ -37,9 +41,6 @@ from debsources.debmirror import SourceMirror, SourcePackage
 from debsources.models import SuiteInfo, Suite, SuiteAlias, Package, \
     HistorySize, HistorySlocCount
 from debsources.subprocess_workaround import subprocess_setup
-import six
-from six.moves import map
-from six.moves import range
 
 KNOWN_EVENTS = ['add-package', 'rm-package']
 NO_OBSERVERS = dict([(e, []) for e in KNOWN_EVENTS])

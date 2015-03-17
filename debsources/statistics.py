@@ -24,13 +24,14 @@ from __future__ import absolute_import
 import logging
 import os
 
+import six
+
 from sqlalchemy import distinct
 from sqlalchemy import func as sql_func
 
 from debsources.consts import SLOCCOUNT_LANGUAGES, SUITES
 from debsources.models import Checksum, Ctag, Metric, SlocCount, \
     Suite, SuiteInfo, Package, PackageName
-import six
 
 
 def _count(query):

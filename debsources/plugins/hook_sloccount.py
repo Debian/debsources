@@ -22,10 +22,10 @@ import os
 import re
 import subprocess
 
-from debsources import db_storage
-
-from debsources.models import SlocCount
 import six
+
+from debsources import db_storage
+from debsources.models import SlocCount
 
 
 conf = None

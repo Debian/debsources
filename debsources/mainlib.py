@@ -18,7 +18,6 @@
 
 from __future__ import absolute_import
 
-import six.moves.configparser as configparser
 import importlib
 import logging
 import os
@@ -26,9 +25,10 @@ import string
 from collections import defaultdict
 
 from debian import deb822
+import six.moves.configparser as configparser
+from six.moves import map
 
 from debsources import updater
-from six.moves import map
 
 # TODO split configuration entry to a separate file: it's too complex
 # TODO more uniform handling of config typing/defaults: it's too brittle

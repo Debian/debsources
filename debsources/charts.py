@@ -18,8 +18,9 @@
 from __future__ import absolute_import
 
 import logging
-import matplotlib
 import operator
+
+import matplotlib
 import six
 from six.moves import filter
 from six.moves import range

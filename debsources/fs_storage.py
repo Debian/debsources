@@ -22,9 +22,10 @@ import os
 import shutil
 import subprocess
 
-from .consts import DPKG_EXTRACT_UMASK
-from .subprocess_workaround import subprocess_setup
 import six
+
+from debsources.consts import DPKG_EXTRACT_UMASK
+from debsources.subprocess_workaround import subprocess_setup
 
 
 def extract_package(pkg, destdir):

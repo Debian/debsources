@@ -21,13 +21,10 @@ from __future__ import absolute_import
 
 import logging
 import os
-from . import statistics
-from . import updater
 
 from sqlalchemy import sql
 
-from debsources import db_storage
-
+from debsources import db_storage, statistics, updater
 from debsources.debmirror import SourcePackage
 from debsources.models import Suite, Package
 
