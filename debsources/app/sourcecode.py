@@ -82,7 +82,8 @@ class SourceCodeIterator(object):
         else:
             class_ = False
         try:
-            line = six.text_type(next(self.file), self.encoding, errors='replace')
+            line = six.text_type(next(self.file), self.encoding,
+                                 errors='replace')
         except StopIteration:
             # end of file, we close it
             self.file.close()

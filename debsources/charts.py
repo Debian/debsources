@@ -83,7 +83,7 @@ def sloc_plot(multiseries, fname):
     for name, series in sorted(six.iteritems(multiseries),
                                cmp=by_value, reverse=True):
         ts, values = _split_series(series)
-        if list(filter(bool, values)):  # at least one value is != None and != 0
+        if list(filter(bool, values)):  # at least one value != None and != 0
             plt.plot(ts, values, next(styles), label=name)
 
     # plt.legend(bbox_to_anchor=(0., 1.02, 1., .102),

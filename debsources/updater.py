@@ -168,7 +168,8 @@ def exclude_files(session, pkg, pkgdir, file_table, exclude_specs):
 
     """
     # enforce spec's Package field
-    specs = [spec for spec in exclude_specs if spec['package'] == pkg['package']]
+    specs = [spec for spec in exclude_specs
+             if spec['package'] == pkg['package']]
     candidates = []  # files eligible for exclusion
     for spec in specs:
         # enforce spec's Files field

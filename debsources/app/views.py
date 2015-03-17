@@ -124,7 +124,8 @@ class ErrorHandler(object):
                 possible_versions = qry.pkg_names_list_versions(
                     session, error.package)
                 suggestions = ['/'.join(
-                    [_f for _f in [error.package, v.version, error.path] if _f])
+                    [_f for _f in [error.package, v.version, error.path]
+                     if _f])
                     for v in possible_versions]
                 return render_template(self.bp_path('404_suggestions.html'),
                                        suggestions=suggestions), 404
