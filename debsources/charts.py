@@ -169,7 +169,7 @@ def bar_chart(sloc_per_suite, suites, fname, N):
                                                     len(suites))))
 
     plt.ylabel('SLOC')
-    plt.xticks(ind + width / 2., (suites))
+    plt.xticks(ind + width / 2., (suites), rotation=30)
     plt.legend((p[0] for p in bar_charts),
                (keys), loc='center left', bbox_to_anchor=(1, 0.5))
     plt.savefig(fname, bbox_inches='tight')
