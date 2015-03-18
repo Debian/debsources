@@ -561,7 +561,7 @@ def update_charts(status, conf, session, suites=None):
             charts.sloc_pie(slocs, chart_file)
 
     # sloccount: bar chart plot
-    if 'charts_top_langs' in list(conf.keys()):
+    if 'charts_top_langs' in conf.keys():
         top_langs = int(conf['charts_top_langs'])
     else:
         top_langs = 6

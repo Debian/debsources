@@ -56,7 +56,7 @@ def suites(session, suites='release'):
     two sets
 
     """
-    if suites not in list(SUITES.keys()):
+    if suites not in SUITES.keys():
         raise ValueError('unknown set of suites: %s' % suites)
 
     db_suites = [row[0] for row in session.query(distinct(Suite.suite))]

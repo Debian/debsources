@@ -179,7 +179,7 @@ def get_filetype_from_firstline(firstline):
             interp = interp.split()[-1]
         else:  # shebang #!/usr/bin/foo
             pass
-        if interp in list(shebangs.keys()):
+        if interp in shebangs.keys():
             return shebangs[interp]
         else:
             return None
@@ -222,7 +222,7 @@ def get_highlightjs_language(filename, firstline, lang):
 
     firstline = firstline.rstrip()
     lang = get_filetype(filename, firstline)
-    if lang is None or lang not in list(highlightjs.keys()):
+    if lang is None or lang not in highlightjs.keys():
         return None
     else:
         return highlightjs[lang]

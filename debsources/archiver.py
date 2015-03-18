@@ -69,7 +69,7 @@ def _remove_stats_for(conf, session, suite):
         # remove newly orphan keys from stats.data
         stats_file = os.path.join(conf['cache_dir'], 'stats.data')
         stats = statistics.load_metadata_cache(stats_file)
-        for k in list(stats.keys()):
+        for k in stats.keys():
             if k.startswith('debian_' + suite + '.'):
                 del(stats[k])
         statistics.save_metadata_cache(stats, stats_file)

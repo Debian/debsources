@@ -22,7 +22,6 @@ import operator
 
 import matplotlib
 import six
-from six.moves import filter
 from six.moves import range
 
 matplotlib.use('Agg')
@@ -85,7 +84,7 @@ def sloc_plot(multiseries, fname):
     for name, series in sorted(six.iteritems(multiseries),
                                cmp=by_value, reverse=True):
         ts, values = _split_series(series)
-        if list(filter(bool, values)):  # at least one value != None and != 0
+        if any(values):
             plt.plot(ts, values, next(styles), label=name)
 
     # plt.legend(bbox_to_anchor=(0., 1.02, 1., .102),
@@ -155,7 +154,7 @@ def bar_chart(sloc_per_suite, suites, fname, N):
         slocs = []
         for i in range(0, len(suites)):
             slocs.append(sloc_per_suite[i][key]
-                         if key in list(sloc_per_suite[i].keys()) else 0)
+                         if key in sloc_per_suite[i].keys() else 0)
         important.append(slocs)
     plt.figure()
     ind = np.arange(len(suites))

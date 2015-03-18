@@ -116,7 +116,7 @@ if __name__ == '__main__':
     conf = mainlib.load_configuration(args.conffile)
     mainlib.init_logging(conf, logging.INFO)
     (_observers, exts) = mainlib.load_hooks(conf)
-    file_extensions.extend(list(exts.keys()))
+    file_extensions.extend(exts.keys())
     db = create_engine(conf['db_uri'])
     session = Session(bind=db)
 

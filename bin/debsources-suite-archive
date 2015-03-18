@@ -63,7 +63,7 @@ def main():
         elif args.action == 'list':
             print("# name\tindexed\tavailable")
             for (suite, present) in \
-                    list(archiver.list_suites(conf, session, archive).items()):
+                    archiver.list_suites(conf, session, archive).items():
                 print('%s\t%s\t%s' %
                       (suite, present['db'], present['archive']))
         elif args.action == 'remove':

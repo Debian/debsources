@@ -82,7 +82,7 @@ def db_mv_tables_to_schema(session, new_schema):
     then recreate the corresponding (empty) tables under 'public'
     """
     session.execute('CREATE SCHEMA %s' % new_schema)
-    for tblname, table in list(models.Base.metadata.tables.items()):
+    for tblname, table in models.Base.metadata.tables.items():
         session.execute('ALTER TABLE %s SET SCHEMA %s'
                         % (tblname, new_schema))
         session.execute(sqlalchemy.schema.CreateTable(table))
