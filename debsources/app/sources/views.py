@@ -1,7 +1,6 @@
 import os
 
 from flask import current_app, request, jsonify, url_for
-from sqlalchemy import func as sql_func
 from debian.debian_support import version_compare
 
 from debsources.excepts import (
@@ -9,10 +8,12 @@ from debsources.excepts import (
     InvalidPackageOrVersionError)
 from debsources.consts import SLOCCOUNT_LANGUAGES
 from debsources import statistics
-from debsources.models import (
-    PackageName, SourceFile, Checksum, Directory, Location, SuiteInfo,
-    SuiteAlias)
 
+from debsources.models import SuiteAlias
+from debsources.navigation import (Location, Directory,
+                                   SourceFile)
+
+import debsources.query as qry
 from ..views import GeneralView, app, session
 from ..extract_stats import extract_stats
 from ..infobox import Infobox
@@ -30,7 +31,7 @@ class StatsView(GeneralView):
                                   "stats.data")
         res = extract_stats(filename=stats_file,
                             filter_suites=["debian_" + suite])
-        info = session.query(SuiteInfo).filter(SuiteInfo.name == suite).first()
+        info = qry.get_suite_info(session, suite)
 
         return dict(results=res,
                     languages=SLOCCOUNT_LANGUAGES,
@@ -69,7 +70,7 @@ class SourceView(GeneralView):
             suite = ""
         # we list the version with suites it belongs to
         try:
-            versions_w_suites = PackageName.list_versions_w_suites(
+            versions_w_suites = qry.pkg_names_list_versions_w_suites(
                 session, packagename, suite)
         except InvalidPackageOrVersionError:
             raise Http404Error("%s not found" % packagename)
@@ -80,7 +81,7 @@ class SourceView(GeneralView):
             self.render_func = bind_render(
                 'sources/source_package.html',
                 # we simply add pathl (for use with "You are here:")
-                pathl=Location.get_path_links('.source', path_to))
+                pathl=qry.location_get_path_links('.source', path_to))
 
         return dict(type="package",
                     package=packagename,
@@ -155,7 +156,7 @@ class SourceView(GeneralView):
                 subdirs=filter(lambda x: x['type'] == "directory", content),
                 subfiles=filter(lambda x: x['type'] == "file", content),
                 nb_hidden_files=sum(1 for f in content if f['hidden']),
-                pathl=Location.get_path_links(".source", path),)
+                pathl=qry.location_get_path_links(".source", path),)
 
         return dict(type="directory",
                     directory=location.get_deepest_element(),
@@ -171,9 +172,9 @@ class SourceView(GeneralView):
         """
         file_ = SourceFile(location)
         checksum = file_.get_sha256sum(session)
-        number_of_duplicates = (session.query(sql_func.count(Checksum.id))
-                                .filter(Checksum.sha256 == checksum)
-                                .first()[0])
+        number_of_duplicates = (qry.count_files_checksum(session, checksum)
+                                .first()[0]
+                                )
         pkg_infos = Infobox(session,
                             location.get_package(),
                             location.get_version()).get_infos()
@@ -190,7 +191,7 @@ class SourceView(GeneralView):
                         raw_url=raw_url,
                         path=path,
                         text_file=text_file,
-                        stat=location.get_stat(location.sources_path),
+                        stat=qry.location_get_stat(location.sources_path),
                         checksum=checksum,
                         number_of_duplicates=number_of_duplicates,
                         pkg_infos=pkg_infos
@@ -237,7 +238,7 @@ class SourceView(GeneralView):
             self.render_func = bind_render(
                 self.d['templatename'],
                 nlines=sourcefile.get_number_of_lines(),
-                pathl=Location.get_path_links(".source", path),
+                pathl=qry.location_get_path_links(".source", path),
                 file_language=sourcefile.get_file_language(),
                 msgs=sourcefile.get_msgdict(),
                 code=sourcefile)
@@ -249,7 +250,7 @@ class SourceView(GeneralView):
                     raw_url=raw_url,
                     path=path,
                     text_file=text_file,
-                    stat=location.get_stat(location.sources_path),
+                    stat=qry.location_get_stat(location.sources_path),
                     checksum=checksum,
                     number_of_duplicates=number_of_duplicates,
                     pkg_infos=pkg_infos
@@ -271,7 +272,7 @@ class SourceView(GeneralView):
         when 'latest' is provided instead of a version number
         """
         try:
-            versions = PackageName.list_versions(session, package)
+            versions = qry.pkg_names_list_versions(session, package)
         except InvalidPackageOrVersionError:
             raise Http404Error("%s not found" % package)
         # the latest version is the latest item in the
@@ -315,7 +316,7 @@ class SourceView(GeneralView):
                 if check_for_alias:
                     version = check_for_alias.suite
                 try:
-                    versions_w_suites = PackageName.list_versions_w_suites(
+                    versions_w_suites = qry.pkg_names_list_versions_w_suites(
                         session, package)
                 except InvalidPackageOrVersionError:
                     raise Http404Error("%s not found" % package)

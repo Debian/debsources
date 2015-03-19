@@ -23,15 +23,14 @@ from flask import (
     current_app, jsonify, render_template, request, url_for, redirect)
 from flask.views import View
 
-from sqlalchemy import func as sql_func
-
 from debsources.excepts import (
     Http500Error, Http404Error, Http404ErrorSuggestions, Http403Error)
-from debsources.models import (
-    Ctag, Package, PackageName, Checksum, File, Suite)
+from debsources.models import Package
+import debsources.query as qry
 from debsources.sqla_session import _close_session
 from debsources import local_info
 from debsources.consts import SUITES
+
 from .forms import SearchForm
 from .pagination import Pagination
 from .infobox import Infobox
@@ -70,7 +69,7 @@ def skeleton_variables():
     # TODO, this part should be moved to per blueprint context processor
     last_update = local_info.read_update_ts(update_ts_file)
 
-    packages_prefixes = PackageName.get_packages_prefixes(
+    packages_prefixes = qry.pkg_names_get_packages_prefixes(
         app.config["CACHE_DIR"])
 
     credits_file = os.path.join(app.config["LOCAL_DIR"], "credits.html")
@@ -120,7 +119,7 @@ class ErrorHandler(object):
             if isinstance(error, Http404ErrorSuggestions):
                 # let's suggest all the possible locations with a different
                 # package version
-                possible_versions = PackageName.list_versions(
+                possible_versions = qry.pkg_names_list_versions(
                     session, error.package)
                 suggestions = ['/'.join(
                     filter(None, [error.package, v.version, error.path]))
@@ -265,35 +264,17 @@ class SearchView(GeneralView):
         # if suite is not specified
         if not suite:
             try:
-                exact_matching = (session.query(PackageName)
-                                  .filter_by(name=query)
-                                  .first())
+                exact_matching = qry.get_pkg_by_name(session, query)
 
-                other_results = (session.query(PackageName)
-                                 .filter(sql_func.lower(PackageName.name)
-                                         .contains(query.lower()))
-                                 .order_by(PackageName.name)
-                                 )
+                other_results = qry.get_pkg_by_similar_name(session, query)
             except Exception as e:
                 raise Http500Error(e)  # db problem, ...
         else:
             try:
-                exact_matching = (session.query(PackageName)
-                                  .filter(sql_func.lower(Suite.suite)
-                                          == suite)
-                                  .filter(Suite.package_id == Package.id)
-                                  .filter(Package.name_id == PackageName.id)
-                                  .filter(PackageName.name == query)
-                                  .first())
+                exact_matching = qry.get_pkg_by_name(session, query, suite)
 
-                other_results = (session.query(PackageName)
-                                 .filter(sql_func.lower(Suite.suite)
-                                         == suite)
-                                 .filter(Suite.package_id == Package.id)
-                                 .filter(Package.name_id == PackageName.id)
-                                 .filter(sql_func.lower(PackageName.name)
-                                         .contains(query.lower()))
-                                 .order_by(PackageName.name))
+                other_results = qry.get_pkg_by_similar_name(session,
+                                                            query, suite)
             except Exception as e:
                 raise Http500Error(e)  # db problem, ...
 
@@ -334,19 +315,7 @@ class ChecksumView(GeneralView):
         Returns a list of files whose hexdigest is checksum.
         You can slice the results, passing slice=(start, end).
         """
-        results = (session.query(PackageName.name.label("package"),
-                                 Package.version.label("version"),
-                                 Checksum.file_id.label("file_id"),
-                                 File.path.label("path"))
-                   .filter(Checksum.sha256 == checksum)
-                   .filter(Checksum.package_id == Package.id)
-                   .filter(Checksum.file_id == File.id)
-                   .filter(Package.name_id == PackageName.id)
-                   )
-        if package is not None and package != "":
-            results = results.filter(PackageName.name == package)
-
-        results = results.order_by("package", "version", "path")
+        results = qry.get_files_by_checksum(session, checksum, package)
 
         if slice_ is not None:
             results = results.slice(slice_[0], slice_[1])
@@ -369,12 +338,7 @@ class ChecksumView(GeneralView):
         package = request.args.get("package") or None
 
         # we count the number of results:
-        count = (session.query(sql_func.count(Checksum.id))
-                 .filter(Checksum.sha256 == checksum))
-        if package is not None and package != "":  # (only within the package)
-            count = (count.filter(PackageName.name == package)
-                     .filter(Checksum.package_id == Package.id)
-                     .filter(Package.name_id == PackageName.id))
+        count = qry.count_files_checksum(session, checksum, package)
         count = count.first()[0]
 
         # pagination:
@@ -425,8 +389,9 @@ class CtagView(GeneralView):
         else:
             pagination = None
             slice_ = None
-        count, results = Ctag.find_ctag(session, ctag, slice_=slice_,
-                                        package=package)
+
+        (count, results) = qry.find_ctag(session, ctag, slice_=slice_,
+                                         package=package)
         if self.d.get('pagination'):
             pagination = Pagination(page, offset, count)
         else:
@@ -452,27 +417,16 @@ class PrefixView(GeneralView):
         suite = suite.lower()
         if suite == "all":
             suite = ""
-        if prefix in PackageName.get_packages_prefixes(
+        if prefix in qry.pkg_names_get_packages_prefixes(
                 app.config["CACHE_DIR"]):
             try:
                 if not suite:
-                    packages = (session.query(PackageName)
-                                .filter(sql_func.lower(PackageName.name)
-                                        .startswith(prefix))
-                                .order_by(PackageName.name)
-                                .all()
-                                )
+                    packages = qry.get_pkg_filter_prefix(session,
+                                                         prefix).all()
                 else:
-                    packages = (session.query(PackageName)
-                                .filter(sql_func.lower(Suite.suite)
-                                        == suite)
-                                .filter(Suite.package_id == Package.id)
-                                .filter(Package.name_id == PackageName.id)
-                                .filter(sql_func.lower(PackageName.name)
-                                        .startswith(prefix))
-                                .order_by(PackageName.name)
-                                .all()
-                                )
+                    packages = qry.get_pkg_filter_prefix(session,
+                                                         prefix,
+                                                         suite).all()
 
                 packages = [p.to_dict() for p in packages]
             except Exception as e:
@@ -488,10 +442,7 @@ class ListPackagesView(GeneralView):
     def get_objects(self, page=1):
         if not self.d.get('pagination'):  # api form, we retrieve all packages
             try:
-                packages = (session.query(PackageName)
-                            .order_by(PackageName.name)
-                            .all()
-                            )
+                packages = qry.get_all_packages(session).all()
                 packages = [p.to_dict() for p in packages]
                 return dict(packages=packages)
             except Exception as e:
@@ -505,11 +456,8 @@ class ListPackagesView(GeneralView):
                 start = (page - 1) * offset
                 end = start + offset
 
-                count_packages = (session.query(PackageName)
-                                  .count()
-                                  )
-                packages = (session.query(PackageName)
-                            .order_by(PackageName.name)
+                count_packages = qry.count_packages(session)
+                packages = (qry.get_all_packages(session)
                             .slice(start, end)
                             )
                 pagination = Pagination(page, offset, count_packages)
