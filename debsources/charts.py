@@ -15,9 +15,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
+
 import logging
-import matplotlib
 import operator
+
+import matplotlib
+import six
+from six.moves import range
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -76,11 +81,11 @@ def sloc_plot(multiseries, fname):
     by_value = lambda (x1, y1), (x2, y2): cmp(y1, y2)
 
     styles = cycle(LINE_STYLES)
-    for name, series in sorted(multiseries.iteritems(),
+    for name, series in sorted(six.iteritems(multiseries),
                                cmp=by_value, reverse=True):
         ts, values = _split_series(series)
-        if filter(bool, values):  # at least one value is != None and != 0
-            plt.plot(ts, values, styles.next(), label=name)
+        if any(values):
+            plt.plot(ts, values, next(styles), label=name)
 
     # plt.legend(bbox_to_anchor=(0., 1.02, 1., .102),
     # plt.legend(bbox_to_anchor=(0, -0.04),
@@ -100,7 +105,7 @@ def sloc_pie(slocs, fname):
     """
     logging.debug('generate sloccount pie chart to %s...' % fname)
     plt.figure()
-    langs, slocs = _split_series(list(slocs.iteritems()))
+    langs, slocs = _split_series(list(six.iteritems(slocs)))
     modified_langs = ["Other: ", "Other"]
     modified_slocs = [0]
     for i, sloc in enumerate(slocs):
@@ -141,7 +146,7 @@ def bar_chart(sloc_per_suite, suites, fname, N):
         N = len(latest_release) - 1
 
     # Generate data
-    latest = sorted(latest_release.items(),
+    latest = sorted(list(latest_release.items()),
                     key=operator.itemgetter(1), reverse=True)
     keys = [couple[0] for couple in latest[0:N]]
     important = []
@@ -156,13 +161,13 @@ def bar_chart(sloc_per_suite, suites, fname, N):
     width = 0.33
 
     styles = cycle(CHART_STYLES)
-    c, t = styles.next()
+    c, t = next(styles)
     bar_charts = []
     # Add first language without anything on bottom
     bar_charts.append(plt.bar(ind, important[0], width, color=c, hatch=t))
     # Add the rest of the languages
     for i in range(1, len(keys)):
-        c, t = styles.next()
+        c, t = next(styles)
         bar_charts.append(plt.bar(ind, important[i], width,
                                   color=c, hatch=t,
                                   bottom=bottom_sum(important[0:i],

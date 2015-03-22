@@ -15,13 +15,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
+
 import logging
 import os
 import shutil
 import subprocess
 
-from consts import DPKG_EXTRACT_UMASK
-from subprocess_workaround import subprocess_setup
+import six
+
+from debsources.consts import DPKG_EXTRACT_UMASK
+from debsources.subprocess_workaround import subprocess_setup
 
 
 def extract_package(pkg, destdir):
@@ -91,14 +95,14 @@ def walk_pkg_files(pkgdir, file_table=None):
     absolute" as `pkgdir` is)
 
     """
-    if isinstance(pkgdir, unicode):
+    if isinstance(pkgdir, six.text_type):
         # dumb down pkgdir to byte string. Whereas pkgdir comes from Sources
         # and hence is ASCII clean, the paths that os.walk() will encounter
         # might not even be UTF-8 clean. Using str() we ensure that path
         # operations will happen between raw strings, avoding encoding issues.
         pkgdir = str(pkgdir)
     if file_table:
-        for relpath in file_table.iterkeys():
+        for relpath in six.iterkeys(file_table):
             abspath = os.path.join(pkgdir, relpath)
             yield (relpath, abspath)
     else:

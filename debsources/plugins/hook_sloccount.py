@@ -15,13 +15,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
+
 import logging
 import os
 import re
 import subprocess
 
-from debsources import db_storage
+import six
 
+from debsources import db_storage
 from debsources.models import SlocCount
 
 
@@ -101,7 +104,7 @@ def add_package(session, pkg, pkgdir, file_table):
             # ASSUMPTION: if *a* loc count of this package has already been
             # added to the db in the past, then *all* of them have, as
             # additions are part of the same transaction
-            for (lang, locs) in slocs.iteritems():
+            for (lang, locs) in six.iteritems(slocs):
                 sloccount = SlocCount(db_package, lang, locs)
                 session.add(sloccount)
 

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import os
 
 from flask import current_app, request, jsonify, url_for
@@ -153,8 +155,8 @@ class SourceView(GeneralView):
         else:
             self.render_func = bind_render(
                 'sources/source_folder.html',
-                subdirs=filter(lambda x: x['type'] == "directory", content),
-                subfiles=filter(lambda x: x['type'] == "file", content),
+                subdirs=[x for x in content if x['type'] == "directory"],
+                subfiles=[x for x in content if x['type'] == "file"],
                 nb_hidden_files=sum(1 for f in content if f['hidden']),
                 pathl=qry.location_get_path_links(".source", path),)
 

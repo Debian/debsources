@@ -15,6 +15,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
+
+import six
+from six.moves import range
+
 from debsources.filetype import get_highlightjs_language
 
 
@@ -40,7 +45,7 @@ class SourceCodeIterator(object):
         self.file = open(filepath)
         # we store the firstline (used to determine file language)
         try:
-            self.firstline = self.file.next()
+            self.firstline = next(self.file)
         except:  # empty file
             self.firstline = ""
 
@@ -79,7 +84,8 @@ class SourceCodeIterator(object):
         else:
             class_ = False
         try:
-            line = unicode(self.file.next(), self.encoding, errors='replace')
+            line = six.text_type(next(self.file), self.encoding,
+                                 errors='replace')
         except StopIteration:
             # end of file, we close it
             self.file.close()

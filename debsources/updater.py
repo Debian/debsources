@@ -15,11 +15,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
+
 import glob
 import logging
 import os
 import string
 import subprocess
+
+import six
+from six.moves import map
+from six.moves import range
 
 from datetime import datetime
 from email.utils import formatdate
@@ -112,7 +118,7 @@ def notify(conf, event, session, pkg, pkgdir, file_table=None):
     try:
         subprocess.check_output(cmd, stderr=subprocess.STDOUT,
                                 preexec_fn=subprocess_setup)
-    except subprocess.CalledProcessError, e:
+    except subprocess.CalledProcessError as e:
         logging.error('shell hooks for %s on %s returned exit code %d.'
                       ' Output: %s'
                       % (event, pkg, e.returncode, e.output))
@@ -164,8 +170,8 @@ def exclude_files(session, pkg, pkgdir, file_table, exclude_specs):
 
     """
     # enforce spec's Package field
-    specs = filter(lambda spec: spec['package'] == pkg['package'],
-                   exclude_specs)
+    specs = [spec for spec in exclude_specs
+             if spec['package'] == pkg['package']]
     candidates = []  # files eligible for exclusion
     for spec in specs:
         # enforce spec's Files field
@@ -344,7 +350,7 @@ def update_suites(status, conf, session, mirror):
     # load suites aliases
     suites_aliases = mirror.ls_suites_with_aliases()
 
-    for (suite, pkgs) in mirror.suites.iteritems():
+    for (suite, pkgs) in six.iteritems(mirror.suites):
         if not conf['dry_run'] and 'db' in conf['backends']:
             session.query(Suite).filter_by(suite=suite).delete()
         for pkg_id in pkgs:
@@ -384,7 +390,7 @@ def update_suites(status, conf, session, mirror):
     # update sources.txt, now that we know the suite mappings
     src_list_path = os.path.join(conf['cache_dir'], 'sources.txt')
     with open(src_list_path + '.new', 'w') as src_list:
-        for pkg_id, src_entry in status.sources.iteritems():
+        for pkg_id, src_entry in six.iteritems(status.sources):
             fields = list(pkg_id)
             fields.extend(src_entry[:-1])  # all except suites
             fields.append(string.join(src_entry[-1], ','))
@@ -568,7 +574,7 @@ def update_charts(status, conf, session, suites=None):
  STAGE_GC,
  STAGE_STATS,
  STAGE_CACHE,
- STAGE_CHARTS,) = range(1, 7)
+ STAGE_CHARTS,) = list(range(1, 7))
 __STAGES = {
     'extract': STAGE_EXTRACT,
     'suites': STAGE_SUITES,
@@ -577,7 +583,7 @@ __STAGES = {
     'cache': STAGE_CACHE,
     'charts': STAGE_CHARTS,
 }
-__STAGE2STR = {v: k for k, v in __STAGES.items()}
+__STAGE2STR = {v: k for k, v in list(__STAGES.items())}
 UPDATE_STAGES = set(__STAGES.values())
 
 

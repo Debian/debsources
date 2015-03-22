@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
+
 import datetime
 
 
@@ -121,4 +123,4 @@ for s in SUITES['release']:
 SUITES['devel'].append('experimental')
 SUITES['all'].append('experimental')
 
-DPKG_EXTRACT_UMASK = 0022
+DPKG_EXTRACT_UMASK = 0o022

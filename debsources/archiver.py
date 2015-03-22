@@ -17,15 +17,14 @@
 
 """handle the archive of sticky suites"""
 
+from __future__ import absolute_import
+
 import logging
 import os
-import statistics
-import updater
 
 from sqlalchemy import sql
 
-from debsources import db_storage
-
+from debsources import db_storage, statistics, updater
 from debsources.debmirror import SourcePackage
 from debsources.models import Suite, Package
 
@@ -158,8 +157,8 @@ def remove_suite(conf, session, suite):
                 else:
                     updater._rm_package(pkg, conf, session, db_package=package)
             else:
-                other_sticky_suites = filter(lambda s: s in sticky_suites,
-                                             other_suites)
+                other_sticky_suites = [s for s in other_suites
+                                       if s in sticky_suites]
                 if not other_sticky_suites and not conf['dry_run']:
                     # package is only listed in "live" suites, drop sticky flag
                     logging.debug('clearing sticky bit on %s' % pkg)

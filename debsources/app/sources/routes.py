@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from flask import redirect, url_for, request, jsonify
 
 from ..helper import bind_render

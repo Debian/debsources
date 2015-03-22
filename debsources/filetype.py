@@ -15,15 +15,19 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
 
 import re
+
+import six
+from six.moves import range
 
 # Languages constants
 (PYTHON, RUBY, PERL, PHP, SCALA, GO, XML, HTML, MARKDOWN, CSS, JSON,
  JAVASCRIPT, COFFEESCRIPT, ACTIONSCRIPT, VBSCRIPT, LUA, JAVA, C, CPP,
  OBJECTIVEC, VALA, CSHARP, D, SQL, LISP, CLOJURE, INI, APACHE, CMAKE, VHDL,
  DIFF, BASH, TEX, BRAINFUCK, HASKELL, ERLANG, RUST, R, OCAML, SCILAB) \
-    = range(40)
+    = list(range(40))
 
 # Languages strings used by highlight.js
 highlightjs = {
@@ -211,7 +215,7 @@ def get_highlightjs_language(filename, firstline, lang):
     (used for syntactic code coloration).
     """
     if lang is not None:
-        if lang not in highlightjs.itervalues():
+        if lang not in six.itervalues(highlightjs):
             return None
         else:
             return lang

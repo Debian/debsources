@@ -16,7 +16,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import ConfigParser as configparser
+from __future__ import absolute_import
+
 import importlib
 import logging
 import os
@@ -24,6 +25,8 @@ import string
 from collections import defaultdict
 
 from debian import deb822
+import six.moves.configparser as configparser
+from six.moves import map
 
 from debsources import updater
 
@@ -202,7 +205,7 @@ def add_arguments(cmdline):
                          'performed. Can be specified multiple times. Warning:'
                          'using this you can mess up the update logic, use at'
                          'your own risk.' %
-                         map(updater.pp_stage, updater.UPDATE_STAGES),
+                         list(map(updater.pp_stage, updater.UPDATE_STAGES)),
                          dest='stages')
     cmdline.add_argument('--trigger', '-t',
                          metavar='EVENT/HOOK',
@@ -259,7 +262,7 @@ def conf_warnings(conf):
         logging.warn('only using backends: %s' % list(conf['backends']))
     if conf['stages'] != updater.UPDATE_STAGES:
         logging.warn('only doing stages: %s' %
-                     map(updater.pp_stage, conf['stages']))
+                     list(map(updater.pp_stage, conf['stages'])))
     if conf['force_triggers']:
         logging.warn('forcing triggers: %s' % conf['force_triggers'])
 
