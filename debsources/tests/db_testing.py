@@ -1,5 +1,6 @@
-# Copyright (C) 2013-2014  Stefano Zacchiroli <zack@upsilon.cc>
-#                    2014  Matthieu Caneill <matthieu.caneill@gmail.com>
+# Copyright (C) 2013-2014  The Debsources developers <info@sources.debian.net>.
+# See the AUTHORS file at the top-level directory of this distribution and at
+# https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
 #
 # This file is part of Debsources.
 #

@@ -1,4 +1,6 @@
-/* Copyright (C) 2015  Jason Pleau <jason@jpleau.ca>
+/* Copyright (C) 2015  The Debsources developers <info@sources.debian.net>.
+ * See the AUTHORS file at the top-level directory of this distribution and at
+ * https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
  *
  * This file is part of Debsources.
  *
