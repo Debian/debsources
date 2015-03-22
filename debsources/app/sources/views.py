@@ -327,7 +327,10 @@ class SourceView(GeneralView):
                                   if version in v['suites']],
                                   cmp=version_compare)
                 if versions:
-                    redirect_url = '/'.join([package, versions[-1]])
+                    redirect_url_parts = [package, versions[-1]]
+                    if path:
+                        redirect_url_parts.append(path)
+                    redirect_url = '/'.join(redirect_url_parts)
                     return self._redirect_to_url(redirect_url)
 
                 return self._render_location(package, version, path)

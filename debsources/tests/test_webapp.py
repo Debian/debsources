@@ -428,8 +428,22 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
                                      follow_redirects=True).data)
         self.assertIn("2.03-2", rv['path'])
 
+    def test_source_file_text_suite(self):
+        rv = self.app.get('/src/ledit/unstable/README', follow_redirects=True)
+        self.assertIn('<code id="sourcecode" class="no-highlight">', rv.data)
+        rv = json.loads(self.app.get('/api/src/ledit/unstable/README/',
+                                     follow_redirects=True).data)
+        self.assertIn("2.03-2", rv['path'])
+
     def test_suite_folder_alias(self):
         rv = json.loads(self.app.get('/api/src/ledit/unstable/',
+                                     follow_redirects=True).data)
+        self.assertIn("2.03-2", rv['path'])
+
+    def test_source_file_text_suite_alias(self):
+        rv = self.app.get('/src/ledit/sid/README', follow_redirects=True)
+        self.assertIn('<code id="sourcecode" class="no-highlight">', rv.data)
+        rv = json.loads(self.app.get('/api/src/ledit/sid/README/',
                                      follow_redirects=True).data)
         self.assertIn("2.03-2", rv['path'])
 
