@@ -258,13 +258,15 @@ class SourceView(GeneralView):
                     pkg_infos=pkg_infos
                     )
 
-    def _redirect_to_url(self, redirect_url):
+    def _redirect_to_url(self, redirect_url, redirect_code=301):
         if self.d.get('api'):
             self.render_func = bind_redirect(url_for('.api_source',
-                                             path_to=redirect_url))
+                                             path_to=redirect_url),
+                                             code=redirect_code)
         else:
             self.render_func = bind_redirect(url_for('.source',
-                                             path_to=redirect_url))
+                                             path_to=redirect_url),
+                                             code=redirect_code)
 
         return dict(redirect=redirect_url)
 
@@ -331,6 +333,7 @@ class SourceView(GeneralView):
                     if path:
                         redirect_url_parts.append(path)
                     redirect_url = '/'.join(redirect_url_parts)
-                    return self._redirect_to_url(redirect_url)
+                    return self._redirect_to_url(redirect_url,
+                                                 redirect_code=302)
 
                 return self._render_location(package, version, path)
