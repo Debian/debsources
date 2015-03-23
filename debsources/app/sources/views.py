@@ -117,13 +117,7 @@ class SourceView(GeneralView):
                     os.path.join(os.path.dirname(location.path_to),
                                  symlink_dest))
 
-                if self.d.get('api'):
-                    self.render_func = bind_redirect(url_for('.api_source',
-                                                     path_to=redirect_url))
-                else:
-                    self.render_func = bind_redirect(url_for('.source',
-                                                     path_to=redirect_url))
-                return dict(redirect=redirect_url)
+                return self._redirect_to_url(redirect_url)
             else:
                 raise Http403Error(
                     'insecure symlink, pointing outside package/version/')
