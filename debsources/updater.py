@@ -31,7 +31,6 @@ from datetime import datetime
 from email.utils import formatdate
 from sqlalchemy import sql, not_
 
-from debsources import charts
 from debsources import db_storage
 from debsources import fs_storage
 from debsources import statistics
@@ -510,6 +509,7 @@ def update_metadata(status, conf, session):
 def update_charts(status, conf, session, suites=None):
     """update stage: rebuild charts"""
 
+    from debsources import charts
     logging.info('update charts...')
     ensure_stats_dir(conf)
     suites = __target_suites(session, suites)
