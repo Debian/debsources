@@ -1,21 +1,33 @@
-# Copyright (C) 2015  The Debsources developers <info@sources.debian.net>.
-# See the AUTHORS file at the top-level directory of this distribution and at
-# https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
-#
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+my $LICENSE = <<EOT;
 # This file is part of Debsources. Debsources is free software: you can
 # redistribute it and/or modify it under the terms of the GNU Affero General
 # Public License as published by the Free Software Foundation, either version 3
 # of the License, or (at your option) any later version.  For more information
 # see the COPYING file at the top-level directory of this distribution and at
 # https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=COPYING;hb=HEAD
+EOT
 
-from __future__ import absolute_import
+while (my $l = <>) {  # before (C) block: verbatim copy
+    if ($l =~ /^#\s+This file is part of Debsources/i) {
+	last;  # license block found, stop verbatim copy
+    }
+    print $l;
+}
 
-from flask.views import View
+print $LICENSE;
 
+while (my $l = <>) {  # throw away license block
+    if ($l =~ /^[^#]/) {
+	print $l;
+	last;
+    }
+}
 
-# this is just a placeholder
-class IndexView(View):
-
-    def dispatch_request(self):
-        return "Hello World"
+while (my $l = <>) {  # verbatim copy till the end
+    print $l;
+}
