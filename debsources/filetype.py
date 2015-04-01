@@ -231,20 +231,3 @@ def is_text_file(mimetype):
         if text_mime in mimetype:
             return True
     return False
-
-if __name__ == "__main__":
-    assert get_filetype("foo", "#!/usr/bin/env python") == PYTHON
-    assert get_filetype("foo", "#!/usr/bin/python") == PYTHON
-    assert get_filetype("foo.py", "foobar") == PYTHON
-
-    assert get_filetype("foo", "<html><head>") == HTML
-    assert get_filetype("foo", "<?xml>") == XML
-    assert get_filetype("foo", "<?php echo('hello') ?>") == PHP
-
-    assert get_filetype("foo", "#!/usr/bin/env ruby") == RUBY
-    assert get_filetype("foo.rb", "foobar") == RUBY
-
-    assert get_highlightjs_language("foo.html", "foobar") == "django"
-    assert get_highlightjs_language("foo", "#!/bin/perl\n") == "perl"
-
-    assert get_filetype("foo", "foobar") is None
