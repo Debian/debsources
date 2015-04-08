@@ -17,7 +17,7 @@ from nose.tools import istest
 from nose.plugins.attrib import attr
 
 from debsources.filetype import get_filetype, get_highlightjs_language
-from debsources.filetype import HTML, PHP, PYTHON, RUBY, XML
+from debsources.filetype import HTML, PHP, PYTHON, RUBY, XML, MAKEFILE
 
 
 @attr('filetype')
@@ -75,3 +75,32 @@ class FiletypeTests(unittest.TestCase):
                                                   "#!/bin/perl\n",
                                                   None),
                          "perl")
+
+    @istest
+    def makefileFilename(self):
+        self.assertEqual(get_filetype('Makefile', 'foobar'), MAKEFILE)
+
+    @istest
+    def makefileFilenameLowerCase(self):
+        self.assertEqual(get_filetype('makefile', 'foobar'), MAKEFILE)
+
+    @istest
+    def assertAutomakeNotMakefile(self):
+        self.assertNotEqual(get_filetype('Makefile.am', 'foobar'), MAKEFILE)
+
+    @istest
+    def makefileShebang(self):
+        self.assertEqual(get_filetype('foo', '#!/usr/bin/make -f'), MAKEFILE)
+
+    @istest
+    def hilightjsLanguageMakefile(self):
+        self.assertEqual(get_highlightjs_language("Makefile", "foobar", None),
+                         "makefile")
+
+    @istest
+    def hilightjsLanguageMakeShebang(self):
+        self.assertEqual(get_highlightjs_language("foo",
+                                                  "#!/usr/bin/make -f",
+                                                  None),
+                         "makefile")
+

@@ -20,8 +20,9 @@ from six.moves import range
 (PYTHON, RUBY, PERL, PHP, SCALA, GO, XML, HTML, MARKDOWN, CSS, JSON,
  JAVASCRIPT, COFFEESCRIPT, ACTIONSCRIPT, VBSCRIPT, LUA, JAVA, C, CPP,
  OBJECTIVEC, VALA, CSHARP, D, SQL, LISP, CLOJURE, INI, APACHE, CMAKE, VHDL,
- DIFF, BASH, TEX, BRAINFUCK, HASKELL, ERLANG, RUST, R, OCAML, SCILAB) \
-    = list(range(40))
+ DIFF, BASH, TEX, BRAINFUCK, HASKELL, ERLANG, RUST, R, OCAML, SCILAB,
+ MAKEFILE) \
+    = list(range(41))
 
 # Languages strings used by highlight.js
 highlightjs = {
@@ -65,6 +66,7 @@ highlightjs = {
     R: "r",
     OCAML: "ocaml",
     SCILAB: "scilab",
+    MAKEFILE: "makefile",
     }
 
 # Filename regexes
@@ -113,6 +115,7 @@ filename_regexes = [
     (R, [r'\.r$', r'\.R$']),
     (OCAML, [r'\.ml$', r'\.mli$']),
     (SCILAB, [r'\.sci$', r'\.sce$']),
+    (MAKEFILE, [r'^(GNUm|m|M)akefile$']),
     ]
 
 # Shebang map:
@@ -126,7 +129,7 @@ shebangs = dict(
     php=PHP,
     ruby=RUBY,
     # tcl =	TCL,
-    make=CMAKE,
+    make=MAKEFILE,
     zsh=BASH,
     ksh=BASH,
     csh=BASH,
