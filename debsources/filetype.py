@@ -172,7 +172,8 @@ def get_filetype_from_firstline(firstline):
         if interp.startswith("env"):  # shebang #!/usr/bin/env foo
             interp = interp.split()[-1]
         else:  # shebang #!/usr/bin/foo
-            pass
+            # ignore options passed to the interpreter
+            interp = interp.split()[0]
         if interp in shebangs.keys():
             return shebangs[interp]
         else:
