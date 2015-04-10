@@ -6,6 +6,7 @@
 #}
 {# copied from templates/about.html #}
 {% extends "sources/base.html" %}
+{% import "sources/_macros_pubs.html" as pubs %}
 
 {% block title %}About{% endblock %}
 
@@ -65,6 +66,11 @@
     <a href="//{{config.SOURCES_URL}}">{{ config.SOURCES_URL }}</a></li>
 </ul>
 <p><em>Thank you!</em></p>
+
+
+<h3>Publications</h3>
+
+{{ pubs.render_biblio() }}
 
 
 {% endblock %}
