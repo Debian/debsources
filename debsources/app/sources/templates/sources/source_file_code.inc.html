@@ -27,7 +27,7 @@
       <pre><code id="sourcecode" class="{% if file_language -%}
 					{{ file_language }}{% else %}no-highlight
 					{%- endif %}">{% for (line, highlight) in code -%}
-             <span id="line{{ loop.index }}" class="codeline {% if highlight -%} highlight {%- endif %}">{{ line }}{% for msg in msgs %}{% if msg
+             <span id="line{{ loop.index }}" class="codeline {% if highlight -%} highlight hightlight_query {%- endif %}">{{ line }}{% for msg in msgs %}{% if msg
              and code.current_line == (msg.position+1) -%}
 		 <pre class="messages" data-position="{{ msg.position }}"><div class="message">{% if msg.title -%}
                   <strong>{{ msg.title }}</strong><br />

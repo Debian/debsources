@@ -56,7 +56,10 @@ var debsources = {
 			var elements = document.querySelectorAll("span.highlight");
 			for (i = 0; i < elements.length; ++i) {
 				var element = elements[i];
-				element.className = element.className.replace(/\bhighlight\b/, '');
+				var hl_from_query = (" " + element.className + " ").indexOf(" hightlight_query ") != -1;
+				if (!hl_from_query) {
+					element.className = element.className.replace(/\bhighlight\b/, '');
+				}
 			}
 
 			// Then, add the highlight class to elements that contain the lines we want to highlight
