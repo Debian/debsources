@@ -1,5 +1,9 @@
 NOSE = nosetests
-TESTDIR = debsources/tests/
+FLAKE = flake8
+
+SRCDIR = debsources
+BINDIR = bin
+TESTDIR = $(SRCDIR)/tests
 TESTFLAGS = -v
 
 all:
@@ -20,5 +24,11 @@ test-fast:
 test-slow:
 	$(NOSE) $(TESTFLAGS) $(TESTDIR) -a slow
 
+check:
+	$(FLAKE) $(SRCDIR)/ $(shell grep -H 'env python' $(BINDIR)/debsources-* | cut -f 1 -d :)
+
 clean:
 	$(MAKE) -C doc $@
+
+
+.PHONY: all doc test test-all test-fast test-slow check clean
