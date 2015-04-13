@@ -103,4 +103,3 @@ class FiletypeTests(unittest.TestCase):
                                                   "#!/usr/bin/make -f",
                                                   None),
                          "makefile")
-
