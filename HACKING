@@ -94,6 +94,10 @@ case is:
     # apt-get install python-flake8
     $ flake8 file1.py file2.py ...
 
+You can check all Debsources Python source files flake8 compliance with:
+
+    $ make check
+
 You can add a pre-commit hook to automatically test PEP8 compliance:
     $ ln -s ../../contrib/git-pre-commit .git/hooks/pre-commit
 
