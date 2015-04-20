@@ -277,23 +277,15 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
 
     def test_api_hidden_files_folder(self):
         rv = json.loads(self.app.get('/api/src/nvidia-xconfig/319.72-1/').data)
-        self.assertIn({"type": "directory",
-                       "name": ".pc",
-                       "hidden": True,
-                       "stat": {"perms": "rwxr-xr-x",
-                                "size": 4096,
-                                "type": "d",
-                                "symlink_dest": None}
-                       }, rv['content'])
-
-        self.assertIn({"type": "file",
-                       "name": "lscf.c",
-                       "hidden": False,
-                       "stat": {"perms": "rw-r--r--",
-                                "size": 11940,
-                                "type": "-",
-                                "symlink_dest": None}
-                       }, rv['content'])
+        hidden_element = {}
+        shown_element = {}
+        for el in rv['content']:
+            if el['name'] == '.pc':
+                hidden_element = el
+            elif el['name'] == 'lscf.c':
+                shown_element = el
+        self.assertTrue(hidden_element['hidden'])
+        self.assertFalse(shown_element['hidden'])
 
     def test_api_symlink_dest(self):
         rv = json.loads(self.app.get('/api/src/beignet/1.0.0-1/').data)
