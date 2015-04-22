@@ -5,7 +5,6 @@ MAINTAINER Matthieu Caneill <matthieu.caneill@gmail.com>
 ENV DEBIAN_FRONTEND noninteractive
 
 # PACKAGES
-RUN echo coucou
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y supervisor
 RUN apt-get install -y \
