@@ -1,6 +1,9 @@
 Getting started with Debsources development
 ===========================================
 
+You have 2 documented ways to get a local Debsources environment:
+either a local deployment directly in your OS, or within a Docker
+container.
 
 Local Debsources deployment
 ---------------------------
@@ -67,6 +70,22 @@ Local Debsources deployment
 
   you can now visit the above URL with your browser and verify that everything
   is OK.
+
+Docker container
+---------------
+
+- Ensure docker is installed and the service is running, then build
+  the Debsources image (may take a while):
+
+  $ bin/debsources-docker-build
+
+- Run the container:
+
+  $ bin/debsources-docker-run
+
+  and follow the instructions displayed, to initiate the database.
+
+
 
 You're ready for Debsources hacking!  How about giving Debsources easy hacks a
 go now?  <http://deb.li/debsrceasy>
