@@ -342,6 +342,8 @@ def update_suites(status, conf, session, mirror):
 
     # load suites aliases
     suites_aliases = mirror.ls_suites_with_aliases()
+    if not conf['dry_run'] and 'db' in conf['backends']:
+        session.query(SuiteAlias).delete()
 
     for (suite, pkgs) in six.iteritems(mirror.suites):
         if not conf['dry_run'] and 'db' in conf['backends']:
