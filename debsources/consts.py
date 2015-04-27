@@ -100,7 +100,7 @@ DEBIAN_RELEASES = {
 SUITES = {
     'release': [  # known releases sorted by release date
         'buzz', 'rex', 'bo', 'hamm', 'slink', 'potato', 'woody', 'sarge',
-        'etch', 'lenny', 'squeeze', 'wheezy', 'jessie', 'sid'
+        'etch', 'lenny', 'squeeze', 'wheezy', 'jessie', 'stretch', 'sid'
     ],
     'devel': [],  # known release variants; filled below
     'all': [],	  # all known releases + variants; filled below
