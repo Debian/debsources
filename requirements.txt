@@ -8,3 +8,6 @@ psycopg2
 # required for matplotlib to build:
 freetype-py
 matplotlib
+
+# for travis
+chardet
