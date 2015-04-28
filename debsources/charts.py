@@ -20,6 +20,7 @@ from six.moves import range
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import numpy as np
 
 from itertools import cycle
@@ -98,6 +99,7 @@ def sloc_pie(slocs, fname):
 
     """
     logging.debug('generate sloccount pie chart to %s...' % fname)
+    cols = cm.Set1(np.arange(20) / 20.)
     plt.figure()
     langs, slocs = _split_series(list(six.iteritems(slocs)))
     modified_langs = ["Other: ", "Other"]
@@ -111,7 +113,8 @@ def sloc_pie(slocs, fname):
             modified_langs[0] = modified_langs[0] + " " + langs[i]
             if i % 12 == 0 and i != 0:
                 modified_langs[0] = modified_langs[0] + "\n"
-    plt.pie(modified_slocs, labels=modified_langs[1:], autopct='%1.1f%%')
+    plt.pie(modified_slocs, labels=modified_langs[1:], autopct='%1.1f%%',
+            colors=cols)
     plt.figtext(.02, .02, modified_langs[0])
     plt.savefig(fname)
     plt.close()
