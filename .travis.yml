@@ -29,6 +29,6 @@ before_script:
   - export PYTHONPATH=$PYTHONPATH:$(pwd)/debsources
   - psql -c 'create database debsources;' -U postgres
   - bin/debsources-dbadmin --createdb postgresql://postgres@localhost/debsources
-  - bin/debsources-update
+  - bin/debsources-update -vv
 
 script: make test
