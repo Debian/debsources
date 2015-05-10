@@ -32,4 +32,4 @@ before_script:
   - bin/debsources-dbadmin --createdb postgresql://postgres@localhost/debsources
   - bin/debsources-update -vv
 
-script: make test
+script: make test-travis

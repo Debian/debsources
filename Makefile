@@ -24,6 +24,9 @@ test-fast:
 test-slow:
 	$(NOSE) $(TESTFLAGS) $(TESTDIR) -a slow
 
+test-travis:
+	$(NOSE) $(TESTFLAGS) $(TESTDIR) -a \!notravis
+
 check:
 	$(FLAKE) $(SRCDIR)/ $(shell grep -H 'env python' $(BINDIR)/debsources-* | cut -f 1 -d :)
 
