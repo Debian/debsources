@@ -1,6 +1,3 @@
 [submodule "testdata"]
 	path = testdata
 	url = git://git.upsilon.cc/hacks/debsources-testdata.git
-[submodule "debsources/app/static/external/bootstrap"]
-	path = debsources/app/static/external/bootstrap
-	url = https://github.com/twbs/bootstrap.git
