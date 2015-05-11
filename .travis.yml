@@ -13,8 +13,8 @@ notifications:
 before_install:
   - pwd
   - sudo apt-get update -qq
+  - git clone https://github.com/file/file.git ../file && pip install -e ../file/python
   - sudo apt-get install -y tango-icon-theme debmirror exuberant-ctags sloccount dpkg-dev libapt-pkg-dev
-  - mkdir /tmp/python-magic && wget https://raw.githubusercontent.com/file/file/master/python/magic.py -O /tmp/python-magic/magic.py && export PYTHONPATH=/tmp/python-magic/:$PYTHONPATH
   - pip install https://launchpad.net/python-apt/main/0.7.8/+download/python-apt-0.8.5.tar.gz
   - pip install flake8
 
