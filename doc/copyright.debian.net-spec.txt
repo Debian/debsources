@@ -101,7 +101,8 @@ Non-functional requirements
 * **deployment modularity**: the web app should be deployable both on the
   separate <http://copyright.debian.net> website and within Debsources, e.g.,
   starting from a URL like <http://sources.debian.net/copyright/>. To this end,
-  Flask blueprints might come in handy (to be verified).
+  the core functionalities will be included in a Flask blueprint and the
+  blueprints (copyright & sources) will share the navigation code.
 
 * **debian/copyright rendering module**: the rendering of a machine-readable
   `debian/copyright` should be a separate "debian/copyright renderer"
@@ -132,11 +133,11 @@ Non-functional requirements
   them. But that is sub-optimal, slow, and potentially dangerous (especially
   when the user asks for the copyright of a file whose SHA256 is very popular:
   in that case we have to parse many `debian/copyright` files, potentially
-  leading to DoS scenarios). In the long run, it would be best to parse
-  copyright information at update time, developing a suitable Debsources
-  plugin. The result of the plugin will be storing into the DB (in a new table)
-  copyright/license statements; the web app will simply have to read those
-  data. We should keep in mind this extension, to ease future migrations.
+  leading to DoS scenarios). As soon as the celery migration is completed,
+  a plugin should be developped to parse copyright information at update time.
+  The result of the plugin will be storing into the DB (in a new table)
+  copyright/license statements; the web app will simply have to read those data. 
+  We should keep in mind this extension, to ease future migrations.
 
 * **debian/copyright parser**: to parse machine-readable `debian/copyright`
   files, we will use the `debian.copyright` module shipped by the
