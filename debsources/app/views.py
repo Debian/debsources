@@ -483,7 +483,12 @@ class PackageVersionsView(GeneralView):
             raise Http404Error("%s not found" % packagename)
 
         # we simply add pathl (for use with "You are here:")
-        pathl = qry.location_get_path_links('.source', packagename)
+        if request.blueprint == 'sources':
+            endpoint = '.source'
+        elif request.blueprint == 'copyright':
+            endpoint = '.license'
+
+        pathl = qry.location_get_path_links(endpoint, packagename)
 
         return dict(type="package",
                     package=packagename,
