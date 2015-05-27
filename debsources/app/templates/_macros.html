@@ -56,10 +56,10 @@ https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginati
     <ul class="listcolumn">
       {% for package in packages %}
         {% if suite %}
-          <li><a href="{{ url_for('.source', path_to=package.name, suite=suite) }}">
+          <li><a href="{{ url_for('.versions', packagename=package.name, suite=suite) }}">
               {{ package.name }}</a></li>
         {% else %}
-          <li><a href="{{ url_for('.source', path_to=package.name) }}">
+          <li><a href="{{ url_for('.versions', packagename=package.name) }}">
               {{ package.name }}</a></li>
         {% endif %}
       {% endfor %}
@@ -71,4 +71,20 @@ https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginati
   {%if suite %}
     <p id="suite_filter">In suite <em>{{ suite }}</em></p>
   {% endif %}
+{% endmacro %}
+
+{% macro show_versions(versions, path, endpoint) %}
+  <ul id="ls">
+  {% for v in versions %}
+  <li><a href="{{ url_for(endpoint, path_to=path+'/'+v.version) }}">
+      <img src="{{ config['ICONS_FOLDER'] }}22x22/places/folder.png"
+           alt="version " />{{ v.version }}</a>
+    ({{ v.area }})
+    {% if v.suites %}
+        [{{ ", ".join(v.suites) }}]
+    {% endif %}
+
+  </li>
+  {% endfor %}
+  </ul>
 {% endmacro %}

@@ -73,36 +73,6 @@ class StatsView(GeneralView):
 # SOURCE (packages, versions, folders, files) #
 class SourceView(GeneralView):
 
-    def _render_package(self, packagename, path_to):
-        """
-        renders the package page (which lists available versions)
-        """
-        suite = request.args.get("suite") or ""
-        suite = suite.lower()
-        if suite == "all":
-            suite = ""
-        # we list the version with suites it belongs to
-        try:
-            versions_w_suites = qry.pkg_names_list_versions_w_suites(
-                session, packagename, suite)
-        except InvalidPackageOrVersionError:
-            raise Http404Error("%s not found" % packagename)
-
-        if self.d.get('api'):
-            self.render_func = jsonify
-        else:
-            self.render_func = bind_render(
-                'sources/source_package.html',
-                # we simply add pathl (for use with "You are here:")
-                pathl=qry.location_get_path_links('.source', path_to))
-
-        return dict(type="package",
-                    package=packagename,
-                    versions=versions_w_suites,
-                    path=path_to,
-                    suite=suite,
-                    )
-
     def _render_location(self, package, version, path):
         """
         renders a location page, can be a folder or a file
@@ -307,38 +277,34 @@ class SourceView(GeneralView):
         """
         path_dict = path_to.split('/')
 
-        if len(path_dict) == 1:  # package
-            return self._render_package(path_dict[0], path_to)
+        package = path_dict[0]
+        version = path_dict[1]
+        path = '/'.join(path_dict[2:])
 
-        else:  # folder or file
-            package = path_dict[0]
-            version = path_dict[1]
-            path = '/'.join(path_dict[2:])
+        if version == "latest":  # we search the latest available version
+            return self._handle_latest_version(package, path)
+        else:
+            # Check if an alias was used. If positive, handle the request
+            # as if the suite was used instead of the alias
+            check_for_alias = session.query(SuiteAlias) \
+                .filter(SuiteAlias.alias == version).first()
+            if check_for_alias:
+                version = check_for_alias.suite
+            try:
+                versions_w_suites = qry.pkg_names_list_versions_w_suites(
+                    session, package)
+            except InvalidPackageOrVersionError:
+                raise Http404Error("%s not found" % package)
 
-            if version == "latest":  # we search the latest available version
-                return self._handle_latest_version(package, path)
-            else:
-                # Check if an alias was used. If positive, handle the request
-                # as if the suite was used instead of the alias
-                check_for_alias = session.query(SuiteAlias) \
-                    .filter(SuiteAlias.alias == version).first()
-                if check_for_alias:
-                    version = check_for_alias.suite
-                try:
-                    versions_w_suites = qry.pkg_names_list_versions_w_suites(
-                        session, package)
-                except InvalidPackageOrVersionError:
-                    raise Http404Error("%s not found" % package)
+            versions = sorted([v['version'] for v in versions_w_suites
+                              if version in v['suites']],
+                              cmp=version_compare)
+            if versions:
+                redirect_url_parts = [package, versions[-1]]
+                if path:
+                    redirect_url_parts.append(path)
+                redirect_url = '/'.join(redirect_url_parts)
+                return self._redirect_to_url(redirect_url,
+                                             redirect_code=302)
 
-                versions = sorted([v['version'] for v in versions_w_suites
-                                  if version in v['suites']],
-                                  cmp=version_compare)
-                if versions:
-                    redirect_url_parts = [package, versions[-1]]
-                    if path:
-                        redirect_url_parts.append(path)
-                    redirect_url = '/'.join(redirect_url_parts)
-                    return self._redirect_to_url(redirect_url,
-                                                 redirect_code=302)
-
-                return self._render_location(package, version, path)
+            return self._render_location(package, version, path)
