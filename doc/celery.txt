@@ -1,0 +1,80 @@
+Research
+========
+
+Persistence
+-----------
+
+With the AQMP backend, tasks are persistent by default (messages are
+saved both in-memory and on disk).
+
+http://celery.readthedocs.org/en/latest/internals/reference/celery.backends.amqp.html#celery.backends.amqp.AMQPBackend.Exchange.delivery_mode
+
+By default, if a worker crashes mid-execution, the task will not be
+run again. It is possible to enable 'late acks', meaning tasks will be
+aknowledged only after a successful execution. Tasks need to be
+idempotent for that to work correctly.
+
+ - http://celery.readthedocs.org/en/latest/faq.html#faq-acks-late-vs-retry
+
+ - http://celery.readthedocs.org/en/latest/configuration.html#celery-acks-late
+
+
+
+Transactional tasks
+-------------------
+
+Celery does not support transactional task queues.
+
+Several libraries try to add the feature:
+
+pyramid_transactional_celery
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ -> https://pypi.python.org/pypi/pyramid_transactional_celery
+
+Developed for use with pyramid, but does not depend on pyramid.
+
+Uses Zope's transaction library:
+https://pypi.python.org/pypi/transaction
+
+Available in debian: python-transaction, depends on
+python-zope.interface.
+
+django-transaction-barrier
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-> https://libraries.io/pypi/django-transaction-barrier
+
+For django. 
+
+
+Unit tests 
+----------
+
+For unit testing, tasks can easily be made synchronous.
+
+-> CELERY_ALWAYS_EAGER = True
+
+
+
+
+Dependencies
+============
+
+ - python-celery
+ - rabbitmq
+
+
+Running
+=======
+
+Worker
+------
+
+    bin/debsources-async-celery worker
+
+
+Updater
+-------
+
+    bin/debsources-async-update
