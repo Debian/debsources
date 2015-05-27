@@ -16,7 +16,8 @@ from flask import redirect, url_for, request, jsonify
 from ..helper import bind_render
 from ..views import (
     IndexView, DocView, AboutView, SearchView, CtagView, ChecksumView,
-    PrefixView, ListPackagesView, InfoPackageView, Ping, ErrorHandler)
+    PrefixView, ListPackagesView, InfoPackageView, Ping, ErrorHandler,
+    PackageVersionsView)
 
 from .views import StatsView, SourceView
 from . import bp_sources
@@ -254,6 +255,22 @@ bp_sources.add_url_rule(
     '/api/list/',
     view_func=ListPackagesView.as_view(
         'api_list_packages',
+        render_func=jsonify,
+        err_func=ErrorHandler(mode='json')))
+
+# VERSIONSVIEW
+bp_sources.add_url_rule(
+    '/src/<string:packagename>/',
+    view_func=PackageVersionsView.as_view(
+        'versions',
+        render_func=bind_render('sources/source_package.html'),
+        err_func=ErrorHandler('sources')))
+
+# api
+bp_sources.add_url_rule(
+    '/api/src/<string:packagename>/',
+    view_func=PackageVersionsView.as_view(
+        'api_versions',
         render_func=jsonify,
         err_func=ErrorHandler(mode='json')))
 
