@@ -1,0 +1,17 @@
+{#
+  Copyright (C) 2013  The Debsources developers <info@sources.debian.net>.
+  See the AUTHORS file at the top-level directory of this distribution and at
+  https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+  License: GNU Affero General Public License, version 3 or above.
+#}
+{# copied from templates/500.html #}
+{% extends name+"/base.html" %}
+
+{% block title %}500{% endblock %}
+{% block content %}
+
+<h2>{{ self.title() }}</h2>
+<p>Something went wrong.</p>
+<a href="/">Go home</a>
+
+{% endblock %}

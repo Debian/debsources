@@ -4,15 +4,20 @@
   https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
   License: GNU Affero General Public License, version 3 or above.
 #}
-{# copied from templates/403.html #}
 
-{% extends "sources/base.html" %}
+{# copied from templates/list.html #}
+{% extends name+"/base.html" %}
 
-{% block title %}403{% endblock %}
+{% block title %}Package list: page {{ page }}{% endblock %}
+
+{% block breadcrumbs %}packages list / {{ page }}{% endblock %}
+
 {% block content %}
 
 <h2>{{ self.title() }}</h2>
-<p>Permission denied.</p>
-<a href="/">Go home</a>
+
+{{ macros.listpackages(packages) }}
+
+{{ macros.render_pagination(pagination) }}
 
 {% endblock %}
