@@ -76,7 +76,8 @@ def skeleton_variables():
     return dict(packages_prefixes=packages_prefixes,
                 searchform=SearchForm(),
                 last_update=last_update,
-                credits=credits)
+                credits=credits,
+                name=app.import_name)
 
 
 # jinja2 settings
