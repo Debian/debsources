@@ -11,10 +11,10 @@
 
 {% block nav %}
   <ul>
-    <li><a href="{{ url_for('.index') }}">Home</a></li>
-    <li><a href="{{ url_for('.advanced_search') }}">Search</a></li>
-    <li><a href="{{ url_for('.doc') }}">Documentation</a></li>
-    <li><a href="{{ url_for('.stats') }}">Stats</a></li>
-    <li><a href="{{ url_for('.about') }}">About</a></li>
+    <li><a href="{{ url_for('sources.index') }}">Home</a></li>
+    <li><a href="{{ url_for('sources.advanced_search') }}">Search</a></li>
+    <li><a href="{{ url_for('sources.doc') }}">Documentation</a></li>
+    <li><a href="{{ url_for('sources.stats') }}">Stats</a></li>
+    <li><a href="{{ url_for('sources.about') }}">About</a></li>
   </ul>
 {% endblock %}
