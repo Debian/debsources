@@ -16,9 +16,9 @@ from flask import jsonify
 
 from ..helper import bind_render
 from . import bp_copyright
-from ..views import (PrefixView, ListPackagesView, ErrorHandler, Ping,
-                     PackageVersionsView)
-from .views import IndexView, LicenseView
+from ..views import (IndexView, PrefixView, ListPackagesView, ErrorHandler,
+                     Ping, PackageVersionsView)
+from .views import LicenseView
 
 
 # context vars
@@ -35,10 +35,14 @@ bp_copyright.errorhandler(404)(
     lambda e: (ErrorHandler()(e, http=404), 404))
 
 
+# INDEXVIEW
 bp_copyright.add_url_rule(
     '/',
     view_func=IndexView.as_view(
-        'index'))
+        'index',
+        render_func=bind_render('copyright/index.html'),
+        err_func=ErrorHandler('copyright'),
+        news_html='copyright_news.html'))
 
 # ping service
 bp_copyright.add_url_rule(

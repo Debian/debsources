@@ -1,0 +1,59 @@
+{#
+  Copyright (C) 2013  The Debsources developers <info@sources.debian.net>.
+  See the AUTHORS file at the top-level directory of this distribution and at
+  https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+  License: GNU Affero General Public License, version 3 or above.
+#}
+{# copied from templates/index.html #}
+{% extends name+"/base.html" %}
+
+{% block title %}Debian Sources{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+
+<div id="indexmenu">
+
+<h1 class="h1mainpage">{{ self.title() }}</h1>
+<h3><em>All Debian license are belong to us</em> &emsp;
+  <small>&mdash; Anonymous</small>
+  <sup><a href="https://en.wikipedia.org/wiki/All_your_base_are_belong_to_us"><span style="font-family: monospace; color: black;">[^]</span></a></sup>
+</h3>
+<p>Browse through the licenses of the
+  <a href="https://www.debian.org">Debian</a> operating system.
+  <a href="{{ url_for(name+'.doc_overview') }}">Read more…</a></p>
+<table>
+  <tr>
+    <td id="browse">
+      <p><strong>Browse</strong> by prefix</p>
+      <p>{{ macros.render_packages_prefixes(packages_prefixes) }}</p>
+    </td>
+    <!--
+    <td id="search">
+      <p><strong>Search</strong></p>
+      <ul style="list-style-type: none">
+  <li>by <em>package name</em>:<br />
+	  {{ macros.searchform(searchform, value=query, display="inline", size="25", autofocus=True, id="query-2") }}
+	</li>
+      </ul>
+    </td>-->
+  </tr>
+</table>
+
+</div>
+
+{% if news -%}
+<h3><a name="news">News</a></h3>
+{{ news|safe }}
+{% endif %}
+
+{% endblock %}
+
+{# show the background debian image #}
+{% block bg_wrapper %}
+<div id="bg-wrapper" style="background-image: url('{{ url_for('static', filename='img/debsources.png') }}');">
+  <div id="content">{{ self.content() }}</div>
+  <footer id="footer">{{ self.footer() }}</footer>
+</div>
+{% endblock %}
