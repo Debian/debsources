@@ -18,18 +18,6 @@
 <h2>{{ self.title() }}</h2>
 {{ macros.show_suite(suite) }}
 
-<ul id="ls">
-{% for v in versions %}
-  <li><a href="{{ url_for('.source', path_to=path+'/'+v.version) }}">
-      <img src="{{ config['ICONS_FOLDER'] }}22x22/places/folder.png"
-           alt="version " />{{ v.version }}</a>
-    ({{ v.area }})
-    {% if v.suites %}
-        [{{ ", ".join(v.suites) }}]
-    {% endif %}
-
-  </li>
-{% endfor %}
-</ul>
+{{ macros.show_versions(versions, path, '.source')}}
 
 {% endblock %}

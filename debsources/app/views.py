@@ -21,7 +21,8 @@ from flask import (
 from flask.views import View
 
 from debsources.excepts import (
-    Http500Error, Http404Error, Http404ErrorSuggestions, Http403Error)
+    Http500Error, Http404Error, Http404ErrorSuggestions, Http403Error,
+    InvalidPackageOrVersionError)
 from debsources.models import Package
 import debsources.query as qry
 from debsources.sqla_session import _close_session
@@ -465,6 +466,31 @@ class ListPackagesView(GeneralView):
 
             except Exception as e:
                 raise Http500Error(e)
+
+
+class PackageVersionsView(GeneralView):
+    def get_objects(self, packagename):
+        suite = request.args.get("suite") or ""
+        suite = suite.lower()
+        if suite == "all":
+            suite = ""
+        # we list the version with suites it belongs to
+        try:
+            versions_w_suites = qry.pkg_names_list_versions_w_suites(
+                session, packagename, suite)
+        except InvalidPackageOrVersionError:
+            raise Http404Error("%s not found" % packagename)
+
+        # we simply add pathl (for use with "You are here:")
+        pathl = qry.location_get_path_links('.source', packagename)
+
+        return dict(type="package",
+                    package=packagename,
+                    versions=versions_w_suites,
+                    path=packagename,
+                    suite=suite,
+                    pathl=pathl
+                    )
 
 
 # INFO PAGES #

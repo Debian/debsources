@@ -53,6 +53,11 @@ class AppWrapper(object):
         self.setup_blueprints()
 
     def setup_blueprints(self):
+        if 'NAME' in self.app.config.keys():
+            self.app.import_name = self.app.config.get('NAME')
+        else:
+            # don't fail with existing conf
+            self.app.import_name = 'sources'
         if self.app.config.get('BLUEPRINT_COPYRIGHT'):
             from debsources.app.copyright import bp_copyright
             # add a url-prefix
