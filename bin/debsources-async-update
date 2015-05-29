@@ -3,11 +3,10 @@
 from __future__ import absolute_import
 
 from debsources.debmirror import SourceMirror
-from debsources.new_updater.tasks import print_package
+from debsources.new_updater.tasks import extract_new
 
 
 if __name__ == '__main__':
     print("Running updater...")
     mirror = SourceMirror('testdata/mirror')
-    for pkg in mirror.ls():
-        print_package.delay(pkg)
+    extract_new.delay(mirror)
