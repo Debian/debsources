@@ -153,6 +153,25 @@ class SourcePackage(deb822.Sources):
             steps.insert(0, basedir)
         return os.path.join(*steps)
 
+    def description(self, basedir=None):
+        """return a dictionary describing the package
+
+        Contains the package name, version, prefix and information for
+        extraction in the updater tasks
+
+        If given, 'basedir' path is passed to the extraction_dir
+        method.
+        """
+
+        return {
+            'package': self['package'],
+            'version': self['version'],
+            'prefix': self.prefix(),
+            'dsc_path': self.dsc_path(),
+            'archive_area': self.archive_area(),
+            'extraction_dir': self.extraction_dir(basedir)
+            }
+
 
 class SourceMirror(object):
     """Handle for a local Debian source mirror
