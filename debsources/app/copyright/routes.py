@@ -11,12 +11,103 @@
 
 from __future__ import absolute_import
 
+
+from flask import jsonify
+
+from ..helper import bind_render
 from . import bp_copyright
+from ..views import (IndexView, PrefixView, ListPackagesView, ErrorHandler,
+                     Ping, PackageVersionsView)
+from .views import LicenseView
 
-from .views import IndexView
+
+# context vars
+@bp_copyright.context_processor
+def skeleton_variables():
+    site_name = bp_copyright.name
+    return dict(site_name=site_name,)
 
 
+# 403 and 404 errors
+bp_copyright.errorhandler(403)(
+    lambda e: (ErrorHandler()(e, http=403), 403))
+bp_copyright.errorhandler(404)(
+    lambda e: (ErrorHandler()(e, http=404), 404))
+
+
+# INDEXVIEW
 bp_copyright.add_url_rule(
     '/',
     view_func=IndexView.as_view(
-        'index'))
+        'index',
+        render_func=bind_render('copyright/index.html'),
+        err_func=ErrorHandler('copyright'),
+        news_html='copyright_news.html'))
+
+# ping service
+bp_copyright.add_url_rule(
+    '/api/ping/',
+    view_func=Ping.as_view(
+        'ping',))
+
+
+# PREFIXVIEW
+bp_copyright.add_url_rule(
+    '/prefix/<prefix>/',
+    view_func=PrefixView.as_view(
+        'prefix',
+        render_func=bind_render('prefix.html'),
+        err_func=ErrorHandler('copyright'),))
+
+
+# api
+bp_copyright.add_url_rule(
+    '/api/prefix/<prefix>/',
+    view_func=PrefixView.as_view(
+        'api_prefix',
+        render_func=jsonify,
+        err_func=ErrorHandler(mode='json')))
+
+
+# LISTPACKAGESVIEW
+bp_copyright.add_url_rule(
+    '/list/<int:page>/',
+    view_func=ListPackagesView.as_view(
+        'list_packages',
+        render_func=bind_render('list.html'),
+        err_func=ErrorHandler('copyright'),
+        pagination=True))
+
+
+# api
+bp_copyright.add_url_rule(
+    '/api/list/',
+    view_func=ListPackagesView.as_view(
+        'api_list_packages',
+        render_func=jsonify,
+        err_func=ErrorHandler(mode='json')))
+
+
+# VERSIONSVIEW
+bp_copyright.add_url_rule(
+    '/cp/<string:packagename>/',
+    view_func=PackageVersionsView.as_view(
+        'versions',
+        render_func=bind_render('copyright/package.html'),
+        err_func=ErrorHandler('copyright')))
+
+# api
+bp_copyright.add_url_rule(
+    '/api/cp/<string:packagename>/',
+    view_func=PackageVersionsView.as_view(
+        'api_cp_versions',
+        render_func=jsonify,
+        err_func=ErrorHandler(mode='json')))
+
+# LICENSEVIEW
+bp_copyright.add_url_rule(
+    '/cp/<path:path_to>/',
+    view_func=LicenseView.as_view(
+        'license',
+        render_func=bind_render('copyright/license.html'),
+        err_func=ErrorHandler('copyright')))

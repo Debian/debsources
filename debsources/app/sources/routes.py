@@ -34,9 +34,9 @@ def skeleton_variables():
 # XXX 500 handler cannot be registered on a blueprint
 # TODO see debsources.app.view#errorhandler section
 bp_sources.errorhandler(403)(
-    lambda e: (ErrorHandler(bp_name='sources')(e, http=403), 403))
+    lambda e: (ErrorHandler()(e, http=403), 403))
 bp_sources.errorhandler(404)(
-    lambda e: (ErrorHandler(bp_name='sources')(e, http=404), 404))
+    lambda e: (ErrorHandler()(e, http=404), 404))
 
 
 # ping service
@@ -227,7 +227,7 @@ bp_sources.add_url_rule(
     '/prefix/<prefix>/',
     view_func=PrefixView.as_view(
         'prefix',
-        render_func=bind_render('sources/prefix.html'),
+        render_func=bind_render('prefix.html'),
         err_func=ErrorHandler('sources'),))
 
 
@@ -245,7 +245,7 @@ bp_sources.add_url_rule(
     '/list/<int:page>/',
     view_func=ListPackagesView.as_view(
         'list_packages',
-        render_func=bind_render('sources/list.html'),
+        render_func=bind_render('list.html'),
         err_func=ErrorHandler('sources'),
         pagination=True))
 

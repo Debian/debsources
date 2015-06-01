@@ -4,17 +4,19 @@
   https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
   License: GNU Affero General Public License, version 3 or above.
 #}
-{# copied from templates/prefix.html #}
-{% extends "sources/base.html" %}
+{# copied from templates/source_base.html #}
+{% extends name+"/base.html" %}
 
-{% block title %}Package list: prefix {{ prefix }}{% endblock %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css"
+      href="{{ url_for('sources.static', filename='css/source_folder.css') }}" />
+{% endblock %}
 
-{% block breadcrumbs %}packages by prefix / {{ prefix }}{% endblock %}
-
+{% block title %}Package: {{ package }}{% endblock %}
 {% block content %}
-
 <h2>{{ self.title() }}</h2>
-{{ macros.show_suite(suite) }}
-{{ macros.listpackages(packages, suite) }}
+
+<p>License for {{package}} / {{version}}</p>
 
 {% endblock %}

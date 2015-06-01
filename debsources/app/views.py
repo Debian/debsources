@@ -76,7 +76,8 @@ def skeleton_variables():
     return dict(packages_prefixes=packages_prefixes,
                 searchform=SearchForm(),
                 last_update=last_update,
-                credits=credits)
+                credits=credits,
+                name=app.import_name)
 
 
 # jinja2 settings
@@ -87,8 +88,7 @@ app.jinja_env.globals['url_for_other_page'] = url_for_other_page
 # ERRORS
 class ErrorHandler(object):
 
-    def __init__(self, bp_name='', mode='html', http=404):
-        self.bp_name = bp_name
+    def __init__(self, mode='html', http=404):
         self.mode = mode
         self.http = http
 
@@ -101,14 +101,11 @@ class ErrorHandler(object):
             raise Exception("Unimplemented HTTP error: {}".format(self.http))
         return method(error)
 
-    def bp_path(self, tpl):
-        return os.path.join(self.bp_name, tpl)
-
     def error_403(self, error):
         if self.mode == 'json':
             return jsonify(dict(error=403))
         else:
-            return render_template(self.bp_path('403.html')), 403
+            return render_template('403.html'), 403
 
     def error_404(self, error):
         if self.mode == 'json':
@@ -123,10 +120,10 @@ class ErrorHandler(object):
                     [_f for _f in [error.package, v.version, error.path]
                      if _f])
                     for v in possible_versions]
-                return render_template(self.bp_path('404_suggestions.html'),
+                return render_template('404_suggestions.html',
                                        suggestions=suggestions), 404
             else:
-                return render_template(self.bp_path('404.html')), 404
+                return render_template('404.html'), 404
 
     def error_500(self, error):
         """
@@ -137,8 +134,7 @@ class ErrorHandler(object):
         if self.mode == 'json':
             return jsonify(dict(error=500))
         else:
-            return render_template(
-                self.bp_path('500.html')), 500
+            return render_template('500.html'), 500
 
 
 # TODO unlike 403,404, which could be registered per blueprint,
@@ -146,7 +142,7 @@ class ErrorHandler(object):
 # thus, the 500 handler should be aware of the active blueprint,
 # so that correct page template will be rendered for the blueprint.
 # we should avoid hard-coding the 'source'
-app.errorhandler(500)(ErrorHandler('sources', http=500))
+app.errorhandler(500)(ErrorHandler(http=500))
 
 # following is a plain text, bp-agnostic one.
 # app.errorhandler(403)(lambda _: ("Forbidden", 403))
@@ -482,7 +478,12 @@ class PackageVersionsView(GeneralView):
             raise Http404Error("%s not found" % packagename)
 
         # we simply add pathl (for use with "You are here:")
-        pathl = qry.location_get_path_links('.source', packagename)
+        if request.blueprint == 'sources':
+            endpoint = '.source'
+        elif request.blueprint == 'copyright':
+            endpoint = '.license'
+
+        pathl = qry.location_get_path_links(endpoint, packagename)
 
         return dict(type="package",
                     package=packagename,

@@ -4,14 +4,15 @@
   https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
   License: GNU Affero General Public License, version 3 or above.
 #}
-{# copied from templates/500.html #}
-{% extends "sources/base.html" %}
+{# copied from templates/403.html #}
 
-{% block title %}500{% endblock %}
+{% extends name+"/base.html" %}
+
+{% block title %}403{% endblock %}
 {% block content %}
 
 <h2>{{ self.title() }}</h2>
-<p>Something went wrong.</p>
+<p>Permission denied.</p>
 <a href="/">Go home</a>
 
 {% endblock %}
