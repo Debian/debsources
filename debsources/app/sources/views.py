@@ -13,8 +13,7 @@ from __future__ import absolute_import
 
 import os
 
-from flask import current_app, request, jsonify, url_for
-from debian.debian_support import version_compare
+from flask import current_app, request, jsonify
 
 from debsources.excepts import (
     Http403Error, Http404ErrorSuggestions, Http404Error, FileOrFolderNotFound,
@@ -22,7 +21,6 @@ from debsources.excepts import (
 from debsources.consts import SLOCCOUNT_LANGUAGES
 from debsources import statistics
 
-from debsources.models import SuiteAlias
 from debsources.navigation import (Location, Directory,
                                    SourceFile)
 
@@ -233,40 +231,6 @@ class SourceView(GeneralView):
                     pkg_infos=pkg_infos
                     )
 
-    def _redirect_to_url(self, redirect_url, redirect_code=301):
-        if self.d.get('api'):
-            self.render_func = bind_redirect(url_for('.api_source',
-                                             path_to=redirect_url),
-                                             code=redirect_code)
-        else:
-            self.render_func = bind_redirect(url_for('.source',
-                                             path_to=redirect_url),
-                                             code=redirect_code)
-
-        return dict(redirect=redirect_url)
-
-    def _handle_latest_version(self, package, path):
-        """
-        redirects to the latest version for the requested page,
-        when 'latest' is provided instead of a version number
-        """
-        try:
-            versions = qry.pkg_names_list_versions(session, package)
-        except InvalidPackageOrVersionError:
-            raise Http404Error("%s not found" % package)
-        # the latest version is the latest item in the
-        # sorted list (by debian_support.version_compare)
-        version = sorted([v.version for v in versions],
-                         cmp=version_compare)[-1]
-
-        # avoids extra '/' at the end
-        if path == "":
-            redirect_url = '/'.join([package, version])
-        else:
-            redirect_url = '/'.join([package, version, path])
-
-        return self._redirect_to_url(redirect_url)
-
     def get_objects(self, path_to):
         """
         determines if the dealing object is a package/folder/source file
@@ -283,28 +247,14 @@ class SourceView(GeneralView):
 
         if version == "latest":  # we search the latest available version
             return self._handle_latest_version(package, path)
-        else:
-            # Check if an alias was used. If positive, handle the request
-            # as if the suite was used instead of the alias
-            check_for_alias = session.query(SuiteAlias) \
-                .filter(SuiteAlias.alias == version).first()
-            if check_for_alias:
-                version = check_for_alias.suite
-            try:
-                versions_w_suites = qry.pkg_names_list_versions_w_suites(
-                    session, package)
-            except InvalidPackageOrVersionError:
-                raise Http404Error("%s not found" % package)
 
-            versions = sorted([v['version'] for v in versions_w_suites
-                              if version in v['suites']],
-                              cmp=version_compare)
-            if versions:
-                redirect_url_parts = [package, versions[-1]]
-                if path:
-                    redirect_url_parts.append(path)
-                redirect_url = '/'.join(redirect_url_parts)
-                return self._redirect_to_url(redirect_url,
-                                             redirect_code=302)
+        versions = self.handle_versions(version, package, path)
+        if versions and version:
+            redirect_url_parts = [package, versions[-1]]
+            if path:
+                redirect_url_parts.append(path)
+            redirect_url = '/'.join(redirect_url_parts)
+            return self._redirect_to_url(redirect_url,
+                                         redirect_code=302)
 
-            return self._render_location(package, version, path)
+        return self._render_location(package, version, path)
