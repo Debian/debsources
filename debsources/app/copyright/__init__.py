@@ -17,6 +17,7 @@ from flask import Blueprint
 bp_copyright = Blueprint('copyright',
                          __name__,
                          template_folder='templates',
+                         static_url_path='/static/copyright',
                          static_folder='static')
 
 from . import routes  # NOQA

@@ -1,0 +1,9 @@
+{% macro match_d_license(comment) -%}
+    {% for word in comment.split() %}
+        {% if '/usr/share/common-licenses/' in word %}
+            {% set path_dict = word.split('/usr/share/common-licenses/') %}
+            {% set comment = comment|replace(word, "<a href='http://sources.debian.net/src/base-files/latest/licenses/" + path_dict[1] + "'>" + word + "</a>" ) %}
+        {{comment|safe}}
+        {% endif %}
+    {% endfor %}
+{% endmacro %}
