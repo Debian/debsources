@@ -3,10 +3,12 @@
 from __future__ import absolute_import
 
 from debsources.debmirror import SourceMirror
-from debsources.new_updater.tasks import extract_new
+from debsources.new_updater.tasks import (extract_new, finish,
+                                          garbage_collect)
 
 
 if __name__ == '__main__':
     print("Running updater...")
     mirror = SourceMirror('testdata/mirror')
-    extract_new.delay(mirror)
+    extract_new.apply_async((mirror,), link=finish.s())
+    garbage_collect.apply_async((mirror,), link=finish.s())
