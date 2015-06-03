@@ -23,8 +23,8 @@ from debsources.tests.db_testing import DbTestFixture
 from debsources.tests.testdata import TEST_DB_NAME
 
 
-@attr('webapp')
-class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
+@attr('basewebapp')
+class DebsourcesBaseWebTests(DbTestFixture):
     @classmethod
     def setUpClass(cls):
         """
@@ -55,6 +55,9 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         cls.app_wrapper.engine.dispose()
         cls.db_teardown_cls()
 
+
+@attr('webapp')
+class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
     def test_app_config(self):
         """use existing config to initialize app wrapper"""
         config = dict(domain="test.debian.test")
@@ -75,10 +78,6 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
 
     def test_api_ping(self):
         rv = json.loads(self.app.get('/api/ping/').data)
-        self.assertEqual(rv["status"], "ok")
-        self.assertEqual(rv["http_status_code"], 200)
-
-        rv = json.loads(self.app.get('/copyright/api/ping/').data)
         self.assertEqual(rv["status"], "ok")
         self.assertEqual(rv["http_status_code"], 200)
 
@@ -176,12 +175,6 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         self.assertIn({'name': "libcaca"}, rv['packages'])
         self.assertEqual(len(rv['packages']), 18)
 
-        # copyright BP
-        rv = json.loads(
-            self.app.get('/copyright/api/list/').data)
-        self.assertIn({'name': "ocaml-curses"}, rv['packages'])
-        self.assertEqual(len(rv['packages']), 18)
-
     def test_api_by_prefix(self):
         rv = json.loads(self.app.get('/api/prefix/libc/').data)
         self.assertIn({'name': "libcaca"}, rv['packages'])
@@ -196,23 +189,6 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         rv = json.loads(self.app.get('/api/prefix/libc/?suite=all').data)
         self.assertIn({'name': "libcaca"}, rv['packages'])
 
-        # copyright BP
-        rv = json.loads(
-            self.app.get('/copyright/api/prefix/o/').data)
-        self.assertIn({'name': "ocaml-curses"}, rv['packages'])
-        # suite specified
-        rv = json.loads(
-            self.app.get('/copyright/api/prefix/o/?suite=wheezy').data)
-        self.assertIn({'name': "ocaml-curses"}, rv['packages'])
-        # a non-existing suite specified
-        rv = json.loads(self.app.get(
-            '/copyright/api/prefix/libc/?suite=non-existing').data)
-        self.assertEqual([], rv['packages'])
-        # special suite name "all" is specified
-        rv = json.loads(
-            self.app.get('/copyright/api/prefix/libc/?suite=all').data)
-        self.assertIn({'name': "libcaca"}, rv['packages'])
-
     def test_by_prefix(self):
         rv = self.app.get('/prefix/libc/')
         self.assertIn("/src/libcaca", rv.data)
@@ -225,21 +201,6 @@ class DebsourcesTestCase(unittest.TestCase, DbTestFixture):
         # special suite name "all" is specified
         rv = self.app.get('/prefix/libc/?suite=all')
         self.assertIn("/src/libcaca", rv.data)
-
-        # copyright BP
-        rv = self.app.get('/copyright/prefix/libc/')
-        self.assertIn("/cp/libcaca", rv.data)
-        # suite specified
-        rv = self.app.get('/copyright/prefix/libc/?suite=squeeze')
-        self.assertIn("/cp/libcaca", rv.data)
-        # a non-existing suite specified
-        rv = self.app.get(
-            '/copyright/prefix/libc/?suite=non-existing')
-        self.assertNotIn("/cp/libcaca", rv.data)
-        # special suite name "all" is specified
-        rv = self.app.get(
-            '/copyright/prefix/libc/?suite=all')
-        self.assertIn("/cp/libcaca", rv.data)
 
     def test_api_case_insensitive_prefix(self):
         rv_lower_case = json.loads(self.app.get('/api/prefix/g/').data)
