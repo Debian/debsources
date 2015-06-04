@@ -73,11 +73,11 @@ https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginati
   {% endif %}
 {% endmacro %}
 
-{% macro show_versions(versions, path, endpoint) %}
+{% macro show_versions(versions, path, endpoint, folder) %}
   <ul id="ls">
   {% for v in versions %}
   <li><a href="{{ url_for(endpoint, path_to=path+'/'+v.version) }}">
-      <img src="{{ config['ICONS_FOLDER'] }}22x22/places/folder.png"
+      <img src="{{ folder }}22x22/places/folder.png"
            alt="version " />{{ v.version }}</a>
     ({{ v.area }})
     {% if v.suites %}

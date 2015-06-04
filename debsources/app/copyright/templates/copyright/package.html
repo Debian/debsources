@@ -18,6 +18,6 @@
 <h2>{{ self.title() }}</h2>
 {{ macros.show_suite(suite) }}
 
-{{ macros.show_versions(versions, path, '.license')}}
+{{ macros.show_versions(versions, path, '.license', config['ICONS_FOLDER'])}}
 
 {% endblock %}
