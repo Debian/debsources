@@ -1,0 +1,85 @@
+digraph Base {
+        compound = true;
+        rankdir=LR;
+        subgraph cluster_extract {
+          node [shape=box];
+          extract_new -> add_package [label="for each package"]
+        }
+        subgraph cluster_gc {   
+                node [shape=box];      
+                garbage_collect -> rm_package [label="for each expired package"];
+        }
+        
+        subgraph cluster_suites {
+                node [shape=box];
+                update_suites -> add_suite_package [label="for each (suite, pkg)"];
+        }
+        
+        subgraph cluster_stats {
+                 node [shape=box];
+
+                 update_stats -> overall_stats;
+                 update_stats -> suite_stats [label="for each suite"];
+
+                 suite_stats -> disk_stats;
+                 suite_stats -> source_pkg_stats;
+                 suite_stats -> source_files_stats;
+                 suite_stats -> ctags_stats;
+                 
+                 overall_stats -> disk_stats;
+                 overall_stats -> source_pkg_stats;                 
+                 overall_stats -> source_files_stats;
+                 overall_stats -> ctags_stats;
+
+        }
+
+        subgraph cluster_charts {
+                 node [shape=box];
+                 update_charts -> update_size_charts [label="for each suite"];
+                 update_charts -> update_sloc_histograms [label="for each suite"];
+                 update_charts -> update_sloc_pie_charts [label="for each suite"];
+                 update_charts -> update_sloc_bar_charts [label="for each suite"];
+
+                 update_size_charts -> src_pkg_charts;
+                 update_size_charts -> disk_charts;
+                 update_size_charts -> src_files_charts;
+                 update_size_charts -> ctags_charts;
+
+        }
+
+        subgraph cluster_hooks {
+                 node [shape=box];
+                 label = "hooks";
+                 add_package -> hooks;
+                 rm_package -> hooks;
+                 hooks -> shell_hooks;
+                 hooks -> py_hooks;
+                 shell_hooks -> run_parts;
+                 py_hooks -> checksums;
+                 py_hooks -> ctags;
+                 py_hooks -> metrics;
+                 py_hooks -> sloccount;
+        }                 
+                
+        start -> extract_new;
+        extract_new -> update_suites [ltail=cluster_extract];
+        extract_new -> garbage_collect [ltail=cluster_extract];
+
+        extract_new -> update_prefix [ltail=cluster_extract];
+        garbage_collect -> update_prefix [ltail=cluster_gc];
+
+        garbage_collect -> update_stats [ltail=cluster_gc];
+        update_suites -> update_stats [ltail=cluster_suites];
+        update_stats -> update_charts [ltail=cluster_stats];
+
+#        extract_new -> update_timestamp [ltail=cluster_extract];
+#        garbage_collect -> update_timestamp [ltail=cluster_gc];
+#        update_suites -> update_timestamp [ltail=cluster_suites];
+#        update_stats -> update_timestamp [ltail=cluster_stats];
+        
+
+
+
+        start [shape=Mdiamond];
+}
+
