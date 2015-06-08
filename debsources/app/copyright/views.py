@@ -10,17 +10,17 @@
 # https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=COPYING;hb=HEAD
 
 from __future__ import absolute_import
-import io
 
-from flask import current_app
-from debian import copyright
+from flask import current_app, request
 
-from debsources.navigation import Location, SourceFile
+import debsources.query as qry
 from debsources.excepts import (Http404ErrorSuggestions, FileOrFolderNotFound,
                                 InvalidPackageOrVersionError)
-from ..views import GeneralView, session
+
+from ..views import GeneralView, ChecksumView, session
 from ..sourcecode import SourceCodeIterator
 from ..render import RenderLicense
+from . import license_helper as helper
 
 
 class LicenseView(GeneralView):
@@ -43,38 +43,61 @@ class LicenseView(GeneralView):
             redirect_url = '/'.join(redirect_url_parts)
             return self._redirect_to_url(redirect_url,
                                          redirect_code=302)
+
         try:
-            location = Location(session,
-                                current_app.config["SOURCES_DIR"],
-                                current_app.config["SOURCES_STATIC"],
-                                package, version, 'debian/copyright')
-        except (FileOrFolderNotFound, InvalidPackageOrVersionError):
-            raise Http404ErrorSuggestions(package,
-                                          version, 'debian/copyright')
+            sources_path = helper.get_sources_path(session, package, version,
+                                                   current_app.config)
+        except (FileOrFolderNotFound, InvalidPackageOrVersionError) as e:
+            if isinstance(e, FileOrFolderNotFound):
+                raise Http404ErrorSuggestions(package, version,
+                                              'debian/copyright')
+            else:
+                raise Http404ErrorSuggestions(package, version, '')
 
-        file_ = SourceFile(location)
-
-        sources_path = file_.get_raw_url().replace(
-            current_app.config['SOURCES_STATIC'],
-            current_app.config['SOURCES_DIR'],
-            1)
-        with io.open(sources_path, mode='rt', encoding='utf-8') as f:
-            # change render function
-            try:
-                c = copyright.Copyright(f)
-            except Exception:
-                # non machine readable license
-                sourcefile = SourceCodeIterator(sources_path)
-                return dict(package=package,
-                            version=version,
-                            code=sourcefile,
-                            dump='True',
-                            nlines=sourcefile.get_number_of_lines(),)
-            renderer = RenderLicense(c, 'jinja')
+        try:
+            c = helper.parse_license(sources_path)
+        except Exception:
+            # non machine readable license
+            sourcefile = SourceCodeIterator(sources_path)
             return dict(package=package,
                         version=version,
-                        dump='False',
-                        header=renderer.render_header(),
-                        files=renderer.render_files(
-                            "/src/" + package + "/" + version + "/"),
-                        licenses=renderer.render_licenses())
+                        code=sourcefile,
+                        dump='True',
+                        nlines=sourcefile.get_number_of_lines(),)
+        renderer = RenderLicense(c, 'jinja')
+        return dict(package=package,
+                    version=version,
+                    dump='False',
+                    header=renderer.render_header(),
+                    files=renderer.render_files(
+                        "/src/" + package + "/" + version + "/"),
+                    licenses=renderer.render_licenses())
+
+
+class ChecksumLicenseView(ChecksumView):
+
+    def _license_of_files(self, checksum, package, suite):
+        files = ChecksumView._files_with_sum(
+            checksum, slice_=None, package=package, suite=suite)
+        return [dict(oracle='debian',
+                     path=f['path'],
+                     package=f['package'],
+                     version=f['version'],
+                     license=helper.get_license(session, f['package'],
+                                                f['version'], f['path']),
+                     origin=helper.license_url(f['package'], f['version']))
+                for f in files]
+
+    def get_objects(self, **kwargs):
+        checksum = request.args.get("checksum")
+        package = request.args.get("package") or None
+        suite = request.args.get("suite") or None
+        # we count the number of results:
+        count = qry.count_files_checksum(session, checksum, package, suite)
+        count = count.first()[0]
+
+        d_copyright = self._license_of_files(checksum, package, suite)
+
+        return dict(sha256=checksum,
+                    count=count,
+                    copyright=d_copyright)

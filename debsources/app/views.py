@@ -169,7 +169,7 @@ class GeneralView(View):
 
         if get_objects:
             if isinstance(get_objects, six.string_types):
-                self.get_objects = getattr(self, "get_"+get_objects)
+                self.get_objects = getattr(self, "get_" + get_objects)
             else:
                 # we don't check if it's a callable.
                 # if err, then let it err.
@@ -364,12 +364,12 @@ class SearchView(GeneralView):
 class ChecksumView(GeneralView):
 
     @staticmethod
-    def _files_with_sum(checksum, slice_=None, package=None):
+    def _files_with_sum(checksum, slice_=None, package=None, suite=None):
         """
         Returns a list of files whose hexdigest is checksum.
         You can slice the results, passing slice=(start, end).
         """
-        results = qry.get_files_by_checksum(session, checksum, package)
+        results = qry.get_files_by_checksum(session, checksum, package, suite)
 
         if slice_ is not None:
             results = results.slice(slice_[0], slice_[1])
