@@ -11,6 +11,7 @@ RUN apt-get install -y \
     apache2 \
     libapache2-mod-fcgid \
     libapache2-mod-wsgi \
+    libjs-jquery \
     libjs-highlight \
     python-debian \
     python-flask \
