@@ -78,24 +78,26 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         rv = self.app.get('/copyright/license/gnubg/1.02.000-2/')
         self.assertIn("<p class=\'r_glob\'>", rv.data)
 
-    def test_checksum_api(self):
+    def test_common_licenses_link(self):
+        rv = self.app.get('/copyright/license/gnubg/1.02.000-2/')
+        self.assertIn("http://sources.debian.net/src/base-files/"
+                      "latest/licenses/GFDL-1.3", rv.data)
+
+    def test_api_checksum(self):
         rv = json.loads(self.app.get(
             '/copyright/api/sha256/'
             '?checksum=be43f81c20961702327'
             'c10e9bd5f5a9a2b1cceea850402ea562a9a76abcf'
             'a4bf').data)
 
-        # verify number of files in d/copyright
-        self.assertEqual(rv['count'], len(rv['copyright']))
-
-        self.assertEqual(rv['copyright'][0]['license'], None)
-        self.assertEqual(rv['copyright'][1]['license'],
+        self.assertEqual(rv['result']['copyright'][0]['license'], None)
+        self.assertEqual(rv['result']['copyright'][1]['license'],
                          'BSD')
-        self.assertEqual(rv['copyright'][2]['package'],
+        self.assertEqual(rv['result']['copyright'][2]['package'],
                          'bsdgames-nonfree')
-        self.assertEqual(rv['copyright'][2]['version'],
+        self.assertEqual(rv['result']['copyright'][2]['version'],
                          '2.17-6')
-        self.assertEqual(rv['copyright'][2]['path'],
+        self.assertEqual(rv['result']['copyright'][2]['path'],
                          'COPYING')
 
         # verify folder/* /* functionnality
@@ -104,35 +106,32 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
             '?checksum=2e6d31a5983a91251bfae5'
             'aefa1c0a19d8ba3cf601d0e8a706b4cfa9661a6b8a').data)
 
-        self.assertEqual(rv['count'], 12)
         # debian/* under gpl2
-        self.assertEqual(rv['copyright'][6]['license'],
+        self.assertEqual(rv['result']['copyright'][6]['license'],
                          'GPL-2+')
         # /* under gpl2
-        self.assertEqual(rv['copyright'][8]['license'],
+        self.assertEqual(rv['result']['copyright'][8]['license'],
                          'GPL-2+')
 
-        # need test for /f1/f2/filename where f1/* under l1 and f2/* under l2
+        # test non existing checksum
+        rv = json.loads(self.app.get(
+            '/copyright/api/sha256/'
+            '?checksum=2e6d31a5983a91251bfae5'
+            'aefa1c0a19d8ba3cf601d0e8a71a6b8a').data)
+        self.assertEqual(rv['return_code'], 404)
 
-    def test_package_filter_checksum(self):
+    def test_api_package_filter_checksum(self):
         rv = json.loads(self.app.get(
             '/copyright/api/sha256/'
             '?checksum=2e6d31a5983a91251bfae5'
             'aefa1c0a19d8ba3cf601d0e8a70'
             '6b4cfa9661a6b8a&package=gnubg').data)
-        self.assertEqual(rv['count'], 2)
-        self.assertEqual(rv['copyright'][0]['package'],
+        self.assertEqual(rv['result']['copyright'][0]['package'],
                          'gnubg')
-        self.assertNotEqual(rv['copyright'][0]['version'],
-                            rv['copyright'][1]['version'])
+        self.assertNotEqual(rv['result']['copyright'][0]['version'],
+                            rv['result']['copyright'][1]['version'])
 
-    def test_suite_filter_checksum(self):
-        rv = json.loads(self.app.get(
-            '/copyright/api/sha256/'
-            '?checksum=2e6d31a5983a91251bfae5'
-            'aefa1c0a19d8ba3cf601d0e8a70'
-            '6b4cfa9661a6b8a&suite=etch').data)
-        self.assertEqual(rv['count'], 0)
+    def test_api_suite_filter_checksum(self):
         rv = json.loads(self.app.get(
             '/copyright/api/sha256/'
             '?checksum=2e6d31a5983a91251bfae5'
@@ -143,8 +142,22 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
             '?checksum=2e6d31a5983a91251bfae5'
             'aefa1c0a19d8ba3cf601d0e8a70'
             '6b4cfa9661a6b8a').data)
-        self.assertGreaterEqual(rv2['count'], rv['count'])
+        self.assertGreaterEqual(len(rv2['result']['copyright']),
+                                len(rv['result']['copyright']))
 
+    def test_api_checksum_latest(self):
+        rv = json.loads(self.app.get(
+            '/copyright/api/sha256/'
+            '?checksum=2e6d31a5983a91251bfae5'
+            'aefa1c0a19d8ba3cf601d0e8a70'
+            '6b4cfa9661a6b8a&suite=latest').data)
+        rv2 = json.loads(self.app.get(
+            '/copyright/api/sha256/'
+            '?checksum=2e6d31a5983a91251bfae5'
+            'aefa1c0a19d8ba3cf601d0e8a70'
+            '6b4cfa9661a6b8a').data)
+        self.assertLessEqual(len(rv['result']['copyright']),
+                             len(rv2['result']['copyright']))
 
 if __name__ == '__main__':
     unittest.main(exit=False)
