@@ -1,0 +1,31 @@
+/*
+ * Copyright (C) 2015  The Debsources developers <info@sources.debian.net>.
+ * See the AUTHORS file at the top-level directory of this distribution and at
+ * https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+ * License: GNU Affero General Public License, version 3 or above.
+ */
+
+/* Render License */
+.r_decorate{
+    color:#c70036
+}
+.r_info{
+    display: block;
+}
+.r_header p,.r_files p{
+    margin: 0.1em;
+    margin-left: 0.7em;
+    width:50%;
+}
+.r_licenses p{
+    width:50%;
+}
+.r_files_info{
+    margin-left: 2em;
+}
+.r_synopsis, .r_l_comment{
+    padding-left:2.3em;
+}
+.r_copyright pre, span{
+    display:inline;
+}

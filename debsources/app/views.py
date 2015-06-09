@@ -16,6 +16,8 @@ from __future__ import absolute_import
 import os
 import six
 
+from debian.debian_support import version_compare
+
 from flask import (
     current_app, jsonify, render_template, request, url_for, redirect)
 from flask.views import View
@@ -23,7 +25,7 @@ from flask.views import View
 from debsources.excepts import (
     Http500Error, Http404Error, Http404ErrorSuggestions, Http403Error,
     InvalidPackageOrVersionError)
-from debsources.models import Package
+from debsources.models import Package, SuiteAlias
 import debsources.query as qry
 from debsources.sqla_session import _close_session
 from debsources import local_info
@@ -32,8 +34,8 @@ from debsources.consts import SUITES
 from .forms import SearchForm
 from .pagination import Pagination
 from .infobox import Infobox
-from .helper import format_big_num, url_for_other_page
-
+from .helper import (format_big_num, url_for_other_page,
+                     bind_redirect)
 from . import app_wrapper
 app = app_wrapper.app
 session = app_wrapper.session
@@ -195,6 +197,64 @@ class GeneralView(View):
         # do not propagate the exception
         except Exception as e:
             return self.err_func(e, http=500)
+
+    def _redirect_to_url(self, redirect_url, redirect_code=301):
+        if self.d.get('api'):
+            if request.blueprint == 'sources':
+                endpoint = '.api_source'
+            elif request.blueprint == 'copyright':
+                endpoint = '.api_license'
+            self.render_func = bind_redirect(url_for(endpoint,
+                                             path_to=redirect_url),
+                                             code=302)
+        else:
+            if request.blueprint == 'sources':
+                endpoint = '.source'
+            elif request.blueprint == 'copyright':
+                endpoint = '.license'
+            self.render_func = bind_redirect(url_for(endpoint,
+                                             path_to=redirect_url),
+                                             code=redirect_code)
+
+        return dict(redirect=redirect_url)
+
+    def _handle_latest_version(self, package, path):
+        """
+        redirects to the latest version for the requested page,
+        when 'latest' is provided instead of a version number
+        """
+        try:
+            versions = qry.pkg_names_list_versions(session, package)
+        except InvalidPackageOrVersionError:
+            raise Http404Error("%s not found" % package)
+        # the latest version is the latest item in the
+        # sorted list (by debian_support.version_compare)
+        version = sorted([v.version for v in versions],
+                         cmp=version_compare)[-1]
+
+        # avoids extra '/' at the end
+        if path == "":
+            redirect_url = '/'.join([package, version])
+        else:
+            redirect_url = '/'.join([package, version, path])
+
+        return self._redirect_to_url(redirect_url)
+
+    def handle_versions(self, version, package, path):
+        check_for_alias = session.query(SuiteAlias) \
+            .filter(SuiteAlias.alias == version).first()
+        if check_for_alias:
+                version = check_for_alias.suite
+        try:
+                versions_w_suites = qry.pkg_names_list_versions_w_suites(
+                    session, package)
+        except InvalidPackageOrVersionError:
+                raise Http404Error("%s not found" % package)
+
+        versions = sorted([v['version'] for v in versions_w_suites
+                          if version in v['suites']],
+                          cmp=version_compare)
+        return versions
 
 
 # PING #

@@ -90,7 +90,7 @@ bp_copyright.add_url_rule(
 
 # VERSIONSVIEW
 bp_copyright.add_url_rule(
-    '/cp/<string:packagename>/',
+    '/license/<string:packagename>/',
     view_func=PackageVersionsView.as_view(
         'versions',
         render_func=bind_render('copyright/package.html'),
@@ -98,7 +98,7 @@ bp_copyright.add_url_rule(
 
 # api
 bp_copyright.add_url_rule(
-    '/api/cp/<string:packagename>/',
+    '/api/license/<string:packagename>/',
     view_func=PackageVersionsView.as_view(
         'api_cp_versions',
         render_func=jsonify,
@@ -106,7 +106,7 @@ bp_copyright.add_url_rule(
 
 # LICENSEVIEW
 bp_copyright.add_url_rule(
-    '/cp/<path:path_to>/',
+    '/license/<path:path_to>/',
     view_func=LicenseView.as_view(
         'license',
         render_func=bind_render('copyright/license.html'),

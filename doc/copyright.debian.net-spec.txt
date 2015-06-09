@@ -106,8 +106,11 @@ Non-functional requirements
 
 * **debian/copyright rendering module**: the rendering of a machine-readable
   `debian/copyright` should be a separate "debian/copyright renderer"
-  component, reusable in other contexts (maybe as a Flask blueprint, maybe even
-  as a simple Python module that just does the rendering)
+  component, reusable in a form of a python module. The module should consume
+  a Copyright object from python-debian and export it in a jinja template.
+  It should be extensible and generic enough to enable other output formats
+  such as HTML and anticipate other uses besides Debsources i.e integrate
+  it upstream.
 
 * **infobox copyright link**: from <http://sources.debian.net> it should be
   possible, after reaching a fully determined package/version, to follow a link

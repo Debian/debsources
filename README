@@ -47,6 +47,7 @@ Debian packages:
 - libapache2-mod-fcgid (for FastCGI deployment)
 - libapache2-mod-wsgi (for WSGI deployment)
 - libjs-highlight.js
+- libjs-jquery
 - python-debian
 - python-flask
 - python-flaskext.wtf
