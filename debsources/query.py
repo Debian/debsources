@@ -299,6 +299,26 @@ def get_files_by_checksum(session, checksum, package=None, suite=None):
     return results.order_by("package", "version", "path")
 
 
+def get_files_by_path_package(session, path, package, version=None):
+    """ Return a list of files with a specific `path` and `package`
+        Filter with `suite`
+    """
+    results = (session.query(File.path.label("path"),
+                             PackageName.name.label("package"),
+                             Package.version.label("version"),
+                             Checksum.sha256.label("checksum"))
+               .filter(File.path == path)
+               .filter(File.package_id == Package.id)
+               .filter(Package.name_id == PackageName.id)
+               .filter(PackageName.name == package)
+               .filter(Checksum.file_id == File.id))
+
+    if version is not None and version is not "":
+        results = results.filter(Package.version == version)
+
+    return results.order_by("package", "version", "path")
+
+
 def get_pkg_filter_prefix(session, prefix, suite=None):
     '''Get packages filter by `prefix`
 
