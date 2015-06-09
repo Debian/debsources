@@ -1,0 +1,112 @@
+# File-by-file API
+---------------------------------
+
+The file-by-file API allows the user to search the license of file
+providing:
+
+* a checksum
+* a path, package, version
+
+###### Url scheme
+
+* /copyright/api/sha256/?checksum=
+
+> Optional parameter package name: &package=
+
+> Optional parameter suite : &suite=
+
+* /copyright/api/file/?path=--&package=--
+
+> Package is not optional. Otherwise finding the file would consume a lot of
+time. Possible workaround #761108
+> Optional parameter suite : &suite=
+
+For both urls suite can be a release name or 'latest'.
+
+###### JSON structure
+
+Api should be homogeneous, meaning that the result provided in case of a 
+checksum or a (path, package, version) should have the same structure. This is
+interesting for the end user as s.he will have to parse only one type of
+results.
+
+Retrieving a license is the responsibility of the oracle license. Since more
+than one oracles are going to be used to mine licenses the API response should
+associate each result with an oracle.
+
+It is possible that a search by checksum returns more than one result since the
+exact same file might appear in the same package but in other versions or even
+in different packages. These inconsistencies should not be hidden by the API.
+
+To address these requirements the JSON structure should have the following
+form:
+
+<pre>
+{
+    sha256: "----",
+    copyright: [{
+                    path: "----",
+                    package: "pkg2",
+                    version: "v2",
+                    license: "GPL2",
+                    origin: "----",
+                    oracle: "debian",
+                },
+                {
+                    path: "----",
+                    package: "pkg2",
+                    version: "v3",
+                    license: "GPL3",
+                    origin: "----",
+                    oracle: "debian"
+                },
+                {
+                    path: "----",
+                    package: "pkg1",
+                    version: "v1",
+                    license: "GPL3",
+                    origin: "----",
+                    oracle: "debian"
+                },
+                {
+                    path: "----",
+                    package: "pkg1",
+                    version: "v1",
+                    license: "GPL2",
+                    origin: "----",
+                    oracle: "ninka"
+                },
+    ],
+}
+</pre>
+
+The copyright dictionnary contains a list with all the appearences of the
+specific checksum, providing their package, version, path info along with the
+license synopsis, its origin (i.e link to the d/copyright file within c.d.n for
+the debian oracle or the file scanned by Ninka) and the license oracle used to
+retrieve the license.
+
+In case the user searches using a filename, package, version then the
+copyright list will contain a single result for each license oracle used.
+
+###### Supported license oracles
+
+* First supported oracle will be debian/copyright files.
+Both searches will share a common pattern of retrieving a license. In case the
+license is __not__ machine readable the license field will be null.
+
+In the cases that the d/copyright file is parsable the API will make use of the
+files paragraphs to retrieve the license.
+
+* In the future copyright.debian.net will include other oracles to mine
+license information, such as FOSSology or Ninka. The API is extensible enough
+to provide the user with the those results using the oracle field.
+Thus the available information mined by the oracles will be added using another
+dictionnary field, specific to the oracle in question, in the copyright field.
+
+###### Filters
+
+The url schemes could be extended with other optional parameters such as:
+
+* &oracle= that will give the user the ability to select the oracle used for
+mining the license. (i.e debian, ninka, fossology)
