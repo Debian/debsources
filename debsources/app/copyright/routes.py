@@ -114,6 +114,14 @@ bp_copyright.add_url_rule(
 
 # CHECKSUM VIEW
 
+bp_copyright.add_url_rule(
+    '/sha256/',
+    view_func=ChecksumLicenseView.as_view(
+        'checksum',
+        render_func=bind_render('copyright/checksum.html'),
+        err_func=ErrorHandler('copyright'),
+        pagination=True))
+
 # api
 bp_copyright.add_url_rule(
     '/api/sha256/',
