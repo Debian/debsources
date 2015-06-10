@@ -159,5 +159,49 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertLessEqual(len(rv['result']['copyright']),
                              len(rv2['result']['copyright']))
 
+    def test_api_search_filename_package(self):
+        # test package requirement
+        '''rv = json.loads(self.app.get(
+            "/copyright/api/file/random/debian/copyright/").data)
+        self.assertEqual(rv['error'], 'File not found')
+        self.assertEqual(rv['return_code'], 404)'''
+
+        rv = json.loads(self.app.get(
+            "/copyright/api/file/gnubg/1.02.000-2/Makefile.am/").data)
+        self.assertEqual(len(rv['result']), 1)
+        self.assertEqual(rv['result'][0]['copyright']['path'], 'Makefile.am')
+        self.assertEqual(rv['result'][0]['copyright']['license'], 'GPL-3+')
+
+        # test with folder
+        rv = json.loads(self.app.get(
+            "/copyright/api/file/gnubg/0.90+20120429-1/"
+            "doc/gnubg/gnubg.html/").data)
+        self.assertEqual(rv['result'][0]['copyright']['license'], None)
+
+    def test_api_search_filename_suite_filter(self):
+        rv = json.loads(self.app.get(
+            "/copyright/api/file/gnubg/wheezy/doc/gnubg/gnubg.html/",
+            follow_redirects=True).data)
+        self.assertEqual(rv['result'][0]['copyright']['version'],
+                         '0.90+20120429-1')
+        rv = json.loads(self.app.get(
+            "/copyright/api/file/gnubg/squeeze/doc/gnubg/gnubg.html/",
+            follow_redirects=True).data)
+        self.assertEqual(rv['result'][0]['copyright']['version'],
+                         '0.90+20091206-4')
+
+    def test_api_search_filename_latest(self):
+        rv = json.loads(self.app.get(
+            "/copyright/api/file/gnubg/latest/doc/gnubg/gnubg.html/",
+            follow_redirects=True).data)
+        self.assertEqual(rv['result'][0]['copyright']['version'],
+                         '1.02.000-2')
+
+    def test_api_search_filename_all(self):
+        rv = json.loads(self.app.get(
+            "/copyright/api/file/gnubg/all/doc/gnubg/gnubg.html/").data)
+        self.assertEqual(len(rv['result']), 3)
+
+
 if __name__ == '__main__':
     unittest.main(exit=False)
