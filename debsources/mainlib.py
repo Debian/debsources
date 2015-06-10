@@ -58,10 +58,10 @@ LOG_LEVELS = {  # XXX module logging has no built-in way to do this conversion
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 PROBABLE_CONF_FILES = [
+    os.path.join(ROOT_DIR, 'etc', 'config.local.ini'),
     '/etc/debsources/config.ini',
     '/srv/debsources/etc/config.local.ini',
     '/srv/debsources/etc/config.ini',
-    os.path.join(ROOT_DIR, 'etc', 'config.local.ini'),
     os.path.join(ROOT_DIR, 'etc', 'config.ini'),
     ]
 
