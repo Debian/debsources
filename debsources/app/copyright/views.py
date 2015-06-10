@@ -11,7 +11,7 @@
 
 from __future__ import absolute_import
 
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 from flask import current_app, request
 from debian.debian_support import version_compare
@@ -23,6 +23,7 @@ from debsources.excepts import (Http404ErrorSuggestions, FileOrFolderNotFound,
 from ..views import GeneralView, ChecksumView, session
 from ..sourcecode import SourceCodeIterator
 from ..render import RenderLicense
+from ..pagination import Pagination
 from . import license_helper as helper
 
 
@@ -144,23 +145,68 @@ class ChecksumLicenseView(ChecksumView):
             suite = request.form.get('suite') or None
             return self.batch_api(checksums, package, suite)
 
+        try:
+            page = int(request.args.get("page"))
+        except:
+            page = 1
+
         checksum = request.args.get("checksum")
         package = request.args.get("package") or None
         suite = request.args.get("suite") or None
 
-        files = self._get_files(checksum, package, suite)
+        all_files = self._get_files(checksum, package=package, suite=suite)
 
-        d_copyright = self._get_license_dict(files)
+        if 'api' in request.endpoint:
+            d_copyright = self._get_license_dict(all_files)
+            if not d_copyright:
+                return dict(return_code=404,
+                            error='Checksum not found',
+                            count=0,
+                            result=[])
+            return dict(return_code=200,
+                        count=len(d_copyright),
+                        result=dict(checksum=checksum,
+                                    copyright=d_copyright))
+        else:
+            # count files for pagination
+            count = len(all_files)
+            offset = int(current_app.config.get("LIST_OFFSET") or 60)
+            start = (page - 1) * offset
+            end = start + offset
+            pagination = Pagination(page, offset, count)
 
-        if not d_copyright:
-            return dict(return_code=404,
-                        error='Checksum not found',
-                        count=0,
-                        result=[])
-        return dict(return_code=200,
-                    count=len(d_copyright),
-                    result=dict(checksum=checksum,
-                                copyright=d_copyright))
+            # slice results
+            files = all_files[start:end]
+
+            d_copyright = self._get_license_dict(files)
+
+            # minor stats
+            all_d_copyright = self._get_license_dict(all_files)
+            counter = Counter([x['license'] for x in all_d_copyright
+                              if x['license'] is not None]).most_common()
+            licenses = [x[0] for x in counter]
+            f_license = [x[0] for x in counter if x[1] is counter[0][1]]
+
+            if package is None or len(all_d_copyright) < 2:
+                packages = [x['package'] for x in all_d_copyright]
+                counter = Counter(packages).most_common()
+                f_package = [x[0] for x in counter if x[1] is counter[0][1]]
+
+                return dict(checksum=checksum,
+                            copyright=d_copyright,
+                            count=len(all_d_copyright),
+                            licenses=licenses,
+                            frequent_packages=f_package,
+                            frequent_licenses=f_license,
+                            pagination=pagination)
+            else:
+                return dict(checksum=checksum,
+                            copyright=d_copyright,
+                            count=len(d_copyright),
+                            package_filter=True,
+                            licenses=set(licenses),
+                            frequent_licenses=f_license,
+                            pagination=pagination)
 
 
 class SearchFileView(GeneralView):
