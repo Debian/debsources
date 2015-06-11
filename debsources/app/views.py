@@ -198,27 +198,18 @@ class GeneralView(View):
         except Exception as e:
             return self.err_func(e, http=500)
 
-    def _redirect_to_url(self, redirect_url, redirect_code=301):
-        if self.d.get('api'):
-            if request.blueprint == 'sources':
-                endpoint = '.api_source'
-            elif request.blueprint == 'copyright':
-                endpoint = '.api_license'
+    def _redirect_to_url(self, endpoint, redirect_url, redirect_code=301):
+        if endpoint == '.versions':
             self.render_func = bind_redirect(url_for(endpoint,
-                                             path_to=redirect_url),
-                                             code=302)
+                                             packagename=redirect_url),
+                                             code=redirect_code)
         else:
-            if request.blueprint == 'sources':
-                endpoint = '.source'
-            elif request.blueprint == 'copyright':
-                endpoint = '.license'
             self.render_func = bind_redirect(url_for(endpoint,
                                              path_to=redirect_url),
                                              code=redirect_code)
-
         return dict(redirect=redirect_url)
 
-    def _handle_latest_version(self, package, path):
+    def _handle_latest_version(self, endpoint, package, path):
         """
         redirects to the latest version for the requested page,
         when 'latest' is provided instead of a version number
@@ -238,7 +229,7 @@ class GeneralView(View):
         else:
             redirect_url = '/'.join([package, version, path])
 
-        return self._redirect_to_url(redirect_url)
+        return self._redirect_to_url(endpoint, redirect_url)
 
     def handle_versions(self, version, package, path):
         check_for_alias = session.query(SuiteAlias) \

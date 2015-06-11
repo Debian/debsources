@@ -95,8 +95,7 @@ class SourceView(GeneralView):
                 redirect_url = os.path.normpath(
                     os.path.join(os.path.dirname(location.path_to),
                                  symlink_dest))
-
-                return self._redirect_to_url(redirect_url)
+                return self._redirect_to_url(request.endpoint, redirect_url)
             else:
                 raise Http403Error(
                     'insecure symlink, pointing outside package/version/')
@@ -246,7 +245,7 @@ class SourceView(GeneralView):
         path = '/'.join(path_dict[2:])
 
         if version == "latest":  # we search the latest available version
-            return self._handle_latest_version(package, path)
+            return self._handle_latest_version(request.endpoint, package, path)
 
         versions = self.handle_versions(version, package, path)
         if versions and version:
@@ -254,7 +253,7 @@ class SourceView(GeneralView):
             if path:
                 redirect_url_parts.append(path)
             redirect_url = '/'.join(redirect_url_parts)
-            return self._redirect_to_url(redirect_url,
+            return self._redirect_to_url(request.endpoint, redirect_url,
                                          redirect_code=302)
 
         return self._render_location(package, version, path)
