@@ -159,6 +159,43 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertLessEqual(len(rv['result']['copyright']),
                              len(rv2['result']['copyright']))
 
+    def test_checksum_view(self):
+        rv = self.app.get("/copyright/sha256/?checksum="
+                          "2e6d31a5983a91251bfae5aefa1c0a"
+                          "19d8ba3cf601d0e8a706b4cfa9661a6b8a")
+        self.assertIn("This checksum appears 12 times", rv.data)
+        self.assertIn("Most frequent license is: GPL-2+", rv.data)
+
+    def test_checksum_view_package_filter(self):
+        rv = self.app.get("/copyright/sha256/?checksum="
+                          "2e6d31a5983a91251bfae5aefa1c0a"
+                          "19d8ba3cf601d0e8a706b4cfa9661a6b8a&package=gnubg")
+        self.assertIn("This checksum appears 2 times", rv.data)
+        self.assertNotIn("Most common package", rv.data)
+
+    def test_checksum_view_suite_filter(self):
+        rv = self.app.get("/copyright/sha256/?checksum="
+                          "2e6d31a5983a91251bfae5aefa1c0a"
+                          "19d8ba3cf601d0e8a706b4cfa9661a6b8a&suite=latest")
+        self.assertIn("This checksum appears 8 times", rv.data)
+        rv = self.app.get("/copyright/sha256/?checksum="
+                          "2e6d31a5983a91251bfae5aefa1c0a"
+                          "19d8ba3cf601d0e8a706b4cfa9661a6b8a&suite=jessie")
+        self.assertIn("This checksum appears 7 times", rv.data)
+
+    def test_checksum_view_one_result(self):
+        rv = self.app.get("/copyright/sha256/?checksum="
+                          "2e6d31a5983a91251bfae5aefa1c0a"
+                          "19d8ba3cf601d0e8a706b4cfa9661a6b8a&package=beignet")
+        self.assertIn("This checksum appears 1 time", rv.data)
+        self.assertNotIn("<h3>Details</h3>", rv.data)
+
+    def test_checksum_404(self):
+        rv = self.app.get("/copyright/sha256/?checksum="
+                          "2e6d31a5983a91251bfae5aefa1c0a19d8"
+                          "ba3cf60d0e8a706b4cfa9661a6b8a")
+        self.assertIn("0 results", rv.data)
+
     def test_api_search_filename_package(self):
         # test package requirement
         '''rv = json.loads(self.app.get(
