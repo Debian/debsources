@@ -119,7 +119,7 @@ def location_get_path_links(endpoint, path_to):
 
     for (i, p) in enumerate(path_dict):
         pathl.append((p, url_for(endpoint,
-                                 path_to='/'.join(path_dict[:i+1]))))
+                                 path_to='/'.join(path_dict[:i + 1]))))
     return pathl
 
 
@@ -141,13 +141,13 @@ def location_get_stat(sources_path):
         (stat.S_IROTH, "r", "-"),
         (stat.S_IWOTH, "w", "-"),
         (stat.S_IXOTH, "x", "-"),
-        ]
+    ]
     # XXX these flags should be enough.
     type_flags = [
         (stat.S_ISLNK, "l"),
         (stat.S_ISREG, "-"),
         (stat.S_ISDIR, "d"),
-        ]
+    ]
     # add the file type: d/l/-
     file_type = " "
     for ft, sign in type_flags:
@@ -212,7 +212,7 @@ def get_suite_info(session, suite, first=None):
     return session.query(SuiteInfo).filter(SuiteInfo.name == suite).first()
 
 
-def count_files_checksum(session, checksum, pkg=None):
+def count_files_checksum(session, checksum, pkg=None, suite=None):
     '''Count files with `checksum`
 
     '''
@@ -223,6 +223,9 @@ def count_files_checksum(session, checksum, pkg=None):
         result = (result.filter(PackageName.name == pkg)
                   .filter(Checksum.package_id == Package.id)
                   .filter(Package.name_id == PackageName.id))
+    if suite is not None and suite is not "":
+        result = (result.filter(Suite.suite == suite)
+                  .filter(Suite.package_id == Checksum.package_id))
     return result
 
 
@@ -270,7 +273,7 @@ def filter_pkg_by_suite(session, result, suite):
             )
 
 
-def get_files_by_checksum(session, checksum, package=None):
+def get_files_by_checksum(session, checksum, package=None, suite=None):
     ''' Returns a list of files whose hexdigest is checksum.
         Filter with package
 
@@ -288,6 +291,30 @@ def get_files_by_checksum(session, checksum, package=None):
     if package is not None and package != "":
 
         results = results.filter(PackageName.name == package)
+
+    if suite is not None and suite is not "":
+        results = (results.filter(Suite.suite == suite)
+                   .filter(Suite.package_id == Checksum.package_id))
+
+    return results.order_by("package", "version", "path")
+
+
+def get_files_by_path_package(session, path, package, version=None):
+    """ Return a list of files with a specific `path` and `package`
+        Filter with `suite`
+    """
+    results = (session.query(File.path.label("path"),
+                             PackageName.name.label("package"),
+                             Package.version.label("version"),
+                             Checksum.sha256.label("checksum"))
+               .filter(File.path == path)
+               .filter(File.package_id == Package.id)
+               .filter(Package.name_id == PackageName.id)
+               .filter(PackageName.name == package)
+               .filter(Checksum.file_id == File.id))
+
+    if version is not None and version is not "":
+        results = results.filter(Package.version == version)
 
     return results.order_by("package", "version", "path")
 

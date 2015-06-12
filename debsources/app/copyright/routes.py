@@ -18,7 +18,7 @@ from ..helper import bind_render
 from . import bp_copyright
 from ..views import (IndexView, PrefixView, ListPackagesView, ErrorHandler,
                      Ping, PackageVersionsView)
-from .views import LicenseView
+from .views import LicenseView, ChecksumLicenseView, SearchFileView
 
 
 # context vars
@@ -111,3 +111,24 @@ bp_copyright.add_url_rule(
         'license',
         render_func=bind_render('copyright/license.html'),
         err_func=ErrorHandler('copyright')))
+
+# CHECKSUM VIEW
+
+# api
+bp_copyright.add_url_rule(
+    '/api/sha256/',
+    view_func=ChecksumLicenseView.as_view(
+        'api_checksum',
+        render_func=jsonify,
+        err_func=ErrorHandler(mode='json')))
+
+
+# FileSearch VIEW
+
+# api
+bp_copyright.add_url_rule(
+    '/api/file/<path:path_to>/',
+    view_func=SearchFileView.as_view(
+        'api_file',
+        render_func=jsonify,
+        err_func=ErrorHandler(mode='json')))

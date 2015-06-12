@@ -16,7 +16,7 @@ URL schema
   * Optional parameter package name: &package=
   * Optional parameter suite : &suite=
 
-* /copyright/api/file/?path=--&package=--
+* /copyright/api/file/path/?package=--
 
   * Optional parameter suite : &suite=
   * Package is not optional. Otherwise finding the file would consume a lot of
