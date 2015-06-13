@@ -134,6 +134,13 @@ bp_copyright.add_url_rule(
 
 # FileSearch VIEW
 
+bp_copyright.add_url_rule(
+    '/file/<path:path_to>/',
+    view_func=SearchFileView.as_view(
+        'file',
+        render_func=bind_render('copyright/file.html'),
+        err_func=ErrorHandler('copyright')))
+
 # api
 bp_copyright.add_url_rule(
     '/api/file/<path:path_to>/',

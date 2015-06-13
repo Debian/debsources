@@ -246,12 +246,22 @@ class SearchFileView(GeneralView):
         else:
             files = qry.get_files_by_path_package(session, path, package,
                                                   version).all()
-        if not files:
-            return dict(return_code=404,
-                        count=0,
-                        error='File not found')
-        return dict(return_code=200,
-                    count=len(files),
-                    result=[dict(checksum=res.checksum,
-                            copyright=self._license_of_files(res))
-                            for res in files])
+
+        if 'api' in request.endpoint:
+            if not files:
+                return dict(return_code=404,
+                            count=0,
+                            error='File not found')
+            return dict(return_code=200,
+                        count=len(files),
+                        result=[dict(checksum=res.checksum,
+                                copyright=self._license_of_files(res))
+                                for res in files])
+        else:
+            return dict(count=len(files),
+                        path=path,
+                        package=package,
+                        version=version,
+                        result=[dict(checksum=res.checksum,
+                                copyright=self._license_of_files(res))
+                                for res in files])
