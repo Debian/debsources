@@ -239,6 +239,26 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
             "/copyright/api/file/gnubg/all/doc/gnubg/gnubg.html/").data)
         self.assertEqual(len(rv['result']), 3)
 
+    def test_search_filename_all(self):
+        rv = self.app.get(
+            "/copyright/file/gnubg/all/doc/gnubg/gnubg.html/").data
+        self.assertIn("File name appears 3", rv)
+
+    def test_search_filename_suite_non_existing(self):
+        rv = self.app.get(
+            "/copyright/file/gnubg/not/doc/gnubg/gnubg.html/").data
+        self.assertIn("not found", rv)
+
+    def test_search_filename_suite_filter(self):
+        rv = self.app.get("/copyright/file/gnubg/jessie/doc/gnubg/gnubg.html/",
+                          follow_redirects=True)
+        self.assertNotIn("File name appears", rv.data)
+
+    def test_search_filename(self):
+        rv = self.app.get("/copyright/file/gnubg/1.02.000-2"
+                          "/doc/gnubg/gnubg.html/", follow_redirects=True)
+        self.assertIn("GPL-3+", rv.data)
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)
