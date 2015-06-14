@@ -101,9 +101,14 @@ class JinjaRenderer(object):
             for files in par.files:
                 globs.append({'files': files,
                               'url': self.create_url(files, base_url)})
-            l = {'synopsis': par.license.synopsis,
-                 'link': self.match_license(par.license.synopsis),
-                 'text': par.license.text}
+            try:
+                l = {'synopsis': par.license.synopsis,
+                     'link': self.match_license(par.license.synopsis),
+                     'text': par.license.text}
+            except AttributeError:
+                l = {'synopsis': None,
+                     'link': None,
+                     'text': None}
             paragraphs.append({
                 'globs': globs,
                 'copyright': par.copyright,
