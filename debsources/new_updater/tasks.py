@@ -5,6 +5,8 @@ from .celery import app
 from debsources import fs_storage, db_storage
 from debsources.sqla_session import _get_engine_session
 
+from celery import Task
+
 import os
 import six
 import subprocess
@@ -13,6 +15,20 @@ import subprocess
 engine, session = _get_engine_session('postgresql:///debsources',
                                       verbose=False)
 
+
+# Base class for tasks accessing the database
+class DBTask(Task):
+    """Abstract class for tasks accessing the database. Ensures that the
+session is returned to the session pool at the end of the execution
+
+    From
+    http://prschmid.blogspot.fr/2013/04/using-sqlalchemy-with-celery-tasks.html
+
+    """
+    abstract = True
+
+    def after_return(self, *args, **kwargs):
+        session.remove()
 
 
 # hooks
@@ -38,7 +54,7 @@ def extract_new(mirror):
         s.delay()
 
 
-@app.task
+@app.task(base=DBTask)
 def add_package(pkg):
     pkgdir = pkg['extraction_dir']
     try:
@@ -50,13 +66,13 @@ def add_package(pkg):
         with session.begin_nested():
             os.chdir(pkgdir)
             db_storage.add_package(session, pkg, pkgdir, False)
-            s = call_hooks(pkg, 'add-package')
+            s = call_hooks.s(pkg, 'add-package')
             s.delay()
 
 
 # update suites
 
-@app.task
+@app.task(base=DBTask)
 def add_suite_package(suite, pkg_id):
     pass
 
@@ -86,7 +102,7 @@ def garbage_collect(mirror):
         s.delay()
 
 
-@app.task
+@app.task(base=DBTask)
 def rm_package(pkg):
     print('deleting: {0}-{1}'.format(pkg['package'], pkg['version']))
 
