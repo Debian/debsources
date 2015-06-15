@@ -19,7 +19,7 @@ separated by empty lines. The general stanza format is as follows:
 `Files` field is space separated. All fields are "folded", i.e. they can be
 broken into several physical lines, indenting subsequent lines by one space.
 
-`Package` an `Files` concur to identify the files to be excluded, as follows:
+`Package` and `Files` concur to identify the files to be excluded, as follows:
 
 - initially, all files of (any version of) `Package` are eligible for exclusion
 
@@ -30,9 +30,9 @@ broken into several physical lines, indenting subsequent lines by one space.
 After the evaluation of the above fields, all files eligible for exclusion get
 excluded, executing the given `Action`.
 
-Supported actions, i.e. valid fields for `Action` are:
+Supported actions, i.e., valid fields for `Action` are:
 
-- `Remove`: remove excluded files from both the package extraction directory
+- `remove`: remove excluded files from both the package extraction directory
   and Debsources DB.
 
 
