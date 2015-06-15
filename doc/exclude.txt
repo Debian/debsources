@@ -1,3 +1,10 @@
+Debsources has the ability to exclude parts of the available content from
+processing. Exclusions come in 2 flavors:
+
+* file-based exclusions
+* package exclusions
+
+
 File-based exclusions
 =====================
 
@@ -57,3 +64,39 @@ Examples
 	Package: bad-bad-package
 	Files: baz/qux/*/*.c
 	Action: remove
+
+
+Package exclusions
+==================
+
+The configuration file is shared with file-based exclusions
+(`LOCAL/exclude.conf`), and will therefore contain entries for both file-based
+and package exclusions.  To decide which is which, the following rule applies.
+A stanza that contains a `Files:` field is a file-based exclusion stanza. A
+stanza that does *not* contain a `Files:` (and contains a `Package:` field) is
+a package exclusion stanza.
+
+The general stanza format for package exclusions is as follows:
+
+	Explanation: (optional) some commentary explaining the exclusion
+	Package: affected source package
+	Version: (optional) affected package version
+	Action: ignore
+
+The fields `Explanation`, `Package`, and `Action` are as per file-based
+exclusions (although `Action` supports different values, see below).
+
+To be excluded, the name of a given source package must match the `Package`
+field of at least one package exclusion stanza. If the stanza does not have a
+`Version` field, then the package is excluded.
+
+If the `Version` field is present, it must be a single (source) package
+version, as per Debian Policy. If a package matches the `Package` field of a
+stanza that also has a `Version` field, then it is excluded if and only if its
+version matches the value of that field.
+
+Supported actions, i.e., valid fields for `Action` are:
+
+- `ignore`: ignore the package when updating Debsources. At present, this
+  specifically means only not *adding* it to the data storage, but not
+  necessarily removing it if it has been added in the past.
