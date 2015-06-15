@@ -5,6 +5,7 @@ local
 *.pyc
 etc/config.local.ini
 .coverage
+doc/async_tasks.png
 
 # python egg:
 build
