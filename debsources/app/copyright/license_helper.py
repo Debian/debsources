@@ -41,6 +41,10 @@ def get_sources_path(session, package, version, config):
 
 
 def parse_license(sources_path):
+    required_fields = ['Format:', 'Files:', 'Copyright:', 'License:']
+    d_file = open(sources_path).read()
+    if not all(field in d_file for field in required_fields):
+        raise Exception
     with io.open(sources_path, mode='rt', encoding='utf-8') as f:
         try:
             c = copyright.Copyright(f)
