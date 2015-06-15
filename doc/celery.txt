@@ -56,7 +56,23 @@ For unit testing, tasks can easily be made synchronous.
 -> CELERY_ALWAYS_EAGER = True
 
 
+Implementation details
+======================
 
+sqlalchemy session
+------------------
+
+The session is defined as a global variable in tasks.py. It might be a
+good idea to set it up using a worker signal[1] instead.
+
+Tasks that need to use it must inherit DBTask, which ensures that the
+session will be returned to the pool after the execution.
+
+DBTask is currently defined in tasks.py, and reimplements the
+'after_return' handler[2].
+
+[1] http://docs.celeryproject.org/en/latest/userguide/tasks.html#handlers
+[2] http://celery.readthedocs.org/en/latest/userguide/signals.html#worker-signals
 
 Dependencies
 ============
