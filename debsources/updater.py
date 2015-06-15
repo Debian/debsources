@@ -164,7 +164,8 @@ def exclude_files(session, pkg, pkgdir, file_table, exclude_specs):
     """
     # enforce spec's Package field
     specs = [spec for spec in exclude_specs
-             if spec['package'] == pkg['package']]
+             if 'files' in spec  # ignore non file-based exclusion stanzas
+             and spec['package'] == pkg['package']]
     candidates = []  # files eligible for exclusion
     for spec in specs:
         # enforce spec's Files field
@@ -181,6 +182,19 @@ def exclude_files(session, pkg, pkgdir, file_table, exclude_specs):
             fs_storage.rm_file(pkgdir, relpath)
             db_storage.rm_file(session, pkg['package'], relpath, file_table)
             del(file_table[relpath])
+
+
+def is_excluded_package(pkg, exclude_specs):
+    """check whether a given package match 1+ package exclusion stanzas
+
+    """
+    # compute list of *matching* package exclusion stanzas
+    specs = [spec for spec in exclude_specs
+             if 'files' not in spec  # ignore non package exclusion stanzas
+             and spec['package'] == pkg['package']
+             and ('version' not in spec
+                  or spec['version'] == pkg['version'])]
+    return bool(specs)
 
 
 def _add_package(pkg, conf, session, sticky=False):
@@ -268,6 +282,9 @@ def extract_new(status, conf, session, mirror):
     ensure_cache_dir(conf)
 
     def add_package(pkg):
+        if is_excluded_package(pkg, conf['exclude']):
+            logging.info('skipping excluded package %s' % pkg)
+            return
         if not db_storage.lookup_package(session, pkg['package'],
                                          pkg['version']):
             # use DB as completion marker: if the package has been inserted, it
