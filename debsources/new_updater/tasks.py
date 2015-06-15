@@ -2,7 +2,17 @@ from __future__ import absolute_import
 
 from .celery import app
 
+from debsources import fs_storage, db_storage
+from debsources.sqla_session import _get_engine_session
+
+import os
 import six
+import subprocess
+
+
+engine, session = _get_engine_session('postgresql:///debsources',
+                                      verbose=False)
+
 
 
 # hooks
@@ -24,13 +34,24 @@ def call_hooks(pkg, event):
 @app.task
 def extract_new(mirror):
     for pkg in mirror.ls():
-        s = add_package.s(pkg.description())
+        s = add_package.s(pkg.description('testdata/sources'))
         s.delay()
 
 
 @app.task
 def add_package(pkg):
-    print('adding: {0}-{1}'.format(pkg['package'], pkg['version']))
+    pkgdir = pkg['extraction_dir']
+    try:
+        fs_storage.extract_package(pkg, pkgdir)
+    except subprocess.CalledProcessError as e:
+        print('extract error: {0} -- {1}'.format(e.returncode,
+                                                 ' '.join(e.cmd)))
+    else:
+        with session.begin_nested():
+            os.chdir(pkgdir)
+            db_storage.add_package(session, pkg, pkgdir, False)
+            s = call_hooks(pkg, 'add-package')
+            s.delay()
 
 
 # update suites

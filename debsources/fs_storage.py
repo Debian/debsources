@@ -29,13 +29,13 @@ def extract_package(pkg, destdir):
         subprocess_setup()
         os.umask(DPKG_EXTRACT_UMASK)
 
-    logging.debug('extract %s...' % pkg)
+    logging.debug('extract %s...' % pkg['package'])
     parentdir = os.path.dirname(destdir)
     if not os.path.isdir(parentdir):
         os.makedirs(parentdir)
     if os.path.isdir(destdir):  # remove stale dir, dpkg-source doesn't clobber
         shutil.rmtree(str(destdir))
-    dsc = pkg.dsc_path()
+    dsc = pkg['dsc_path']
     cmd = ['dpkg-source', '--no-copy', '--no-check', '-x', dsc, destdir]
     logfile = destdir + '.log'
     donefile = destdir + '.done'
