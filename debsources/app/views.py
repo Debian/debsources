@@ -524,7 +524,7 @@ class PackageVersionsView(GeneralView):
         # we list the version with suites it belongs to
         try:
             versions_w_suites = qry.pkg_names_list_versions_w_suites(
-                session, packagename, suite)
+                session, packagename, suite, reverse=True)
         except InvalidPackageOrVersionError:
             raise Http404Error("%s not found" % packagename)
 

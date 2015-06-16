@@ -72,7 +72,8 @@ def pkg_names_list_versions(session, packagename, suite=""):
     return versions
 
 
-def pkg_names_list_versions_w_suites(session, packagename, suite=""):
+def pkg_names_list_versions_w_suites(session, packagename,
+                                     suite="", reverse=False):
     """
     return versions with suites. if suite is provided, then only return
     versions contained in that suite.
@@ -97,6 +98,10 @@ def pkg_names_list_versions_w_suites(session, packagename, suite=""):
             versions_w_suites.append(v)
     except Exception:
         raise InvalidPackageOrVersionError(packagename)
+
+    if reverse:
+        versions_w_suites.reverse()
+
     return versions_w_suites
 
 
