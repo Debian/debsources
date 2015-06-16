@@ -31,7 +31,7 @@ def add_package(session, pkg, pkgdir, sticky=False):
     - FS cache to avoid re-scanning package dir to iterate over file names
 
     """
-    logging.debug('add to db %s...' % pkg['package'])
+    logging.debug('add to db %s/%s...' % (pkg['package'], pkg['version']))
     package_name = session.query(PackageName) \
                           .filter_by(name=pkg['package']) \
                           .first()

@@ -29,7 +29,7 @@ def extract_package(pkg, destdir):
         subprocess_setup()
         os.umask(DPKG_EXTRACT_UMASK)
 
-    logging.debug('extract %s...' % pkg['package'])
+    logging.debug('extract %s/%s...' % (pkg['package'], pkg['version']))
     parentdir = os.path.dirname(destdir)
     if not os.path.isdir(parentdir):
         os.makedirs(parentdir)
