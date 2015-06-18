@@ -2,20 +2,45 @@ digraph Base {
         compound = true;
         rankdir=LR;
         subgraph cluster_extract {
+          mirror [shape=ellipse, color=blue]
+          database_ext [shape=ellipse, color=blue, label="database"];
+          sources_ext [shape=ellipse, color=blue, label="extracted sources"];
+
+
           node [shape=box];
           extract_new -> add_package [label="for each package"]
+
+          # resources
+          extract_new -> mirror[label="needs"];
+          add_package -> database_ext[label="needs"];
+          add_package -> sources_ext[label="needs"];
         }
         subgraph cluster_gc {
                 node [shape=box];
+
                 garbage_collect -> rm_package [label="for each expired package"];
+
+                # resources
+
+                database_gc [shape=ellipse, color=blue, label="database"];
+                sources_gc [shape=ellipse, color=blue, label="extracted sources"];
+
+                garbage_collect -> database_gc[label="needs"];
+                rm_package -> database_gc[label="needs"];
+                rm_package -> sources_gc[label="needs"];
+
+
         }
 
         subgraph cluster_suites {
+                database [shape=ellipse, color=blue];
                 node [shape=box];
                 update_suites -> add_suite_package [label="for each (suite, pkg)"];
         }
 
         subgraph cluster_stats {
+                database_stats [shape=ellipse, color=blue, label="database"];
+
                  node [shape=box];
 
                  update_stats -> overall_stats;
@@ -30,10 +55,10 @@ digraph Base {
                  overall_stats -> source_pkg_stats;
                  overall_stats -> source_files_stats;
                  overall_stats -> ctags_stats;
-
         }
 
         subgraph cluster_charts {
+                database_charts [shape=ellipse, color=blue, label="database"];
                  node [shape=box];
                  update_charts -> update_size_charts [label="for each suite"];
                  update_charts -> update_sloc_histograms [label="for each suite"];
@@ -48,9 +73,10 @@ digraph Base {
         }
 
         subgraph cluster_hooks {
+                sources [shape=ellipse, color=blue, label="extracted sources"];
                  node [shape=box];
                  label = "hooks";
-                 add_package -> hooks;
+                 add_package -> hooks [label="on the same machine"];
                  rm_package -> hooks;
                  hooks -> shell_hooks;
                  hooks -> py_hooks;
