@@ -10,6 +10,7 @@
 # https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=COPYING;hb=HEAD
 from __future__ import absolute_import
 import io
+import logging
 
 from flask import current_app, url_for
 from debian import copyright
@@ -40,6 +41,10 @@ def get_sources_path(session, package, version, config):
 
 
 def parse_license(sources_path):
+    required_fields = ['Format:', 'Files:', 'Copyright:', 'License:']
+    d_file = open(sources_path).read()
+    if not all(field in d_file for field in required_fields):
+        raise Exception
     with io.open(sources_path, mode='rt', encoding='utf-8') as f:
         try:
             c = copyright.Copyright(f)
@@ -69,8 +74,13 @@ def get_license(session, package, version, path):
     for par in c.all_files_paragraphs():
         for glob in par.files:
             if glob == path_dict[-1]:
-                return par.license.synopsis
-
+                try:
+                    return par.license.synopsis
+                except AttributeError:
+                    logging.warn("Path %s in Package %s with version %s is"
+                                 " missing a license field" % (path, package,
+                                                               version))
+                    return None
     # search for folder/* containing our file
     # search in reverse order as we can have f1/f2/filename
     # where f1/* with license1 and f2/* in another
@@ -78,10 +88,22 @@ def get_license(session, package, version, path):
         for par in c.all_files_paragraphs():
             for glob in par.files:
                 if glob.replace('/*', '') == folder:
-                    return par.license.synopsis
-
+                    try:
+                        return par.license.synopsis
+                    except AttributeError:
+                        logging.warn("Path %s Package %s with version %s is"
+                                     " missing a license field" % (path,
+                                                                   package,
+                                                                   version))
+                        return None
     # TODO search for /*
     for par in c.all_files_paragraphs():
         for glob in par.files:
             if glob == '*':
-                return par.license.synopsis
+                try:
+                    return par.license.synopsis
+                except AttributeError:
+                    logging.warn("Path %s Package %s with version %s is"
+                                 " missing a license field" % (path, package,
+                                                               version))
+                    return None
