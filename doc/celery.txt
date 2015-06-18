@@ -55,6 +55,54 @@ For unit testing, tasks can easily be made synchronous.
 
 -> CELERY_ALWAYS_EAGER = True
 
+Workflow
+--------
+
+
+Celery has several ways to define workflows:
+http://celery.readthedocs.org/en/latest/userguide/canvas.html
+
+
+Hooks
+~~~~~
+
+Hooks can be run as chord[1], i.e. a group of tasks run in parallel,
+with a callback that will be executed once all of the tasks have
+completed.
+
+By default on celery 3.1+, if one of the tasks fail, the callback will
+not be executed[2] (this behavior can be disabled, or enabled on
+celery 3.0).
+
+This mean tasks running the hooks can send the results of the plugins
+to a callback which will insert those results into the database.
+
+This solution allows:
+ 
+ - running the hooks on machines that don't have access to the
+   database
+ 
+ - not importing a package if one of the hooks failed
+
+However, it increases the network overhead. In particular, the ctags
+plugin can generate large sets of data (e.g. ~250MB for
+chromium-browser, or 100M gziped).
+
+One possible workaround is to pass the data as a local file when the
+callback runs on the same machine.
+
+It is possible to run a task on a given worker[3][4]. Determining on
+which worker a task is executed should also possible, using
+billiard.current_process[5] and sending the id of the current worker
+to the subtask.
+
+[1] http://celery.readthedocs.org/en/latest/userguide/canvas.html#chords
+[2] http://celery.readthedocs.org/en/latest/userguide/canvas.html#error-handling
+[3] http://docs.celeryproject.org/en/latest/configuration.html#celery-worker-direct
+[4] http://docs.celeryproject.org/en/latest/internals/reference/celery.utils.html#celery.utils.worker_direct
+[5] https://docs.python.org/2/library/multiprocessing.html#multiprocessing.current_process
+
+
 
 Implementation details
 ======================
@@ -73,6 +121,26 @@ DBTask is currently defined in tasks.py, and reimplements the
 
 [1] http://docs.celeryproject.org/en/latest/userguide/tasks.html#handlers
 [2] http://celery.readthedocs.org/en/latest/userguide/signals.html#worker-signals
+
+
+
+Celery configuration
+====================
+
+Result backend
+--------------
+
+To use chords, we need to keep a result backend for keeping the results
+of tasks and passing them to other tasks. Result backends are disabled by default, and several choices are available[1]:
+ 
+ - sqlalchemy
+ - memcached
+ - redis
+ - rabbitmq
+ - ...
+
+[1]
+http://celery.readthedocs.org/en/latest/configuration.html#task-result-backend-settings
 
 Dependencies
 ============
