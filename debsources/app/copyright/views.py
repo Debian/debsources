@@ -140,8 +140,10 @@ class ChecksumLicenseView(ChecksumView):
             files = self._license_latest_files(checksum, package)
             all_files = files
         else:
-            count = qry.count_files_checksum(session, checksum, package, suite)
-            count = count.first()[0]
+            all_files = ChecksumView._files_with_sum(checksum, slice_=None,
+                                                     package=package,
+                                                     suite=suite)
+            count = len(all_files)
             if self.d.get('pagination'):
                 offset = int(current_app.config.get("LIST_OFFSET") or 60)
                 start = (page - 1) * offset
@@ -151,9 +153,6 @@ class ChecksumLicenseView(ChecksumView):
 
             files = ChecksumView._files_with_sum(checksum, slice_,
                                                  package=package, suite=suite)
-            all_files = ChecksumView._files_with_sum(checksum, slice_=None,
-                                                     package=package,
-                                                     suite=suite)
 
         d_copyright = self._get_license_dict(files)
 
