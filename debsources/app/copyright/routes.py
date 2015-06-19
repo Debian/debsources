@@ -120,7 +120,8 @@ bp_copyright.add_url_rule(
     view_func=ChecksumLicenseView.as_view(
         'api_checksum',
         render_func=jsonify,
-        err_func=ErrorHandler(mode='json')))
+        err_func=ErrorHandler(mode='json')),
+    methods=('GET', 'POST'))
 
 
 # FileSearch VIEW
