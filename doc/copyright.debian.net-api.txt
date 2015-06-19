@@ -118,8 +118,10 @@ URL schema
 
 * /copyright/api/sha256/
 
-The API accepts an HTTP POST request. Its body must contain a dictionnary
-similar to the following:
+The API accepts an HTTP POST request. The data must be form-encoded, repeating
+the checksum parameter for multiple values.
+For example, if you are using python requests to create the POST request then
+the dictionnary containing the values should have the following structure:
 
 {
     "checksums": [SUM1, SUM2, SUM3, ...],
