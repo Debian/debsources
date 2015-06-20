@@ -23,13 +23,14 @@ import sys
 from debsources import archiver
 from debsources import debmirror
 from debsources import mainlib
+from debsources import updater
 
 
 def main():
     cmdline = argparse.ArgumentParser(description='Debsources suite '
                                       'archive manager')
     cmdline.add_argument('action', metavar='ACTION',
-                         choices=['add', 'list', 'remove'],
+                         choices=['add', 'list', 'remove', 'refresh'],
                          help='action to perform on the archive of '
                          'sticky suites')
     cmdline.add_argument('suite', metavar='SUITE', nargs='?', default=None,
@@ -39,7 +40,8 @@ def main():
     args = cmdline.parse_args()
     if args.action in ['add', 'remove'] and args.suite is None:
         cmdline.error('%s requires a suite name' % args.action)
-
+    if args.action == 'refresh' and args.stages is None:
+        cmdline.error('%s requires a stage' % args.action)
     conf = mainlib.load_conf(args.conffile or mainlib.guess_conffile())
     mainlib.override_conf(conf, args)
     mainlib.init_logging(conf, mainlib.log_level_of_verbosity(args.verbose))
@@ -62,6 +64,9 @@ def main():
                       (suite, present['db'], present['archive']))
         elif args.action == 'remove':
             archiver.remove_suite(conf, session, args.suite)
+        elif args.action == 'refresh':
+            conf['refresh'] = True
+            updater.update(conf, session, stages=conf['stages'])
         if conf['single_transaction']:
             session.commit()
     except SystemExit:  # exit as requested

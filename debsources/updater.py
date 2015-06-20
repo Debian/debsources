@@ -525,7 +525,10 @@ def update_charts(status, conf, session, suites=None):
     from debsources import charts
     logging.info('update charts...')
     ensure_stats_dir(conf)
-    suites = __target_suites(session, suites)
+    if 'refresh' in conf.keys():
+        suites = statistics.sticky_suites(session, True)
+    else:
+        suites = __target_suites(session, suites)
 
     CHARTS = [  # <period, granularity> paris
         ('1 month', 'hourly'),
@@ -560,26 +563,30 @@ def update_charts(status, conf, session, suites=None):
                 charts.sloc_plot(mseries, chart_file)
 
     # sloccount: current pie charts
-    sloc_per_suite = []
     for suite in suites + ['ALL']:
         sloc_suite = suite
         if sloc_suite == 'ALL':
             sloc_suite = None
         slocs = statistics.sloccount_summary(session, suite=sloc_suite)
-        if suite not in ['ALL']:
-            sloc_per_suite.append(slocs)
         chart_file = os.path.join(conf['cache_dir'], 'stats',
                                   '%s-sloc_pie-current.png' % suite)
         if not conf['dry_run']:
             charts.sloc_pie(slocs, chart_file)
 
     # sloccount: bar chart plot
+    all_suites = statistics.sticky_suites(session, True) \
+        + __target_suites(session, None)
+    sloc_per_suite = []
+    for suite in all_suites:
+        slocs = statistics.sloccount_summary(session, suite=suite)
+        sloc_per_suite.append(slocs)
+
     if 'charts_top_langs' in conf.keys():
         top_langs = int(conf['charts_top_langs'])
     else:
         top_langs = 6
     chart_file = os.path.join(conf['cache_dir'], 'stats', 'sloc_bar_plot.png')
-    charts.bar_chart(sloc_per_suite, suites, chart_file, top_langs)
+    charts.bar_chart(sloc_per_suite, all_suites, chart_file, top_langs)
 
 # update stages
 (STAGE_EXTRACT,
