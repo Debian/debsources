@@ -11,7 +11,7 @@
 
 from __future__ import absolute_import
 
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 from flask import current_app, request
 from debian.debian_support import version_compare
@@ -23,6 +23,7 @@ from debsources.excepts import (Http404ErrorSuggestions, FileOrFolderNotFound,
 from ..views import GeneralView, ChecksumView, session
 from ..sourcecode import SourceCodeIterator
 from ..render import RenderLicense
+from ..pagination import Pagination
 from . import license_helper as helper
 
 
@@ -80,26 +81,23 @@ class LicenseView(GeneralView):
 
 class ChecksumLicenseView(ChecksumView):
 
-    def _license_of_files(self, checksum, package, suite):
-        if suite == 'latest':
-            files = ChecksumView._files_with_sum(
-                checksum, slice_=None, package=package)
-            # find latest version of each package
-            dd = defaultdict(list)
-            for f in files:
-                dd[(f['package'])].append(f)
-            files = []
-            for package in dd:
-                version = sorted([item['version'] for item
-                                 in dd[package]],
-                                 cmp=version_compare)[-1]
-                files.append(filter(lambda f: f['version'] == version,
-                                    dd[package])[0])
-        else:
-            files = ChecksumView._files_with_sum(
-                checksum, slice_=None, package=package, suite=suite)
-        # Not list comprehension to catch error when d/copyright file is not
-        # present in the package.
+    def _license_latest_files(self, checksum, package):
+        files = ChecksumView._files_with_sum(
+            checksum, slice_=None, package=package)
+        # find latest version of each package
+        dd = defaultdict(list)
+        for f in files:
+            dd[(f['package'])].append(f)
+        files = []
+        for package in dd:
+            version = sorted([item['version'] for item
+                             in dd[package]],
+                             cmp=version_compare)[-1]
+            files.append(filter(lambda f: f['version'] == version,
+                                dd[package])[0])
+        return files
+
+    def _get_license_dict(self, files):
         result = []
         for f in files:
             try:
@@ -123,18 +121,76 @@ class ChecksumLicenseView(ChecksumView):
         return result
 
     def get_objects(self, **kwargs):
+        try:
+            page = int(request.args.get("page"))
+        except:
+            page = 1
         checksum = request.args.get("checksum")
         package = request.args.get("package") or None
         suite = request.args.get("suite") or None
 
-        d_copyright = self._license_of_files(checksum, package, suite)
+        # init values to avoid another if else in the return statement
+        pagination = None
+        slice_ = None
 
-        if len(d_copyright) is 0:
-            return dict(return_code=404,
-                        error='Checksum not found')
-        return dict(return_code=200,
-                    result=dict(checksum=checksum,
-                                copyright=d_copyright))
+        # all files is usefull for the small statistics we calculate in order
+        # to make sure all the pages (pagination) show the same stats
+        # For latest we can't predict number of results. do we run two times?
+        if suite == 'latest':
+            files = self._license_latest_files(checksum, package)
+            all_files = files
+        else:
+            all_files = ChecksumView._files_with_sum(checksum, slice_=None,
+                                                     package=package,
+                                                     suite=suite)
+            count = len(all_files)
+            if self.d.get('pagination'):
+                offset = int(current_app.config.get("LIST_OFFSET") or 60)
+                start = (page - 1) * offset
+                end = start + offset
+                slice_ = (start, end)
+                pagination = Pagination(page, offset, count)
+
+            files = ChecksumView._files_with_sum(checksum, slice_,
+                                                 package=package, suite=suite)
+
+        d_copyright = self._get_license_dict(files)
+
+        if 'api' in request.endpoint:
+            if len(d_copyright) is 0:
+                return dict(return_code=404,
+                            error='Checksum not found')
+            return dict(return_code=200,
+                        result=dict(checksum=checksum,
+                                    copyright=d_copyright))
+        else:
+            # minor stats
+            all_d_copyright = self._get_license_dict(all_files)
+            licenses = [x['license'] for x in all_d_copyright
+                        if x['license'] is not None]
+            counter = Counter(licenses).most_common()
+            f_license = [x[0] for x in counter if x[1] is counter[0][1]]
+
+            if package is None or len(all_d_copyright) < 2:
+                packages = [x['package'] for x in all_d_copyright]
+                counter = Counter(packages).most_common()
+                f_package = [x[0] for x in counter if x[1] is counter[0][1]]
+
+                return dict(checksum=checksum,
+                            copyright=d_copyright,
+                            count=len(all_d_copyright),
+                            licenses=set(licenses),
+                            frequent_packages=f_package,
+                            frequent_licenses=f_license,
+                            pagination=pagination)
+            else:
+                return dict(checksum=checksum,
+                            copyright=d_copyright,
+                            count=len(d_copyright),
+                            package_filter=True,
+                            licenses=set(licenses),
+                            frequent_licenses=f_license,
+                            pagination=pagination)
 
 
 class SearchFileView(GeneralView):
@@ -174,10 +230,21 @@ class SearchFileView(GeneralView):
         else:
             files = qry.get_files_by_path_package(session, path, package,
                                                   version).all()
-        if len(files) is 0:
-            return dict(return_code=404,
-                        error='File not found')
-        return dict(return_code=200,
-                    result=[dict(checksum=res.checksum,
-                            copyright=self._license_of_files(res))
-                            for res in files])
+
+        if 'api' in request.endpoint:
+            if len(files) is 0:
+                return dict(return_code=404,
+                            error='File not found')
+            return dict(return_code=200,
+                        count=len(files),
+                        result=[dict(checksum=res.checksum,
+                                copyright=self._license_of_files(res))
+                                for res in files])
+        else:
+            return dict(count=len(files),
+                        path=path,
+                        package=package,
+                        version=version,
+                        result=[dict(checksum=res.checksum,
+                                copyright=self._license_of_files(res))
+                                for res in files])
