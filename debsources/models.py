@@ -19,7 +19,6 @@ from sqlalchemy import Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-
 from debsources.consts import VCS_TYPES, SLOCCOUNT_LANGUAGES, \
     CTAGS_LANGUAGES, METRIC_TYPES
 
@@ -27,7 +26,7 @@ Base = declarative_base()
 
 
 # used for migrations, see scripts under debsources/migrate/
-DB_SCHEMA_VERSION = 8
+DB_SCHEMA_VERSION = 9
 
 
 class PackageName(Base):
@@ -365,3 +364,27 @@ class HistorySlocCount(Base):
     def __init__(self, suite, timestamp):
         self.suite = suite
         self.timestamp = timestamp
+
+
+class FileCopyright(Base):
+
+    __tablename__ = 'copyright'
+
+    id = Column(Integer, primary_key=True)
+    file_id = Column(Integer,
+                     ForeignKey('files.id', ondelete="CASCADE"),
+                     index=True, nullable=False)
+    oracle = Column(String, nullable=False)
+    license = Column(String)
+
+    def __init__(self, file_id, oracle, license):
+        self.file_id = file_id
+        self.oracle = oracle
+        self.license = license
+
+    def to_dict(self):
+        """ Serialize the object
+        """
+        return dict(file_id=self.file_id,
+                    oracle=self.oracle,
+                    license=self.license)
