@@ -129,10 +129,10 @@ class ChecksumLicenseView(ChecksumView):
             files = self._get_files(sha, package, suite)
             if not files:
                 results.append(dict(checksum=sha,
-                                    return_code=404,
-                                    error='No results'))
+                                    copyright=[],
+                                    count=0))
             else:
-                results.append(dict(return_code=200,
+                results.append(dict(count=len(files),
                                checksum=sha,
                                copyright=self._get_license_dict(files)))
         return dict(result=results)
@@ -154,8 +154,11 @@ class ChecksumLicenseView(ChecksumView):
 
         if not d_copyright:
             return dict(return_code=404,
-                        error='Checksum not found')
+                        error='Checksum not found',
+                        count=0,
+                        result=[])
         return dict(return_code=200,
+                    count=len(d_copyright),
                     result=dict(checksum=checksum,
                                 copyright=d_copyright))
 
@@ -199,8 +202,10 @@ class SearchFileView(GeneralView):
                                                   version).all()
         if not files:
             return dict(return_code=404,
+                        count=0,
                         error='File not found')
         return dict(return_code=200,
+                    count=len(files),
                     result=[dict(checksum=res.checksum,
                             copyright=self._license_of_files(res))
                             for res in files])
