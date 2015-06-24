@@ -202,6 +202,60 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
             "/copyright/api/file/gnubg/all/doc/gnubg/gnubg.html/").data)
         self.assertEqual(len(rv['result']), 3)
 
+    def test_batch_api(self):
+        data = {"checksums": ["2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e"
+                              "8a706b4cfa9661a6b8a",
+                              "4f721b8e5b0add185d6af7a93e577638d25eaa5c34129"
+                              "7d95b4a27b7635b4d3f",
+                              "sha_does_not_exist"]
+                }
+        rv = json.loads(self.app.post("/copyright/api/sha256/",
+                                      data=data).data)
+        self.assertEqual("2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e"
+                         "8a706b4cfa9661a6b8a", rv['result'][0]['checksum'])
+        self.assertEqual(len(rv['result'][0]['copyright']), 12)
+        self.assertEqual(rv['result'][2]['count'], 0)
+
+    def test_batch_api_package_filter(self):
+        data = {"checksums": ["2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e"
+                              "8a706b4cfa9661a6b8a",
+                              "4f721b8e5b0add185d6af7a93e577638d25eaa5c34129"
+                              "7d95b4a27b7635b4d3f"],
+                "package": 'gnubg'
+                }
+        rv = json.loads(self.app.post("/copyright/api/sha256/",
+                                      data=data).data)
+        self.assertEqual("2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e"
+                         "8a706b4cfa9661a6b8a", rv['result'][0]['checksum'])
+        self.assertEqual(len(rv['result'][0]['copyright']), 2)
+        self.assertEqual(rv['result'][1]['count'], 0)
+
+    def test_batch_api_suite_filter(self):
+        data = {"checksums": ["2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e"
+                              "8a706b4cfa9661a6b8a",
+                              "4f721b8e5b0add185d6af7a93e577638d25eaa5c34129"
+                              "7d95b4a27b7635b4d3f"],
+                "suite": 'jessie'
+                }
+        rv = json.loads(self.app.post("/copyright/api/sha256/",
+                                      data=data).data)
+        self.assertEqual("2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e"
+                         "8a706b4cfa9661a6b8a", rv['result'][0]['checksum'])
+        self.assertEqual(len(rv['result'][0]['copyright']), 7)
+        self.assertEqual(len(rv['result'][1]['copyright']), 2)
+
+    def test_batch_api_latest_suite(self):
+        data = {"checksums": ["2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e"
+                              "8a706b4cfa9661a6b8a",
+                              "4f721b8e5b0add185d6af7a93e577638d25eaa5c34129"
+                              "7d95b4a27b7635b4d3f"],
+                "suite": 'latest'
+                }
+        rv = json.loads(self.app.post("/copyright/api/sha256/",
+                                      data=data).data)
+        self.assertEqual(len(rv['result'][0]['copyright']), 8)
+        self.assertEqual(len(rv['result'][1]['copyright']), 2)
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)

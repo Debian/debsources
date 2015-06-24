@@ -80,8 +80,11 @@ class LicenseView(GeneralView):
 
 class ChecksumLicenseView(ChecksumView):
 
-    def _license_of_files(self, checksum, package, suite):
-        if suite == 'latest':
+    def _get_files(self, checksum, package, suite):
+        if suite != 'latest':
+            files = ChecksumView._files_with_sum(checksum, None,
+                                                 package, suite)
+        else:
             files = ChecksumView._files_with_sum(
                 checksum, slice_=None, package=package)
             # find latest version of each package
@@ -95,11 +98,9 @@ class ChecksumLicenseView(ChecksumView):
                                  cmp=version_compare)[-1]
                 files.append(filter(lambda f: f['version'] == version,
                                     dd[package])[0])
-        else:
-            files = ChecksumView._files_with_sum(
-                checksum, slice_=None, package=package, suite=suite)
-        # Not list comprehension to catch error when d/copyright file is not
-        # present in the package.
+        return files
+
+    def _get_license_dict(self, files):
         result = []
         for f in files:
             try:
@@ -122,17 +123,42 @@ class ChecksumLicenseView(ChecksumView):
                                                              f['version'])))
         return result
 
+    def batch_api(self, checksums, package=None, suite=None):
+        results = []
+        for sha in checksums:
+            files = self._get_files(sha, package, suite)
+            if not files:
+                results.append(dict(checksum=sha,
+                                    copyright=[],
+                                    count=0))
+            else:
+                results.append(dict(count=len(files),
+                               checksum=sha,
+                               copyright=self._get_license_dict(files)))
+        return dict(result=results)
+
     def get_objects(self, **kwargs):
+        if request.method == 'POST':
+            checksums = request.form.getlist('checksums')
+            package = request.form.get('package') or None
+            suite = request.form.get('suite') or None
+            return self.batch_api(checksums, package, suite)
+
         checksum = request.args.get("checksum")
         package = request.args.get("package") or None
         suite = request.args.get("suite") or None
 
-        d_copyright = self._license_of_files(checksum, package, suite)
+        files = self._get_files(checksum, package, suite)
 
-        if len(d_copyright) is 0:
+        d_copyright = self._get_license_dict(files)
+
+        if not d_copyright:
             return dict(return_code=404,
-                        error='Checksum not found')
+                        error='Checksum not found',
+                        count=0,
+                        result=[])
         return dict(return_code=200,
+                    count=len(d_copyright),
                     result=dict(checksum=checksum,
                                 copyright=d_copyright))
 
@@ -174,10 +200,12 @@ class SearchFileView(GeneralView):
         else:
             files = qry.get_files_by_path_package(session, path, package,
                                                   version).all()
-        if len(files) is 0:
+        if not files:
             return dict(return_code=404,
+                        count=0,
                         error='File not found')
         return dict(return_code=200,
+                    count=len(files),
                     result=[dict(checksum=res.checksum,
                             copyright=self._license_of_files(res))
                             for res in files])
