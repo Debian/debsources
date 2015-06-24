@@ -57,15 +57,16 @@ def license_url(package, version):
     return url_for('.license', path_to=(package + '/' + version))
 
 
-def get_license(session, package, version, path):
-    try:
-        sources_path = get_sources_path(session, package, version,
-                                        current_app.config)
-    except (FileOrFolderNotFound, InvalidPackageOrVersionError):
-        raise Http404ErrorSuggestions(package, version, '')
+def get_license(session, package, version, path, license_path=None):
+    if not license_path:
+        try:
+            license_path = get_sources_path(session, package, version,
+                                            current_app.config)
+        except (FileOrFolderNotFound, InvalidPackageOrVersionError):
+            raise Http404ErrorSuggestions(package, version, '')
 
     try:
-        c = parse_license(sources_path)
+        c = parse_license(license_path)
     except Exception:
         return None
 
