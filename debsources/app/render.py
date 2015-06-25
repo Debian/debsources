@@ -16,10 +16,10 @@ import re
 Licenses = {
     r'Apache( License)? 2': 'http://opensource.org/licenses/Apache-2.0',
     r'GPL(v|-)?2(\+)?': 'http://opensource.org/licenses/GPL-2.0',
-    r'GPL(-)?3\+': 'http://opensource.org/licenses/GPL-3.0',
-    r'GPL(v1)?': 'http://opensource.org/licenses/GPL-1.0',
-    r'LGPL(-)?2\.1': 'http://opensource.org/licenses/LGPL-2.1',
-    r'LGPL(-)?3\.0': 'http://opensource.org/licenses/LGPL-3.0',
+    r'GPL(v|-)?3\+?': 'http://opensource.org/licenses/GPL-3.0',
+    r'GPL(v1)?(?!.[2-9])': 'http://opensource.org/licenses/GPL-1.0',
+    r'LGPL(v|-)?2\.1': 'http://opensource.org/licenses/LGPL-2.1',
+    r'LGPL(v|-)?3\.0': 'http://opensource.org/licenses/LGPL-3.0',
     r'MIT': 'http://opensource.org/licenses/MIT',
     r'M(ozilla)?P(ublic)?L(icense)? 2\.0':
     'http://opensource.org/licenses/MPL-2.0',
