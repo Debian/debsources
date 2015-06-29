@@ -109,8 +109,17 @@ class ChecksumLicenseView(ChecksumView):
         result = []
         for f in files:
             try:
+                # once DB full, remove license path
+                try:
+                    license_path = helper.get_sources_path(session,
+                                                           f['package'],
+                                                           f['version'],
+                                                           current_app.config)
+                except (FileOrFolderNotFound, InvalidPackageOrVersionError):
+                    raise Http404ErrorSuggestions(f['package'], f['version'],
+                                                  '')
                 l = helper.get_license(session, f['package'],
-                                       f['version'], f['path'])
+                                       f['version'], f['path'], license_path)
                 result.append(dict(oracle='debian',
                                    path=f['path'],
                                    package=f['package'],
@@ -216,12 +225,20 @@ class ChecksumLicenseView(ChecksumView):
 class SearchFileView(GeneralView):
 
     def _license_of_files(self, f):
+        # once DB full, remove license path
+        try:
+            license_path = helper.get_sources_path(session, f.package,
+                                                   f.version,
+                                                   current_app.config)
+        except (FileOrFolderNotFound, InvalidPackageOrVersionError):
+            raise Http404ErrorSuggestions(f.package, f.version, '')
         return dict(oracle='debian',
                     path=f.path,
                     package=f.package,
                     version=f.version,
                     license=helper.get_license(session, f.package,
-                                               f.version, f.path),
+                                               f.version, f.path,
+                                               license_path),
                     origin=helper.license_url(f.package, f.version))
 
     def get_objects(self, path_to):

@@ -22,7 +22,8 @@ from debsources.consts import PREFIXES_DEFAULT
 from debsources.consts import SUITES
 from debsources.excepts import InvalidPackageOrVersionError
 from debsources.models import (
-    Checksum, Ctag, File, Package, PackageName, Suite, SuiteInfo)
+    Checksum, Ctag, File, Package, PackageName, Suite, SuiteInfo,
+    FileCopyright)
 
 
 LongFMT = namedtuple("LongFMT", ["type", "perms", "size", "symlink_dest"])
@@ -354,3 +355,18 @@ def count_packages(session):
 
     '''
     return (session.query(PackageName).count())
+
+
+def get_license_w_path(session, package, version, path):
+    ''' Retrieve license of file using its `path`, `package` and  `version`
+
+    '''
+    result = (session.query(FileCopyright.license.label('License'))
+              .filter(File.id == FileCopyright.file_id)
+              .filter(File.path == path)
+              .filter(File.package_id == Package.id)
+              .filter(Package.name_id == PackageName.id)
+              .filter(PackageName.name == package)
+              .filter(Package.version == version)
+              )
+    return result.first()[0]

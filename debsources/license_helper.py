@@ -12,12 +12,13 @@ from __future__ import absolute_import
 import io
 import logging
 
-from flask import current_app, url_for
+from flask import url_for
 from debian import copyright
 
 from debsources.navigation import Location, SourceFile
-from debsources.excepts import (Http404ErrorSuggestions, FileOrFolderNotFound,
+from debsources.excepts import (FileOrFolderNotFound,
                                 InvalidPackageOrVersionError)
+# import debsources.query as qry
 
 
 def get_sources_path(session, package, version, config):
@@ -58,53 +59,24 @@ def license_url(package, version):
 
 
 def get_license(session, package, version, path, license_path=None):
-    if not license_path:
-        try:
-            license_path = get_sources_path(session, package, version,
-                                            current_app.config)
-        except (FileOrFolderNotFound, InvalidPackageOrVersionError):
-            raise Http404ErrorSuggestions(package, version, '')
+    # if not license_path:
+    #     # retrieve license from DB
+    #     return qry.get_license_w_path(session, package, version, path)
 
+    # parse license file to get license
     try:
         c = parse_license(license_path)
     except Exception:
         return None
 
-    # search for path in globs
-    path_dict = path.split('/')
-    for par in c.all_files_paragraphs():
-        for glob in par.files:
-            if glob == path_dict[-1]:
-                try:
-                    return par.license.synopsis
-                except AttributeError:
-                    logging.warn("Path %s in Package %s with version %s is"
-                                 " missing a license field" % (path, package,
-                                                               version))
-                    return None
-    # search for folder/* containing our file
-    # search in reverse order as we can have f1/f2/filename
-    # where f1/* with license1 and f2/* in another
-    for folder in reversed(path_dict):
-        for par in c.all_files_paragraphs():
-            for glob in par.files:
-                if glob.replace('/*', '') == folder:
-                    try:
-                        return par.license.synopsis
-                    except AttributeError:
-                        logging.warn("Path %s Package %s with version %s is"
-                                     " missing a license field" % (path,
-                                                                   package,
-                                                                   version))
-                        return None
-    # TODO search for /*
-    for par in c.all_files_paragraphs():
-        for glob in par.files:
-            if glob == '*':
-                try:
-                    return par.license.synopsis
-                except AttributeError:
-                    logging.warn("Path %s Package %s with version %s is"
-                                 " missing a license field" % (path, package,
-                                                               version))
-                    return None
+    paragraph = c.find_files_paragraph(path)
+    if paragraph:
+        try:
+            return paragraph.license.synopsis
+        except AttributeError:
+            logging.warn("Path %s in Package %s with version %s is"
+                         " missing a license field" % (path, package,
+                                                       version))
+            return None
+    else:
+        return None
