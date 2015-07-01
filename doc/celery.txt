@@ -122,6 +122,15 @@ DBTask is currently defined in tasks.py, and reimplements the
 [1] http://docs.celeryproject.org/en/latest/userguide/tasks.html#handlers
 [2] http://celery.readthedocs.org/en/latest/userguide/signals.html#worker-signals
 
+plugin tasks
+------------
+
+Celery has a way to define tasks that don't depend on a celery
+application: use the `celery.shared_task decorator` instead of
+`app.task` decorator[1]. The tasks will still be automatically
+discovered by the celery workers.
+
+[1] http://docs.celeryproject.org/en/latest/django/first-steps-with-django.html#using-the-shared-task-decorator
 
 
 Celery configuration
