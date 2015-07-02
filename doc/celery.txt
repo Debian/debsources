@@ -91,16 +91,22 @@ chromium-browser, or 100M gziped).
 One possible workaround is to pass the data as a local file when the
 callback runs on the same machine.
 
-It is possible to run a task on a given worker[3][4]. Determining on
-which worker a task is executed should also possible, using
-billiard.current_process[5] and sending the id of the current worker
-to the subtask.
+It is possible to run a task on a given worker using
+`celery.utils.worker_direct` [3][4]. The current worker of a task can
+be retrieved from the task's context[5]: self.request.hostname.
+
+Example:
+
+    @app.task(bind=True)
+    def task_A(self):
+        worker = worker_direct(self.request.hostname)
+        task_B.apply_async((a, b), queue=worker.name)
 
 [1] http://celery.readthedocs.org/en/latest/userguide/canvas.html#chords
 [2] http://celery.readthedocs.org/en/latest/userguide/canvas.html#error-handling
 [3] http://docs.celeryproject.org/en/latest/configuration.html#celery-worker-direct
 [4] http://docs.celeryproject.org/en/latest/internals/reference/celery.utils.html#celery.utils.worker_direct
-[5] https://docs.python.org/2/library/multiprocessing.html#multiprocessing.current_process
+[5] http://celery.readthedocs.org/en/latest/userguide/tasks.html#context
 
 
 
