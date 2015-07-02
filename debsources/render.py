@@ -15,27 +15,70 @@ import re
 
 Licenses = {
     r'Apache( License)? 2': 'http://opensource.org/licenses/Apache-2.0',
+    r'Apache( License)? 1': 'http://opensource.org/licenses/Apache-1.0',
+    r'LGPL(v|-)?2(\.1)?': 'http://opensource.org/licenses/LGPL-2.1',
+    r'LGPL(v|-)?3(\.0)?': 'http://opensource.org/licenses/LGPL-3.0',
     r'GPL(v|-)?2(\+)?': 'http://opensource.org/licenses/GPL-2.0',
     r'GPL(v|-)?3\+?': 'http://opensource.org/licenses/GPL-3.0',
     r'GPL(v1)?(?!.[2-9])': 'http://opensource.org/licenses/GPL-1.0',
-    r'LGPL(v|-)?2\.1': 'http://opensource.org/licenses/LGPL-2.1',
-    r'LGPL(v|-)?3\.0': 'http://opensource.org/licenses/LGPL-3.0',
     r'MIT': 'http://opensource.org/licenses/MIT',
     r'M(ozilla)?P(ublic)?L(icense)? 2\.0':
     'http://opensource.org/licenses/MPL-2.0',
     r'CDDL(-)?1\.0': 'http://opensource.org/licenses/CDDL-1.0',
     r'EPL(-)?1\.0': 'http://opensource.org/licenses/EPL-1.0',
-    r'BSD( |-)3( |-)?(Clause )?(License)?':
+    r'BSD( |-)4( |-)?(Clause )?(License)?':
+    'http://spdx.org/licenses/BSD-4-Clause',
+    r'BSD(( |-)?(3)( |-)?Clause )?(License)?':
     'http://opensource.org/licenses/BSD-3-Clause',
     r'BSD( |-)2( |-)?(Clause )?(License)?':
     'http://opensource.org/licenses/BSD-2-Clause',
     r'FreeBSD( License)?': 'http://opensource.org/licenses/BSD-2-Clause',
-    r'A(cademic )?F(ree )?L(icense)?( |-)?3\.0 (AFL-3.0)':
-    'http://opensource.org/licenses/AFL-3.0',
-    r'A(daptive )?P(ublic )?L(icense)?( |-)?1(\.0)?':
-    'http://opensource.org/licenses/APL-1.0',
-    r'A(pple )?P(ublic )?S(ource )?L(icense)?( |-)?2(\.0)?':
-    'http://opensource.org/licenses/APSL-2.0',
+    r'Artistic( )?(License)?2(\.0)?':
+    'http://opensource.org/licenses/Artistic-2.0',
+    r'I(nternet)?S(oftware)?C(oncosrtium)?( License)?':
+    'http://opensource.org/licenses/ISC',
+    r'EFL( |-)?(2\.0)?': 'http://opensource.org/licenses/EFL-2.0',
+    r'Python( License)?(2\.0)?': 'http://opensource.org/licenses/Python-2.0',
+    r'Q( )?P(ublic)?L(icense)?': 'http://opensource.org/licenses/QPL-1.0',
+    r'Zlib': 'http://opensource.org/licenses/Zlib',
+    r'W3C': 'http://opensource.org/licenses/W3C',
+    r'L(atex)?P(roject)?P(ublic)?L(icense)?':
+    'http://opensource.org/licenses/LPPL-1.3c',
+    r'Z(ope)?P(ublic)?L(icense)': 'http://opensource.org/licenses/ZPL-2.0',
+    r'CC-BY-1\.0': 'http://spdx.org/licenses/CC-BY-1.0',
+    r'CC-BY-2\.0': 'http://spdx.org/licenses/CC-BY-2.0',
+    r'CC-BY-2\.5': 'http://spdx.org/licenses/CC-BY-2.5',
+    r'CC-BY-3\.0': 'http://spdx.org/licenses/CC-BY-3.0',
+    r'CC-BY-SA-1\.0': 'http://spdx.org/licenses/CC-BY-SA-1.0',
+    r'CC-BY-SA-2\.0': 'http://spdx.org/licenses/CC-BY-SA-2.0',
+    r'CC-BY-SA-2\.5': 'http://spdx.org/licenses/CC-BY-SA-2.5',
+    r'CC-BY-SA-3\.0': 'http://spdx.org/licenses/CC-BY-SA-3.0',
+    r'CC-BY-ND-1\.0': 'http://spdx.org/licenses/CC-BY-ND-1.0',
+    r'CC-BY-ND-2\.0': 'http://spdx.org/licenses/CC-BY-ND-2.0',
+    r'CC-BY-ND-2\.5': 'http://spdx.org/licenses/CC-BY-ND-2.5',
+    r'CC-BY-ND-3\.0': 'http://spdx.org/licenses/CC-BY-ND-3.0',
+    r'CC-BY-NC-1\.0': 'http://spdx.org/licenses/CC-BY-NC-1.0',
+    r'CC-BY-NC-2\.0': 'http://spdx.org/licenses/CC-BY-NC-2.0',
+    r'CC-BY-NC-2\.5': 'http://spdx.org/licenses/CC-BY-NC-2.5',
+    r'CC-BY-NC-3\.0': 'http://spdx.org/licenses/CC-BY-NC-3.0',
+    r'CC-BY-NC-SA-1\.0': 'http://spdx.org/licenses/CC-BY-NC-SA-1.0',
+    r'CC-BY-NC-SA-2\.0': 'http://spdx.org/licenses/CC-BY-NC-SA-2.0',
+    r'CC-BY-NC-SA-2\.5': 'http://spdx.org/licenses/CC-BY-NC-SA-2.5',
+    r'CC-BY-NC-SA-3\.0': 'http://spdx.org/licenses/CC-BY-NC-SA-3.0',
+    r'CC-BY-NC-ND-1\.0': 'http://spdx.org/licenses/CC-BY-NC-ND-1.0',
+    r'CC-BY-NC-ND-2\.0': 'http://spdx.org/licenses/CC-BY-NC-ND-2.0',
+    r'CC-BY-NC-ND-2\.5': 'http://spdx.org/licenses/CC-BY-NC-ND-2.5',
+    r'CC-BY-NC-ND-3\.0': 'http://spdx.org/licenses/CC-BY-NC-ND-3.0',
+    r'GNU( )?F(ree )?D(ocumentation )?L(icense 1.0)?,':
+    'http://spdx.org/licenses/GFDL-1.0',
+    r'GNU( )?F(ree )?D(ocumentation )?L(icense 1.1)?,':
+    'http://spdx.org/licenses/GFDL-1.1',
+    r'GNU( )?F(ree )?D(ocumentation )?L(icense 1.2)?,':
+    'http://spdx.org/licenses/GFDL-1.2',
+    r'GNU( )?F(ree )?D(ocumentation )?L(icense 1.3)?,':
+    'http://spdx.org/licenses/GFDL-1.3',
+    r'GFDL-NIV': '#',
+    r'C(reative )?C(ommons )?(Zero 1\.)?0': 'http://spdx.org/licenses/CC0-1.0',
 }
 
 

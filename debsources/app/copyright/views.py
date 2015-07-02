@@ -12,20 +12,23 @@
 from __future__ import absolute_import
 
 from collections import defaultdict, Counter
+import os
 
 from flask import current_app, request
 from debian.debian_support import version_compare
 
+from debsources.render import RenderLicense
 import debsources.license_helper as helper
 import debsources.query as qry
+import debsources.statistics as statistics
 from debsources.excepts import (Http404ErrorSuggestions, FileOrFolderNotFound,
                                 InvalidPackageOrVersionError,
                                 Http404MissingCopyright)
 
-from ..views import GeneralView, ChecksumView, session
+from ..views import GeneralView, ChecksumView, session, app
 from ..sourcecode import SourceCodeIterator
-from ..render import RenderLicense
 from ..pagination import Pagination
+from ..extract_stats import extract_stats
 
 
 class LicenseView(GeneralView):
@@ -267,7 +270,6 @@ class SearchFileView(GeneralView):
         else:
             files = qry.get_files_by_path_package(session, path, package,
                                                   version).all()
-
         if 'api' in request.endpoint:
             if not files:
                 return dict(return_code=404,
@@ -286,3 +288,22 @@ class SearchFileView(GeneralView):
                         result=[dict(checksum=res.checksum,
                                 copyright=self._license_of_files(res))
                                 for res in files])
+
+
+class StatsView(GeneralView):
+
+    def get_stats(self):
+
+        stats_file = os.path.join(app.config["CACHE_DIR"],
+                                  "license_stats.data")
+        res = extract_stats(filename=stats_file)
+
+        licenses = [license.replace('overall.', '') for license in res.keys()
+                    if 'overall.' in license]
+        all_suites = [x for x in
+                      statistics.suites(session, suites='all')]
+        all_suites = all_suites[all_suites.index('squeeze'):]
+
+        return dict(results=res,
+                    licenses=sorted(licenses),
+                    suites=all_suites)
