@@ -10,6 +10,7 @@
 # https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=COPYING;hb=HEAD
 
 from __future__ import absolute_import
+from __future__ import division
 
 import glob
 import logging
@@ -21,6 +22,7 @@ import six
 from six.moves import map
 from six.moves import range
 
+from collections import Counter
 from datetime import datetime
 from email.utils import formatdate
 from sqlalchemy import sql, not_
@@ -495,6 +497,25 @@ def update_statistics(status, conf, session, suites=None):
     if not conf['dry_run'] and 'fs' in conf['backends']:
         statistics.save_metadata_cache(stats, stats_file)
 
+    # compute License stats
+    license_stats_file = os.path.join(conf['cache_dir'], 'license_stats.data')
+    overall_licenses = Counter()
+    license_stats = dict()
+
+    # per suite stats
+    suites = suites[suites.index('squeeze'):]
+
+    for suite in suites:
+        query = Counter(statistics.license_summary(session, suite))
+        overall_licenses = overall_licenses + query
+        for res in query:
+            license_stats[suite + "." + res.rstrip()] = query[res]
+    for stat in overall_licenses:
+        license_stats['overall.' + stat] = overall_licenses[stat]
+
+    if not conf['dry_run'] and 'fs' in conf['backends']:
+        statistics.save_metadata_cache(license_stats, license_stats_file)
+
 
 def update_metadata(status, conf, session):
     """update stage: update metadata
@@ -571,7 +592,7 @@ def update_charts(status, conf, session, suites=None):
         chart_file = os.path.join(conf['cache_dir'], 'stats',
                                   '%s-sloc_pie-current.png' % suite)
         if not conf['dry_run']:
-            charts.sloc_pie(slocs, chart_file)
+            charts.pie_chart(slocs, chart_file)
 
     # sloccount: bar chart plot
     if 'charts_top_langs' in conf.keys():
@@ -579,7 +600,31 @@ def update_charts(status, conf, session, suites=None):
     else:
         top_langs = 6
     chart_file = os.path.join(conf['cache_dir'], 'stats', 'sloc_bar_plot.png')
-    charts.bar_chart(sloc_per_suite, suites, chart_file, top_langs)
+    charts.bar_chart(sloc_per_suite, suites, chart_file, top_langs, 'SLOC')
+
+    # overall license pie chart
+    overall_licenses = statistics.license_summary(session)
+    license_none = overall_licenses['None']
+    total_licenses = sum(overall_licenses.values())
+    del overall_licenses['None']
+    chart_file = os.path.join(conf['cache_dir'], 'stats',
+                              'overall-license_pie.png')
+    if not conf['dry_run']:
+        charts.pie_chart(overall_licenses, chart_file,
+                         ratio=license_none / total_licenses)
+
+    # license bar chart
+    all_suites = statistics.sticky_suites(session) \
+        + __target_suites(session, None)
+    licenses_per_suite = []
+    for suite in all_suites:
+        licenses = statistics.license_summary(session, suite=suite)
+        del licenses['None']
+        licenses_per_suite.append(licenses)
+    chart_file = os.path.join(conf['cache_dir'], 'stats',
+                              'license_bar_plot.png')
+    charts.bar_chart(licenses_per_suite, all_suites, chart_file, top_langs,
+                     'Number of files')
 
 # update stages
 (STAGE_EXTRACT,

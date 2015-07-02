@@ -17,6 +17,7 @@ from __future__ import absolute_import
 
 import logging
 import os
+import re
 
 import six
 
@@ -25,7 +26,8 @@ from sqlalchemy import func as sql_func
 
 from debsources.consts import SLOCCOUNT_LANGUAGES, SUITES
 from debsources.models import Checksum, Ctag, Metric, SlocCount, \
-    Suite, SuiteInfo, Package, PackageName
+    Suite, SuiteInfo, Package, PackageName, FileCopyright, File
+from debsources.render import Licenses
 
 
 def _count(query):
@@ -369,3 +371,63 @@ def save_metadata_cache(stats, fname):
         for k, v in sorted(six.iteritems(stats)):
             out.write('%s\t%d\n' % (k, v))
     os.rename(fname + '.new', fname)
+
+
+def license_summary(session, suite=None):
+    """ Count files per license filtered by `suite`
+
+    """
+    logging.debug('license summary for suite %s...' % suite)
+    q = session.query(FileCopyright.license, sql_func.count(FileCopyright.id))
+    if suite:
+        q = q.join(File) \
+             .join(Package) \
+             .join(Suite) \
+             .filter(Suite.suite == suite)
+    q = q.group_by(FileCopyright.license)
+
+    return normalize_results(dict(q.all()))
+
+
+def normalize_results(results):
+    normalized = dict(unknown=0)
+    for result in results:
+        if result == 'None':
+            normalized[result] = results[result]
+        else:
+            # dual licenses or files with more than one license
+            if any(keyword in result for keyword in ['and', 'or']):
+                # verify all are standard
+                licenses = re.split(', |and |or ', result)
+                unknown = True  # verify all licenses in statement are standard
+                for l in licenses:
+                    key = filter(lambda x: re.search(x, l) is not None,
+                                 Licenses)
+                    if not key:
+                        unknown = False
+                if not unknown:
+                    normalized['unknown'] += results[result]
+                else:
+                    # search if result exists in dict but in different order
+                    found = None
+                    for key in normalized.keys():
+                        # replace spaces with _ as one loading the stats file
+                        # later we don't break it correctly.
+                        if set(result.split('_')) == set(key.split(' ')):
+                            # key exists
+                            found = key
+                            break
+                    if found is not None:
+                        normalized[found] += results[result]
+                    else:
+                        normalized[result.replace(' ', '_')] = results[result]
+            else:
+                key = filter(lambda x: re.search(x, result)
+                             is not None, Licenses)
+                # standard licenses
+                if len(key) > 0:
+                    normalized[result] = results[result]
+                else:
+                    normalized['unknown'] += results[result]
+
+    return normalized
