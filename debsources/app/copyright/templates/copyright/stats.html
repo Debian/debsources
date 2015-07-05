@@ -18,6 +18,7 @@
 <ul>
   <li><a href="#files_license">Files per license</a></li>
   <li><a href="#evolution">Licenses evolution</a></li>
+  <li><a href="#historical">Historical trends</a></li>
 </ul>
 
 <div>
@@ -68,4 +69,11 @@
   {% endfor %}
 </table>
 </div>
+
+
+{% import "copyright/stats_trends.inc.html" as stats_trends %}
+
+<h3 id='historical'>Historical trends</h3>
+{{ stats_trends.historical_trend('ALL') }}
+
 {% endblock %}

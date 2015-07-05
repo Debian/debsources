@@ -227,3 +227,30 @@ bp_copyright.add_url_rule(
         render_func=bind_render('copyright/stats.html'),
         err_func=ErrorHandler('copyright'),
         get_objects='stats',))
+
+# api
+bp_copyright.add_url_rule(
+    '/api/stats/',
+    view_func=StatsView.as_view(
+        'api_stats',
+        err_func=ErrorHandler(mode='json'),
+        get_objects='stats',))
+
+
+bp_copyright.add_url_rule(
+    '/stats/<suite>/',
+    view_func=StatsView.as_view(
+        'stats_suite',
+        render_func=bind_render('copyright/stats_suite.html'),
+        err_func=ErrorHandler('copyright'),
+        get_objects='stats_suite',))
+
+
+# api
+bp_copyright.add_url_rule(
+    '/api/stats/<suite>/',
+    view_func=StatsView.as_view(
+        'api_stats_suite',
+        render_func=jsonify,
+        err_func=ErrorHandler(mode='json'),
+        get_objects='stats_suite'))
