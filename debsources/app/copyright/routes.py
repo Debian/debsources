@@ -17,7 +17,7 @@ from flask import jsonify
 from ..helper import bind_render
 from . import bp_copyright
 from ..views import (IndexView, PrefixView, ListPackagesView, ErrorHandler,
-                     Ping, PackageVersionsView, DocView)
+                     Ping, PackageVersionsView, DocView, AboutView)
 from .views import LicenseView, ChecksumLicenseView, SearchFileView
 
 
@@ -180,3 +180,11 @@ bp_copyright.add_url_rule(
         'doc_api',
         render_func=bind_render('copyright/doc_api.html'),
         err_func=ErrorHandler('copyright'),))
+
+# ABOUTVIEW
+bp_copyright.add_url_rule(
+    '/about/',
+    view_func=AboutView.as_view(
+        'about',
+        render_func=bind_render('about.html'),
+        err_func=ErrorHandler('sources'),))

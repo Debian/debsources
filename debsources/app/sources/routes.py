@@ -94,7 +94,7 @@ bp_sources.add_url_rule(
     '/about/',
     view_func=AboutView.as_view(
         'about',
-        render_func=bind_render('sources/about.html'),
+        render_func=bind_render('about.html'),
         err_func=ErrorHandler('sources'),))
 
 
