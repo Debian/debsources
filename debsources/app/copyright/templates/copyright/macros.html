@@ -1,3 +1,4 @@
+{% extends "sources/_macros.html" %}
 {% macro match_d_license(comment) -%}
     {% for word in comment.split() %}
         {% if '/usr/share/common-licenses/' in word %}
