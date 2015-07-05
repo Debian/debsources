@@ -389,6 +389,67 @@ def license_summary(session, suite=None):
     return normalize_results(dict(q.all()))
 
 
+def _hist_copyright_sample(session, interval, projection, suite=None):
+    q = "\
+      SELECT * \
+      FROM history_copyright \
+      WHERE timestamp >= now() - interval '%(interval)s' \
+      %(filter)s \
+      ORDER BY %(projection)s DESC, timestamp DESC"
+    kw = {'projection': projection,
+          'interval': interval,
+          'filter': ''}
+    if suite:
+        kw['filter'] = "AND suite = '%s'" % suite
+    results = session.execute(q % kw)
+    copyright = dict()
+    for row in results:
+        if row['license'] in copyright.keys():
+            print 'here'
+            copyright[row['license']].append((row['timestamp'], row['files']))
+        else:
+            copyright[row['license']] = [(row['timestamp'], row['files'])]
+    return copyright
+
+
+def history_copyright_hourly(session, interval, suite):
+    """return recent size history of license, over the past `interval`
+
+    """
+    logging.debug('take hourly copyright sample of %s for suite %s'
+                  % (interval, suite))
+    return _hist_copyright_sample(session, interval,
+                                  projection="date_trunc('hour', timestamp)",
+                                  suite=suite)
+
+
+def history_copyright_daily(session, interval, suite):
+    """like `history_copyright_full`, but taking daily samples"""
+    logging.debug('take daily copyright sample of %s for suite %s'
+                  % (interval, suite))
+    return _hist_copyright_sample(session, interval,
+                                  projection="date_trunc('day', timestamp)",
+                                  suite=suite)
+
+
+def history_copyright_weekly(session, interval, suite):
+    """like `history_copyright_full`, but taking weekly samples"""
+    logging.debug('take weekly copyright sample of %s for suite %s'
+                  % (interval, suite))
+    return _hist_copyright_sample(session, interval,
+                                  projection="date_trunc('week', timestamp)",
+                                  suite=suite)
+
+
+def history_copyright_monthly(session, interval, suite):
+    """like `history_copyright_full`, but taking monthly samples"""
+    logging.debug('take monthly copyright sample of %s for suite %s'
+                  % (interval, suite))
+    return _hist_copyright_sample(session, interval,
+                                  projection="date_trunc('month', timestamp)",
+                                  suite=suite)
+
+
 def normalize_results(results):
     normalized = dict(unknown=0)
     for result in results:

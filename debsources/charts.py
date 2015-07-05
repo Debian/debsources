@@ -63,16 +63,15 @@ CHART_TEXTURES = ["/", "-", "+", "x", "o", ".", "*"]
 CHART_STYLES = [c + t for t in CHART_TEXTURES for c in COLORS]
 
 
-def sloc_plot(multiseries, fname):
-    """plot multiple sloccount time series --- available from `multiseries` as
-    a dictionary mapping series name to list of <timestamp, value> paris ---
-    and save it to file `fname`
+def multiseries_plot(multiseries, fname, cols=7):
+    """plot multiple metric (sloccount license) time series --- available from
+     `multiseries` as a dictionary mapping series name to list of <timestamp,
+    value> paris --- and save it to file `fname`
 
     """
     logging.debug('generate sloccount plot to %s...' % fname)
     plt.figure()
     plt.yscale('log')
-
     by_value = lambda (x1, y1), (x2, y2): cmp(y1, y2)
 
     styles = cycle(LINE_STYLES)
@@ -86,7 +85,7 @@ def sloc_plot(multiseries, fname):
     # plt.legend(bbox_to_anchor=(0, -0.04),
     plt.xticks(rotation=30)
     plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), mode='expand',
-               loc='lower left', ncol=7,
+               loc='lower left', ncol=cols,
                prop={'size': 8})
 
     plt.savefig(fname, bbox_inches='tight')

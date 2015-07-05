@@ -23,8 +23,7 @@ import debsources.query as qry
 import debsources.statistics as statistics
 from debsources.excepts import (Http404ErrorSuggestions, FileOrFolderNotFound,
                                 InvalidPackageOrVersionError,
-                                Http404MissingCopyright)
-
+                                Http404MissingCopyright, Http404Error)
 from ..views import GeneralView, ChecksumView, session, app
 from ..sourcecode import SourceCodeIterator
 from ..pagination import Pagination
@@ -291,6 +290,23 @@ class SearchFileView(GeneralView):
 
 
 class StatsView(GeneralView):
+
+    def get_stats_suite(self, suite, **kwargs):
+        if suite not in statistics.suites(session, 'all'):
+            raise Http404Error()  # security, to avoid suite='../../foo',
+            # to include <img>s, etc.
+        stats_file = os.path.join(current_app.config["CACHE_DIR"],
+                                  "license_stats.data")
+        res = extract_stats(filename=stats_file,
+                            filter_suites=[suite])
+        licenses = [license.replace(suite + '.', '') for license in res.keys()]
+        info = qry.get_suite_info(session, suite)
+
+        return dict(results=res,
+                    licenses=sorted(licenses),
+                    suite=suite,
+                    rel_date=str(info.release_date),
+                    rel_version=info.version)
 
     def get_stats(self):
 
