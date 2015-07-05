@@ -282,6 +282,10 @@ class DocView(GeneralView):
     Renders page for /doc/*
     """
 
+    def get_objects(self):
+        return dict(copyright=current_app.config.get("BLUEPRINT_COPYRIGHT"),
+                    sources=current_app.config.get("BLUEPRINT_SOURCES"))
+
 
 # for /about/
 class AboutView(GeneralView):

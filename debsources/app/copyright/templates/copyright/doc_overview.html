@@ -1,0 +1,17 @@
+{#
+  Copyright (C) 2015  The Debsources developers <info@sources.debian.net>.
+  See the AUTHORS file at the top-level directory of this distribution and at
+  https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+  License: GNU Affero General Public License, version 3 or above.
+#}
+<h3>DebCopyright Services</h3>
+<p>Once chosen a specific package version, you view the license of a package.
+  If the license is machine-readable, then the license will be <b>rendered</b>:
+  providing links to the full text of standard licenses, links to <b>Debsources</b>
+  for the files mentioned in the license; otherwise the raw file will be
+  returned. Using specific <a href="{{ url_for('.doc_url') }}"><b>URL
+  schemes</b></a> you can <b>search</b> for a license of a path or a checksum
+  or even search at once for the license of a list of checksums.</p>
+
+<p>You can also use DebCopyright programmatically via its
+  <a href="{{ url_for('copyright.doc_api') }}"><b>API</b></a>.</p>

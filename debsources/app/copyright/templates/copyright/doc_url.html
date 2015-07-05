@@ -1,0 +1,109 @@
+{#
+  Copyright (C) 2015  The Debsources developers <info@sources.debian.net>.
+  See the AUTHORS file at the top-level directory of this distribution and at
+  https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+  License: GNU Affero General Public License, version 3 or above.
+#}
+{% extends name+"/base.html" %}
+
+{% block head %}
+{{ super() }}
+<style>
+  .url{display: block; /*margin-left: 50px;*/}
+</style>
+{% endblock %}
+
+{% block title %}URL scheme{% endblock %}
+
+{% block breadcrumbs %}<a href="{{ url_for('.doc') }}">doc</a> / url scheme{% endblock %}
+
+{% block content %}
+{% set url_prefix = "//" + config.SOURCES_URL + '/copyright' %}
+
+<h2>{{ self.title() }}</h2>
+
+{% if sources == true %}
+<div class="warning">
+  You can also check the <a href="{{ url_for('sources.doc_url') }}">sources URl scheme</a>
+</div>
+{% endif %}
+
+<h3>License search</h3>
+
+<h4>Checksum search</h4>
+<p>
+  The URL for a SHAsum search is:
+  <span class="url">{{ url_prefix
+  }}/sha256/?checksum=<strong>sha256</strong>&package=<strong>packagename</strong>&suite=<strong>jessie</strong></span>
+  Specifying a suite or a package name is optional.
+  <a href="{{ url_prefix }}/sha256/?checksum=2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e8a706b4cfa9661a6b8a">See example</a>
+</p>
+
+<h4>Path search</h4>
+<p>
+  The URL for a path search is:
+  <span class="url">{{ url_prefix
+  }}/file/<strong>packagename</strong>/<strong>version</strong>/<strong>path</strong></span>
+  Both package name and version are required parameters.
+  <a href="{{ url_prefix }}file/gnubg/1.02.000-2/doc/gnubg/gnubg.html/">See example</a>
+</p>
+
+<h3>Package list</h3>
+
+<h4>Alphabetically</h4>
+
+<p>
+  <span class="url">{{ url_prefix }}/list/<strong>INT</strong></span>
+  <a href="{{ url_prefix }}/list/8">See example</a>
+</p>
+
+<h4>By prefix</h4>
+
+<p>
+  <span class="url">{{ url_prefix
+    }}/prefix/<strong>prefix</strong></span>
+  <a href="{{ url_prefix }}/prefix/libz">See example</a>
+</p>
+<p>
+  A suite parameter can be given to limit listing to a given suite.
+  <span class="url">{{ url_prefix
+    }}/prefix/<strong>prefix</strong>?suite=<strong>suite_name</strong></span>
+  <a href="{{ url_prefix }}/prefix/libz?suite=squeeze">See example</a>
+</p>
+
+<h3>Package versions</h3>
+
+<p>
+  You can list the different versions of a package, accessing this URL:
+  <span class="url">{{ url_prefix
+    }}/license/<strong>packagename</strong></span>
+  <a href="{{ url_prefix }}/license/ocaml">See example</a>
+</p>
+
+<p>
+  a suite parameter can be given to limit listing to a given suite.
+  <span class="url">{{ url_prefix
+    }}/license/<strong>packagename?suite=suite_name</strong></span>
+  <a href="{{ url_prefix }}/license/ocaml?suite=squeeze">See example</a>
+</p>
+
+
+<h3>License rendering</h3>
+
+<p>Debian copyright files can be machine readable (following <a href="https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/"> this</a> standard) or non machine readable.</p>
+<p>When accessing one of these URLs you can view the license of a package. If it
+is machine readable then the app is rendering the license in some fancy manner,
+otherwise it provides a text dump.
+  <span class="url">{{ url_prefix
+    }}/license/<strong>packagename</strong>/<strong>version</strong></span>
+  or:
+  <span class="url">{{ url_prefix
+    }}/license/<strong>packagename</strong>/latest</span>
+  to point to the latest known version of the package.
+  <br />
+  <a href="{{ url_prefix }}/license/cowsay/3.03%2Bdfsg1-4">See example</a> and
+  <a href="{{ url_prefix }}/license/cowsay/3.03%2Bdfsg1-10/"> another one</a>.
+</p>
+
+
+{% endblock %}

@@ -1,0 +1,46 @@
+{#
+  Copyright (C) 2015  The Debsources developers <info@sources.debian.net>.
+  See the AUTHORS file at the top-level directory of this distribution and at
+  https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+  License: GNU Affero General Public License, version 3 or above.
+#}
+
+{% extends name+"/base.html" %}
+
+{% block title %}Service description{% endblock %}
+{% block breadcrumbs %}<a href="{{ url_for('.doc') }}">doc</a> / overview{% endblock %}
+
+{% block content %}
+
+{% if sources == true and copyright == true %}
+  <p>Debsources provides Web access to the source code of
+  the <a href="https://www.debian.org">Debian</a> operating system and 
+  DebCopyright provides Web access to the package licenses.</p>
+{% else %}
+  {% if sources == true %}
+  <p>Debsources provides Web access to the source code of
+    the <a href="https://www.debian.org">Debian</a> operating system.</p>
+  {% endif %}
+  {% if copyright == true %}
+  <p>DebCopyright provides Web access to the package licenses of
+    the <a href="https://www.debian.org">Debian</a> operating system.</p>
+  {% endif %}
+{% endif %}
+
+<p>You can <b>browse</b> through the list of available source packages, or
+  search for a particular one based on its name. Multiple versions of each
+  source package are available &mdash; currently both versions coming from all
+  official suites available via
+  the <a href="https://www.debian.org/mirror/">Debian mirror network</a>, and
+  historical releases from
+  <a href="http://archive.debian.org">archive.debian.org</a> are available.<p>
+
+{% if sources == true %}
+  {% include "sources/doc_overview.html" %}
+{% endif %}
+
+{% if copyright == true %}
+  {% include "copyright/doc_overview.html" %}
+{% endif %}
+
+{% endblock %}

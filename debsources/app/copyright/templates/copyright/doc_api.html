@@ -1,0 +1,106 @@
+{#
+  Copyright (C) 2015  The Debsources developers <info@sources.debian.net>.
+  See the AUTHORS file at the top-level directory of this distribution and at
+  https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+  License: GNU Affero General Public License, version 3 or above.
+#}
+
+{% extends name+"/base.html" %}
+
+{% block head %}
+{{ super() }}
+<style>
+  .url{display: block; /*margin-left: 50px;*/}
+</style>
+{% endblock %}
+{% block title %}API documentation{% endblock %}
+
+{% block breadcrumbs %}<a href="{{ url_for('.doc') }}">doc</a> / api{% endblock %}
+
+{% block content %}
+{% set url_prefix = "//" + config.SOURCES_URL + '/copyright' %}
+
+<h2>{{ self.title() }}</h2>
+
+<div class="warning">
+  This API is not stable yet and, as such, has no associated version number.
+  For the time being use this API at your own risk and keep an eye on this page
+  for changes.
+</div>
+{% if sources == true %}
+<div class="warning">
+  You can also check the documentation for the <a href="{{ url_for('sources.doc_api') }}">sources API</a>
+</div>
+{% endif %}
+<p>You can query all information available in Debian Sources, and get a JSON
+  object which allows you to navigate packages and source files
+  programmaticaly.<br /> The JSON result will be pretty-printed, unless the
+  <tt>X-Requested-With</tt> HTTP header is set to <tt>XmlHttpRequest</tt>.</p>
+
+<p>Note: wherever a specific <em>version number</em> is required, you can use
+  the string "latest" instead to get redirected to the most recent version of
+  the package.</p>
+
+<h3>Search</h3>
+
+<h4>File search</h4>
+<p>
+  You can search files by SHA-256 sum:
+  <span class="url">{{ url_prefix }}/api/sha256/?checksum=<strong>sha256</strong>&package=<strong>packagename</strong>&suite=<strong>jessie</strong></span>
+  Specifying a package name or a suite is optional.
+  <br/>
+  <a href="{{ url_prefix }}/api/sha256/?checksum=d77d235e41d54594865151f4751e835c5a82322b0e87ace266567c3391a4b912">example</a>
+
+<h4>Path search</h4>
+<p>
+  The URL for a path search is:
+  <span class="url">{{ url_prefix }}/api/file/<strong>packagename</strong>/<strong>version</strong>/<strong>path</strong></span>
+  Both package name and version are required parameters.
+  <a href="{{ url_prefix }}/api/file/gnubg/1.04.000-1/doc/gnubg/gnubg.html/">See example</a>
+</p>
+
+<h4>Batch search</h4>
+<p>
+  The URL for a batch (many files) search is:
+  <span class="url">{{ url_prefix }}/api/sha256/</span>
+  The API accepts an HTTP POST request. The data must be form-encoded, repeating
+the checksum parameter for multiple values.
+  For example, if you are using python requests to create the POST request then
+the dictionnary containing the values should have the following structure:
+
+<pre>
+{
+    "checksums": [SUM1, SUM2, SUM3, ...],
+    "package": PACKAGE,
+    "suite": SUITE
+}
+</pre>
+Package and suite parameters are optional.
+</p>
+
+<h3>Package list</h3>
+
+<h4>All packages</h4>
+
+<p>
+  <span class="url">{{ url_prefix }}/api/list</span>
+  <a href="{{ url_prefix }}/api/list">example</a>
+</p>
+
+<h4>By prefix</h4>
+
+<p>
+  <span class="url">{{ url_prefix
+    }}/api/prefix/<strong>prefix</strong></span>
+  <a href="{{ url_prefix }}/api/prefix/libz">example</a>
+</p>
+
+<h3>Check the service status</h3>
+
+<p>
+  Check service status and retrieve last update timestamp:
+  <span class="url">{{ url_prefix }}/api/ping/</span>
+  <a href="{{ url_prefix }}/api/ping">example</a>
+</p>
+
+{% endblock %}
