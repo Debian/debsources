@@ -170,10 +170,19 @@ plugin tasks
 
 Celery has a way to define tasks that don't depend on a celery
 application: use the `celery.shared_task decorator` instead of
-`app.task` decorator[1]. The tasks will still be automatically
-discovered by the celery workers.
+`app.task` decorator[1]. The celery worker won't automatically find
+the tasks, so we use the `celeryd_init` signal[2] to import the
+plugins when the worker is started.
+
+    @celeryd_init.connect
+    def configure_workers(sender=None, conf=None, **kwargs):
+        debsources_conf = mainlib.load_conf(mainlib.guess_conffile())
+        debsources_conf['observers'], debsources_conf['file_exts'] = \
+            mainlib.load_hooks(debsources_conf)
+    
 
 [1] http://docs.celeryproject.org/en/latest/django/first-steps-with-django.html#using-the-shared-task-decorator
+[2] http://celery.readthedocs.org/en/latest/userguide/signals.html#celeryd-init
 
 
 Celery configuration
