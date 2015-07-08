@@ -311,7 +311,7 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
     def test_search_filename(self):
         rv = self.app.get("/copyright/file/gnubg/1.02.000-2"
                           "/doc/gnubg/gnubg.html/", follow_redirects=True)
-        self.assertIn("GPL-3+", rv.data)
+        self.assertIn("GFDL-1.3+", rv.data)
 
     def test_synopsis_parsing(self):
         rv = self.app.get("/copyright/license/gnubg/1.02.000-2/")
@@ -329,6 +329,12 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertIn('other versions of this package are available', rv.data)
         link = '<a href="/copyright/license/gnubg/0.90+20091206-4/">'
         self.assertIn(link, rv.data)
+
+    def test_glob_links(self):
+        rv = self.app.get('/copyright/license/gnubg/1.02.000-2/')
+        self.assertIn('<a href="/src/gnubg/1.02.000-2/fonts">fonts/*.ttf</a>',
+                      rv.data)
+        self.assertIn('<a href="/src/gnubg/1.02.000-2/">*</a>', rv.data)
 
 
 if __name__ == '__main__':

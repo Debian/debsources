@@ -176,3 +176,15 @@ class Stats(unittest.TestCase, DbTestFixture):
         area_count = statistics.ctags(self.session, areas=['main'])
         self.assertEqual(area_count, 87507)
         self.assertLessEqual(area_count, statistics.ctags(self.session))
+
+    @istest
+    def test_license_summary(self):
+        expected_stats = {
+            'BSD-3-clause': 1,
+            'GFDL-1.3+': 6,
+            'GPL-2': 61,
+            'GPL-2+': 160
+        }
+
+        jessie_stats = statistics.license_summary(self.session, 'jessie')
+        self.assertDictContainsSubset(expected_stats, jessie_stats)
