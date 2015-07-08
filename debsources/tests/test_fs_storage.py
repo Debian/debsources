@@ -32,7 +32,7 @@ class FsStorageTests(unittest.TestCase):
     @istest
     def assertWalkLength(self):
         self.assertEqual(len([f for f in walk(make_path(''))]),
-                         252)
+                         288)
 
     @istest
     def assertWalkTestChecksums(self):

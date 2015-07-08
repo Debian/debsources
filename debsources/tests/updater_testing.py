@@ -32,7 +32,7 @@ def mk_conf(tmpdir):
         'dry_run': False,
         'expire_days': 0,
         'force_triggers': '',
-        'hooks': ['sloccount', 'checksums', 'ctags', 'metrics'],
+        'hooks': ['sloccount', 'checksums', 'ctags', 'metrics', 'copyright'],
         'mirror_dir': os.path.join(TEST_DATA_DIR, 'mirror'),
         'mirror_archive_dir': os.path.join(TEST_DATA_DIR, 'archive'),
         'backends': set(['hooks.fs', 'hooks', 'fs', 'db', 'hooks.db']),

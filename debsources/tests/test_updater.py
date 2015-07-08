@@ -317,3 +317,21 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
             'debian_squeeze.sloccount': 315750,
         }
         self.assertDictContainsSubset(expected_stats, self.stats)
+
+    @istest
+    def licenseStatsMatchReferenceDb(self):
+        license_stats_data = os.path.join(self.conf['cache_dir'],
+                                          'license_stats.data')
+        license_stats = statistics.load_metadata_cache(license_stats_data)
+        expected_stats = {  # just a few samples
+            'experimental.LGPL-2.1+': 749,
+            'experimental.unknown': 4,
+            'jessie.GPL-2': 31,
+            'overall.LGPL-2.1+': 749,
+            'sid.GPL-3+': 533,
+            'sid.GPL-2': 31,
+            'wheezy.GPL-2': 30,
+            'wheezy.GPL-2+': 58,
+        }
+
+        self.assertDictContainsSubset(expected_stats, license_stats)
