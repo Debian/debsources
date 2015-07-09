@@ -153,11 +153,11 @@ Implementation details
 sqlalchemy session
 ------------------
 
-The session is defined as a global variable in tasks.py. It might be a
-good idea to set it up using a worker signal[1] instead.
+A scoped session is defined in celery.py, and that session is bound at
+worker initialization, using the `celeryd_init` signal.
 
-Tasks that need to use it must inherit DBTask, which ensures that the
-session will be returned to the pool after the execution.
+Tasks that need to use the session must inherit DBTask, which ensures
+that the session will be returned to the pool after the execution.
 
 DBTask is currently defined in tasks.py, and reimplements the
 'after_return' handler[2].
