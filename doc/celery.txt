@@ -153,11 +153,11 @@ Implementation details
 sqlalchemy session
 ------------------
 
-The session is defined as a global variable in tasks.py. It might be a
-good idea to set it up using a worker signal[1] instead.
+A scoped session is defined in celery.py, and that session is bound at
+worker initialization, using the `celeryd_init` signal.
 
-Tasks that need to use it must inherit DBTask, which ensures that the
-session will be returned to the pool after the execution.
+Tasks that need to use the session must inherit DBTask, which ensures
+that the session will be returned to the pool after the execution.
 
 DBTask is currently defined in tasks.py, and reimplements the
 'after_return' handler[2].
@@ -170,15 +170,23 @@ plugin tasks
 
 Celery has a way to define tasks that don't depend on a celery
 application: use the `celery.shared_task decorator` instead of
-`app.task` decorator[1]. The celery worker won't automatically find
-the tasks, so we use the `celeryd_init` signal[2] to import the
-plugins when the worker is started.
+`app.task` decorator[1].
+
+However, in the current implementation the plugins use the DBTask from
+celery.py for defining tasks, because those tasks need to access the
+database.
+
+The celery worker won't automatically find the tasks, so we can use
+the `celeryd_init` signal[2] to import the plugins when the worker is
+started.
 
     @celeryd_init.connect
     def configure_workers(sender=None, conf=None, **kwargs):
         debsources_conf = mainlib.load_conf(mainlib.guess_conffile())
         debsources_conf['observers'], debsources_conf['file_exts'] = \
             mainlib.load_hooks(debsources_conf)
+
+
     
 
 [1] http://docs.celeryproject.org/en/latest/django/first-steps-with-django.html#using-the-shared-task-decorator
