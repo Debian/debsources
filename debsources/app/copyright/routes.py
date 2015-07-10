@@ -12,13 +12,13 @@
 from __future__ import absolute_import
 
 
-from flask import jsonify
+from flask import jsonify, make_response
 
 from ..helper import bind_render
 from . import bp_copyright
 from ..views import (IndexView, PrefixView, ListPackagesView, ErrorHandler,
                      Ping, PackageVersionsView, DocView, AboutView, SearchView)
-from .views import LicenseView, ChecksumLicenseView, SearchFileView
+from .views import LicenseView, ChecksumLicenseView, SearchFileView, SPDXView
 
 
 # context vars
@@ -149,6 +149,7 @@ bp_copyright.add_url_rule(
         render_func=jsonify,
         err_func=ErrorHandler(mode='json')))
 
+
 # doc
 bp_copyright.add_url_rule(
     '/doc/',
@@ -218,3 +219,11 @@ bp_copyright.add_url_rule(
         render_func=jsonify,
         err_func=ErrorHandler(mode='json'),
         get_objects='query'))
+
+# SDPX view
+bp_copyright.add_url_rule(
+    '/spdx/<path:path_to>/',
+    view_func=SPDXView.as_view(
+        'spdx',
+        render_func=make_response,
+        err_func=ErrorHandler(mode='json')))

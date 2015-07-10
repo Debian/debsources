@@ -226,7 +226,8 @@ class SpdxRenderer(object):
                 license_refs[l] = 'LicenseRef-' + l
             count += 1
         for par in self.license.all_license_paragraphs():
-            if not match_license(par.license.synopsis):
+            if (not match_license(par.license.synopsis)
+                    and par.license.synopsis in license_refs.keys()):
                 unknown_licenses.append([{'LicenseID':
                                           license_refs[par.license.synopsis]},
                                          {'ExtractedText': "<text>" +
@@ -256,9 +257,9 @@ class SpdxRenderer(object):
                   {"DocumentComment": "<text>This document was created using"
                    "SPDX 2.0, version 2.3 of the SPDX License List.</text>"},
                   {"PackageName": self.license.header.upstream_name +
-                   "SPDXID: SPDXRef-Package"},
-                  {"PackageDownloadLocation": 'NOASSERTION'},
-                  {"PackageVerificationCode": 'sha256?variant'},
+                   "\nSPDXID: SPDXRef-Package"},
+                  {"PackageDownloadLocation": self.license.header.source},
+                  {"PackageVerificationCode": 'NOASSERTION'},
                   {"PackageLicenseConcluded": 'NOASSERTION'},
                   {"PackageLicenseInfoFromFiles": set(license_refs.values())},
                   {"PackageLicenseDeclared": 'NOASSERTION'},
@@ -285,13 +286,19 @@ class SpdxRenderer(object):
         # NOASSERTION means that the SPDX generator did not calculate that
         # value.
         files_info = []
+        # save parsed license to speed up export
+        parsed_license = helper.parse_license(helper.get_sources_path(
+                                              self.session, self.package,
+                                              self.version))
         for i, f in enumerate(files.all()):
             par = helper.get_file_paragraph(self.session, self.package,
-                                            self.version, f.path)
-            if not match_license(par.license.synopsis):
+                                            self.version, f.path,
+                                            parsed_license)
+            if (not match_license(par.license.synopsis)
+                    or par.license.synopsis not in license_refs.keys()):
                 license_concluded = license_refs[par.license.synopsis]
             else:
-                license_concluded = f.license.synopsis
+                license_concluded = par.license.synopsis
             files_info.append([{'FileName': f.path},
                                {'SPDXID': 'SPDX-FILE-REF-' + str(i)},
                                {'FileChecksum': 'SHA1: ' + f.sha256},
