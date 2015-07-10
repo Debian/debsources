@@ -57,7 +57,10 @@ def license_url(package, version):
     return url_for('.license', path_to=(package + '/' + version))
 
 
-def get_license(session, package, version, path):
+def get_file_paragraph(session, package, version, path):
+    """ Retrieves the file paragraph of a `package` `version` `path`
+
+    """
     try:
         sources_path = get_sources_path(session, package, version,
                                         current_app.config)
@@ -75,7 +78,7 @@ def get_license(session, package, version, path):
         for glob in par.files:
             if glob == path_dict[-1]:
                 try:
-                    return par.license.synopsis
+                    return par
                 except AttributeError:
                     logging.warn("Path %s in Package %s with version %s is"
                                  " missing a license field" % (path, package,
@@ -89,7 +92,7 @@ def get_license(session, package, version, path):
             for glob in par.files:
                 if glob.replace('/*', '') == folder:
                     try:
-                        return par.license.synopsis
+                        return par
                     except AttributeError:
                         logging.warn("Path %s Package %s with version %s is"
                                      " missing a license field" % (path,
@@ -101,9 +104,20 @@ def get_license(session, package, version, path):
         for glob in par.files:
             if glob == '*':
                 try:
-                    return par.license.synopsis
+                    return par
                 except AttributeError:
                     logging.warn("Path %s Package %s with version %s is"
                                  " missing a license field" % (path, package,
                                                                version))
                     return None
+
+
+def get_license(session, package, version, path):
+    """ Retrieves the license of a `package` `version` `path`
+
+    """
+    par = get_file_paragraph(session, package, version, path)
+    if par:
+        return par.license.synopsis
+    else:
+        return None
