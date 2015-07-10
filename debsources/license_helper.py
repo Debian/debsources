@@ -12,8 +12,11 @@ from __future__ import absolute_import
 import io
 import logging
 import re
+from datetime import datetime
 
-from flask import url_for
+from flask import url_for, current_app
+
+from debsources.models import Checksum, File, Package, PackageName
 from debian import copyright
 
 from debsources.navigation import Location, SourceFile
@@ -103,6 +106,17 @@ def parse_license(sources_path):
 
 def license_url(package, version):
     return url_for('.license', path_to=(package + '/' + version))
+
+
+def get_paragraph(session, package, version, path):
+    sources_path = get_sources_path(session, package, version,
+                                    current_app.config)
+    try:
+        c = parse_license(sources_path)
+    except copyright.NotMachineReadableError:
+        return None
+
+    return c.find_files_paragraph(path)
 
 
 def get_license(session, package, version, path, license_path=None):
@@ -232,3 +246,100 @@ def anchor_to_license(copyright, synopsis):
         return '#license-' + str(licenses.index(synopsis))
     else:
         return None
+
+
+def export_copyright_to_spdx(copyright, package, version, session):
+    """ Creates the SPDX document and saves the result in fname
+
+    """
+    unknown_licenses = []
+    license_names = [par.license.synopsis for par
+                     in copyright.all_files_paragraphs()]
+    # find out which are not standard and save SPDX required information
+    count = 0
+    license_refs = dict()
+    for l in license_names:
+        if not match_license(l):
+            license_refs[l] = 'LicenseRef-' + str(count)
+        else:
+            license_refs[l] = 'LicenseRef-' + l
+        count += 1
+    for par in copyright.all_license_paragraphs():
+        if not match_license(par.license.synopsis):
+            unknown_licenses.append([{'LicenseID':
+                                      license_refs[par.license.synopsis]},
+                                     {'ExtractedText': "<text>" +
+                                      par.license.text + "</text>"},
+                                     {'LicenseName': par.license.synopsis},
+                                     {'LicenseComment': par.comment}])
+    time = datetime.now()
+    now = str(time.date()) + 'T' + str(time.time()).split('.')[0] + 'Z'
+    output = [{"SPDXVersion": 'SPDX-2.0'},
+              {"DataLicense": 'CC0-1.0'},
+              {"SPDXID": 'SPDXRef-DOCUMENT'},
+              {"Relationship": 'SPDXRef-DOCUMENT' +
+               ' DESCRIBES SPDXRef-Package'},
+              {"DocumentName": copyright.header.upstream_name},
+              {"DocumentNamespace":
+               'http://spdx.org/spdxdocs/spdx-example-444504E0'
+               '-4F89-41D3-9A0C-0305E82C3301'},
+              {"LicenseListVersion": '2.0'},
+              {"Creator: Person": 'Debsources'},
+              {"Creator: Organization": 'Debsources'},
+              {"Creator: Tool": 'Debsources'},
+              {"Created": now},
+              {"CreatorComment": "<text> This document was created by"
+               " Debsources by parsing the respective debian/copyright"
+               " file of the package provided by the Debian project. You"
+               " may follow these links: http://debian.org/"
+               " http://sources.debian.net/ to get more information about"
+               " Debian and Debsources. </text>"},
+              {"DocumentComment": "<text>This document was created using"
+               "SPDX 2.0, version 2.3 of the SPDX License List.</text>"},
+              {"PackageName": copyright.header.upstream_name +
+               "SPDXID: SPDXRef-Package"},
+              {"PackageDownloadLocation": 'NOASSERTION'},
+              {"PackageVerificationCode": 'sha256?variant'},
+              {"PackageLicenseConcluded": 'NOASSERTION'},
+              {"PackageLicenseInfoFromFiles": set(license_refs.values())},
+              {"PackageLicenseDeclared": 'NOASSERTION'},
+              {"PackageCopyrightText": 'NOASSERTION'},
+              {"Files": get_files_for_spdx(license_refs, package, version,
+                                           session)},
+              {"unknown": unknown_licenses}]
+    return output
+
+
+def get_files_for_spdx(license_refs, package, version, session):
+    """ Get all files from the DB for a specific package and version and
+        then create a dictionnary for the SPDX entries
+
+    """
+    files = (session.query(Checksum.sha256.label("sha256"),
+                           File.path.label("path"))
+             .filter(Checksum.package_id == Package.id)
+             .filter(Checksum.file_id == File.id)
+             .filter(Package.name_id == PackageName.id)
+             .filter(PackageName.name == package)
+             .filter(Package.version == version)
+             )
+    # mandatory fields in SPDX document as well as optional fields we
+    # can retrieve value from d/copyright file
+    # NOASSERTION means that the SPDX generator did not calculate that
+    # value.
+    files_info = []
+    for i, f in enumerate(files.all()):
+        par = get_paragraph(session, package, version, f.path)
+        if not match_license(par.license.synopsis):
+            license_concluded = license_refs[par.license.synopsis]
+        else:
+            license_concluded = f.license.synopsis
+        files_info.append([{'FileName': f.path},
+                           {'SPDXID': 'SPDX-FILE-REF-' + str(i)},
+                           {'FileChecksum': 'SHA256: ' + f.sha256},
+                           {'LicenseConcluded': license_concluded},
+                           {'LicenseInfoInFile': 'NOASSERTION'},
+                           {'LicenseComments': par.comment or None},
+                           {'FileCopyrightText': "<text>" +
+                           par.copyright.encode('utf-8') + "</text>"}])
+    return files_info

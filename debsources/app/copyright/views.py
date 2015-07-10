@@ -339,3 +339,76 @@ class StatsView(GeneralView):
                     dual_results=dual_res,
                     dual_licenses=sorted(dual_licenses),
                     suites=all_suites)
+
+
+class SPDXView(GeneralView):
+
+    def _generate_file(self, rendered):
+        """ Consumes a dict returned by the rendered to create a spdx document
+        """
+        text = ''
+        for item in rendered:
+            for key in item:
+                if isinstance(item[key], set):
+                    for v in item[key]:
+                        text += key + ": " + v + '\n'
+                elif not isinstance(item[key], list):
+                    text += key + ": " + str(item[key]) + '\n'
+                else:
+                    for dict_value in item[key]:
+                        for sub_item in dict_value:
+                            if not isinstance(sub_item, dict):
+                                text += key + ": " + str(sub_item) + '\n'
+                            else:
+                                for sub_key in sub_item.keys():
+                                    if not isinstance(sub_item[sub_key], list):
+                                        if sub_item[sub_key] is not None:
+                                            text += sub_key + ": " \
+                                                + sub_item[sub_key].decode('utf-8') \
+                                                + '\n'
+                                    else:
+                                        text += sub_key + ": " \
+                                            + str(''.join(sub_item[sub_key])) \
+                                            + '\n'
+        return text
+
+    def get_objects(self, path_to):
+        path_dict = path_to.split('/')
+
+        package = path_dict[0]
+        version = path_dict[1]
+        path = '/'.join(path_dict[2:])
+
+        if version == "latest":  # we search the latest available version
+            return self._handle_latest_version(request.endpoint,
+                                               package, path)
+
+        versions = self.handle_versions(version, package, path)
+        if versions:
+            redirect_url_parts = [package, versions[-1]]
+            if path:
+                redirect_url_parts.append(path)
+            redirect_url = '/'.join(redirect_url_parts)
+            return self._redirect_to_url(request.endpoint,
+                                         redirect_url, redirect_code=302)
+
+        try:
+            sources_path = helper.get_sources_path(session, package, version,
+                                                   current_app.config)
+        except FileOrFolderNotFound:
+            raise Http404ErrorSuggestions(package, version,
+                                          'debian/copyright')
+        except InvalidPackageOrVersionError:
+            raise Http404ErrorSuggestions(package, version, '')
+
+        try:
+            c = helper.parse_license(sources_path)
+        except Exception:
+            # non machine readable license
+            return dict(return_code=404)
+        spdx = helper.export_copyright_to_spdx(
+            c, session=session, package=package, version=version)
+        attachment = "attachment;" + "filename=" + \
+            path_to.replace('/', '_') + ".spdx"
+        return dict(spdx=self._generate_file(spdx),
+                    header=attachment)
