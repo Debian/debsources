@@ -31,10 +31,16 @@
       {% endif %}
       <p class='r_license'>
         <span class='r_decorate'>License: </span> 
-          {% if paragraph['license']['link'] is not none %}
-            <a href="{{ paragraph['license']['link'] }}">{{ paragraph['license']['synopsis'] }} </a>
+          {% if paragraph['license']['license'] is not none %}
+            {% for text in paragraph['license']['license'] %}
+               {% if text[1] is not none %}
+                <a href="{{ text[1] }}">{{ text[0] }} </a>
+                {% else %}
+                  {{text[0]}}
+               {% endif %}
+            {% endfor %}
           {% else %}
-            {{ paragraph['license']['synopsis'] }}
+            {{ paragraph['license']['license'] }}
           {% endif %}
       </p>
       {% if paragraph['license']['text'] is not none %}

@@ -102,12 +102,10 @@ class JinjaRenderer(object):
                 globs.append({'files': files,
                               'url': self.create_url(files, base_url)})
             try:
-                l = {'synopsis': par.license.synopsis,
-                     'link': self.match_license(par.license.synopsis),
+                l = {'license': self.parse_license(par.license.synopsis),
                      'text': par.license.text}
             except AttributeError:
-                l = {'synopsis': None,
-                     'link': None,
+                l = {'license': None,
                      'text': None}
             paragraphs.append({
                 'globs': globs,
@@ -145,5 +143,38 @@ class JinjaRenderer(object):
         key = filter(lambda x: re.search(x, synopsis) is not None, Licenses)
         if len(key) is not 0:
             return Licenses[key[0]]
+        else:
+            return None
+
+    def parse_license(self, synopsis):
+        """ Parses a license and created links to license texts
+
+        """
+        license = []
+        if any(keyword in synopsis for keyword in ['and', 'or']):
+            licenses = re.split('(, | ?and | ?or )', synopsis)
+            for l in licenses:
+                link = self.match_license(l)
+                if not link:
+                    license.append([l, self.anchor_to_license(l)])
+                else:
+                    license.append([l, link])
+        else:
+            link = self.match_license(synopsis)
+            if not link:
+                license.append([synopsis, self.anchor_to_license(synopsis)])
+            else:
+                license.append([synopsis, link])
+        return license
+
+    def anchor_to_license(self, synopsis):
+        """ Matches license into a license in the licenses paragraphs and
+            creates an anchor link there.
+
+        """
+        licenses = [par.license.synopsis
+                    for par in self.license.all_license_paragraphs()]
+        if synopsis in licenses:
+            return '#license-' + str(licenses.index(synopsis))
         else:
             return None
