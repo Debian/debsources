@@ -1,0 +1,52 @@
+Old patch tracker
+================
+
+Browsing
+----------
+
+* Package prefix
+* Package
+* Package / version
+* Maintainer email
+
+Views
+----------
+
+* View package summary (version, checksum, diff files,
+  debian or upstream patches)
+* View patch
+* Syntax highlight using pygments
+* Download patch
+
+
+DB - caching
+----------
+
+* Storing package info (maintainer, uploader, name version, diff size,
+  checksum, deb tar size checksum..), 
+* Caching objects on disk (filterdiffs, diffgz) to reuse later
+
+Patch formats
+----------
+
+* Quilt series
+* Dpatch
+* Cdbs
+
+Misc
+----------
+
+* Export to UDD
+
+TODO - Suggestions
+----------
+
+* The diffstat should link to anchors embedded in the diff for each file.
+* Diff between orig.tar.gz for 3.0
+* Different colors for co-maintained packages
+* Extract comments from patch series to add in summary
+* When viewing package list/versions or packages per maintainer it is 
+  usefull to mention the packages that do not have patches. 
+  (so people don't click ther for nothing)
+* links to BTS for the closed bugs
+* cross-distro solution?
