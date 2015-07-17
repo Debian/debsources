@@ -33,7 +33,7 @@ https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginati
 {%- endmacro %}
 
 {% macro searchform(form, display="block") -%}
-  <form action="{{ url_for('sources.recv_search') }}" name="searchform"
+  <form action="{{ url_for('.recv_search') }}" name="searchform"
         method="post" style="display: {{ display }};">
       {{ form.query(**kwargs) }}
     {% for error in form.errors.query %}

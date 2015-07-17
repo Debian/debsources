@@ -169,7 +169,7 @@ bp_sources.add_url_rule(
     '/search/<query>/',
     view_func=SearchView.as_view(
         'search',
-        render_func=bind_render('sources/search.html'),
+        render_func=bind_render('search.html'),
         err_func=ErrorHandler('sources'),
         get_objects='query',))
 
