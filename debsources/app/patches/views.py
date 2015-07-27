@@ -11,11 +11,15 @@
 
 from __future__ import absolute_import
 
-from flask.views import View
+from ..views import GeneralView
 
 
-# this is just a placeholder
-class IndexView(View):
+class SummaryView(GeneralView):
 
-    def dispatch_request(self):
-        return "Hello World"
+    def get_objects(self, path_to):
+        path_dict = path_to.split('/')
+        package = path_dict[0]
+        version = path_dict[1]
+
+        return dict(package=package,
+                    version=version)
