@@ -63,6 +63,11 @@ class AppWrapper(object):
             # add a url-prefix
             self.app.register_blueprint(bp_copyright,
                                         url_prefix='/copyright')
+        if self.app.config.get('BLUEPRINT_PATCHES'):
+            from debsources.app.patches import bp_patches
+            # add a url-prefix
+            self.app.register_blueprint(bp_patches,
+                                        url_prefix='/patches')
 
         if self.app.config.get('BLUEPRINT_SOURCES'):
             from debsources.app.sources import bp_sources
