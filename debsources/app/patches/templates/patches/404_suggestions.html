@@ -1,0 +1,17 @@
+{#
+  Copyright (C) 2015  The Debsources developers <info@sources.debian.net>.
+  See the AUTHORS file at the top-level directory of this distribution and at
+  https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+  License: GNU Affero General Public License, version 3 or above.
+#}
+
+<p>The specific version of the package you requested doesn't exist,
+but other versions of this package are available in the database.
+The license you are looking for might exist in one of the following
+versions:
+<ul>
+{% for s in suggestions %}
+  <li><a href="{{ url_for('.summary', path_to=s) }}">{{ s }}</a></li>
+{% endfor %}
+</ul>
+</p>
