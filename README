@@ -54,6 +54,7 @@ Debian packages:
 - python-flup (for FastCGI deployment)
 - python-magic
 - tango-icon-theme
+- diffstat
 
 
 Infrastructure

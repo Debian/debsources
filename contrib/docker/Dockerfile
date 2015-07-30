@@ -28,7 +28,8 @@ RUN apt-get install -y \
     python-nose \
     python-nose2-cov \
     python-flaskext.wtf \
-    dpkg-dev
+    dpkg-dev \
+    diffstat
 
 # dev tools
 RUN apt-get install -y lynx emacs
