@@ -311,22 +311,14 @@ class SearchView(GeneralView):
         suite = suite.lower()
         if suite == "all":
             suite = ""
-        # if suite is not specified
-        if not suite:
-            try:
-                exact_matching = qry.get_pkg_by_name(session, query)
 
-                other_results = qry.get_pkg_by_similar_name(session, query)
-            except Exception as e:
-                raise Http500Error(e)  # db problem, ...
-        else:
-            try:
-                exact_matching = qry.get_pkg_by_name(session, query, suite)
+        try:
+            exact_matching = qry.get_pkg_by_name(session, query, suite)
 
-                other_results = qry.get_pkg_by_similar_name(session,
-                                                            query, suite)
-            except Exception as e:
-                raise Http500Error(e)  # db problem, ...
+            other_results = qry.get_pkg_by_similar_name(session,
+                                                        query, suite)
+        except Exception as e:
+            raise Http500Error(e)  # db problem, ...
 
         if exact_matching is not None:
             exact_matching = exact_matching.to_dict()

@@ -17,7 +17,7 @@ from flask import jsonify
 from ..helper import bind_render
 from . import bp_copyright
 from ..views import (IndexView, PrefixView, ListPackagesView, ErrorHandler,
-                     Ping, PackageVersionsView, DocView, AboutView)
+                     Ping, PackageVersionsView, DocView, AboutView, SearchView)
 from .views import LicenseView, ChecksumLicenseView, SearchFileView
 
 
@@ -188,3 +188,33 @@ bp_copyright.add_url_rule(
         'about',
         render_func=bind_render('about.html'),
         err_func=ErrorHandler('sources'),))
+
+
+# SEARCHVIEW
+bp_copyright.add_url_rule(
+    '/search/',
+    view_func=SearchView.as_view(
+        'recv_search',
+        render_func=bind_render('copyright/index.html'),
+        err_func=ErrorHandler('copyright'),
+        recv_search=True),
+    methods=['GET', 'POST'])
+
+
+bp_copyright.add_url_rule(
+    '/search/<query>/',
+    view_func=SearchView.as_view(
+        'search',
+        render_func=bind_render('search.html'),
+        err_func=ErrorHandler('copyright'),
+        get_objects='query',))
+
+
+# api
+bp_copyright.add_url_rule(
+    '/api/search/<query>/',
+    view_func=SearchView.as_view(
+        'api_search',
+        render_func=jsonify,
+        err_func=ErrorHandler(mode='json'),
+        get_objects='query'))
