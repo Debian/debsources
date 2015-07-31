@@ -1,18 +1,22 @@
-{% extends "sources/_macros.html" %}
-{% macro match_d_license(comment) -%}
-    {% for word in comment.split() %}
-        {% if '/usr/share/common-licenses/' in word %}
-            {% set path_dict = word.split('/usr/share/common-licenses/') %}
-            {% set comment = comment|replace(word, "<a href='http://sources.debian.net/src/base-files/latest/licenses/" + path_dict[1] + "'>" + word + "</a>" ) %}
-        {{comment|safe}}
-        {% endif %}
-    {% endfor %}
-{% endmacro %}
+{%- extends "sources/_macros.html" %}
+{%- macro match_d_license(comment) -%}
+    {%- if '/usr/share/common-licenses/' in comment %}
+        {%- for word in comment.split() %}
+            {%- if '/usr/share/common-licenses/' in word %}
+                {%- set path_dict = word.split('/usr/share/common-licenses/') %}
+                {%- set comment = comment|replace(word, "<a href='http://sources.debian.net/src/base-files/latest/licenses/" + path_dict[1] + "'>" + word + "</a>" ) %}
+            {{comment|safe}}
+            {%- endif %}
+        {%- endfor %}
+    {%- else %}
+        {{ comment }}
+    {%- endif %}
+{%- endmacro %}
 
-{% macro view_license(c) -%}
-    {% if c['license'] is not none %}
+{%- macro view_license(c) -%}
+    {%- if c['license'] is not none %}
       <p>According to the <a href="{{url_for('.license', path_to=(c['package']+'/'+c['version']))}}">d/copyright</a> file, <b>{{c['path']}}</b> in the package <b>{{c['package']}}</b>, version <b>{{c['version']}}</b> is licensed under <b>{{c['license']}}</b></p>
-    {% else %}
+    {%- else %}
         <p>The <a href="{{url_for('.license', path_to=(c['package']+'/'+c['version']))}}">d/copyright</a> file for the file <b>{{c['path']}}</b> in the package <b>{{c['package']}}</b>, version <b>{{c['version']}}</b> is not machine readable</p>
-    {% endif %}
-{% endmacro %}
+    {%- endif %}
+{%- endmacro %}
