@@ -501,6 +501,8 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertEqual(rv["pkg_infos"]["pts_link"],
                          "https://tracker.debian.org/pkg/libcaca")
         self.assertEqual(rv["pkg_infos"]["ctags_count"], 3145)
+        self.assertEqual(rv["pkg_infos"]["license"],
+                         '/copyright/license/libcaca/0.99.beta17-1/')
 
     def test_pkg_infobox_embed(self):
         rv = self.app.get('/embed/pkginfo/libcaca/0.99.beta17-1/')
