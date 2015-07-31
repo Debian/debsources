@@ -18,7 +18,7 @@ from . import bp_patches
 
 from ..helper import bind_render
 from ..views import (IndexView, Ping, PrefixView, ErrorHandler,
-                     ListPackagesView, PackageVersionsView)
+                     ListPackagesView, PackageVersionsView, SearchView)
 from .views import SummaryView
 
 
@@ -114,3 +114,32 @@ bp_patches.add_url_rule(
         'summary',
         render_func=bind_render('patches/summary.html'),
         err_func=ErrorHandler('patches')))
+
+# SEARCHVIEW
+bp_patches.add_url_rule(
+    '/search/',
+    view_func=SearchView.as_view(
+        'recv_search',
+        render_func=bind_render('patches/index.html'),
+        err_func=ErrorHandler('patches'),
+        recv_search=True),
+    methods=['GET', 'POST'])
+
+
+bp_patches.add_url_rule(
+    '/search/<query>/',
+    view_func=SearchView.as_view(
+        'search',
+        render_func=bind_render('search.html'),
+        err_func=ErrorHandler('patches'),
+        get_objects='query',))
+
+
+# api
+bp_patches.add_url_rule(
+    '/api/search/<query>/',
+    view_func=SearchView.as_view(
+        'api_search',
+        render_func=jsonify,
+        err_func=ErrorHandler(mode='json'),
+        get_objects='query'))
