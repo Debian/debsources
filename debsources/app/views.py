@@ -529,9 +529,10 @@ class PackageVersionsView(GeneralView):
             endpoint = '.source'
         elif request.blueprint == 'copyright':
             endpoint = '.license'
+        elif request.blueprint == 'patches':
+            endpoint = '.summary'
 
         pathl = qry.location_get_path_links(endpoint, packagename)
-
         return dict(type="package",
                     package=packagename,
                     versions=versions_w_suites,

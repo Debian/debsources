@@ -1,0 +1,23 @@
+{#
+  Copyright (C) 2015  The Debsources developers <info@sources.debian.net>.
+  See the AUTHORS file at the top-level directory of this distribution and at
+  https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+  License: GNU Affero General Public License, version 3 or above.
+#}
+{# copied from templates/source_base.html #}
+{% extends "sources/source_base.html" %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css"
+      href="{{ url_for('sources.static', filename='css/source_folder.css') }}" />
+{% endblock %}
+
+{% block title %}Package: {{ package }}{% endblock %}
+{% block source_content %}
+<h2>{{ self.title() }}</h2>
+{{ macros.show_suite(suite) }}
+
+{{ macros.show_versions(versions, path, '.summary', config['ICONS_FOLDER'])}}
+
+{% endblock %}
