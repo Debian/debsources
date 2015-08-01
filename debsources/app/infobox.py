@@ -11,11 +11,11 @@
 
 from __future__ import absolute_import
 
-
 PTS_PREFIX = "https://tracker.debian.org/pkg/"
 # move this to configuration file?
 # it would add a dependence layer with app.config
 
+from flask import url_for
 
 from debsources.models import (
     PackageName, Package, Suite, SlocCount, Metric, Ctag)
@@ -114,6 +114,13 @@ class Infobox(object):
 
         return ctags_count
 
+    def _get_license_link(self):
+        """ Returns the license link in the copyright BP
+
+        """
+        return url_for('copyright.license',
+                       path_to=self.package + '/' + self.version)
+
     def get_infos(self):
         """
         Retrieves information about the version of a package:
@@ -145,5 +152,7 @@ class Infobox(object):
         pkg_infos["pts_link"] = self._get_pts_link()
 
         pkg_infos["ctags_count"] = self._get_ctags_count()
+
+        pkg_infos['license'] = self._get_license_link()
 
         return pkg_infos

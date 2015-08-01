@@ -1,65 +1,64 @@
-{% import "copyright/macros.html" as macro %}
+{%- import "copyright/macros.html" as macro %}
 <div class='r_header'><h2>Header</h2>
-  {% for h in header %}
-    {% if h == 'Source' or h == 'Format' %}
+  {%- for h in header %}
+    {%- if h == 'Source' or h == 'Format' %}
       <p><span class='r_decorate'> {{ h }}: </span> <a href='{{ header[h] }}'>{{ header[h] }}</a></p>
-    {% else %}
+    {%- else %}
       <p><span class='r_decorate'> {{ h }}: </span> {{ header[h] }}</p>
-    {% endif %}
-  {% endfor %}
+    {%- endif %}
+  {%- endfor %}
 </div>
 <div class='r_files'><h2>Files</h2>
-  {% for paragraph in files %}
+  {%- for paragraph in files %}
     <p class='r_glob'> 
-      {% for file in paragraph['globs'] %}
-        {% if file['url'] is not none %}
+      {%- for file in paragraph['globs'] %}
+        {%- if file['url'] is not none %}
           <a href="{{ file['url'] }}">{{ file['files'] }}</a> 
-        {% else %}
+        {%- else %}
           {{ file['files'] }}
-        {% endif %}
-      {% endfor %}
+        {%- endif %}
+      {%- endfor %}
     </p>
     <div class='r_files_info'>
       <div class="r_copyright">
         <span class='r_decorate'>Copyright: </span>
         <pre> {{ paragraph['copyright'] }}</pre>
       </div>
-      {% if paragraph['comment'] is not none %}
+      {%- if paragraph['comment'] is not none %}
         <p class='r_comment'>
           <span class='r_decorate'>Comment: </span> {{ macro.match_d_license(paragraph['comment']) }}
         </p>
-      {% endif %}
+      {%- endif %}
       <p class='r_license'>
         <span class='r_decorate'>License: </span> 
-          {% if paragraph['license']['link'] is not none %}
-            <a href="{{ paragraph['license']['link'] }}">{{ paragraph['license']['synopsis'] }} </a>
-          {% else %}
-            {{ paragraph['license']['synopsis'] }}
-          {% endif %}
+          {%- if paragraph['license']['license'] is not none %}
+            {%- for text in paragraph['license']['license'] %}
+               {%- if text[1] is not none %} <a href="{{ text[1] }}">{{ text[0] }}</a>{%- else %}{{ text[0] }}{%- endif %}
+            {%- endfor %}
+          {%- else %}{{ paragraph['license']['license'] }}{%- endif %}
       </p>
-      {% if paragraph['license']['text'] is not none %}
+      {%- if paragraph['license']['text'] is not none %}
         <pre class='r_synopsis'>{{ paragraph['license']['text'] }} </pre>
-      {% endif %}
+      {%- endif %}
     </div>
-  {% endfor %}
+  {%- endfor %}
 </div>
 <div class='r_licenses'><h2>Licenses</h2>
-  {% for license in licenses %}
+  {%- for license in licenses %}
     <div class='license'>
       <p class='r_license' id='license-{{ loop.index0 }}'>
         <span class='r_decorate'>License: </span> 
-        {% if license['link'] is not none %}
+        {%- if license['link'] is not none %}
             <a href="{{ license['link'] }}"> {{ license['synopsis'] }}</a> 
-          {% else %}
-            {{ license['synopsis'] }}
-        {% endif %}
+          {%- else %}{{ license['synopsis'] }}
+        {%- endif %}
       </p>
     </div>
     <div id="desc-{{ loop.index0 }}">
       <pre class='r_synopsis'>{{ license['text'] }} </pre>
-      {% if license['comment'] is not none %}
+      {%- if license['comment'] is not none %}
         <p class='r_l_comment'><span class='r_decorate'>Comment: </span>{{ macro.match_d_license(license['comment']) }}</p>
-      {% endif %}
+      {%- endif %}
     </div>
-  {% endfor %}
+  {%- endfor %}
 </div>
