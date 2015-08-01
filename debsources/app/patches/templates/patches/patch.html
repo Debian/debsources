@@ -1,0 +1,30 @@
+{#
+  Copyright (C) 2015  The Debsources developers <info@sources.debian.net>.
+  See the AUTHORS file at the top-level directory of this distribution and at
+  https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+  License: GNU Affero General Public License, version 3 or above.
+#}
+{% extends name+"/base.html" %}
+
+{% block head %}
+{{ super() }}
+  <script src="{{ url_for('static', filename='javascript/debsources.js') }}"></script>
+  <link rel="stylesheet" type="text/css"
+        href="{{ url_for('sources.static', filename='css/source_file.css') }}" />
+  <link rel="stylesheet"
+        href="{{ config.HIGHLIGHT_JS_FOLDER }}/styles/{{ config.HIGHLIGHT_STYLE }}.css">
+  <script src="{{ config.HIGHLIGHT_JS_FOLDER }}/highlight.min.js"></script> 
+{% endblock %}
+{% block breadcrumbs %} Patch / <a href="{{ url_for('.versions', packagename=package) }}">{{ package }}</a> / <a href="{{ url_for('.summary', path_to=path) }}">{{ version }}</a>
+{% endblock %}
+{% block title %}Package: {{ package }}{% endblock %}
+{% block content %}
+<h2>{{ self.title() }} / {{ version }}</h2>
+
+{% include "source_file_code.inc.html" %}
+<script type="text/javascript">
+  debsources.source_file();
+  hljs.highlightBlock(document.getElementById('sourcecode'))
+
+</script>
+{% endblock %}

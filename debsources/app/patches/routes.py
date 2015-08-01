@@ -19,7 +19,7 @@ from . import bp_patches
 from ..helper import bind_render
 from ..views import (IndexView, Ping, PrefixView, ErrorHandler,
                      ListPackagesView, PackageVersionsView, SearchView)
-from .views import SummaryView
+from .views import SummaryView, PatchView
 
 
 # context vars
@@ -103,7 +103,7 @@ bp_patches.add_url_rule(
         render_func=jsonify,
         err_func=ErrorHandler(mode='json')))
 
-# PATCHVIEW
+# SUMMARYVIEW
 # Why not summary/<string:packagename>/<string:version>
 # Because then the patches blueprint must have its own show versions in the
 # macros since the other two blueprints will have a path_to parameter instead
@@ -143,3 +143,11 @@ bp_patches.add_url_rule(
         render_func=jsonify,
         err_func=ErrorHandler(mode='json'),
         get_objects='query'))
+
+# PATCHVIEW
+bp_patches.add_url_rule(
+    '/patch/<path:path_to>/',
+    view_func=PatchView.as_view(
+        'patch',
+        render_func=bind_render('patches/patch.html'),
+        err_func=ErrorHandler('patches')))

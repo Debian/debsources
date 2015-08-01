@@ -11,19 +11,48 @@
 
 from __future__ import absolute_import
 
-from flask import request
+import io
+import subprocess
 
-from ..views import GeneralView
+from flask import request, current_app
+
+from ..views import GeneralView, session
+from debsources.navigation import Location, SourceFile
+from debsources.excepts import (Http404ErrorSuggestions, FileOrFolderNotFound,
+                                InvalidPackageOrVersionError)
+from ..sourcecode import SourceCodeIterator
 
 
 class SummaryView(GeneralView):
+
+    def parse_patch_series(self, session, package, version, config, series):
+        """ Parse a list of patches available in `series` and create a dict
+            with important information such as description if it exists, file
+            changes.
+        """
+        patches_info = dict()
+        for serie in series:
+            try:
+                serie_path, loc = get_sources_path(session, package,
+                                                   version,
+                                                   current_app.config,
+                                                   'debian/patches/'
+                                                   + serie.rstrip())
+                p = subprocess.Popen(["diffstat", "-p1", serie_path],
+                                     stdout=subprocess.PIPE)
+                summary, err = p.communicate()
+                patches_info[serie] = dict(summary=summary,
+                                           download=loc.get_raw_url())
+            except (FileOrFolderNotFound, InvalidPackageOrVersionError):
+                patches_info[serie] = dict(summary='Patch does not exist')
+        return patches_info
 
     def get_objects(self, path_to):
         path_dict = path_to.split('/')
         package = path_dict[0]
         version = path_dict[1]
 
-        path = '/'.join(path_dict[2:])
+        path = '/'.join(path_dict[0:])
 
         if version == "latest":  # we search the latest available version
             return self._handle_latest_version(request.endpoint,
@@ -38,5 +67,92 @@ class SummaryView(GeneralView):
             return self._redirect_to_url(request.endpoint,
                                          redirect_url, redirect_code=302)
 
+        # identify patch format, accept only 3.0 quilt
+        try:
+            source_format, loc = get_sources_path(session, package, version,
+                                                  current_app.config,
+                                                  'debian/source/format')
+        except (FileOrFolderNotFound, InvalidPackageOrVersionError):
+            return dict(package=package,
+                        version=version,
+                        path=path,
+                        format='unknown')
+
+        format_file = open(source_format).read()
+        if '3.0 (quilt)' not in format_file:
+            return dict(package=package,
+                        version=version,
+                        path=path,
+                        format=format_file)
+
+        # are there any patches for the package?
+        try:
+            series, loc = get_sources_path(session, package, version,
+                                           current_app.config,
+                                           'debian/patches/series')
+        except (FileOrFolderNotFound, InvalidPackageOrVersionError):
+            return dict(package=package,
+                        version=version,
+                        path=path,
+                        format=format_file,
+                        patches=0)
+        with io.open(series, mode='r', encoding='utf-8') as f:
+            series = f.readlines()
+
+        info = self.parse_patch_series(session, package, version,
+                                       current_app.config, series)
         return dict(package=package,
-                    version=version)
+                    version=version,
+                    path=path,
+                    format='3.0 (quilt)',
+                    patches=len(series),
+                    series=series,
+                    patches_info=info)
+
+
+def get_sources_path(session, package, version, config, path):
+    ''' Creates a sources_path. Returns exception when it arises
+    '''
+    try:
+        location = Location(session,
+                            config["SOURCES_DIR"],
+                            config["SOURCES_STATIC"],
+                            package, version, path)
+    except (FileOrFolderNotFound, InvalidPackageOrVersionError) as e:
+        raise e
+
+    file_ = SourceFile(location)
+
+    sources_path = file_.get_raw_url().replace(
+        config['SOURCES_STATIC'],
+        config['SOURCES_DIR'],
+        1)
+    return sources_path, file_
+
+
+class PatchView(GeneralView):
+
+    def get_objects(self, path_to):
+        path_dict = path_to.split('/')
+        package = path_dict[0]
+        version = path_dict[1]
+        patch = path_dict[2]
+
+        path = '/'.join(path_dict[0:-1])
+
+        try:
+            serie_path, loc = get_sources_path(session, package, version,
+                                               current_app.config,
+                                               'debian/patches/'
+                                               + patch.rstrip())
+        except (FileOrFolderNotFound, InvalidPackageOrVersionError):
+            raise Http404ErrorSuggestions(package, version, 'debian/patches/'
+                                                            + patch.rstrip())
+        sourcefile = SourceCodeIterator(serie_path)
+
+        return dict(package=package,
+                    version=version,
+                    path=path,
+                    nlines=sourcefile.get_number_of_lines(),
+                    file_language=sourcefile.get_file_language(),
+                    code=sourcefile)

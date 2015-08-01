@@ -70,6 +70,23 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
                           follow_redirects=True)
         self.assertIn("Package: gnubg / 1.02.000-2", rv.data)
 
+    def test_package_summary(self):
+        rv = self.app.get('/patches/summary/beignet/1.0.0-1/')
+        self.assertIn("Enhance debug output", rv.data)
+        self.assertIn("utests/builtin_acos_asin.cpp  |    8 +++++---", rv.data)
+
+        # test non quilt package
+        rv = self.app.get('/patches/summary/cvsnt/2.5.03.2382-3/')
+        self.assertIn("The format of the patches in the package", rv.data)
+
+    def test_view_patch(self):
+        rv = self.app.get('/patches/patch/beignet/1.0.0-1/'
+                          'Enable-test-debug.patch/')
+        self.assertIn('<code id="sourcecode" class="diff">', rv.data)
+        # highlight inside?
+        self.assertIn('hljs.highlightBlock', rv.data)
+        self.assertIn('highlight/highlight.min.js"></script>', rv.data)
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)

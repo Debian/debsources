@@ -17,5 +17,43 @@
 {% block content %}
 <h2>{{ self.title() }} / {{ version }}</h2>
 
-Summary for {{ package }} / {{ version }}
+<h3>Metadata</h3>
+<table>
+ <tr class="head">
+    <th>Package</th>
+    <th>Version</th>
+    <th>Patches format</th>
+  </tr>
+  <tr>
+    <td>{{ package }}</td>
+    <td>{{ version }}</td>
+    <td>{{ format }}</td>
+  </tr>
+</table>
+
+{% if format.rstrip() != '3.0 (quilt)' %}
+  <p>The format of the patches in the package is not yet supported! </p>
+{% else %}
+  {% if patches == 0 %}
+    <p>This package has no patches.</p>
+  {% else %}
+    <h3>Patch series</h3>
+      <table>
+       <tr class="head">
+          <th>Patch</th>
+          <th>File delta</th>
+          <th>View</th>
+          <th>Download</th>
+        </tr>
+        {% for patch in series %}
+        <tr>
+          <td>{{ patch.replace('.patch', '').replace('-', ' ') }}</td>
+          <td><pre>{{ patches_info[patch]['summary']}}</pre></td>
+          <td><a href="{{ url_for('.patch', path_to=path + '/' +patch.rstrip())}}">View</a></td>
+          <td><a href="{{ patches_info[patch]['download'] }}">download</a></td>
+        </tr>
+        {% endfor %}
+      </table>
+  {% endif %}
+{% endif %}
 {% endblock %}
