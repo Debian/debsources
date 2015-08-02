@@ -160,7 +160,7 @@ class PatchView(GeneralView):
         path_dict = path_to.split('/')
         package = path_dict[0]
         version = path_dict[1]
-        patch = '/'.join(path_dict[2])
+        patch = '/'.join(path_dict[2:])
         try:
             serie_path, loc = get_sources_path(session, package, version,
                                                current_app.config,
