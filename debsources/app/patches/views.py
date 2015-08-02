@@ -69,17 +69,16 @@ class SummaryView(GeneralView):
         package = path_dict[0]
         version = path_dict[1]
 
-        path = '/'.join(path_dict[0:])
+        if len(path_dict) > 2:
+            raise Http404ErrorSuggestions(package, version, '')
 
         if version == "latest":  # we search the latest available version
             return self._handle_latest_version(request.endpoint,
-                                               package, path)
+                                               package, "")
 
-        versions = self.handle_versions(version, package, path)
+        versions = self.handle_versions(version, package, "")
         if versions:
             redirect_url_parts = [package, versions[-1]]
-            if path:
-                redirect_url_parts.append(path)
             redirect_url = '/'.join(redirect_url_parts)
             return self._redirect_to_url(request.endpoint,
                                          redirect_url, redirect_code=302)
@@ -92,14 +91,14 @@ class SummaryView(GeneralView):
         except (FileOrFolderNotFound, InvalidPackageOrVersionError):
             return dict(package=package,
                         version=version,
-                        path=path,
+                        path=path_to,
                         format='unknown')
 
         format_file = open(source_format).read()
         if '3.0 (quilt)' not in format_file:
             return dict(package=package,
                         version=version,
-                        path=path,
+                        path=path_to,
                         format=format_file)
 
         # are there any patches for the package?
@@ -110,7 +109,7 @@ class SummaryView(GeneralView):
         except (FileOrFolderNotFound, InvalidPackageOrVersionError):
             return dict(package=package,
                         version=version,
-                        path=path,
+                        path=path_to,
                         format=format_file,
                         patches=0)
         with io.open(series, mode='r', encoding='utf-8') as f:
@@ -120,7 +119,7 @@ class SummaryView(GeneralView):
                                        current_app.config, series)
         return dict(package=package,
                     version=version,
-                    path=path,
+                    path=path_to,
                     format='3.0 (quilt)',
                     patches=len(series),
                     series=series,
