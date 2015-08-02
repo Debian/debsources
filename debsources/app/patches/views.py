@@ -25,10 +25,23 @@ from ..sourcecode import SourceCodeIterator
 
 class SummaryView(GeneralView):
 
+    def _parse_file_deltas(self, summary, package, version):
+        """ Parse a file deltas summary to create links to Debsources
+
+        """
+        file_deltas = []
+        for line in summary.splitlines()[0:-1]:
+            filepath, deltas = line.split(' | ')
+            file_deltas.append(dict(filepath=filepath.replace(' ', ''),
+                                    deltas=deltas))
+        deltas_summary = '\n' + summary.splitlines()[-1]
+        return file_deltas, deltas_summary
+
     def parse_patch_series(self, session, package, version, config, series):
         """ Parse a list of patches available in `series` and create a dict
             with important information such as description if it exists, file
             changes.
+
         """
         patches_info = dict()
         for serie in series:
@@ -41,7 +54,11 @@ class SummaryView(GeneralView):
                 p = subprocess.Popen(["diffstat", "-p1", serie_path],
                                      stdout=subprocess.PIPE)
                 summary, err = p.communicate()
-                patches_info[serie] = dict(summary=summary,
+                file_deltas, deltas_summary = self._parse_file_deltas(summary,
+                                                                      package,
+                                                                      version)
+                patches_info[serie] = dict(deltas=file_deltas,
+                                           summary=deltas_summary,
                                            download=loc.get_raw_url())
             except (FileOrFolderNotFound, InvalidPackageOrVersionError):
                 patches_info[serie] = dict(summary='Patch does not exist')
