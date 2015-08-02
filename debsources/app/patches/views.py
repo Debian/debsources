@@ -155,8 +155,6 @@ class PatchView(GeneralView):
         version = path_dict[1]
         patch = path_dict[2]
 
-        path = '/'.join(path_dict[0:-1])
-
         try:
             serie_path, loc = get_sources_path(session, package, version,
                                                current_app.config,
@@ -169,7 +167,7 @@ class PatchView(GeneralView):
 
         return dict(package=package,
                     version=version,
-                    path=path,
+                    path=path_to,
                     nlines=sourcefile.get_number_of_lines(),
-                    file_language=sourcefile.get_file_language(),
+                    file_language='diff',
                     code=sourcefile)
