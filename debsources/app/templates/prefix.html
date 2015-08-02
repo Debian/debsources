@@ -9,7 +9,7 @@
 
 {% block title %}Package list: prefix {{ prefix }}{% endblock %}
 
-{% block breadcrumbs %}packages by prefix / {{ prefix }}{% endblock %}
+{% block breadcrumbs %}<a href="{{ url_for('.index') }}">{{ request.blueprint }}</a> / packages by prefix / {{ prefix }}{% endblock %}
 
 {% block content %}
 

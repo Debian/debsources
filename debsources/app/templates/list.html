@@ -10,7 +10,7 @@
 
 {% block title %}Package list: page {{ page }}{% endblock %}
 
-{% block breadcrumbs %}packages list / {{ page }}{% endblock %}
+{% block breadcrumbs %}<a href="{{ url_for('.index') }}">{{ request.blueprint }}</a> / packages list / {{ page }}{% endblock %}
 
 {% block content %}
 

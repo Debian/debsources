@@ -10,8 +10,7 @@
 {% block head %}
 {{ super() }} 
 {% endblock %}
-{% block breadcrumbs %} Patches / <a href="{{ url_for('.versions', packagename=package) }}">{{ package }}</a> 
-            /{{ version }}
+{% block breadcrumbs %} <a href='{{ url_for(".index") }}'>Patches</a> / <a href="{{ url_for('.versions', packagename=package) }}">{{ package }}</a> /{{ version }}
 {% endblock %}
 {% block title %}Package: {{ package }}{% endblock %}
 {% block content %}
