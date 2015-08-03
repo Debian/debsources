@@ -23,6 +23,10 @@ from debsources.excepts import (Http404ErrorSuggestions, FileOrFolderNotFound,
 from ..sourcecode import SourceCodeIterator
 
 
+ACCEPTED_FORMATS = ['3.0 (quilt)',
+                    '3.0 (native)']
+
+
 class SummaryView(GeneralView):
 
     def _parse_file_deltas(self, summary, package, version):
@@ -95,11 +99,12 @@ class SummaryView(GeneralView):
                         format='unknown')
 
         format_file = open(source_format).read()
-        if '3.0 (quilt)' not in format_file:
+        if format_file.rstrip() not in ACCEPTED_FORMATS:
             return dict(package=package,
                         version=version,
                         path=path_to,
-                        format=format_file)
+                        format=format_file,
+                        supported=False)
 
         # are there any patches for the package?
         try:
@@ -111,7 +116,8 @@ class SummaryView(GeneralView):
                         version=version,
                         path=path_to,
                         format=format_file,
-                        patches=0)
+                        patches=0,
+                        supported=True)
         with io.open(series, mode='r', encoding='utf-8') as f:
             series = f.readlines()
 
@@ -120,10 +126,11 @@ class SummaryView(GeneralView):
         return dict(package=package,
                     version=version,
                     path=path_to,
-                    format='3.0 (quilt)',
+                    format=format_file,
                     patches=len(series),
                     series=series,
-                    patches_info=info)
+                    patches_info=info,
+                    supported=True)
 
 
 def get_sources_path(session, package, version, config, path):
@@ -152,8 +159,7 @@ class PatchView(GeneralView):
         path_dict = path_to.split('/')
         package = path_dict[0]
         version = path_dict[1]
-        patch = path_dict[2]
-
+        patch = '/'.join(path_dict[2])
         try:
             serie_path, loc = get_sources_path(session, package, version,
                                                current_app.config,

@@ -30,7 +30,7 @@
   </tr>
 </table>
 
-{% if format.rstrip() != '3.0 (quilt)' %}
+{% if supported != true %}
   <p>The format of the patches in the package is not yet supported! </p>
 {% else %}
   {% if patches == 0 %}
