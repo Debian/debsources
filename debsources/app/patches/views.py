@@ -87,12 +87,13 @@ class SummaryView(GeneralView):
         patches_info = dict()
         for serie in series:
             if not serie.startswith('#'):
+                patch = serie.rstrip().split(' ')[0]
                 try:
                     serie_path, loc = get_sources_path(session, package,
                                                        version,
                                                        current_app.config,
                                                        'debian/patches/'
-                                                       + serie.rstrip())
+                                                       + patch)
                     p = subprocess.Popen(["diffstat", "-p1", serie_path],
                                          stdout=subprocess.PIPE)
                     summary, err = p.communicate()
