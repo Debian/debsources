@@ -62,7 +62,7 @@ class SummaryView(GeneralView):
             # used to extract multiline descriptions
             fields = ['origin:', 'forwarded:', 'author:', 'from:',
                       'reviewed-by:', 'acked-by:', 'last-update:',
-                      'applied-upstream:', 'index:', 'diff']
+                      'applied-upstream:', 'index:', 'diff', 'change-id']
             for line in contents.split('\n'):
                 if 'description:' in line.lower() or \
                    'subject:' in line.lower():
@@ -86,26 +86,29 @@ class SummaryView(GeneralView):
         """
         patches_info = dict()
         for serie in series:
-            try:
-                serie_path, loc = get_sources_path(session, package,
-                                                   version,
-                                                   current_app.config,
-                                                   'debian/patches/'
-                                                   + serie.rstrip())
-                p = subprocess.Popen(["diffstat", "-p1", serie_path],
-                                     stdout=subprocess.PIPE)
-                summary, err = p.communicate()
-                file_deltas, deltas_summary = self._parse_file_deltas(summary,
-                                                                      package,
-                                                                      version)
-                description, bug = self._get_patch_details(serie_path)
-                patches_info[serie] = dict(deltas=file_deltas,
-                                           summary=deltas_summary,
-                                           download=loc.get_raw_url(),
-                                           description=description,
-                                           bug=bug)
-            except (FileOrFolderNotFound, InvalidPackageOrVersionError):
-                patches_info[serie] = dict(summary='Patch does not exist')
+            if not serie.startswith('#'):
+                try:
+                    serie_path, loc = get_sources_path(session, package,
+                                                       version,
+                                                       current_app.config,
+                                                       'debian/patches/'
+                                                       + serie.rstrip())
+                    p = subprocess.Popen(["diffstat", "-p1", serie_path],
+                                         stdout=subprocess.PIPE)
+                    summary, err = p.communicate()
+                    deltas, deltas_summary = self._parse_file_deltas(summary,
+                                                                     package,
+                                                                     version)
+                    description, bug = self._get_patch_details(serie_path)
+                    patches_info[serie] = dict(deltas=deltas,
+                                               summary=deltas_summary,
+                                               download=loc.get_raw_url(),
+                                               description=description,
+                                               bug=bug)
+                except (FileOrFolderNotFound, InvalidPackageOrVersionError):
+                    patches_info[serie] = dict(summary='Patch does not exist',
+                                               description='---',
+                                               bug='')
         return patches_info
 
     def get_objects(self, path_to):
@@ -168,7 +171,7 @@ class SummaryView(GeneralView):
                     version=version,
                     path=path_to,
                     format=format_file,
-                    patches=len(series),
+                    patches=len(info.keys()),
                     series=series,
                     patches_info=info,
                     supported=True)
