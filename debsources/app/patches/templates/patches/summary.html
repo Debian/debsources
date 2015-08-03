@@ -41,6 +41,7 @@
        <tr class="head">
           <th>Patch</th>
           <th>File delta</th>
+          <th>Description</th>
           <th>View</th>
           <th>Download</th>
         </tr>
@@ -50,6 +51,7 @@
           <td><p>{%- for line in patches_info[patch]['deltas'] %}
             <a href="{{ url_for('sources.source', path_to=path + '/' + line['filepath'])}}">{{ line['filepath'] }}</a> | {{ line['deltas'] }}<br />
           {%- endfor %} {{ patches_info[patch]['summary'] }}</p></td>
+          <td><pre>{{ patches_info[patch]['description'] }}</pre></td>
           <td><a href="{{ url_for('.patch', path_to=path + '/' +patch.rstrip())}}">View</a></td>
           <td><a href="{{ patches_info[patch]['download'] }}">download</a></td>
         </tr>
