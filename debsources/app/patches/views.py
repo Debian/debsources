@@ -42,40 +42,41 @@ class SummaryView(GeneralView):
         deltas_summary = '\n' + summary.splitlines()[-1]
         return file_deltas, deltas_summary
 
-    def _get_patch_description(self, path):
-        """ Parse a patch to extract the description if it exists
+    def _get_patch_details(self, path):
+        """ Parse a patch to extract the description and or bug if it exists
         """
         with open(path, 'r') as content_file:
             patch = content_file.read()
         # check if subject exists
         keywords = ['description:', 'subject:']
         if not any(key in patch.lower() for key in keywords):
-            return '---'
+            return ('---', '')
         else:
             # split by --- or +++ (file deltas) and then parse as a tag/value
-            # document to extract Description or subject if any
+            # document to extract description or subject or bug
             contents = re.split(r'---|\+\+\+', patch)[0]
-            dsc = ""
+            dsc = "---"
+            bug = ""
             in_description = False
             # possible fields besides description and subject
             # used to extract multiline descriptions
-            fields = ['origin:', 'bug:', 'forwarded:', 'author:', 'from:',
-                      'reviewed-by:', 'acked-by', 'last-update',
-                      'applied-upstream']
+            fields = ['origin:', 'forwarded:', 'author:', 'from:',
+                      'reviewed-by:', 'acked-by:', 'last-update:',
+                      'applied-upstream:', 'index:', 'diff']
             for line in contents.split('\n'):
                 if 'description:' in line.lower() or \
                    'subject:' in line.lower():
                     dsc = re.split(r'description:|subject:', line.lower())[1] \
                         + '\n'
                     in_description = True
+                elif 'bug: #' in line.lower():
+                    bug = line.lower().split('bug: #')[1]
+                    in_description = False
                 elif any(key in line.lower() for key in fields):
                     in_description = False
                 elif in_description:
                     dsc += line + '\n'
-            if dsc != "":
-                return dsc
-            else:
-                return '---'
+            return (dsc, bug)
 
     def parse_patch_series(self, session, package, version, config, series):
         """ Parse a list of patches available in `series` and create a dict
@@ -97,11 +98,12 @@ class SummaryView(GeneralView):
                 file_deltas, deltas_summary = self._parse_file_deltas(summary,
                                                                       package,
                                                                       version)
-                description = self._get_patch_description(serie_path)
+                description, bug = self._get_patch_details(serie_path)
                 patches_info[serie] = dict(deltas=file_deltas,
                                            summary=deltas_summary,
                                            download=loc.get_raw_url(),
-                                           description=description)
+                                           description=description,
+                                           bug=bug)
             except (FileOrFolderNotFound, InvalidPackageOrVersionError):
                 patches_info[serie] = dict(summary='Patch does not exist')
         return patches_info
