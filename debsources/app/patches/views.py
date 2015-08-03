@@ -98,7 +98,8 @@ class SummaryView(GeneralView):
                         path=path_to,
                         format='unknown')
 
-        format_file = open(source_format).read()
+        with io.open(source_format, mode='r', encoding='utf-8') as f:
+            format_file = f.read()
         if format_file.rstrip() not in ACCEPTED_FORMATS:
             return dict(package=package,
                         version=version,
