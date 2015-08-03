@@ -93,6 +93,19 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertIn('<a href="/src/beignet/1.0.0-1/src/cl_utils.h/">',
                       rv.data)
 
+    def test_summary_404(self):
+        rv = self.app.get("/patches/summary/gnubg/1.02.000-2/foo",
+                          follow_redirects=True)
+        self.assertIn('other versions of this package are available', rv.data)
+        link = '<a href="/patches/summary/gnubg/0.90+20091206-4/">'
+        self.assertIn(link, rv.data)
+
+    def test_3_native_format(self):
+        rv = self.app.get("/patches/summary/nvidia-support/20131102+1/")
+        self.assertIn('<td>3.0 (native)</td>', rv.data)
+        self.assertIn('<p>This package has no patches.</p>', rv.data)
+        self.assertNotIn('The format of the patches in the package', rv.data)
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)
