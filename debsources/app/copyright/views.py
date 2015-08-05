@@ -34,6 +34,10 @@ class LicenseView(GeneralView):
 
         package = path_dict[0]
         version = path_dict[1]
+
+        if len(path_dict) > 2:
+            raise Http404ErrorSuggestions(package, version, '')
+
         path = '/'.join(path_dict[2:])
 
         if version == "latest":  # we search the latest available version

@@ -8,7 +8,7 @@
 
 {% extends "sources/base.html" %}
 
-{% block breadcrumbs %}source / {% for (p, link) in pathl[:-1]
+{% block breadcrumbs %}<a href="{{ url_for('.index') }}">{{ request.blueprint }}</a> / {% for (p, link) in pathl[:-1]
     %}<a href="{{ link }}">{{ p }}</a> / {%
   endfor %}{{ pathl[-1][0] }}{% endblock %}
 

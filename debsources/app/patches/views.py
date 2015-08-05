@@ -23,12 +23,29 @@ from debsources.excepts import (Http404ErrorSuggestions, FileOrFolderNotFound,
 from ..sourcecode import SourceCodeIterator
 
 
+ACCEPTED_FORMATS = ['3.0 (quilt)',
+                    '3.0 (native)']
+
+
 class SummaryView(GeneralView):
+
+    def _parse_file_deltas(self, summary, package, version):
+        """ Parse a file deltas summary to create links to Debsources
+
+        """
+        file_deltas = []
+        for line in summary.splitlines()[0:-1]:
+            filepath, deltas = line.split(' | ')
+            file_deltas.append(dict(filepath=filepath.replace(' ', ''),
+                                    deltas=deltas))
+        deltas_summary = '\n' + summary.splitlines()[-1]
+        return file_deltas, deltas_summary
 
     def parse_patch_series(self, session, package, version, config, series):
         """ Parse a list of patches available in `series` and create a dict
             with important information such as description if it exists, file
             changes.
+
         """
         patches_info = dict()
         for serie in series:
@@ -41,7 +58,11 @@ class SummaryView(GeneralView):
                 p = subprocess.Popen(["diffstat", "-p1", serie_path],
                                      stdout=subprocess.PIPE)
                 summary, err = p.communicate()
-                patches_info[serie] = dict(summary=summary,
+                file_deltas, deltas_summary = self._parse_file_deltas(summary,
+                                                                      package,
+                                                                      version)
+                patches_info[serie] = dict(deltas=file_deltas,
+                                           summary=deltas_summary,
                                            download=loc.get_raw_url())
             except (FileOrFolderNotFound, InvalidPackageOrVersionError):
                 patches_info[serie] = dict(summary='Patch does not exist')
@@ -52,17 +73,16 @@ class SummaryView(GeneralView):
         package = path_dict[0]
         version = path_dict[1]
 
-        path = '/'.join(path_dict[0:])
+        if len(path_dict) > 2:
+            raise Http404ErrorSuggestions(package, version, '')
 
         if version == "latest":  # we search the latest available version
             return self._handle_latest_version(request.endpoint,
-                                               package, path)
+                                               package, "")
 
-        versions = self.handle_versions(version, package, path)
+        versions = self.handle_versions(version, package, "")
         if versions:
             redirect_url_parts = [package, versions[-1]]
-            if path:
-                redirect_url_parts.append(path)
             redirect_url = '/'.join(redirect_url_parts)
             return self._redirect_to_url(request.endpoint,
                                          redirect_url, redirect_code=302)
@@ -75,15 +95,17 @@ class SummaryView(GeneralView):
         except (FileOrFolderNotFound, InvalidPackageOrVersionError):
             return dict(package=package,
                         version=version,
-                        path=path,
+                        path=path_to,
                         format='unknown')
 
-        format_file = open(source_format).read()
-        if '3.0 (quilt)' not in format_file:
+        with io.open(source_format, mode='r', encoding='utf-8') as f:
+            format_file = f.read()
+        if format_file.rstrip() not in ACCEPTED_FORMATS:
             return dict(package=package,
                         version=version,
-                        path=path,
-                        format=format_file)
+                        path=path_to,
+                        format=format_file,
+                        supported=False)
 
         # are there any patches for the package?
         try:
@@ -93,9 +115,10 @@ class SummaryView(GeneralView):
         except (FileOrFolderNotFound, InvalidPackageOrVersionError):
             return dict(package=package,
                         version=version,
-                        path=path,
+                        path=path_to,
                         format=format_file,
-                        patches=0)
+                        patches=0,
+                        supported=True)
         with io.open(series, mode='r', encoding='utf-8') as f:
             series = f.readlines()
 
@@ -103,11 +126,12 @@ class SummaryView(GeneralView):
                                        current_app.config, series)
         return dict(package=package,
                     version=version,
-                    path=path,
-                    format='3.0 (quilt)',
+                    path=path_to,
+                    format=format_file,
                     patches=len(series),
                     series=series,
-                    patches_info=info)
+                    patches_info=info,
+                    supported=True)
 
 
 def get_sources_path(session, package, version, config, path):
@@ -136,10 +160,7 @@ class PatchView(GeneralView):
         path_dict = path_to.split('/')
         package = path_dict[0]
         version = path_dict[1]
-        patch = path_dict[2]
-
-        path = '/'.join(path_dict[0:-1])
-
+        patch = '/'.join(path_dict[2:])
         try:
             serie_path, loc = get_sources_path(session, package, version,
                                                current_app.config,
@@ -152,7 +173,7 @@ class PatchView(GeneralView):
 
         return dict(package=package,
                     version=version,
-                    path=path,
+                    path=path_to,
                     nlines=sourcefile.get_number_of_lines(),
-                    file_language=sourcefile.get_file_language(),
+                    file_language='diff',
                     code=sourcefile)
