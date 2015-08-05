@@ -217,7 +217,6 @@ class PatchView(GeneralView):
 
         return dict(package=package,
                     version=version,
-                    path=path_to,
                     nlines=sourcefile.get_number_of_lines(),
                     file_language='diff',
                     code=sourcefile)
