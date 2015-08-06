@@ -11,6 +11,7 @@
 
 from __future__ import absolute_import
 
+import re
 import io
 import subprocess
 
@@ -41,6 +42,42 @@ class SummaryView(GeneralView):
         deltas_summary = '\n' + summary.splitlines()[-1]
         return file_deltas, deltas_summary
 
+    def _get_patch_details(self, path):
+        """ Parse a patch to extract the description and or bug if it exists
+        """
+        with open(path, 'r') as content_file:
+            patch = content_file.read()
+        # check if subject exists
+        keywords = ['description:', 'subject:']
+        if not any(key in patch.lower() for key in keywords):
+            return ('---', '')
+        else:
+            # split by --- or +++ (file deltas) and then parse as a tag/value
+            # document to extract description or subject or bug
+            contents = re.split(r'---|\+\+\+', patch)[0]
+            dsc = "---"
+            bug = ""
+            in_description = False
+            # possible fields besides description and subject
+            # used to extract multiline descriptions
+            fields = ['origin:', 'forwarded:', 'author:', 'from:',
+                      'reviewed-by:', 'acked-by:', 'last-update:',
+                      'applied-upstream:', 'index:', 'diff', 'change-id']
+            for line in contents.split('\n'):
+                if 'description:' in line.lower() or \
+                   'subject:' in line.lower():
+                    dsc = re.split(r'description:|subject:', line.lower())[1] \
+                        + '\n'
+                    in_description = True
+                elif 'bug: #' in line.lower():
+                    bug = line.lower().split('bug: #')[1]
+                    in_description = False
+                elif any(key in line.lower() for key in fields):
+                    in_description = False
+                elif in_description:
+                    dsc += line + '\n'
+            return (dsc, bug)
+
     def parse_patch_series(self, session, package, version, config, series):
         """ Parse a list of patches available in `series` and create a dict
             with important information such as description if it exists, file
@@ -49,23 +86,30 @@ class SummaryView(GeneralView):
         """
         patches_info = dict()
         for serie in series:
-            try:
-                serie_path, loc = get_sources_path(session, package,
-                                                   version,
-                                                   current_app.config,
-                                                   'debian/patches/'
-                                                   + serie.rstrip())
-                p = subprocess.Popen(["diffstat", "-p1", serie_path],
-                                     stdout=subprocess.PIPE)
-                summary, err = p.communicate()
-                file_deltas, deltas_summary = self._parse_file_deltas(summary,
-                                                                      package,
-                                                                      version)
-                patches_info[serie] = dict(deltas=file_deltas,
-                                           summary=deltas_summary,
-                                           download=loc.get_raw_url())
-            except (FileOrFolderNotFound, InvalidPackageOrVersionError):
-                patches_info[serie] = dict(summary='Patch does not exist')
+            if not serie.startswith('#'):
+                patch = serie.rstrip().split(' ')[0]
+                try:
+                    serie_path, loc = get_sources_path(session, package,
+                                                       version,
+                                                       current_app.config,
+                                                       'debian/patches/'
+                                                       + patch)
+                    p = subprocess.Popen(["diffstat", "-p1", serie_path],
+                                         stdout=subprocess.PIPE)
+                    summary, err = p.communicate()
+                    deltas, deltas_summary = self._parse_file_deltas(summary,
+                                                                     package,
+                                                                     version)
+                    description, bug = self._get_patch_details(serie_path)
+                    patches_info[serie] = dict(deltas=deltas,
+                                               summary=deltas_summary,
+                                               download=loc.get_raw_url(),
+                                               description=description,
+                                               bug=bug)
+                except (FileOrFolderNotFound, InvalidPackageOrVersionError):
+                    patches_info[serie] = dict(summary='Patch does not exist',
+                                               description='---',
+                                               bug='')
         return patches_info
 
     def get_objects(self, path_to):
@@ -128,7 +172,7 @@ class SummaryView(GeneralView):
                     version=version,
                     path=path_to,
                     format=format_file,
-                    patches=len(series),
+                    patches=len(info.keys()),
                     series=series,
                     patches_info=info,
                     supported=True)
@@ -173,7 +217,6 @@ class PatchView(GeneralView):
 
         return dict(package=package,
                     version=version,
-                    path=path_to,
                     nlines=sourcefile.get_number_of_lines(),
                     file_language='diff',
                     code=sourcefile)

@@ -10,7 +10,7 @@
 
 {% block title %}Filename: {{ path }}{% endblock %}
 
-{% block breadcrumbs %}<a href='{{ url_for(".index") }}'>Copyright</a> / File name / {{ path }}{% endblock %}
+{% block breadcrumbs %}<a href='{{ url_for(".index") }}'>Copyright</a> / <a href="{{ url_for('.versions', packagename=package )}}"> {{ package }}</a> / <a href="{{ url_for('.license', path_to=package + '/' + version)}}">{{ version }}</a> / {{ path.replace('/', ' / ') }}{% endblock %}
 
 {% block content %}
 {% import "copyright/macros.html" as macro %}

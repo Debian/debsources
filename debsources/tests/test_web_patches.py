@@ -106,6 +106,28 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertIn('<p>This package has no patches.</p>', rv.data)
         self.assertNotIn('The format of the patches in the package', rv.data)
 
+    def test_bts_link(self):
+        rv = self.app.get('/patches/summary/ledit/2.03-2/')
+        self.assertIn('<a href="https://bugs.debian.org/672479">#672479</a>',
+                      rv.data)
+        # test no bug
+        rv = self.app.get('/patches/patch/gnubg/1.02.000-2/')
+        self.assertNotIn('Bug: ', rv.data)
+
+    def test_extract_description(self):
+        rv = self.app.get('/patches/summary/gnubg/1.02.000-2/')
+        self.assertIn('collected debian patches for gnubg', rv.data)
+        # test long dsc
+        rv = self.app.get('/patches/summary/beignet/1.0.0-1/')
+        long_dsc = 'Turn on udebug so tests print their full output, and mark' \
+                   ' failures\nby &#34;failed:&#34; instead of invisible-in-' \
+                   'logs colour.'
+        self.assertIn(long_dsc, rv.data)
+        # test no description header
+        rv = self.app.get('/patches/summary/unrar-nonfree/1:5.0.10-1/')
+        self.assertIn('fix buildflags', rv.data)
+        self.assertIn('---', rv.data)
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)
