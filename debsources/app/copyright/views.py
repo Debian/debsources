@@ -18,7 +18,8 @@ from debian.debian_support import version_compare
 
 import debsources.query as qry
 from debsources.excepts import (Http404ErrorSuggestions, FileOrFolderNotFound,
-                                InvalidPackageOrVersionError)
+                                InvalidPackageOrVersionError,
+                                Http404MissingCopyright)
 
 from ..views import GeneralView, ChecksumView, session
 from ..sourcecode import SourceCodeIterator
@@ -58,8 +59,7 @@ class LicenseView(GeneralView):
                                                    current_app.config)
         except (FileOrFolderNotFound, InvalidPackageOrVersionError) as e:
             if isinstance(e, FileOrFolderNotFound):
-                raise Http404ErrorSuggestions(package, version,
-                                              'debian/copyright')
+                raise Http404MissingCopyright(package, version, '')
             else:
                 raise Http404ErrorSuggestions(package, version, '')
 

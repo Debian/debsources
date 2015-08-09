@@ -24,7 +24,7 @@ from flask.views import View
 
 from debsources.excepts import (
     Http500Error, Http404Error, Http404ErrorSuggestions, Http403Error,
-    InvalidPackageOrVersionError)
+    InvalidPackageOrVersionError, Http404MissingCopyright)
 from debsources.models import Package, SuiteAlias
 import debsources.query as qry
 from debsources.sqla_session import _close_session
@@ -113,7 +113,8 @@ class ErrorHandler(object):
         if self.mode == 'json':
             return jsonify(dict(error=404))
         else:
-            if isinstance(error, Http404ErrorSuggestions):
+            if isinstance(error, Http404ErrorSuggestions) or \
+               isinstance(error, Http404MissingCopyright):
                 # let's suggest all the possible locations with a different
                 # package version
                 possible_versions = qry.pkg_names_list_versions(
@@ -122,8 +123,12 @@ class ErrorHandler(object):
                     [_f for _f in [error.package, v.version, error.path]
                      if _f])
                     for v in possible_versions]
-                return render_template('404_suggestions.html',
-                                       suggestions=suggestions), 404
+                if isinstance(error, Http404ErrorSuggestions):
+                    return render_template('404_suggestions.html',
+                                           suggestions=suggestions), 404
+                else:
+                    return render_template('copyright/404_missing.html',
+                                           suggestions=suggestions), 404
             else:
                 return render_template('404.html'), 404
 
