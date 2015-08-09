@@ -173,7 +173,7 @@ class SummaryView(GeneralView):
                     path=path_to,
                     format=format_file,
                     patches=len(info.keys()),
-                    series=series,
+                    series=info.keys(),
                     patches_info=info,
                     supported=True)
 
