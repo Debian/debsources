@@ -33,7 +33,7 @@
 {% if supported != true %}
   <p>The format of the patches in the package is not yet supported! </p>
 {% else %}
-  {% if patches == 0 %}
+  {% if patches|length == 0 %}
     <p>This package has no patches.</p>
   {% else %}
     <h3>Patch series</h3>
@@ -48,16 +48,16 @@
         {% for patch in series %}
         <tr>
           <td>{{ patch.replace('.patch', '').replace('-', ' ') }}</td>
-          <td><p>{%- for line in patches_info[patch]['deltas'] %}
+          <td><p>{%- for line in patches[patch]['deltas'] %}
             <a href="{{ url_for('sources.source', path_to=path + '/' + line['filepath'])}}">{{ line['filepath'] }}</a> | {{ line['deltas'] }}<br />
-          {%- endfor %} {{ patches_info[patch]['summary'] }}</p></td>
-          <td><pre>{{ patches_info[patch]['description'] }}</pre>
-          {%- if patches_info[patch]['bug'] != "" %}
-          <p>Bug: <a href="https://bugs.debian.org/{{patches_info[patch]['bug']}}">#{{patches_info[patch]['bug']}}</a></p>   
+          {%- endfor %} {{ patches[patch]['summary'] }}</p></td>
+          <td><pre>{{ patches[patch]['description'] }}</pre>
+          {%- if patches[patch]['bug'] != "" %}
+          <p>Bug: <a href="https://bugs.debian.org/{{patches[patch]['bug']}}">#{{patches[patch]['bug']}}</a></p>   
           {%- endif %}
           </td>
           <td><a href="{{ url_for('.patch', path_to=path + '/' +patch.rstrip().split(' ')[0])}}">View</a></td>
-          <td><a href="{{ patches_info[patch]['download'] }}">download</a></td>
+          <td><a href="{{ patches[patch]['download'] }}">download</a></td>
         </tr>
         {% endfor %}
       </table>

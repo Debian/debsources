@@ -115,6 +115,14 @@ bp_patches.add_url_rule(
         render_func=bind_render('patches/summary.html'),
         err_func=ErrorHandler('patches')))
 
+# api
+bp_patches.add_url_rule(
+    '/api/summary/<path:path_to>/',
+    view_func=SummaryView.as_view(
+        'api_summary',
+        render_func=jsonify,
+        err_func=ErrorHandler(mode='json')))
+
 # SEARCHVIEW
 bp_patches.add_url_rule(
     '/search/',
@@ -151,3 +159,11 @@ bp_patches.add_url_rule(
         'patch',
         render_func=bind_render('patches/patch.html'),
         err_func=ErrorHandler('patches')))
+
+# api
+bp_patches.add_url_rule(
+    '/api/patch/<path:path_to>/',
+    view_func=PatchView.as_view(
+        'api_patch',
+        render_func=jsonify,
+        err_func=ErrorHandler(mode='json')))

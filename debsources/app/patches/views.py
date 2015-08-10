@@ -140,6 +140,7 @@ class SummaryView(GeneralView):
             return dict(package=package,
                         version=version,
                         path=path_to,
+                        patches=[],
                         format='unknown')
 
         with io.open(source_format, mode='r', encoding='utf-8') as f:
@@ -149,6 +150,7 @@ class SummaryView(GeneralView):
                         version=version,
                         path=path_to,
                         format=format_file,
+                        patches=[],
                         supported=False)
 
         # are there any patches for the package?
@@ -161,20 +163,26 @@ class SummaryView(GeneralView):
                         version=version,
                         path=path_to,
                         format=format_file,
-                        patches=0,
+                        patches=[],
                         supported=True)
         with io.open(series, mode='r', encoding='utf-8') as f:
             series = f.readlines()
 
         info = self.parse_patch_series(session, package, version,
                                        current_app.config, series)
+        if 'api' in request.endpoint:
+            return dict(package=package,
+                        version=version,
+                        format=format_file.rstrip(),
+                        patches=[dict(name=key.rstrip(),
+                                      url=info[key]['download'])
+                                 for key in info.keys()])
         return dict(package=package,
                     version=version,
                     path=path_to,
                     format=format_file,
-                    patches=len(info.keys()),
                     series=info.keys(),
-                    patches_info=info,
+                    patches=info,
                     supported=True)
 
 
