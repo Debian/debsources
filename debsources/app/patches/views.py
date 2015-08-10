@@ -11,9 +11,7 @@
 
 from __future__ import absolute_import
 
-import re
 import io
-import subprocess
 
 from flask import request, current_app
 
@@ -22,6 +20,7 @@ from debsources.navigation import Location, SourceFile
 from debsources.excepts import (Http404ErrorSuggestions, FileOrFolderNotFound,
                                 InvalidPackageOrVersionError)
 from ..sourcecode import SourceCodeIterator
+from . import patches_helper as helper
 
 
 ACCEPTED_FORMATS = ['3.0 (quilt)',
@@ -42,42 +41,6 @@ class SummaryView(GeneralView):
         deltas_summary = '\n' + summary.splitlines()[-1]
         return file_deltas, deltas_summary
 
-    def _get_patch_details(self, path):
-        """ Parse a patch to extract the description and or bug if it exists
-        """
-        with open(path, 'r') as content_file:
-            patch = content_file.read()
-        # check if subject exists
-        keywords = ['description:', 'subject:']
-        if not any(key in patch.lower() for key in keywords):
-            return ('---', '')
-        else:
-            # split by --- or +++ (file deltas) and then parse as a tag/value
-            # document to extract description or subject or bug
-            contents = re.split(r'---|\+\+\+', patch)[0]
-            dsc = "---"
-            bug = ""
-            in_description = False
-            # possible fields besides description and subject
-            # used to extract multiline descriptions
-            fields = ['origin:', 'forwarded:', 'author:', 'from:',
-                      'reviewed-by:', 'acked-by:', 'last-update:',
-                      'applied-upstream:', 'index:', 'diff', 'change-id']
-            for line in contents.split('\n'):
-                if 'description:' in line.lower() or \
-                   'subject:' in line.lower():
-                    dsc = re.split(r'description:|subject:', line.lower())[1] \
-                        + '\n'
-                    in_description = True
-                elif 'bug: #' in line.lower():
-                    bug = line.lower().split('bug: #')[1]
-                    in_description = False
-                elif any(key in line.lower() for key in fields):
-                    in_description = False
-                elif in_description:
-                    dsc += line + '\n'
-            return (dsc, bug)
-
     def parse_patch_series(self, session, package, version, config, series):
         """ Parse a list of patches available in `series` and create a dict
             with important information such as description if it exists, file
@@ -94,13 +57,11 @@ class SummaryView(GeneralView):
                                                        current_app.config,
                                                        'debian/patches/'
                                                        + patch)
-                    p = subprocess.Popen(["diffstat", "-p1", serie_path],
-                                         stdout=subprocess.PIPE)
-                    summary, err = p.communicate()
+                    summary = helper.get_file_deltas(serie_path)
                     deltas, deltas_summary = self._parse_file_deltas(summary,
                                                                      package,
                                                                      version)
-                    description, bug = self._get_patch_details(serie_path)
+                    description, bug = helper.get_patch_details(serie_path)
                     patches_info[serie] = dict(deltas=deltas,
                                                summary=deltas_summary,
                                                download=loc.get_raw_url(),
@@ -236,6 +197,16 @@ class PatchView(GeneralView):
         except (FileOrFolderNotFound, InvalidPackageOrVersionError):
             raise Http404ErrorSuggestions(package, version, 'debian/patches/'
                                                             + patch.rstrip())
+        if 'api' in request.endpoint:
+            summary = helper.get_file_deltas(serie_path)
+            description, bug = helper.get_patch_details(serie_path)
+            return dict(package=package,
+                        version=version,
+                        url=loc.get_raw_url(),
+                        name=patch,
+                        description=description,
+                        bug=bug,
+                        file_deltas=summary)
         sourcefile = SourceCodeIterator(serie_path)
 
         return dict(package=package,
