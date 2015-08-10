@@ -247,13 +247,15 @@ class SpdxRenderer(object):
                    '-4F89-41D3-9A0C-0305E82C3301'},
                   {"LicenseListVersion": '2.0'},
                   {"Creator: Person": 'Debian'},
-                  {"Creator: Organization": 'DebCopyright ()'},
-                  {"Creator: Tool": 'DebCopyright'},
+                  {"Creator: Organization": 'Debsources'},
+                  {"Creator: Tool": 'Debsources'},
                   {"Created": now},
-                  {"CreatorComment": "<text> This package has been shipped in"
-                   "source and binary form. The binaries were created with"
-                   "gcc 4.5.1 and expect to link to compatible system run"
-                   "time libraries. </text>"},
+                  {"CreatorComment": "<text> This document was created by"
+                   " Debsources by parsing the respective debian/copyright"
+                   " file of the package provided by the Debian project. You"
+                   " may follow these links: http://debian.org/"
+                   " http://sources.debian.net/ to get more information about"
+                   " Debian and Debsources. </text>"},
                   {"DocumentComment": "<text>This document was created using"
                    "SPDX 2.0, version 2.3 of the SPDX License List.</text>"},
                   {"PackageName": self.license.header.upstream_name +
@@ -301,7 +303,7 @@ class SpdxRenderer(object):
                 license_concluded = par.license.synopsis
             files_info.append([{'FileName': f.path},
                                {'SPDXID': 'SPDX-FILE-REF-' + str(i)},
-                               {'FileChecksum': 'SHA1: ' + f.sha256},
+                               {'FileChecksum': 'SHA256: ' + f.sha256},
                                {'LicenseConcluded': license_concluded},
                                {'LicenseInfoInFile': 'NOASSERTION'},
                                {'LicenseComments': par.comment or None},
