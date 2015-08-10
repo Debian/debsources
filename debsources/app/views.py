@@ -232,7 +232,11 @@ class GeneralView(View):
         if path == "":
             redirect_url = '/'.join([package, version])
         else:
-            redirect_url = '/'.join([package, version, path])
+            if request.blueprint == 'patches':
+                patch = '/'.join(path.split('/')[2:])
+                redirect_url = '/'.join([package, version, patch])
+            else:
+                redirect_url = '/'.join([package, version, path])
 
         return self._redirect_to_url(endpoint, redirect_url)
 

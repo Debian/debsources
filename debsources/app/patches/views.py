@@ -213,6 +213,21 @@ class PatchView(GeneralView):
         package = path_dict[0]
         version = path_dict[1]
         patch = '/'.join(path_dict[2:])
+
+        if version == "latest":  # we search the latest available version
+            return self._handle_latest_version(request.endpoint, package,
+                                               'debian/patches/' + patch)
+
+        versions = self.handle_versions(version, package,
+                                        'debian/patches/' + patch)
+        if versions and version:
+            redirect_url_parts = [package, versions[-1]]
+            if patch:
+                redirect_url_parts.append(patch)
+            redirect_url = '/'.join(redirect_url_parts)
+            return self._redirect_to_url(request.endpoint, redirect_url,
+                                         redirect_code=302)
+
         try:
             serie_path, loc = get_sources_path(session, package, version,
                                                current_app.config,
