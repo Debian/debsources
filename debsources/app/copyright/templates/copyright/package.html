@@ -5,7 +5,7 @@
   License: GNU Affero General Public License, version 3 or above.
 #}
 {# copied from templates/source_base.html #}
-{% extends "sources/source_base.html" %}
+{% extends name+"/source_base.html" %}
 
 {% block head %}
 {{ super() }}
@@ -13,11 +13,23 @@
       href="{{ url_for('sources.static', filename='css/source_folder.css') }}" />
 {% endblock %}
 
+{% block breadcrumbs %}<a href="{{ url_for('.index') }}">{{ request.blueprint }}</a> /{% endblock %}
+
 {% block title %}Package: {{ package }}{% endblock %}
 {% block source_content %}
 <h2>{{ self.title() }}</h2>
 {{ macros.show_suite(suite) }}
 
-{{ macros.show_versions(versions, path, '.license', config['ICONS_FOLDER'])}}
+<ul id="ls">
+  {% for v in versions %}
+  <li><a href="{{ url_for('.license', packagename=package, version=v.version) }}">
+      {{ v.version }}</a>
+    ({{ v.area }})
+    {% if v.suites %}
+        [{{ ", ".join(v.suites) }}]
+    {% endif %}
 
+  </li>
+  {% endfor %}
+  </ul>
 {% endblock %}

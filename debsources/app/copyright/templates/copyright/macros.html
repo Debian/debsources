@@ -15,8 +15,8 @@
 
 {%- macro view_license(c) -%}
     {%- if c['license'] is not none %}
-      <p>According to the <a href="{{url_for('.license', path_to=(c['package']+'/'+c['version']))}}">d/copyright</a> file, <b>{{c['path']}}</b> in the package <b>{{c['package']}}</b>, version <b>{{c['version']}}</b> is licensed under <b>{{c['license']}}</b></p>
+      <p>According to the <a href="{{url_for('.license', packagename=c['package'], version=c['version'])}}">d/copyright</a> file, <b>{{c['path']}}</b> in the package <b>{{c['package']}}</b>, version <b>{{c['version']}}</b> is licensed under <b>{{c['license']}}</b></p>
     {%- else %}
-        <p>The <a href="{{url_for('.license', path_to=(c['package']+'/'+c['version']))}}">d/copyright</a> file for the file <b>{{c['path']}}</b> in the package <b>{{c['package']}}</b>, version <b>{{c['version']}}</b> is not machine readable</p>
+        <p>The <a href="{{url_for('.license', packagename=c['package'], version=c['version'])}}">d/copyright</a> file for the file <b>{{c['path']}}</b> in the package <b>{{c['package']}}</b>, version <b>{{c['version']}}</b> is not machine readable</p>
     {%- endif %}
 {%- endmacro %}
