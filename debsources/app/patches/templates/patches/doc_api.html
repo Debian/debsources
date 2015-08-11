@@ -1,0 +1,93 @@
+{#
+  Copyright (C) 2015  The Debsources developers <info@sources.debian.net>.
+  See the AUTHORS file at the top-level directory of this distribution and at
+  https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+  License: GNU Affero General Public License, version 3 or above.
+#}
+
+{% extends name+"/base.html" %}
+
+{% block head %}
+{{ super() }}
+<style>
+  .url{display: block; /*margin-left: 50px;*/}
+</style>
+{% endblock %}
+{% block title %}API documentation{% endblock %}
+
+{% block breadcrumbs %}<a href="{{ url_for('.doc') }}">doc</a> / api{% endblock %}
+
+{% block content %}
+{% set url_prefix = "//" + config.SOURCES_URL + '/patches' %}
+
+<h2>{{ self.title() }}</h2>
+
+<div class="warning">
+  This API is not stable yet and, as such, has no associated version number.
+  For the time being use this API at your own risk and keep an eye on this page
+  for changes.
+</div>
+{% if sources == true %}
+<div class="warning">
+  You can also check the documentation for the <a href="{{ url_for('sources.doc_api') }}">sources API</a>
+</div>
+{% endif %}
+{% if copyright == true %}
+<div class="warning">
+  You can also check the documentation for the <a href="{{ url_for('copyright.doc_api') }}">copyright API</a>
+</div>
+{% endif %}
+<p>You can query all information available in Debian Sources, and get a JSON
+  object which allows you to navigate packages and source files
+  programmaticaly.<br /> The JSON result will be pretty-printed, unless the
+  <tt>X-Requested-With</tt> HTTP header is set to <tt>XmlHttpRequest</tt>.</p>
+
+<p>Note: wherever a specific <em>version number</em> is required, you can use
+  the string "latest" instead to get redirected to the most recent version of
+  the package.</p>
+
+<h3>Patches</h3>
+
+<h4>Package summary</h4>
+<p>
+  You can retrieve a summary for a package:
+  <span class="url">{{ url_prefix }}/api/summary/<strong>packagename</strong>/<strong>version</strong></span>
+  The package summary contains the names of the patches and some basic information about the package
+  <br/>
+  <a href="{{ url_prefix }}/api/summary/beignet/1.0.0-1/">example</a>
+
+<h4>Patch view</h4>
+<p>
+  The URL for a patch view is:
+  <span class="url">{{ url_prefix }}/api/patch/<strong>packagename</strong>/<strong>version</strong>/<strong>path</strong></span>
+  Both package name and version are required parameters. The path is the relative path of the patch starting from the debian/patches directory.<br />
+  This query retrieves the file-deltas, the description and the bug number if they exist.
+  <a href="{{ url_prefix }}/api/patch/beignet/1.0.0-1/Debian-compliant-compiler-flags-handling.patch/">See example</a>
+</p>
+
+<h3>Package list</h3>
+
+<h4>All packages</h4>
+
+<p>
+  <span class="url">{{ url_prefix }}/api/list</span>
+  <a href="{{ url_prefix }}/api/list">example</a>
+</p>
+
+<h4>By prefix</h4>
+
+<p>
+  <span class="url">{{ url_prefix
+    }}/api/prefix/<strong>prefix</strong></span>
+  <a href="{{ url_prefix }}/api/prefix/libz">example</a>
+</p>
+
+<h3>Check the service status</h3>
+
+<p>
+  Check service status and retrieve last update timestamp:
+  <span class="url">{{ url_prefix }}/api/ping/</span>
+  <a href="{{ url_prefix }}/api/ping">example</a>
+</p>
+
+{% endblock %}

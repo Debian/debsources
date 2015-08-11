@@ -28,6 +28,10 @@
 <li><a href="{{ url_for('copyright.doc_url') }}">Copyright URL scheme</a></li>
 <li><a href="{{ url_for('copyright.doc_api') }}">Copyright API documentation</a></li>
 {% endif %}
+{% if copyright == true %}
+<li><a href="{{ url_for('patches.doc_url') }}">Patches URL scheme</a></li>
+<li><a href="{{ url_for('patches.doc_api') }}">Patches API documentation</a></li>
+{% endif %}
 
 <li><a href="{{ url_for('static', filename='db-schema/index.html') }}">Database schema</a></li>
 </ul>

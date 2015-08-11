@@ -18,7 +18,8 @@ from . import bp_patches
 
 from ..helper import bind_render
 from ..views import (IndexView, Ping, PrefixView, ErrorHandler,
-                     ListPackagesView, PackageVersionsView, SearchView)
+                     ListPackagesView, PackageVersionsView, SearchView,
+                     DocView, AboutView)
 from .views import SummaryView, PatchView
 
 
@@ -167,3 +168,43 @@ bp_patches.add_url_rule(
         'api_patch',
         render_func=jsonify,
         err_func=ErrorHandler(mode='json')))
+
+# doc
+bp_patches.add_url_rule(
+    '/doc/',
+    view_func=DocView.as_view(
+        'doc',
+        render_func=bind_render('doc.html'),
+        err_func=ErrorHandler('patches'),))
+
+# doc overview
+bp_patches.add_url_rule(
+    '/doc/overview/',
+    view_func=DocView.as_view(
+        'doc_overview',
+        render_func=bind_render('doc_overview.html'),
+        err_func=ErrorHandler('patches'),))
+
+# doc-url
+bp_patches.add_url_rule(
+    '/doc/url/',
+    view_func=DocView.as_view(
+        'doc_url',
+        render_func=bind_render('patches/doc_url.html'),
+        err_func=ErrorHandler('patches'),))
+
+# doc-api
+bp_patches.add_url_rule(
+    '/doc/api/',
+    view_func=DocView.as_view(
+        'doc_api',
+        render_func=bind_render('patches/doc_api.html'),
+        err_func=ErrorHandler('patches'),))
+
+# ABOUTVIEW
+bp_patches.add_url_rule(
+    '/about/',
+    view_func=AboutView.as_view(
+        'about',
+        render_func=bind_render('about.html'),
+        err_func=ErrorHandler('sources'),))

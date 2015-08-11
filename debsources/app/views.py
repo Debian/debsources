@@ -293,7 +293,8 @@ class DocView(GeneralView):
 
     def get_objects(self):
         return dict(copyright=current_app.config.get("BLUEPRINT_COPYRIGHT"),
-                    sources=current_app.config.get("BLUEPRINT_SOURCES"))
+                    sources=current_app.config.get("BLUEPRINT_SOURCES"),
+                    patches=current_app.config.get("BLUEPRINT_PATCHES"))
 
 
 # for /about/
