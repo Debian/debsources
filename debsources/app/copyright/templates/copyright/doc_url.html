@@ -27,7 +27,11 @@
   You can also check the <a href="{{ url_for('sources.doc_url') }}">sources URl scheme</a>
 </div>
 {% endif %}
-
+{% if patches == true %}
+<div class="warning">
+  You can also check the documentation for the <a href="{{ url_for('patches.doc_api') }}">patches API</a>
+</div>
+{% endif %}
 <h3>License search</h3>
 
 <h4>Checksum search</h4>

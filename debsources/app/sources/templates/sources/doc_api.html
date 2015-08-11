@@ -34,7 +34,11 @@
   You can also check the documentation for the <a href="{{ url_for('copyright.doc_api') }}">copyright API</a>
 </div>
 {% endif %}
-
+{% if patches == true %}
+<div class="warning">
+  You can also check the documentation for the <a href="{{ url_for('patches.doc_api') }}">patches API</a>
+</div>
+{% endif %}
 <p>You can query all information available in Debian Sources, and get a JSON
   object which allows you to navigate packages and source files
   programmaticaly.<br /> The JSON result will be pretty-printed, unless the
