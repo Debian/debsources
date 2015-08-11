@@ -106,7 +106,7 @@ bp_copyright.add_url_rule(
 
 # LICENSEVIEW
 bp_copyright.add_url_rule(
-    '/license/<path:path_to>/',
+    '/license/<string:packagename>/<string:version>/',
     view_func=LicenseView.as_view(
         'license',
         render_func=bind_render('copyright/license.html'),

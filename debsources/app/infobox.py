@@ -119,7 +119,7 @@ class Infobox(object):
 
         """
         return url_for('copyright.license',
-                       path_to=self.package + '/' + self.version)
+                       packagename=self.package, version=self.version)
 
     def get_infos(self):
         """
