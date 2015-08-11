@@ -16,7 +16,7 @@ The license you are looking for might exist in one of the following
 versions:
 <ul>
 {% for s in suggestions %}
-  <li><a href="{{ url_for('.license', path_to=s) }}">{{ s }}</a></li>
+  <li><a href="{{ url_for('.license', packagename=s.split('/')[0], version=s.split('/')[1]) }}">{{ s }}</a></li>
 {% endfor %}
 </ul>
 </p> 
