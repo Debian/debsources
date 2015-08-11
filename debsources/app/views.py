@@ -208,12 +208,22 @@ class GeneralView(View):
             self.render_func = bind_redirect(url_for(endpoint,
                                              packagename=redirect_url),
                                              code=redirect_code)
-        elif endpoint == 'patches.summary':
+        elif 'summary' in endpoint or 'license' in endpoint:
             package, version = redirect_url.split('/')
             self.render_func = bind_redirect(url_for(endpoint,
-                                             packagename=package,
-                                             version=version,
-                                             code=redirect_code))
+                                                     packagename=package,
+                                                     version=version),
+                                             code=redirect_code)
+        elif 'patch_view' in endpoint:
+            parts = redirect_url.split('/')
+            package = parts[0]
+            version = parts[1]
+            path = '/'.join(parts[2:])
+            self.render_func = bind_redirect(url_for(endpoint,
+                                                     packagename=package,
+                                                     version=version,
+                                                     path_to=path),
+                                             code=redirect_code)
         else:
             self.render_func = bind_redirect(url_for(endpoint,
                                              path_to=redirect_url),
@@ -544,9 +554,7 @@ class PackageVersionsView(GeneralView):
         if request.blueprint == 'sources':
             endpoint = '.source'
         elif request.blueprint == 'copyright':
-            endpoint = '.license'
-        elif request.blueprint == 'patches':
-            endpoint = '.summary'
+            endpoint = '.versions'
 
         pathl = qry.location_get_path_links(endpoint, packagename)
         return dict(type="package",
