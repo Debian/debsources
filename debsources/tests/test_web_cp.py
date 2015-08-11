@@ -324,13 +324,6 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
                    "rce.org/licenses/GPL-3.0\">GPL-3+</a>"
         self.assertIn(synopsis, rv.data)
 
-    def test_license_404(self):
-        rv = self.app.get("/copyright/license/gnubg/1.02.000-2/foo",
-                          follow_redirects=True)
-        self.assertIn('other versions of this package are available', rv.data)
-        link = '<a href="/copyright/license/gnubg/0.90+20091206-4/">'
-        self.assertIn(link, rv.data)
-
     def test_glob_links(self):
         rv = self.app.get('/copyright/license/gnubg/1.02.000-2/')
         self.assertIn('<a href="/src/gnubg/1.02.000-2/fonts">fonts/*.ttf</a>',

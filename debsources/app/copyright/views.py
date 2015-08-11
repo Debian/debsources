@@ -31,55 +31,44 @@ from ..extract_stats import extract_stats
 
 class LicenseView(GeneralView):
 
-    def get_objects(self, path_to):
-        path_dict = path_to.split('/')
-
-        package = path_dict[0]
-        version = path_dict[1]
-
-        if len(path_dict) > 2:
-            raise Http404ErrorSuggestions(package, version, '')
-
-        path = '/'.join(path_dict[2:])
-
+    def get_objects(self, packagename, version):
         if version == "latest":  # we search the latest available version
             return self._handle_latest_version(request.endpoint,
-                                               package, path)
+                                               packagename, "")
 
-        versions = self.handle_versions(version, package, path)
+        versions = self.handle_versions(version, packagename, "")
         if versions:
-            redirect_url_parts = [package, versions[-1]]
-            if path:
-                redirect_url_parts.append(path)
+            redirect_url_parts = [packagename, versions[-1]]
             redirect_url = '/'.join(redirect_url_parts)
             return self._redirect_to_url(request.endpoint,
                                          redirect_url, redirect_code=302)
 
         try:
-            sources_path = helper.get_sources_path(session, package, version,
+            sources_path = helper.get_sources_path(session, packagename,
+                                                   version,
                                                    current_app.config)
         except (FileOrFolderNotFound, InvalidPackageOrVersionError) as e:
             if isinstance(e, FileOrFolderNotFound):
-                raise Http404MissingCopyright(package, version, '')
+                raise Http404MissingCopyright(packagename, version, '')
             else:
-                raise Http404ErrorSuggestions(package, version, '')
+                raise Http404ErrorSuggestions(packagename, version, '')
 
         try:
             c = helper.parse_license(sources_path)
         except Exception:
             # non machine readable license
             sourcefile = SourceCodeIterator(sources_path)
-            return dict(package=package,
+            return dict(package=packagename,
                         version=version,
                         code=sourcefile,
                         dump='True',
                         nlines=sourcefile.get_number_of_lines(),)
-        return dict(package=package,
+        return dict(package=packagename,
                     version=version,
                     dump='False',
                     header=helper.get_copyright_header(c),
                     files=helper.parse_copyright_paragraphs_for_html_render(
-                        c, "/src/" + package + "/" + version + "/"),
+                        c, "/src/" + packagename + "/" + version + "/"),
                     licenses=helper.parse_licenses_for_html_render(c))
 
 
