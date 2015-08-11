@@ -34,3 +34,7 @@ before_script:
   - bin/debsources-update -vv
 
 script: make check test-travis
+
+branches:
+  except:
+    - bugs
