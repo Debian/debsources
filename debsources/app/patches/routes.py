@@ -89,7 +89,7 @@ bp_patches.add_url_rule(
 
 # VERSIONSVIEW
 bp_patches.add_url_rule(
-    '/summary/<string:packagename>/',
+    '/<string:packagename>/',
     view_func=VersionsView.as_view(
         'versions',
         render_func=bind_render('patches/package.html'),
@@ -97,7 +97,7 @@ bp_patches.add_url_rule(
 
 # api
 bp_patches.add_url_rule(
-    '/api/summary/<string:packagename>/',
+    '/api/<string:packagename>/',
     view_func=VersionsView.as_view(
         'api_patch_versions',
         render_func=jsonify,
@@ -105,7 +105,7 @@ bp_patches.add_url_rule(
 
 # SUMMARYVIEW
 bp_patches.add_url_rule(
-    '/summary/<string:packagename>/<string:version>/',
+    '/<string:packagename>/<string:version>/',
     view_func=SummaryView.as_view(
         'summary',
         render_func=bind_render('patches/summary.html'),
@@ -113,7 +113,7 @@ bp_patches.add_url_rule(
 
 # api
 bp_patches.add_url_rule(
-    '/api/summary/<string:packagename>/<string:version>/',
+    '/api/<string:packagename>/<string:version>/',
     view_func=SummaryView.as_view(
         'api_summary',
         render_func=jsonify,
@@ -150,17 +150,17 @@ bp_patches.add_url_rule(
 
 # PATCHVIEW
 bp_patches.add_url_rule(
-    '/patch/<path:path_to>/',
+    '/<string:packagename>/<string:version>/<path:path_to>/',
     view_func=PatchView.as_view(
-        'patch',
+        'patch_view',
         render_func=bind_render('patches/patch.html'),
         err_func=ErrorHandler('patches')))
 
 # api
 bp_patches.add_url_rule(
-    '/api/patch/<path:path_to>/',
+    '/api/<string:packagename>/<string:version>/<path:path_to>/',
     view_func=PatchView.as_view(
-        'api_patch',
+        'api_patch_view',
         render_func=jsonify,
         err_func=ErrorHandler(mode='json')))
 
