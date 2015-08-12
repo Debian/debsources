@@ -168,46 +168,40 @@ class SummaryView(GeneralView):
 
 class PatchView(GeneralView):
 
-    def get_objects(self, path_to):
-        path_dict = path_to.split('/')
-        package = path_dict[0]
-        version = path_dict[1]
-        patch = '/'.join(path_dict[2:])
-
+    def get_objects(self, packagename, version, path_to):
         if version == "latest":  # we search the latest available version
-            return self._handle_latest_version(request.endpoint, package,
-                                               'debian/patches/' + patch)
+            return self._handle_latest_version(request.endpoint, packagename,
+                                               'debian/patches/' + path_to)
 
-        versions = self.handle_versions(version, package,
-                                        'debian/patches/' + patch)
+        versions = self.handle_versions(version, packagename,
+                                        'debian/patches/' + path_to)
         if versions and version:
-            redirect_url_parts = [package, versions[-1]]
-            if patch:
-                redirect_url_parts.append(patch)
+            redirect_url_parts = [packagename, versions[-1]]
+            redirect_url_parts.append(path_to)
             redirect_url = '/'.join(redirect_url_parts)
             return self._redirect_to_url(request.endpoint, redirect_url,
                                          redirect_code=302)
 
         try:
             serie_path, loc = helper.get_sources_path(
-                session, package, version, current_app.config,
-                'debian/patches/' + patch.rstrip())
+                session, packagename, version, current_app.config,
+                'debian/patches/' + path_to.rstrip())
         except (FileOrFolderNotFound, InvalidPackageOrVersionError):
-            raise Http404ErrorSuggestions(package, version, 'debian/patches/'
-                                                            + patch.rstrip())
+            raise Http404ErrorSuggestions(packagename, version,
+                                          'debian/patches/' + path_to.rstrip())
         if 'api' in request.endpoint:
             summary = helper.get_file_deltas(serie_path)
             description, bug = helper.get_patch_details(serie_path)
-            return dict(package=package,
+            return dict(package=packagename,
                         version=version,
                         url=loc.get_raw_url(),
-                        name=patch,
+                        name=path_to,
                         description=description,
                         bug=bug,
                         file_deltas=summary)
         sourcefile = SourceCodeIterator(serie_path)
 
-        return dict(package=package,
+        return dict(package=packagename,
                     version=version,
                     nlines=sourcefile.get_number_of_lines(),
                     file_language='diff',
