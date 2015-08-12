@@ -173,3 +173,7 @@ span.sidechart {
 span.sidechart img {
     width: 500px;
 }
+
+hr.doc{
+    width:10%;
+}

@@ -28,7 +28,11 @@
   You can also check the <a href="{{ url_for('copyright.doc_url') }}">copyright URl scheme</a>
 </div>
 {% endif %}
-
+{% if patches == true %}
+<div class="warning">
+  You can also check the documentation for the <a href="{{ url_for('patches.doc_api') }}">patches API</a>
+</div>
+{% endif %}
 <h3>Search</h3>
 
 <h4>Package search</h4>

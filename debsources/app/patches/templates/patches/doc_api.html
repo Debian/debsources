@@ -18,7 +18,7 @@
 {% block breadcrumbs %}<a href="{{ url_for('.doc') }}">doc</a> / api{% endblock %}
 
 {% block content %}
-{% set url_prefix = "//" + config.SOURCES_URL + '/copyright' %}
+{% set url_prefix = "//" + config.SOURCES_URL + '/patches' %}
 
 <h2>{{ self.title() }}</h2>
 
@@ -32,9 +32,9 @@
   You can also check the documentation for the <a href="{{ url_for('sources.doc_api') }}">sources API</a>
 </div>
 {% endif %}
-{% if patches == true %}
+{% if copyright == true %}
 <div class="warning">
-  You can also check the documentation for the <a href="{{ url_for('patches.doc_api') }}">patches API</a>
+  You can also check the documentation for the <a href="{{ url_for('copyright.doc_api') }}">copyright API</a>
 </div>
 {% endif %}
 <p>You can query all information available in Debian Sources, and get a JSON
@@ -46,41 +46,23 @@
   the string "latest" instead to get redirected to the most recent version of
   the package.</p>
 
-<h3>Search</h3>
+<h3>Patches</h3>
 
-<h4>File search</h4>
+<h4>Package summary</h4>
 <p>
-  You can search files by SHA-256 sum:
-  <span class="url">{{ url_prefix }}/api/sha256/?checksum=<strong>sha256</strong>&package=<strong>packagename</strong>&suite=<strong>jessie</strong></span>
-  Specifying a package name or a suite is optional.
+  You can retrieve a summary for a package:
+  <span class="url">{{ url_prefix }}/api/summary/<strong>packagename</strong>/<strong>version</strong></span>
+  The package summary contains the names of the patches and some basic information about the package
   <br/>
-  <a href="{{ url_prefix }}/api/sha256/?checksum=d77d235e41d54594865151f4751e835c5a82322b0e87ace266567c3391a4b912">example</a>
+  <a href="{{ url_prefix }}/api/summary/beignet/1.0.0-1/">example</a>
 
-<h4>Path search</h4>
+<h4>Patch view</h4>
 <p>
-  The URL for a path search is:
-  <span class="url">{{ url_prefix }}/api/file/<strong>packagename</strong>/<strong>version</strong>/<strong>path</strong></span>
-  Both package name and version are required parameters.
-  <a href="{{ url_prefix }}/api/file/gnubg/1.04.000-1/doc/gnubg/gnubg.html/">See example</a>
-</p>
-
-<h4>Batch search</h4>
-<p>
-  The URL for a batch (many files) search is:
-  <span class="url">{{ url_prefix }}/api/sha256/</span>
-  The API accepts an HTTP POST request. The data must be form-encoded, repeating
-the checksum parameter for multiple values.
-  For example, if you are using python requests to create the POST request then
-the dictionnary containing the values should have the following structure:
-
-<pre>
-{
-    "checksums": [SUM1, SUM2, SUM3, ...],
-    "package": PACKAGE,
-    "suite": SUITE
-}
-</pre>
-Package and suite parameters are optional.
+  The URL for a patch view is:
+  <span class="url">{{ url_prefix }}/api/patch/<strong>packagename</strong>/<strong>version</strong>/<strong>path</strong></span>
+  Both package name and version are required parameters. The path is the relative path of the patch starting from the debian/patches directory.<br />
+  This query retrieves the file-deltas, the description and the bug number if they exist.
+  <a href="{{ url_prefix }}/api/patch/beignet/1.0.0-1/Debian-compliant-compiler-flags-handling.patch/">See example</a>
 </p>
 
 <h3>Package list</h3>

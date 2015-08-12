@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% import "sources/_macros.html" as macros %}
+
+{% block site_style %}
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='sources/css/site.css') }}" />
+{% endblock %}
+
+{% block title_suffix %}
+| Debian Patches
+{% endblock %}
+
+{% block nav %}
+  <ul>
+    <li><a href="{{ url_for('patches.index') }}">Home</a></li>
+    <li><a href="{{ url_for('patches.doc') }}">Documentation</a></li>
+    {#<li><a href="{{ url_for('patches.stats') }}">Stats</a></li>#}
+    <li><a href="{{ url_for('patches.about') }}">About</a></li>
+  </ul>
+{% endblock %}
