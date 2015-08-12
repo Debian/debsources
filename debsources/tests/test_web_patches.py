@@ -52,40 +52,40 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
     def test_by_prefix(self):
         rv = self.app.get('/patches/prefix/libc/')
-        self.assertIn("/summary/libcaca", rv.data)
+        self.assertIn("/libcaca", rv.data)
         # suite specified
         rv = self.app.get('/patches/prefix/libc/?suite=squeeze')
-        self.assertIn("/summary/libcaca", rv.data)
+        self.assertIn("/libcaca", rv.data)
         # a non-existing suite specified
         rv = self.app.get(
             '/patches/prefix/libc/?suite=non-existing')
-        self.assertNotIn("/summary/libcaca", rv.data)
+        self.assertNotIn("/libcaca", rv.data)
         # special suite name "all" is specified
         rv = self.app.get(
             '/patches/prefix/libc/?suite=all')
-        self.assertIn("/summary/libcaca", rv.data)
+        self.assertIn("/libcaca", rv.data)
 
     def test_latest(self):
-        rv = self.app.get('/patches/summary/gnubg/latest/',
+        rv = self.app.get('/patches/gnubg/latest/',
                           follow_redirects=True)
         self.assertIn("Package: gnubg / 1.02.000-2", rv.data)
-        rv = self.app.get('/patches/patch/beignet/latest/'
+        rv = self.app.get('/patches/beignet/latest/'
                           'Enable-test-debug.patch/',
                           follow_redirects=True)
         self.assertIn('<code id="sourcecode" class="diff">', rv.data)
 
     def test_package_summary(self):
-        rv = self.app.get('/patches/summary/beignet/1.0.0-1/')
+        rv = self.app.get('/patches/beignet/1.0.0-1/')
         self.assertIn("Enhance debug output", rv.data)
         self.assertIn("utests/builtin_acos_asin.cpp</a>", rv.data)
         self.assertIn("8 \t5 +\t3 -\t0 !", rv.data)
 
         # test non quilt package
-        rv = self.app.get('/patches/summary/cvsnt/2.5.03.2382-3/')
+        rv = self.app.get('/patches/cvsnt/2.5.03.2382-3/')
         self.assertIn("The format of the patches in the package", rv.data)
 
     def test_view_patch(self):
-        rv = self.app.get('/patches/patch/beignet/1.0.0-1/'
+        rv = self.app.get('/patches/beignet/1.0.0-1/'
                           'Enable-test-debug.patch/')
         self.assertIn('<code id="sourcecode" class="diff">', rv.data)
         # highlight inside?
@@ -93,40 +93,40 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertIn('highlight/highlight.min.js"></script>', rv.data)
 
     def test_file_deltas_links(self):
-        rv = self.app.get('/patches/summary/beignet/1.0.0-1/')
+        rv = self.app.get('/patches/beignet/1.0.0-1/')
         self.assertIn('<a href="/src/beignet/1.0.0-1/src/cl_utils.h/">',
                       rv.data)
 
     def test_3_native_format(self):
-        rv = self.app.get("/patches/summary/nvidia-support/20131102+1/")
+        rv = self.app.get("/patches/nvidia-support/20131102+1/")
         self.assertIn('<td>3.0 (native)</td>', rv.data)
         self.assertIn('<p>This package has no patches.</p>', rv.data)
         self.assertNotIn('The format of the patches in the package', rv.data)
 
     def test_bts_link(self):
-        rv = self.app.get('/patches/summary/ledit/2.03-2/')
+        rv = self.app.get('/patches/ledit/2.03-2/')
         self.assertIn('<a href="https://bugs.debian.org/672479">#672479</a>',
                       rv.data)
         # test no bug
-        rv = self.app.get('/patches/summary/gnubg/1.02.000-2/')
+        rv = self.app.get('/patches/gnubg/1.02.000-2/')
         self.assertNotIn('Bug: ', rv.data)
 
     def test_extract_description(self):
-        rv = self.app.get('/patches/summary/gnubg/1.02.000-2/')
+        rv = self.app.get('/patches/gnubg/1.02.000-2/')
         self.assertIn('collected debian patches for gnubg', rv.data)
         # test long dsc
-        rv = self.app.get('/patches/summary/beignet/1.0.0-1/')
-        long_dsc = 'Turn on udebug so tests print their full output, and mark'\
+        rv = self.app.get('/patches/beignet/1.0.0-1/')
+        long_dsc = 'Turn on udebug so tests print their full output, and mark' \
                    ' failures\nby &#34;failed:&#34; instead of invisible-in-' \
                    'logs colour.'
         self.assertIn(long_dsc, rv.data)
         # test no description header
-        rv = self.app.get('/patches/summary/unrar-nonfree/1:5.0.10-1/')
+        rv = self.app.get('/patches/unrar-nonfree/1:5.0.10-1/')
         self.assertIn('fix buildflags', rv.data)
         self.assertIn('---', rv.data)
 
     def test_api_patch_view(self):
-        rv = json.loads(self.app.get('/patches/api/patch/beignet/1.0.0-1/'
+        rv = json.loads(self.app.get('/patches/api/beignet/1.0.0-1/'
                         'Enable-test-debug.patch/').data)
         self.assertEqual(rv['name'], 'Enable-test-debug.patch')
         self.assertEqual(rv['bug'], '')
@@ -137,7 +137,7 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
     def test_api_summary_view(self):
         rv = json.loads(
-            self.app.get('/patches/api/summary/beignet/1.0.0-1/').data)
+            self.app.get('/patches/api/beignet/1.0.0-1/').data)
         patches = ["Enhance-debug-output.patch",
                    "Debian-compliant-compiler-flags-handling.patch",
                    "Utest-requires-deprecated-function-names.patch",
