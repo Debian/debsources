@@ -21,18 +21,21 @@
 <ul>
 <li><a href="{{ url_for('.doc_overview') }}">Overview</a></li>
 {% if sources == true %}
+<hr class='doc'>
 <li><a href="{{ url_for('sources.doc_url') }}">Debsources URL scheme</a></li>
 <li><a href="{{ url_for('sources.doc_api') }}">Debsources API documentation</a></li>
 {% endif %}
 {% if copyright == true %}
+<hr class='doc'>
 <li><a href="{{ url_for('copyright.doc_url') }}">Copyright URL scheme</a></li>
 <li><a href="{{ url_for('copyright.doc_api') }}">Copyright API documentation</a></li>
 {% endif %}
 {% if copyright == true %}
+<hr class='doc'>
 <li><a href="{{ url_for('patches.doc_url') }}">Patches URL scheme</a></li>
 <li><a href="{{ url_for('patches.doc_api') }}">Patches API documentation</a></li>
 {% endif %}
-
+<hr class='doc'>
 <li><a href="{{ url_for('static', filename='db-schema/index.html') }}">Database schema</a></li>
 </ul>
 
