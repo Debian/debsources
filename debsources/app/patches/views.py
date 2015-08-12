@@ -124,12 +124,15 @@ class SummaryView(GeneralView):
         try:
             format_file = helper.get_patch_format(session, packagename,
                                                   version, current_app.config)
-        except FileOrFolderNotFound:
-            return dict(package=packagename,
-                        version=version,
-                        path=path_to,
-                        patches=[],
-                        format='unknown')
+        except (FileOrFolderNotFound, InvalidPackageOrVersionError) as e:
+            if isinstance(e, InvalidPackageOrVersionError):
+                raise Http404ErrorSuggestions(packagename, version, '')
+            else:
+                return dict(package=packagename,
+                            version=version,
+                            path=path_to,
+                            patches=[],
+                            format='unknown')
         if not helper.is_supported(format_file.rstrip()):
             return dict(package=packagename,
                         version=version,

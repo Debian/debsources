@@ -98,8 +98,8 @@ def get_patch_format(session, package, version, config):
         source_format, loc = get_sources_path(session, package, version,
                                               config,
                                               'debian/source/format')
-    except (FileOrFolderNotFound, InvalidPackageOrVersionError):
-        raise FileOrFolderNotFound
+    except (FileOrFolderNotFound, InvalidPackageOrVersionError) as e:
+        raise e
     with io.open(source_format, mode='r', encoding='utf-8') as f:
         format_file = f.read()
     return format_file
