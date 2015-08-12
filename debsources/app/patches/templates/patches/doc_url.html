@@ -39,18 +39,18 @@
 <p>
   The URL for the patches summary of a package is:
   <span class="url">{{ url_prefix
-  }}/summary/<strong>packagename</strong>/<strong>version</strong></span>
+  }}/<strong>packagename</strong>/<strong>version</strong></span>
   Version can be a suite name, a version number or the keyword 'latest'
-  <a href="{{ url_prefix }}/summary/beignet/1.0.0-1/">See example</a>
+  <a href="{{ url_prefix }}/beignet/1.0.0-1/">See example</a>
 </p>
 
 <h4>Patch view</h4>
 <p>
   The URL for displaying patch information is:
   <span class="url">{{ url_prefix
-  }}/patch/<strong>packagename</strong>/<strong>version</strong>/<strong>path</strong></span>
+  }}/<strong>packagename</strong>/<strong>version</strong>/<strong>path</strong></span>
   Both package name and version are required parameters. The path is the relative path of the patch starting from the debian/patches directory.
-  <a href="{{ url_prefix }}/patch/beignet/1.0.0-1/Debian-compliant-compiler-flags-handling.patch/">See example</a>
+  <a href="{{ url_prefix }}/beignet/1.0.0-1/Debian-compliant-compiler-flags-handling.patch/">See example</a>
 </p>
 
 <h3>Package list</h3>
@@ -92,5 +92,6 @@
   <a href="{{ url_prefix }}/license/ocaml?suite=squeeze">See example</a>
 </p>
 
+<p>Package versions with no links signify that the patch format <strong>is not 3.0 quilt</strong>.<br />The <strong>asterisk (*)</strong> at a package versions implies that although the patch format is 3.0 quilt, the specific version has no patches yet.</p>
 
 {% endblock %}
