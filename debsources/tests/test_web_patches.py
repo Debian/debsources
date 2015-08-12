@@ -69,6 +69,10 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         rv = self.app.get('/patches/summary/gnubg/latest/',
                           follow_redirects=True)
         self.assertIn("Package: gnubg / 1.02.000-2", rv.data)
+        rv = self.app.get('/patches/patch/beignet/latest/'
+                          'Enable-test-debug.patch/',
+                          follow_redirects=True)
+        self.assertIn('<code id="sourcecode" class="diff">', rv.data)
 
     def test_package_summary(self):
         rv = self.app.get('/patches/summary/beignet/1.0.0-1/')
@@ -111,7 +115,7 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertIn('<a href="https://bugs.debian.org/672479">#672479</a>',
                       rv.data)
         # test no bug
-        rv = self.app.get('/patches/patch/gnubg/1.02.000-2/')
+        rv = self.app.get('/patches/summary/gnubg/1.02.000-2/')
         self.assertNotIn('Bug: ', rv.data)
 
     def test_extract_description(self):
@@ -127,6 +131,27 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         rv = self.app.get('/patches/summary/unrar-nonfree/1:5.0.10-1/')
         self.assertIn('fix buildflags', rv.data)
         self.assertIn('---', rv.data)
+
+    def test_api_patch_view(self):
+        rv = json.loads(self.app.get('/patches/api/patch/beignet/1.0.0-1/'
+                        'Enable-test-debug.patch/').data)
+        self.assertEqual(rv['name'], 'Enable-test-debug.patch')
+        self.assertEqual(rv['bug'], '')
+        self.assertEqual(rv['url'], '/data/main/b/beignet/1.0.0-1/debian/'
+                         'patches/Enable-test-debug.patch')
+        self.assertIn(' utests/builtin_acos_asin.cpp  |    8 +++++---',
+                      rv['file_deltas'])
+
+    def test_api_summary_view(self):
+        rv = json.loads(
+            self.app.get('/patches/api/summary/beignet/1.0.0-1/').data)
+        patches = ["Debian-compliant-compiler-flags-handling.patch",
+                   "Enhance-debug-output.patch",
+                   "Utest-requires-deprecated-function-names.patch",
+                   "Enable-test-debug.patch",
+                   "Link-against-terminfo.patch"]
+        self.assertListEqual(patches, rv['patches'])
+        self.assertEqual(rv['format'], "3.0 (quilt)")
 
 
 if __name__ == '__main__':
