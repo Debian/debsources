@@ -499,41 +499,47 @@ def update_statistics(status, conf, session, suites=None):
     if not conf['dry_run'] and 'fs' in conf['backends']:
         statistics.save_metadata_cache(stats, stats_file)
 
-    # compute License stats
-    license_stats_file = os.path.join(conf['cache_dir'], 'license_stats.data')
-    # load existing file
-    if os.path.exists(license_stats_file):
-        license_stats = statistics.load_metadata_cache(stats_file)
-    else:
-        license_stats = {}
-    overall_licenses = Counter()
-    license_stats = dict()
+    def update_license_statistics(suites):
+        # compute License stats
+        license_stats_file = os.path.join(conf['cache_dir'],
+                                          'license_stats.data')
+        # load existing file
+        if os.path.exists(license_stats_file):
+            license_stats = statistics.load_metadata_cache(stats_file)
+        else:
+            license_stats = {}
+        overall_licenses = Counter()
+        license_stats = dict()
 
-    # per suite stats
-    suites = suites[suites.index('squeeze'):]
+        # per suite stats
+        if 'squeeze' in suites:
+            suites = suites[suites.index('squeeze'):]
 
-    for suite in suites:
-        query = Counter(statistics.license_summary(session, suite))
-        overall_licenses = overall_licenses + query
-        for res in query:
-            lic = HistoryCopyright(suite, timestamp=now)
-            license_stats[suite + "." + res.rstrip()] = query[res]
-            setattr(lic, 'license', res.replace('_', ' '))
-            setattr(lic, 'files', query[res])
+        for suite in suites:
+            query = Counter(statistics.license_summary(session, suite))
+            overall_licenses = overall_licenses + query
+            for res in query:
+                lic = HistoryCopyright(suite, timestamp=now)
+                license_stats[suite + "." + res.rstrip()] = query[res]
+                setattr(lic, 'license', res.replace('_', ' '))
+                setattr(lic, 'files', query[res])
+                if not conf['dry_run'] and 'db' in conf['backends']:
+                        session.add(lic)
+
+        session.flush()
+        for stat in overall_licenses:
+            lic = HistoryCopyright('ALL', timestamp=now)
+            setattr(lic, 'license', stat.replace('_', ' '))
+            setattr(lic, 'files', overall_licenses[stat])
+            license_stats['overall.' + stat] = overall_licenses[stat]
             if not conf['dry_run'] and 'db' in conf['backends']:
-                    session.add(lic)
+                session.add(lic)
+        session.flush()
+        if not conf['dry_run'] and 'fs' in conf['backends']:
+            statistics.save_metadata_cache(license_stats, license_stats_file)
 
-    session.flush()
-    for stat in overall_licenses:
-        lic = HistoryCopyright('ALL', timestamp=now)
-        setattr(lic, 'license', stat.replace('_', ' '))
-        setattr(lic, 'files', overall_licenses[stat])
-        license_stats['overall.' + stat] = overall_licenses[stat]
-        if not conf['dry_run'] and 'db' in conf['backends']:
-            session.add(lic)
-    session.flush()
-    if not conf['dry_run'] and 'fs' in conf['backends']:
-        statistics.save_metadata_cache(license_stats, license_stats_file)
+    if 'copyright' in conf['hooks']:
+        update_license_statistics(suites)
 
 
 def update_metadata(status, conf, session):
@@ -621,52 +627,59 @@ def update_charts(status, conf, session, suites=None):
     chart_file = os.path.join(conf['cache_dir'], 'stats', 'sloc_bar_plot.png')
     charts.bar_chart(sloc_per_suite, suites, chart_file, top_langs, 'SLOC')
 
-    # LICENSE CHARTS
-    # License: historical histogramms
-    for (period, granularity) in CHARTS:
-        for suite in suites + ['ALL']:
-            mseries = getattr(statistics, 'history_copyright_' + granularity)(
-                session, interval=period, suite=suite)
-            chart_file = os.path.join(conf['cache_dir'], 'stats',
-                                      '%s-license-%s.png' %
-                                      (suite, period.replace(' ', '-')))
-            if not conf['dry_run']:
-                charts.multiseries_plot(mseries, chart_file, cols=3)
+    def update_license_charts():
+        # License: historical histogramms
+        for (period, granularity) in CHARTS:
+            for suite in suites + ['ALL']:
+                mseries = getattr(statistics,
+                                  'history_copyright_' + granularity)(
+                    session, interval=period, suite=suite)
+                chart_file = os.path.join(conf['cache_dir'], 'stats',
+                                          'copyright_%s-license-%s.png' %
+                                          (suite, period.replace(' ', '-')))
+                if not conf['dry_run']:
+                    charts.multiseries_plot(mseries, chart_file, cols=3)
 
-    # License: overall pie chart
-    overall_licenses = statistics.license_summary(session)
-    license_none = overall_licenses['None']
-    total_licenses = sum(overall_licenses.values())
-    del overall_licenses['None']
-    chart_file = os.path.join(conf['cache_dir'], 'stats',
-                              'overall-license_pie.png')
-    if not conf['dry_run']:
-        charts.pie_chart(overall_licenses, chart_file,
-                         ratio=license_none / total_licenses)
-
-    # License: bar chart and per suite pie chart.
-    all_suites = statistics.sticky_suites(session) \
-        + __target_suites(session, None)
-    # select suites after squeeze (the introduction of dep5)
-    all_suites = all_suites[all_suites.index('squeeze'):]
-    licenses_per_suite = []
-    for suite in all_suites:
-        licenses = statistics.license_summary(session, suite=suite)
-        ratio = licenses['None'] / sum(licenses.values())
-        del licenses['None']
-        # draw license pie chart
+        # License: overall pie chart
+        overall_licenses = statistics.license_summary(session)
+        license_none = overall_licenses['None']
+        total_licenses = sum(overall_licenses.values())
+        del overall_licenses['None']
+        chart_file = os.path.join(conf['cache_dir'], 'stats',
+                                  'copyright_overall-license_pie.png')
         if not conf['dry_run']:
-            chart_file = os.path.join(conf['cache_dir'], 'stats',
-                                      '%s-license_pie-current.png' % suite)
-            charts.pie_chart(licenses, chart_file, ratio)
+            charts.pie_chart(overall_licenses, chart_file,
+                             ratio=license_none / total_licenses)
 
-        licenses_per_suite.append(licenses)
+        # License: bar chart and per suite pie chart.
+        all_suites = statistics.sticky_suites(session) \
+            + __target_suites(session, None)
+        # select suites after squeeze (the introduction of dep5)
+        all_suites = all_suites[all_suites.index('squeeze'):]
+        licenses_per_suite = []
+        for suite in all_suites:
+            licenses = statistics.license_summary(session, suite=suite)
+            ratio = licenses['None'] / sum(licenses.values())
+            del licenses['None']
+            # draw license pie chart
+            if not conf['dry_run']:
+                chart_file = os.path.join(conf['cache_dir'], 'stats',
+                                          'copyright_%s'
+                                          '-license_pie-current.png'
+                                          % suite)
+                charts.pie_chart(licenses, chart_file, ratio)
 
-    chart_file = os.path.join(conf['cache_dir'], 'stats',
-                              'license_bar_plot.png')
-    if not conf['dry_run']:
-        charts.bar_chart(licenses_per_suite, all_suites, chart_file, top_langs,
-                         'Number of files')
+            licenses_per_suite.append(licenses)
+
+        chart_file = os.path.join(conf['cache_dir'], 'stats',
+                                  'copyright_license_bar_plot.png')
+        if not conf['dry_run']:
+            charts.bar_chart(licenses_per_suite, all_suites, chart_file,
+                             top_langs, 'Number of files')
+
+    # LICENSE CHARTS
+    if 'copyright' in conf['hooks']:
+        update_license_charts()
 
 # update stages
 (STAGE_EXTRACT,
