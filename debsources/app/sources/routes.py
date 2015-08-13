@@ -11,9 +11,9 @@
 
 from __future__ import absolute_import
 
-from flask import redirect, url_for, request, jsonify
+from flask import redirect, url_for, request, jsonify, render_template
 
-from ..helper import bind_render
+from ..helper import bind_render, generic_before_request
 from ..views import (
     IndexView, DocView, AboutView, SearchView, CtagView, ChecksumView,
     PrefixView, ListPackagesView, InfoPackageView, Ping, ErrorHandler,
@@ -21,6 +21,7 @@ from ..views import (
 
 from .views import StatsView, SourceView
 from . import bp_sources
+from debsources.excepts import Http404Error
 
 
 # context vars
@@ -38,6 +39,17 @@ bp_sources.errorhandler(403)(
 bp_sources.errorhandler(404)(
     lambda e: (ErrorHandler()(e, http=404), 404))
 
+
+# Before request
+@bp_sources.before_request
+def before_request():
+    try:
+        if 'embedded' in request.endpoint:
+            return generic_before_request(request, 3)
+        elif 'source' in request.endpoint.split('.')[1]:
+            return generic_before_request(request, 2)
+    except Http404Error:
+        return render_template('404.html'), 404
 
 # ping service
 bp_sources.add_url_rule(
@@ -334,6 +346,6 @@ bp_sources.add_url_rule(
 bp_sources.add_url_rule(
     '/embed/pkginfo/<package>/<version>/',
     view_func=InfoPackageView.as_view(
-        'sources/embedded_info_package_html',
+        'embedded_info_package',
         render_func=bind_render('sources/infopackage_embed.html'),
         err_func=ErrorHandler('sources')))
