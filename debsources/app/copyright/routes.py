@@ -12,13 +12,14 @@
 from __future__ import absolute_import
 
 
-from flask import jsonify
+from flask import jsonify, request, render_template
 
-from ..helper import bind_render
+from ..helper import bind_render, generic_before_request
 from . import bp_copyright
 from ..views import (IndexView, PrefixView, ListPackagesView, ErrorHandler,
                      Ping, PackageVersionsView, DocView, AboutView, SearchView)
 from .views import LicenseView, ChecksumLicenseView, SearchFileView, StatsView
+from debsources.excepts import Http404Error
 
 
 # context vars
@@ -34,6 +35,16 @@ bp_copyright.errorhandler(403)(
 bp_copyright.errorhandler(404)(
     lambda e: (ErrorHandler()(e, http=404), 404))
 
+
+# Before request
+@bp_copyright.before_request
+def before_request():
+    endpoints = ['license', 'file']
+    if any(endpoint in request.endpoint for endpoint in endpoints):
+        try:
+            return generic_before_request(request, 3)
+        except Http404Error:
+            return render_template('404.html'), 404
 
 # INDEXVIEW
 bp_copyright.add_url_rule(
@@ -135,7 +146,7 @@ bp_copyright.add_url_rule(
 # FileSearch VIEW
 
 bp_copyright.add_url_rule(
-    '/file/<path:path_to>/',
+    '/file/<string:packagename>/<string:version>/<path:path_to>/',
     view_func=SearchFileView.as_view(
         'file',
         render_func=bind_render('copyright/file.html'),
@@ -143,7 +154,7 @@ bp_copyright.add_url_rule(
 
 # api
 bp_copyright.add_url_rule(
-    '/api/file/<path:path_to>/',
+    '/api/file/<string:packagename>/<string:version>/<path:path_to>/',
     view_func=SearchFileView.as_view(
         'api_file',
         render_func=jsonify,
