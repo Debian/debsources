@@ -20,7 +20,7 @@ from debsources import license_helper as helper
 
 conf = None
 
-MY_NAME = 'license'
+MY_NAME = 'copyright'
 MY_EXT = '.' + MY_NAME
 license_path = lambda pkgdir: pkgdir + MY_EXT
 
@@ -30,8 +30,6 @@ def parse_license_file(path):
     with open(path) as licenses:
         for line in licenses:
             fields = line.rstrip().split('\t')
-            # will fail when encountering encoding
-            # issues; that is intended
             license_list.append((fields[0], fields[1]))
     return license_list
 
@@ -43,7 +41,7 @@ def add_package(session, pkg, pkgdir, file_table):
     license_file = license_path(pkgdir)
     license_file_tmp = license_file + '.new'
 
-    def emit_license(out, session, package, version, relpath):
+    def emit_license(out, session, package, version, relpath, pkgdir):
         """ Retrieve license of the file. We use `relpath` as we want the path
             inside the package directory which is used in the d/copyright files
             paragraphs
@@ -51,8 +49,9 @@ def add_package(session, pkg, pkgdir, file_table):
         # join path for debian/copyright file as we are already in the sources
         # directory.
         synopsis = helper.get_license(session, package, version, relpath,
-                                      os.path.join('debian/copyright'))
-        out.write('%s\t%s\n' % (synopsis, relpath))
+                                      os.path.join(pkgdir, 'debian/copyright'))
+        if synopsis is not None:
+            out.write('%s\t%s\n' % (synopsis, relpath))
 
     if 'hooks.fs' in conf['backends']:
         if not os.path.exists(license_file):  # run license only if needed
@@ -60,7 +59,7 @@ def add_package(session, pkg, pkgdir, file_table):
                 for (relpath, abspath) in \
                         fs_storage.walk_pkg_files(pkgdir, file_table):
                     emit_license(out, session, pkg['package'], pkg['version'],
-                                 relpath)
+                                 relpath, pkgdir)
             os.rename(license_file_tmp, license_file)
 
     if 'hooks.db' in conf['backends']:
@@ -84,7 +83,7 @@ def add_package(session, pkg, pkgdir, file_table):
                 else:
                     file_ = session.query(File) \
                                    .filter_by(package_id=db_package.id,
-                                              path=relpath) \
+                                              path=path) \
                                    .first()
                     if not file_:
                         continue
@@ -105,10 +104,12 @@ def rm_package(session, pkg, pkgdir, file_table):
     if 'hooks.db' in conf['backends']:
         db_package = db_storage.lookup_package(session, pkg['package'],
                                                pkg['version'])
-        session.query(FileCopyright) \
-               .join(File) \
-               .filter(File.package_id == db_package.id) \
-               .delete()
+        files = (session.query(FileCopyright.id)
+                 .join(File)
+                 .filter(File.package_id == db_package.id)).all()
+        for f in files:
+            session.query(FileCopyright) \
+                   .filter(FileCopyright.id == f).delete()
 
 
 def init_plugin(debsources):
