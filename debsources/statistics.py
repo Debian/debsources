@@ -408,7 +408,6 @@ def _hist_copyright_sample(session, interval, projection, suite=None):
     copyright = dict()
     for row in results:
         if row['license'] in copyright.keys():
-            print 'here'
             copyright[row['license']].append((row['timestamp'], row['files']))
         else:
             copyright[row['license']] = [(row['timestamp'], row['files'])]
