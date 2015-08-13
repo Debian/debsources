@@ -12,13 +12,14 @@
 
 from __future__ import absolute_import
 
-from flask import jsonify
+from flask import jsonify, request
 
 from . import bp_patches
 
-from ..helper import bind_render
+from ..helper import bind_render, generic_before_request
 from ..views import (IndexView, Ping, PrefixView, ErrorHandler,
                      ListPackagesView, SearchView, DocView, AboutView)
+
 from .views import SummaryView, PatchView, VersionsView
 
 
@@ -35,6 +36,13 @@ bp_patches.errorhandler(403)(
 bp_patches.errorhandler(404)(
     lambda e: (ErrorHandler()(e, http=404), 404))
 
+
+# Before request
+@bp_patches.before_request
+def before_request():
+    endpoints = ['summary', 'patch_view']
+    if any(endpoint in request.endpoint for endpoint in endpoints):
+        return generic_before_request(request, 2)
 
 # INDEXVIEW
 bp_patches.add_url_rule(
