@@ -113,16 +113,6 @@ class SummaryView(GeneralView):
 
     def get_objects(self, packagename, version):
         path_to = packagename + '/' + version
-        if version == "latest":  # we search the latest available version
-            return self._handle_latest_version(request.endpoint,
-                                               packagename, "")
-
-        versions = self.handle_versions(version, packagename, "")
-        if versions:
-            redirect_url_parts = [packagename, versions[-1]]
-            redirect_url = '/'.join(redirect_url_parts)
-            return self._redirect_to_url(request.endpoint,
-                                         redirect_url, redirect_code=302)
 
         try:
             format_file = helper.get_patch_format(session, packagename,
@@ -174,19 +164,6 @@ class SummaryView(GeneralView):
 class PatchView(GeneralView):
 
     def get_objects(self, packagename, version, path_to):
-        if version == "latest":  # we search the latest available version
-            return self._handle_latest_version(request.endpoint, packagename,
-                                               'debian/patches/' + path_to)
-
-        versions = self.handle_versions(version, packagename,
-                                        'debian/patches/' + path_to)
-        if versions and version:
-            redirect_url_parts = [packagename, versions[-1]]
-            redirect_url_parts.append(path_to)
-            redirect_url = '/'.join(redirect_url_parts)
-            return self._redirect_to_url(request.endpoint, redirect_url,
-                                         redirect_code=302)
-
         try:
             serie_path, loc = helper.get_sources_path(
                 session, packagename, version, current_app.config,
