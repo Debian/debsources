@@ -41,8 +41,8 @@ bp_patches.errorhandler(404)(
 # Before request
 @bp_patches.before_request
 def before_request():
-    endpoints = ['summary', 'patch_view']
-    if any(endpoint in request.endpoint for endpoint in endpoints):
+    endpoints = ['summary', 'api_summary', 'patch_view', 'api_patch_view']
+    if request.endpoint.replace('patches.', '', 1) in endpoints:
         try:
             return generic_before_request(request, 2)
         except Http404Error:

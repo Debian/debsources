@@ -32,17 +32,6 @@ from ..extract_stats import extract_stats
 class LicenseView(GeneralView):
 
     def get_objects(self, packagename, version):
-        if version == "latest":  # we search the latest available version
-            return self._handle_latest_version(request.endpoint,
-                                               packagename, "")
-
-        versions = self.handle_versions(version, packagename, "")
-        if versions:
-            redirect_url_parts = [packagename, versions[-1]]
-            redirect_url = '/'.join(redirect_url_parts)
-            return self._redirect_to_url(request.endpoint,
-                                         redirect_url, redirect_code=302)
-
         try:
             sources_path = helper.get_sources_path(session, packagename,
                                                    version,
@@ -230,31 +219,13 @@ class SearchFileView(GeneralView):
                                                license_path),
                     origin=helper.license_url(f.package, f.version))
 
-    def get_objects(self, path_to):
-        path_dict = path_to.split('/')
-
-        package = path_dict[0]
-        # can be a version, a suite alias, latest or all
-        version = path_dict[1]
-        path = str('/'.join(path_dict[2:]))
-
-        if version == 'latest':
-            return self._handle_latest_version(request.endpoint,
-                                               package, path)
-        versions = self.handle_versions(version, package, path)
-        if versions:
-            redirect_url_parts = [package, versions[-1]]
-            if path:
-                redirect_url_parts.append(path)
-
-            redirect_url = '/'.join(redirect_url_parts)
-            return self._redirect_to_url(request.endpoint, redirect_url,
-                                         redirect_code=302)
-
+    def get_objects(self, packagename, version, path_to):
+        path = str(path_to)
         if version == 'all':
-            files = qry.get_files_by_path_package(session, path, package).all()
+            files = qry.get_files_by_path_package(session, path,
+                                                  packagename).all()
         else:
-            files = qry.get_files_by_path_package(session, path, package,
+            files = qry.get_files_by_path_package(session, path, packagename,
                                                   version).all()
         if 'api' in request.endpoint:
             if not files:
@@ -269,7 +240,7 @@ class SearchFileView(GeneralView):
         else:
             return dict(count=len(files),
                         path=path,
-                        package=package,
+                        package=packagename,
                         version=version,
                         result=[dict(checksum=res.checksum,
                                 copyright=self._license_of_files(res))
