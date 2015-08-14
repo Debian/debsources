@@ -118,4 +118,4 @@ SUITES['all'].append('experimental')
 
 DPKG_EXTRACT_UMASK = 0o022
 
-ORACLES = ['debian']
+COPYRIGHT_ORACLES = ['debian']

@@ -9,6 +9,6 @@ CREATE TABLE copyright (
   PRIMARY KEY (id)
 );
 
-CREATE TYPE oracles as ENUM(
+CREATE TYPE copyright_oracles as ENUM(
     'debian'
 )
