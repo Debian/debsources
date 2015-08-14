@@ -172,10 +172,14 @@ class JinjaRenderer(object):
     def create_url(self, glob="", base=None,):
         # don't create links for hidden folders/files
         if base is None or not re.search('^\.', glob):
-            if glob == '*':
-                url = base
+            if glob.count('*') > 0:
+                # find deepest folder without *
+                parts = glob.split('/')
+                index = [parts.index(part) for part in parts
+                         if '*' in part][0]
+                url = base + '/'.join(parts[0:index])
             else:
-                url = base + glob.replace('/*', '/')
+                url = base + glob
             return url
         else:
             return None
