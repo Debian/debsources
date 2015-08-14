@@ -368,5 +368,8 @@ def get_license_w_path(session, package, version, path):
               .filter(Package.name_id == PackageName.id)
               .filter(PackageName.name == package)
               .filter(Package.version == version)
-              )
-    return result.first()[0]
+              ).first()
+    if result:
+        return result[0]
+    else:
+        return None
