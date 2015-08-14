@@ -30,6 +30,7 @@ from sqlalchemy import sql, not_
 from debsources import db_storage
 from debsources import fs_storage
 from debsources import statistics
+from . import query as qry
 
 from debsources.consts import DEBIAN_RELEASES, SLOCCOUNT_LANGUAGES
 from debsources.debmirror import SourceMirror, SourcePackage
@@ -640,14 +641,11 @@ def update_charts(status, conf, session, suites=None):
 
         # License: overall pie chart
         overall_licenses = statistics.license_summary(session)
-        license_none = overall_licenses['None']
-        total_licenses = sum(overall_licenses.values())
-        del overall_licenses['None']
+        ratio = qry.get_ratio(session)
         chart_file = os.path.join(conf['cache_dir'], 'stats',
                                   'copyright_overall-license_pie.png')
         if not conf['dry_run']:
-            charts.pie_chart(overall_licenses, chart_file,
-                             ratio=license_none / total_licenses)
+            charts.pie_chart(overall_licenses, chart_file, ratio)
 
         # License: bar chart and per suite pie chart.
         all_suites = statistics.sticky_suites(session) \
@@ -657,8 +655,7 @@ def update_charts(status, conf, session, suites=None):
         licenses_per_suite = []
         for suite in all_suites:
             licenses = statistics.license_summary(session, suite=suite)
-            ratio = licenses['None'] / sum(licenses.values())
-            del licenses['None']
+            ratio = qry.get_ratio(session, suite=suite)
             # draw license pie chart
             if not conf['dry_run']:
                 chart_file = os.path.join(conf['cache_dir'], 'stats',

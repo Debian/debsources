@@ -386,7 +386,7 @@ def license_summary(session, suite=None):
              .filter(Suite.suite == suite)
     q = q.group_by(FileCopyright.license)
 
-    return normalize_results(dict(q.all()))
+    return licenses_summary(dict(q.all()))
 
 
 def _hist_copyright_sample(session, interval, projection, suite=None):
@@ -449,11 +449,11 @@ def history_copyright_monthly(session, interval, suite):
                                   suite=suite)
 
 
-def normalize_results(results):
-    normalized = dict(unknown=0)
+def licenses_summary(results):
+    summary = dict(unknown=0)
     for result in results:
         if result == 'None':
-            normalized[result] = results[result]
+            summary[result] = results[result]
         else:
             # dual licenses or files with more than one license
             if any(keyword in result for keyword in ['and', 'or']):
@@ -466,11 +466,11 @@ def normalize_results(results):
                     if not key:
                         unknown = False
                 if not unknown:
-                    normalized['unknown'] += results[result]
+                    summary['unknown'] += results[result]
                 else:
                     # search if result exists in dict but in different order
                     found = None
-                    for key in normalized.keys():
+                    for key in summary.keys():
                         # replace spaces with _ as one loading the stats file
                         # later we don't break it correctly.
                         if set(result.split('_')) == set(key.split(' ')):
@@ -478,16 +478,16 @@ def normalize_results(results):
                             found = key
                             break
                     if found is not None:
-                        normalized[found] += results[result]
+                        summary[found] += results[result]
                     else:
-                        normalized[result.replace(' ', '_')] = results[result]
+                        summary[result.replace(' ', '_')] = results[result]
             else:
                 key = filter(lambda x: re.search(x, result)
                              is not None, Licenses)
                 # standard licenses
                 if len(key) > 0:
-                    normalized[result] = results[result]
+                    summary[result] = results[result]
                 else:
-                    normalized['unknown'] += results[result]
+                    summary['unknown'] += results[result]
 
-    return normalized
+    return summary

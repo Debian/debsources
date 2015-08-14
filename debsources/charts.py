@@ -118,9 +118,9 @@ def pie_chart(items, fname, ratio=None):
     plt.pie(modified_values, labels=modified_keys[1:], autopct='%1.1f%%',
             colors=cols)
     if ratio:
-        modified_keys[0] += '\n\nPercentage of files with non machine' \
+        modified_keys[0] += '\nPercentage of files with non machine' \
                             ' readable d/copyright files  = ' \
-                            + str(int(ratio * 100)) + '%'
+                            + str(ratio) + '%'
     plt.figtext(.02, .02, modified_keys[0])
     plt.savefig(fname)
     plt.close()
