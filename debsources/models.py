@@ -20,7 +20,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 from debsources.consts import VCS_TYPES, SLOCCOUNT_LANGUAGES, \
-    CTAGS_LANGUAGES, METRIC_TYPES, ORACLES
+    CTAGS_LANGUAGES, METRIC_TYPES, COPYRIGHT_ORACLES
 
 Base = declarative_base()
 
@@ -374,7 +374,7 @@ class FileCopyright(Base):
     file_id = Column(Integer,
                      ForeignKey('files.id', ondelete="CASCADE"),
                      index=True, nullable=False)
-    oracle = Column(Enum(*ORACLES, name="oracle"),
+    oracle = Column(Enum(*COPYRIGHT_ORACLES, name="copyright_oracles"),
                     nullable=False)
     license = Column(String)
 
