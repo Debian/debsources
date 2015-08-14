@@ -17,7 +17,6 @@ import os
 from flask import current_app, request
 from debian.debian_support import version_compare
 
-from debsources.render import RenderLicense
 import debsources.license_helper as helper
 import debsources.query as qry
 import debsources.statistics as statistics
@@ -75,14 +74,13 @@ class LicenseView(GeneralView):
                         code=sourcefile,
                         dump='True',
                         nlines=sourcefile.get_number_of_lines(),)
-        renderer = RenderLicense(c, 'jinja')
         return dict(package=package,
                     version=version,
                     dump='False',
-                    header=renderer.render_header(),
-                    files=renderer.render_files(
-                        "/src/" + package + "/" + version + "/"),
-                    licenses=renderer.render_licenses())
+                    header=helper.get_copyright_header(c),
+                    files=helper.parse_copyright_paragraphs_for_html_render(
+                        c, "/src/" + package + "/" + version + "/"),
+                    licenses=helper.parse_licenses_for_html_render(c))
 
 
 class ChecksumLicenseView(ChecksumView):

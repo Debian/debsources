@@ -27,7 +27,7 @@ from sqlalchemy import func as sql_func
 from debsources.consts import SLOCCOUNT_LANGUAGES, SUITES
 from debsources.models import Checksum, Ctag, Metric, SlocCount, \
     Suite, SuiteInfo, Package, PackageName, FileCopyright, File
-from debsources.render import Licenses
+from debsources.license_helper import Licenses
 
 
 def _count(query):
