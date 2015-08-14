@@ -83,3 +83,10 @@ class QueriesTest(unittest.TestCase, DbTestFixture):
         self.assertTrue({'path': 'eval.c', 'line': 1747,
                         'version': u'0.90+20091206-4', 'package': u'gnubg'}
                         in ctags[1])
+
+    def test_ratio(self):
+        # overall
+        self.assertEqual(qry.get_ratio(self.session), 77)
+        # per suite
+        self.assertEqual(qry.get_ratio(self.session, 'jessie'), 50)
+        self.assertEqual(qry.get_ratio(self.session, 'squeeze'), 100)

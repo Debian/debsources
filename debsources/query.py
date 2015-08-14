@@ -9,7 +9,7 @@
 # see the COPYING file at the top-level directory of this distribution and at
 # https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=COPYING;hb=HEAD
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import os
 import stat
@@ -371,3 +371,20 @@ def get_license_w_path(session, package, version, path):
         return result[0]
     else:
         return None
+
+
+def get_ratio(session, suite=None):
+    """ Get ratio of machine readable files in `suite`
+    """
+    files = (session.query(File.id))
+    files_w_license = (session.query(FileCopyright.file_id))
+    if suite:
+        files_w_license = files_w_license.join(File) \
+            .join(Package) \
+            .join(Suite) \
+            .filter(Suite.suite == suite)
+        files = files.join(Package) \
+            .join(Suite) \
+            .filter(Suite.suite == suite)
+    ratio = 1 - (files_w_license.count() / files.count())
+    return int(ratio * 100)
