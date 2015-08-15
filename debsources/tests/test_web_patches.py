@@ -77,8 +77,8 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
     def test_package_summary(self):
         rv = self.app.get('/patches/summary/beignet/1.0.0-1/')
         self.assertIn("Enhance debug output", rv.data)
-        self.assertIn("utests/builtin_acos_asin.cpp</a> |    8 +++++---",
-                      rv.data)
+        self.assertIn("utests/builtin_acos_asin.cpp</a>", rv.data)
+        self.assertIn("8 \t5 +\t3 -\t0 !", rv.data)
 
         # test non quilt package
         rv = self.app.get('/patches/summary/cvsnt/2.5.03.2382-3/')
@@ -139,7 +139,7 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertEqual(rv['bug'], '')
         self.assertEqual(rv['url'], '/data/main/b/beignet/1.0.0-1/debian/'
                          'patches/Enable-test-debug.patch')
-        self.assertIn(' utests/builtin_acos_asin.cpp  |    8 +++++---',
+        self.assertIn('8 \t5 +\t3 -\t0 !\n utests/builtin_exp.cpp ',
                       rv['file_deltas'])
 
     def test_api_summary_view(self):

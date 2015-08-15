@@ -9,6 +9,11 @@
 
 {% block head %}
 {{ super() }} 
+<style>
+  .description{
+    font-size: 120%;
+  }
+</style>
 {% endblock %}
 {% block breadcrumbs %} <a href='{{ url_for(".index") }}'>Patches</a> / <a href="{{ url_for('.versions', packagename=package) }}">{{ package }}</a> /{{ version }}
 {% endblock %}
@@ -42,22 +47,19 @@
           <th>Patch</th>
           <th>File delta</th>
           <th>Description</th>
-          <th>View</th>
-          <th>Download</th>
         </tr>
         {% for patch in series %}
         <tr>
-          <td>{{ patch.replace('.patch', '').replace('-', ' ') }}</td>
+          <td><a href="{{ url_for('.patch', path_to=path + '/' +patch.rstrip().split(' ')[0])}}">{{ patch.rstrip().replace('-', ' ') }}</a> | <a href="{{ patches[patch]['download'] }}">(download)</a></td>
           <td><p>{%- for line in patches[patch]['deltas'] %}
-            <a href="{{ url_for('sources.source', path_to=path + '/' + line['filepath'])}}">{{ line['filepath'] }}</a> | {{ line['deltas'] }}<br />
+              <a href="{{ url_for('sources.source', path_to=path + '/' + line['filepath'])}}">{{ line['filepath'] }}</a> |
+                <span title='from diffstat manual: f0  for  concise, which shows only the value and a single histogram code for each of insert (+), delete (-) or modify (!)'>{{ line['deltas'] }}</span><br />
           {%- endfor %} {{ patches[patch]['summary'] }}</p></td>
-          <td><pre>{{ patches[patch]['description'].decode('utf-8') }}</pre>
+          <td><pre class="description">{{ patches[patch]['description'].decode('utf-8') }}</pre>
           {%- if patches[patch]['bug'] != "" %}
           <p>Bug: <a href="https://bugs.debian.org/{{patches[patch]['bug']}}">#{{patches[patch]['bug']}}</a></p>   
           {%- endif %}
           </td>
-          <td><a href="{{ url_for('.patch', path_to=path + '/' +patch.rstrip().split(' ')[0])}}">View</a></td>
-          <td><a href="{{ patches[patch]['download'] }}">download</a></td>
         </tr>
         {% endfor %}
       </table>

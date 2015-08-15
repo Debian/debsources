@@ -54,7 +54,7 @@ def get_patch_details(path):
 def get_file_deltas(serie_path):
     """ Get file deltas from a patch using diffstat
     """
-    p = subprocess.Popen(["diffstat", "-p1", serie_path],
+    p = subprocess.Popen(["diffstat", "-p1", "-f0", serie_path],
                          stdout=subprocess.PIPE)
     summary, err = p.communicate()
     if err:
