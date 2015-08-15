@@ -51,4 +51,41 @@ For more information check
 [Git submodule documentation](http://git-scm.com/docs/git-submodule).
 
 
-	-- Stefano Zacchiroli <zack@upsilon.cc>  Thu, 26 Dec 2013 21:46:15 +0100
+Maintaining testdata reference DB
+---------------------------------
+
+When the DB structure changes, or when new packages are added to the test data,
+the reference DBs contained---in DB dump form---under testdata/ will need to be
+updated to avoid test failures. Here is the recommended procedures to do that:
+
+1. start with *clean slate*: clean your DB (e.g., `dropdb debsources`) and your
+   local sources directory (e.g., `rm -rf /srv/debsources/sources`). Then
+   re-inizialize an empty DB (e.g.,
+   `bin/debsources-admin --createdb postgres:///debsources`)
+
+2. do a *full update run* using a version of the code base that is trusted
+   enough to create the new reference version of the DB to be used for tests
+   (e.g., `bin/debsources-update -vv`)
+
+3. $ cd testdata/
+   $ make distclean  # this will remove old DB dumps
+   $ make dump       # this will create fresh DB dumps based on the current
+                     # status of the DB just filled by the updater
+
+4. Now do `git diff` (in testdata/) to ensure that the new state of the
+   reference DB is sane. Note: one of the two dump is in Postgres (binary)
+   custom form, so is not inspectable; but the other one is in textual (SQL)
+   form, so te diff will be meaningful. Ideally, the diff should only contain
+   new data added (e.g., new tables, new rows in old tables, etc.) and possibly
+   changes in non-deterministic datas (e.g., timestamps). All other kind of
+   changes should be considered suspicious.
+
+5. If everything is fine:
+
+   $ git add db/       # this is under testdata/
+   $ git commit
+   $ git push
+   $ cd ..
+   $ git add testdata  # this is in the main debsources repo
+   $ git commit
+   $ git push
