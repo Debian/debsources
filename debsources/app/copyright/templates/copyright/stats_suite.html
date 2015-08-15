@@ -23,9 +23,6 @@
   {% if rel_version != None %}
   <li>Release version: {{rel_version}}</li>
   {% endif %}
-  
-
-  <li>Licenses:
     <div>
     <span class="sidechart">
     <a href="{{ url_for('static',
@@ -34,9 +31,17 @@
         filename='img/stats/copyright_' + suite + '-license_pie-current.png') }}" />
     </a>
     </span>
+    <h3>Files per license (without aggregate dual licensing)</h3>
     <ul>
       {% for license in licenses %}
         <li>{{ license }}: {{ results[suite + "." + license] | format_big_num }}</li>
+      {% endfor %}
+    </ul>
+
+    <h3>Files per license (aggregate dual licensing)</h3>
+    <ul>
+      {% for d_license in dual_licenses %}
+        <li>{{ d_license }}: {{ dual_results[suite + "." + d_license] | format_big_num }}</li>
       {% endfor %}
     </ul>
     </div>

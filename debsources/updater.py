@@ -504,20 +504,25 @@ def update_statistics(status, conf, session, suites=None):
         # compute License stats
         license_stats_file = os.path.join(conf['cache_dir'],
                                           'license_stats.data')
-        # load existing file
-        if os.path.exists(license_stats_file):
-            license_stats = statistics.load_metadata_cache(stats_file)
-        else:
-            license_stats = {}
+        dual_license_file = os.path.join(conf['cache_dir'],
+                                         'dual_license.data')
         overall_licenses = Counter()
         license_stats = dict()
+
+        overall_d_licenses = Counter()
+        license_d_stats = dict()
 
         # per suite stats
         if 'squeeze' in suites:
             suites = suites[suites.index('squeeze'):]
 
         for suite in suites:
-            query = Counter(statistics.license_summary(session, suite))
+            query = Counter(statistics.license_summary(session, dual=False,
+                                                       suite=suite))
+            dual_query = Counter(statistics.license_summary(session,
+                                                            dual=True,
+                                                            suite=suite))
+            overall_d_licenses = overall_d_licenses + dual_query
             overall_licenses = overall_licenses + query
             for res in query:
                 lic = HistoryCopyright(suite, timestamp=now)
@@ -526,6 +531,15 @@ def update_statistics(status, conf, session, suites=None):
                 setattr(lic, 'files', query[res])
                 if not conf['dry_run'] and 'db' in conf['backends']:
                         session.add(lic)
+            # no historical here, only save to file
+            for res in dual_query:
+                license_d_stats[suite + "." + res.rstrip()] = dual_query[res]
+
+        for stat in overall_d_licenses:
+            license_d_stats['overall.' + stat] = overall_d_licenses[stat]
+
+        if not conf['dry_run'] and 'fs' in conf['backends']:
+            statistics.save_metadata_cache(license_d_stats, dual_license_file)
 
         session.flush()
         for stat in overall_licenses:
@@ -642,7 +656,7 @@ def update_charts(status, conf, session, suites=None):
                     charts.multiseries_plot(mseries, chart_file, cols=3)
 
         # License: overall pie chart
-        overall_licenses = statistics.license_summary(session)
+        overall_licenses = statistics.license_summary(session, dual=False)
         ratio = qry.get_ratio(session)
         chart_file = os.path.join(conf['cache_dir'], 'stats',
                                   'copyright_overall-license_pie.png')
@@ -656,7 +670,8 @@ def update_charts(status, conf, session, suites=None):
         all_suites = all_suites[all_suites.index('squeeze'):]
         licenses_per_suite = []
         for suite in all_suites:
-            licenses = statistics.license_summary(session, suite=suite)
+            licenses = statistics.license_summary(session, dual=False,
+                                                  suite=suite)
             ratio = qry.get_ratio(session, suite=suite)
             # draw license pie chart
             if not conf['dry_run']:

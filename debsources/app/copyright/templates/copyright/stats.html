@@ -16,13 +16,14 @@
 <h2>{{ self.title() }}</h2>
 
 <ul>
-  <li><a href="#files_license">Files per license</a></li>
+  <li><a href="#files_license">Files per license (aggregate dual licensing)</a></li>
+  <li><a href="#files_dual_license">Files per license (without aggregate dual licensing)</a></li>
   <li><a href="#evolution">Licenses evolution</a></li>
   <li><a href="#historical">Historical trends</a></li>
 </ul>
 
 <div>
-<h3><a name="files_license">Files per license</a></h3>
+<h3><a name="files_license">Files per license (aggregate dual licensing)</a></h3>
 <span class="sidechart">
      <a href="{{ url_for('static',
      filename='img/stats/copyright_overall-license_pie.png') }}">
@@ -37,6 +38,19 @@
     {% for license in licenses %}
     <tr>
       <th>{{ license.replace('_', ' ') }}</th> <td>{{ results['overall.'+license] }}</td>
+  </tr>
+  {% endfor %}
+</table>
+</div>
+
+<div>
+<h3><a name="files_dual_license">Files per license (without aggregate dual licensing)</a></h3>
+<table class='stats'>
+  <tr class="head">
+    <th>License</th><th>Number of files</th>
+    {% for d_license in dual_licenses %}
+    <tr>
+      <th>{{ d_license.replace('_', ' ') }}</th> <td>{{ dual_results['overall.'+d_license] }}</td>
   </tr>
   {% endfor %}
 </table>

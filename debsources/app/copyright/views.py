@@ -298,10 +298,20 @@ class StatsView(GeneralView):
         res = extract_stats(filename=stats_file,
                             filter_suites=[suite])
         licenses = [license.replace(suite + '.', '') for license in res.keys()]
+        dual_stats_file = os.path.join(app.config["CACHE_DIR"],
+                                       "dual_license.data")
+        dual_res = extract_stats(filename=dual_stats_file,
+                                 filter_suites=[suite])
+
+        dual_licenses = [license.replace(suite + '.', '') for license
+                         in dual_res.keys()]
+
         info = qry.get_suite_info(session, suite)
 
         return dict(results=res,
                     licenses=sorted(licenses),
+                    dual_results=dual_res,
+                    dual_licenses=sorted(dual_licenses),
                     suite=suite,
                     rel_date=str(info.release_date),
                     rel_version=info.version)
@@ -312,12 +322,20 @@ class StatsView(GeneralView):
                                   "license_stats.data")
         res = extract_stats(filename=stats_file)
 
+        dual_stats_file = os.path.join(app.config["CACHE_DIR"],
+                                       "dual_license.data")
+        dual_res = extract_stats(filename=dual_stats_file)
+        dual_licenses = [license.replace('overall.', '') for license
+                         in dual_res.keys()
+                         if 'overall.' in license]
+
         licenses = [license.replace('overall.', '') for license in res.keys()
                     if 'overall.' in license]
-        all_suites = [x for x in
+        all_suites = [suite for suite in
                       statistics.suites(session, suites='all')]
         all_suites = all_suites[all_suites.index('squeeze'):]
-
         return dict(results=res,
                     licenses=sorted(licenses),
+                    dual_results=dual_res,
+                    dual_licenses=sorted(dual_licenses),
                     suites=all_suites)
