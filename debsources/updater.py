@@ -167,8 +167,9 @@ def exclude_files(session, pkg, pkgdir, file_table, exclude_specs):
     """
     # enforce spec's Package field
     specs = [spec for spec in exclude_specs
-             if 'files' in spec  # ignore non file-based exclusion stanzas
-             and spec['package'] == pkg['package']]
+             # ignore non file-based exclusion stanzas
+             if 'files' in spec and
+             spec['package'] == pkg['package']]
     candidates = []  # files eligible for exclusion
     for spec in specs:
         # enforce spec's Files field
@@ -193,9 +194,10 @@ def is_excluded_package(pkg, exclude_specs):
     """
     # compute list of *matching* package exclusion stanzas
     specs = [spec for spec in exclude_specs
-             if 'files' not in spec  # ignore non package exclusion stanzas
-             and spec['package'] == pkg['package']
-             and ('version' not in spec
+             # ignore non package exclusion stanzas
+             if 'files' not in spec \
+             and spec['package'] == pkg['package'] \
+             and ('version' not in spec \
                   or spec['version'] == pkg['version'])]
     return bool(specs)
 
@@ -716,7 +718,9 @@ def parse_stage(s):
     except KeyError:
         raise ValueError('unknown update stage %s' % s)
 
-parse_stages = lambda s: set(map(parse_stage, s.split()))
+
+def parse_stages(stages):
+    return set(map(parse_stage, stages.split()))
 
 
 def pp_stage(stage):

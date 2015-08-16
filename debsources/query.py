@@ -62,8 +62,7 @@ def pkg_names_list_versions(session, packagename, suite=""):
         else:
             versions = (session.query(Package)
                                .filter(Package.name_id == name_id)
-                               .filter(sql_func.lower(Suite.suite)
-                                       == suite)
+                               .filter(sql_func.lower(Suite.suite) == suite)
                                .filter(Suite.package_id == Package.id)
                                .all())
     except Exception:
@@ -245,8 +244,7 @@ def get_pkg_by_name(session, pkg, suite=None):
               )
 
     if suite is not None and suite is not "":
-        result = (result.filter(sql_func.lower(Suite.suite)
-                                == suite)
+        result = (result.filter(sql_func.lower(Suite.suite) == suite)
                   .filter(Suite.package_id == Package.id)
                   .filter(Package.name_id == PackageName.id))
     return result.first()

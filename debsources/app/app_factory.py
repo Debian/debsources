@@ -97,8 +97,8 @@ class AppWrapper(object):
         """
         Sets up everything needed for logging.
         """
-        fmt = Formatter('%(asctime)s %(levelname)s: %(message)s '
-                        + '[in %(pathname)s:%(lineno)d]')
+        fmt = Formatter('%(asctime)s %(levelname)s: %(message)s ' +
+                        '[in %(pathname)s:%(lineno)d]')
         log_level = logging.INFO
         try:
             log_level = mainlib.LOG_LEVELS[self.app.config["LOG_LEVEL"]]

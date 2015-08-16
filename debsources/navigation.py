@@ -158,8 +158,8 @@ class Directory(object):
                 full_path = os.path.join(self.location.sources_path, f['name'])
                 if f['type'] == "directory":
                     full_path += "/"
-                f['hidden'] = (f['hidden']
-                               or fnmatch.fnmatch(full_path, hidden_file))
+                f['hidden'] = (f['hidden'] or
+                               fnmatch.fnmatch(full_path, hidden_file))
 
         return listing
 

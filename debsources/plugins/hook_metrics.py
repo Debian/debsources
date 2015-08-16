@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2014  The Debsources developers <info@sources.debian.net>.
+# Copyright (C) 2013-2015  The Debsources developers <info@sources.debian.net>.
 # See the AUTHORS file at the top-level directory of this distribution and at
 # https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
 #
@@ -24,7 +24,9 @@ conf = None
 
 MY_NAME = 'metrics'
 MY_EXT = '.stats'
-metricsfile_path = lambda pkgdir: pkgdir + MY_EXT
+
+
+def metricsfile_path(pkgdir): return pkgdir + MY_EXT
 
 
 def parse_metrics(path):
