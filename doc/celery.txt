@@ -153,17 +153,35 @@ Implementation details
 sqlalchemy session
 ------------------
 
-A scoped session is defined in celery.py, and that session is bound at
-worker initialization, using the `celeryd_init` signal.
+The session is setup in the DBTask class, which will be used as the
+base class for all celery tasks that need to access the database. That
+class will be instantiated only once per process (worker) [1].
 
-Tasks that need to use the session must inherit DBTask, which ensures
-that the session will be returned to the pool after the execution.
+Tasks that need access to the DB need to be defined this way:
 
-DBTask is currently defined in tasks.py, and reimplements the
-'after_return' handler[2].
+    @app.task(base=DBTask, bind=True)
+    do_something_with_db(self, conf, arg):
+        self.conf = conf
+        thing = self.session.query(Thing).first()
 
-[1] http://docs.celeryproject.org/en/latest/userguide/tasks.html#handlers
-[2] http://celery.readthedocs.org/en/latest/userguide/signals.html#worker-signals
+In unit tests, we must close the session of all task classes, for example:
+
+    from debsources.updater.celery import app
+    def testSomething(self):
+        extract_new(self.conf, self.mirror)
+
+        # retrieve the task from the registry
+        # (extract_new does not have session and engine attributes,
+        # since it is not based on DBTask
+
+        add_package = app.tasks[
+            'debsources.new_updater.tasks.add_package'
+        ]
+        add_package.session.close()
+        add_package.engine.dispose()
+
+
+[1] http://celery.readthedocs.org/en/latest/userguide/tasks.html#instantiation
 
 plugin tasks
 ------------
