@@ -18,12 +18,12 @@ import matplotlib
 import six
 from six.moves import range
 
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import numpy as np
-
 from itertools import cycle
+
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt  # NOQA
+import matplotlib.cm as cm       # NOQA
+import numpy as np               # NOQA
 
 
 def _split_series(series):
@@ -73,7 +73,7 @@ def sloc_plot(multiseries, fname):
     plt.figure()
     plt.yscale('log')
 
-    by_value = lambda (x1, y1), (x2, y2): cmp(y1, y2)
+    def by_value((x1, y1), (x2, y2)): return cmp(y1, y2)
 
     styles = cycle(LINE_STYLES)
     for name, series in sorted(six.iteritems(multiseries),
@@ -131,12 +131,12 @@ def bar_chart(sloc_per_suite, suites, fname, N):
         latest_release = sloc_per_suite[-2]
     except IndexError:
         if len(sloc_per_suite) == 1:
-            logging.warn('sloc bar chart failed '
-                         + 'as only one suite is available')
+            logging.warn('sloc bar chart failed ' +
+                         'as only one suite is available')
             return
         else:
-            logging.warn('sloc bar chart failed '
-                         + 'as there are no suites to plot')
+            logging.warn('sloc bar chart failed ' +
+                         'as there are no suites to plot')
             return
     # Verify N is at most the maximum languages in a suite
     if N >= len(latest_release):

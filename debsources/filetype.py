@@ -181,8 +181,8 @@ def get_filetype_from_firstline(firstline):
             return shebangs[interp]
         else:
             return None
-    elif (firstline.lower().startswith("<html")
-          or firstline.lower().startswith("<!doctype html")):
+    elif (firstline.lower().startswith("<html") or
+          firstline.lower().startswith("<!doctype html")):
         return HTML
     elif firstline.lower().startswith("<?xml"):
         return XML
@@ -202,8 +202,8 @@ def get_filetype_from_filename(filename):
                 if re.search(pattern, filename):
                     return language
             except:
-                raise Exception("Regex error: " + str(language)
-                                + " " + str(pattern))
+                raise Exception("Regex error: " + str(language) +
+                                " " + str(pattern))
     return None
 
 

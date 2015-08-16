@@ -318,7 +318,7 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertIn("<a href=\"#license-0\">FSF-configure</a>", rv.data)
         # Test separating by ',' and, or and create correct links
         synopsis = "<a href=\"#license-0\">FSF-configure</a>, and  " \
-                   "<a href=\"http://opensource.org/licenses/GPL-2.0\">GPL-2+" \
+                   "<a href=\"http://opensource.org/licenses/GPL-2.0\">GPL-2+"\
                    " with Libtool exception</a> or  <a href=\"http://opensou" \
                    "rce.org/licenses/GPL-3.0\">GPL-3+</a>"
         self.assertIn(synopsis, rv.data)

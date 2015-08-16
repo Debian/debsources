@@ -123,7 +123,7 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertIn('collected debian patches for gnubg', rv.data)
         # test long dsc
         rv = self.app.get('/patches/summary/beignet/1.0.0-1/')
-        long_dsc = 'Turn on udebug so tests print their full output, and mark' \
+        long_dsc = 'Turn on udebug so tests print their full output, and mark'\
                    ' failures\nby &#34;failed:&#34; instead of invisible-in-' \
                    'logs colour.'
         self.assertIn(long_dsc, rv.data)

@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2014  The Debsources developers <info@sources.debian.net>.
+# Copyright (C) 2013-2015  The Debsources developers <info@sources.debian.net>.
 # See the AUTHORS file at the top-level directory of this distribution and at
 # https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
 #
@@ -34,7 +34,9 @@ CTAGS_FLAGS = ['--recurse',
 
 MY_NAME = 'ctags'
 MY_EXT = '.' + MY_NAME
-ctags_path = lambda pkgdir: pkgdir + MY_EXT
+
+
+def ctags_path(pkgdir): return pkgdir + MY_EXT
 
 # maximum number of ctags after which a (bulk) insert is sent to the DB
 BULK_FLUSH_THRESHOLD = 20000

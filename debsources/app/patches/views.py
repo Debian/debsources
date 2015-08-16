@@ -55,8 +55,8 @@ class SummaryView(GeneralView):
                     serie_path, loc = get_sources_path(session, package,
                                                        version,
                                                        current_app.config,
-                                                       'debian/patches/'
-                                                       + patch)
+                                                       'debian/patches/' +
+                                                       patch)
                     summary = helper.get_file_deltas(serie_path)
                     deltas, deltas_summary = self._parse_file_deltas(summary,
                                                                      package,
@@ -190,11 +190,11 @@ class PatchView(GeneralView):
         try:
             serie_path, loc = get_sources_path(session, package, version,
                                                current_app.config,
-                                               'debian/patches/'
-                                               + patch.rstrip())
+                                               'debian/patches/' +
+                                               patch.rstrip())
         except (FileOrFolderNotFound, InvalidPackageOrVersionError):
-            raise Http404ErrorSuggestions(package, version, 'debian/patches/'
-                                                            + patch.rstrip())
+            raise Http404ErrorSuggestions(package, version,
+                                          'debian/patches/' + patch.rstrip())
         if 'api' in request.endpoint:
             summary = helper.get_file_deltas(serie_path)
             description, bug = helper.get_patch_details(serie_path)

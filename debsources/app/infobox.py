@@ -1,4 +1,4 @@
-# Copyright (C) 2014  The Debsources developers <info@sources.debian.net>.
+# Copyright (C) 2014-2015  The Debsources developers <info@sources.debian.net>.
 # See the AUTHORS file at the top-level directory of this distribution and at
 # https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
 #
@@ -11,15 +11,15 @@
 
 from __future__ import absolute_import
 
-PTS_PREFIX = "https://tracker.debian.org/pkg/"
-# move this to configuration file?
-# it would add a dependence layer with app.config
-
 from flask import url_for
 
 from debsources.models import (
     PackageName, Package, Suite, SlocCount, Metric, Ctag)
 from debsources.excepts import Http500Error, Http404Error
+
+PTS_PREFIX = "https://tracker.debian.org/pkg/"
+# XXX move this to configuration file?
+# it would add a dependence layer with app.config
 
 # to generate PTS link safely (for internal links we use url_for)
 try:

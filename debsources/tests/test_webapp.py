@@ -317,8 +317,8 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         try:
             # create symlinks
             if not os.path.lexists(s_relative):
-                os.symlink('../../../../non-free/b/bsdgames-nonfree/'
-                           + '2.17-3/debian/control',
+                os.symlink('../../../../non-free/b/bsdgames-nonfree/' +
+                           '2.17-3/debian/control',
                            s_relative)
             if not os.path.lexists(s_absolute):
                 os.symlink('/etc/passwd', s_absolute)

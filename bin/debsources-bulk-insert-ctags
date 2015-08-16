@@ -80,7 +80,7 @@ def insert_ctags(conn, ctagsfile):
         conn.execute(INSERT_CTAGS_Q, ctags)
 
 
-is_ctags = lambda p: p.endswith(METADATA_SUFFIX)
+def is_ctags(p): return p.endswith(METADATA_SUFFIX)
 
 
 def main(conf, ctagsfile=None):
