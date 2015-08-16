@@ -16,6 +16,7 @@ from collections import defaultdict, Counter
 from flask import current_app, request
 from debian.debian_support import version_compare
 
+import debsources.license_helper as helper
 import debsources.query as qry
 from debsources.excepts import (Http404ErrorSuggestions, FileOrFolderNotFound,
                                 InvalidPackageOrVersionError,
@@ -25,7 +26,6 @@ from ..views import GeneralView, ChecksumView, session
 from ..sourcecode import SourceCodeIterator
 from ..render import RenderLicense
 from ..pagination import Pagination
-from . import license_helper as helper
 
 
 class LicenseView(GeneralView):
