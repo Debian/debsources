@@ -121,10 +121,15 @@ def location_get_path_links(endpoint, path_to):
     # can run in another machine without flask, because it doesn't use
     # this method)
     from flask import url_for
-
-    for (i, p) in enumerate(path_dict):
-        pathl.append((p, url_for(endpoint,
-                                 path_to='/'.join(path_dict[:i + 1]))))
+    print path_dict
+    if endpoint == '.versions':
+        for (i, p) in enumerate(path_dict):
+            pathl.append((p, url_for(endpoint,
+                                     packagename='/'.join(path_dict[:i + 1]))))
+    else:
+        for (i, p) in enumerate(path_dict):
+            pathl.append((p, url_for(endpoint,
+                                     path_to='/'.join(path_dict[:i + 1]))))
     return pathl
 
 

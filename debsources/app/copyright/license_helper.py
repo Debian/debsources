@@ -54,7 +54,7 @@ def parse_license(sources_path):
 
 
 def license_url(package, version):
-    return url_for('.license', path_to=(package + '/' + version))
+    return url_for('.license', packagename=package, version=version)
 
 
 def get_license(session, package, version, path):

@@ -10,8 +10,16 @@
 # https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=COPYING;hb=HEAD
 from __future__ import absolute_import
 import re
+import io
 import logging
 import subprocess
+
+from debsources.navigation import Location, SourceFile
+from debsources.excepts import (FileOrFolderNotFound,
+                                InvalidPackageOrVersionError)
+
+ACCEPTED_FORMATS = ['3.0 (quilt)',
+                    '3.0 (native)']
 
 
 def get_patch_details(path):
@@ -61,3 +69,60 @@ def get_file_deltas(serie_path):
         logging.warn('Reading file deltas patch: %s, error: %s', serie_path,
                      err)
     return summary
+
+
+def get_sources_path(session, package, version, config, path):
+    ''' Creates a sources_path. Returns exception when it arises
+    '''
+    try:
+        location = Location(session,
+                            config["SOURCES_DIR"],
+                            config["SOURCES_STATIC"],
+                            package, version, path)
+    except (FileOrFolderNotFound, InvalidPackageOrVersionError) as e:
+        raise e
+
+    file_ = SourceFile(location)
+
+    sources_path = file_.get_raw_url().replace(
+        config['SOURCES_STATIC'],
+        config['SOURCES_DIR'],
+        1)
+    return sources_path, file_
+
+
+def get_patch_format(session, package, version, config):
+    """ Retrieves a patch format from /debian/source/format
+    """
+    try:
+        source_format, loc = get_sources_path(session, package, version,
+                                              config,
+                                              'debian/source/format')
+    except (FileOrFolderNotFound, InvalidPackageOrVersionError) as e:
+        raise e
+    with io.open(source_format, mode='r', encoding='utf-8') as f:
+        format_file = f.read()
+    return format_file
+
+
+def is_supported(_format):
+    """ Determines whether a `_format` is supported
+    """
+    if _format not in ACCEPTED_FORMATS:
+        return False
+    else:
+        return True
+
+
+def get_patch_series(session, package, version, config):
+    """ Retrieves the patch series from debian/patches/series
+    """
+    try:
+        series, loc = get_sources_path(session, package, version,
+                                       config,
+                                       'debian/patches/series')
+    except (FileOrFolderNotFound, InvalidPackageOrVersionError):
+        raise FileOrFolderNotFound
+    with io.open(series, mode='r', encoding='utf-8') as f:
+            series = f.readlines()
+    return series

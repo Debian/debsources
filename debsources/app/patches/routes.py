@@ -18,9 +18,8 @@ from . import bp_patches
 
 from ..helper import bind_render
 from ..views import (IndexView, Ping, PrefixView, ErrorHandler,
-                     ListPackagesView, PackageVersionsView, SearchView,
-                     DocView, AboutView)
-from .views import SummaryView, PatchView
+                     ListPackagesView, SearchView, DocView, AboutView)
+from .views import SummaryView, PatchView, VersionsView
 
 
 # context vars
@@ -90,27 +89,23 @@ bp_patches.add_url_rule(
 
 # VERSIONSVIEW
 bp_patches.add_url_rule(
-    '/summary/<string:packagename>/',
-    view_func=PackageVersionsView.as_view(
+    '/<string:packagename>/',
+    view_func=VersionsView.as_view(
         'versions',
         render_func=bind_render('patches/package.html'),
         err_func=ErrorHandler('patches')))
 
 # api
 bp_patches.add_url_rule(
-    '/api/summary/<string:packagename>/',
-    view_func=PackageVersionsView.as_view(
+    '/api/<string:packagename>/',
+    view_func=VersionsView.as_view(
         'api_patch_versions',
         render_func=jsonify,
         err_func=ErrorHandler(mode='json')))
 
 # SUMMARYVIEW
-# Why not summary/<string:packagename>/<string:version>
-# Because then the patches blueprint must have its own show versions in the
-# macros since the other two blueprints will have a path_to parameter instead
-# of a packagename and version parameters.
 bp_patches.add_url_rule(
-    '/summary/<path:path_to>/',
+    '/<string:packagename>/<string:version>/',
     view_func=SummaryView.as_view(
         'summary',
         render_func=bind_render('patches/summary.html'),
@@ -118,7 +113,7 @@ bp_patches.add_url_rule(
 
 # api
 bp_patches.add_url_rule(
-    '/api/summary/<path:path_to>/',
+    '/api/<string:packagename>/<string:version>/',
     view_func=SummaryView.as_view(
         'api_summary',
         render_func=jsonify,
@@ -155,17 +150,17 @@ bp_patches.add_url_rule(
 
 # PATCHVIEW
 bp_patches.add_url_rule(
-    '/patch/<path:path_to>/',
+    '/<string:packagename>/<string:version>/<path:path_to>/',
     view_func=PatchView.as_view(
-        'patch',
+        'patch_view',
         render_func=bind_render('patches/patch.html'),
         err_func=ErrorHandler('patches')))
 
 # api
 bp_patches.add_url_rule(
-    '/api/patch/<path:path_to>/',
+    '/api/<string:packagename>/<string:version>/<path:path_to>/',
     view_func=PatchView.as_view(
-        'api_patch',
+        'api_patch_view',
         render_func=jsonify,
         err_func=ErrorHandler(mode='json')))
 
