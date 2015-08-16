@@ -60,13 +60,15 @@ def suites(session, suites='release'):
     return sorted(db_suites, cmp=by_release_date)
 
 
-def sticky_suites(session):
+def sticky_suites(session, order=None):
     """list sticky suites currently present in Debsources DB
 
     """
     q = session.query(SuiteInfo.name) \
                .filter(SuiteInfo.sticky == True)  # NOQA,
     # '== True' can be dropped starting with sqlalchemy >= 0.8
+    if order:
+        q = q.order_by("release_date")
     return [row[0] for row in q]
 
 
