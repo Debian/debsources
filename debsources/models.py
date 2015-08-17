@@ -19,15 +19,14 @@ from sqlalchemy import Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-
 from debsources.consts import VCS_TYPES, SLOCCOUNT_LANGUAGES, \
-    CTAGS_LANGUAGES, METRIC_TYPES
+    CTAGS_LANGUAGES, METRIC_TYPES, COPYRIGHT_ORACLES
 
 Base = declarative_base()
 
 
 # used for migrations, see scripts under debsources/migrate/
-DB_SCHEMA_VERSION = 8
+DB_SCHEMA_VERSION = 10
 
 
 class PackageName(Base):
@@ -361,6 +360,48 @@ class HistorySlocCount(Base):
     lang_vhdl = Column(Integer, nullable=True)
     lang_xml = Column(Integer, nullable=True)
     lang_yacc = Column(Integer, nullable=True)
+
+    def __init__(self, suite, timestamp):
+        self.suite = suite
+        self.timestamp = timestamp
+
+
+class FileCopyright(Base):
+
+    __tablename__ = 'copyright'
+
+    id = Column(Integer, primary_key=True)
+    file_id = Column(Integer,
+                     ForeignKey('files.id', ondelete="CASCADE"),
+                     index=True, nullable=False)
+    oracle = Column(Enum(*COPYRIGHT_ORACLES, name="copyright_oracles"),
+                    nullable=False)
+    license = Column(String)
+
+    def __init__(self, file_id, oracle, license):
+        self.file_id = file_id
+        self.oracle = oracle
+        self.license = license
+
+    def to_dict(self):
+        """ Serialize the object
+        """
+        return dict(file_id=self.file_id,
+                    oracle=self.oracle,
+                    license=self.license)
+
+
+class HistoryCopyright(Base):
+
+    __tablename__ = 'history_copyright'
+
+    id = Column(Integer, primary_key=True)
+    timestamp = Column(DateTime(timezone=False),
+                       index=True, nullable=False)
+    suite = Column(String,      # suite == "ALL" means totals
+                   index=True, nullable=False)
+    license = Column(String)
+    files = Column(Integer, nullable=True)
 
     def __init__(self, suite, timestamp):
         self.suite = suite

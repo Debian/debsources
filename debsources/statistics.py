@@ -17,6 +17,7 @@ from __future__ import absolute_import
 
 import logging
 import os
+import re
 
 import six
 
@@ -25,7 +26,8 @@ from sqlalchemy import func as sql_func
 
 from debsources.consts import SLOCCOUNT_LANGUAGES, SUITES
 from debsources.models import Checksum, Ctag, Metric, SlocCount, \
-    Suite, SuiteInfo, Package, PackageName
+    Suite, SuiteInfo, Package, PackageName, FileCopyright, File
+from debsources.license_helper import Licenses
 
 
 def _count(query):
@@ -372,3 +374,152 @@ def save_metadata_cache(stats, fname):
         for k, v in sorted(six.iteritems(stats)):
             out.write('%s\t%d\n' % (k, v))
     os.rename(fname + '.new', fname)
+
+
+def license_summary(session, dual, suite=None):
+    """ Count files per license filtered by `suite`
+
+    """
+    logging.debug('license summary for suite %s...' % suite)
+    q = session.query(FileCopyright.license, sql_func.count(FileCopyright.id))
+    if suite:
+        q = q.join(File) \
+             .join(Package) \
+             .join(Suite) \
+             .filter(Suite.suite == suite)
+    q = q.group_by(FileCopyright.license)
+    if dual:
+        return licenses_summary_w_dual(dict(q.all()))
+    else:
+        return licenses_summary(dict(q.all()))
+
+
+def _hist_copyright_sample(session, interval, projection, suite=None):
+    q = "\
+      SELECT * \
+      FROM history_copyright \
+      WHERE timestamp >= now() - interval '%(interval)s' \
+      %(filter)s \
+      ORDER BY %(projection)s DESC, timestamp DESC"
+    kw = {'projection': projection,
+          'interval': interval,
+          'filter': ''}
+    if suite:
+        kw['filter'] = "AND suite = '%s'" % suite
+    results = session.execute(q % kw)
+    copyright = dict()
+    for row in results:
+        if row['license'] in copyright.keys():
+            copyright[row['license']].append((row['timestamp'], row['files']))
+        else:
+            copyright[row['license']] = [(row['timestamp'], row['files'])]
+    return copyright
+
+
+def history_copyright_hourly(session, interval, suite):
+    """return recent size history of license, over the past `interval`
+
+    """
+    logging.debug('take hourly copyright sample of %s for suite %s'
+                  % (interval, suite))
+    return _hist_copyright_sample(session, interval,
+                                  projection="date_trunc('hour', timestamp)",
+                                  suite=suite)
+
+
+def history_copyright_daily(session, interval, suite):
+    """like `history_copyright_full`, but taking daily samples"""
+    logging.debug('take daily copyright sample of %s for suite %s'
+                  % (interval, suite))
+    return _hist_copyright_sample(session, interval,
+                                  projection="date_trunc('day', timestamp)",
+                                  suite=suite)
+
+
+def history_copyright_weekly(session, interval, suite):
+    """like `history_copyright_full`, but taking weekly samples"""
+    logging.debug('take weekly copyright sample of %s for suite %s'
+                  % (interval, suite))
+    return _hist_copyright_sample(session, interval,
+                                  projection="date_trunc('week', timestamp)",
+                                  suite=suite)
+
+
+def history_copyright_monthly(session, interval, suite):
+    """like `history_copyright_full`, but taking monthly samples"""
+    logging.debug('take monthly copyright sample of %s for suite %s'
+                  % (interval, suite))
+    return _hist_copyright_sample(session, interval,
+                                  projection="date_trunc('month', timestamp)",
+                                  suite=suite)
+
+
+def licenses_summary_w_dual(results):
+    summary = dict(unknown=0)
+    for result in results:
+        if any(keyword in result for keyword in ['and', 'or']):
+            # verify all are standard
+            licenses = re.split(', |and |or ', result)
+            unknown = True  # verify all licenses in statement are standard
+            for l in licenses:
+                key = filter(lambda x: re.search(x, l) is not None,
+                             Licenses)
+                if not key:
+                    unknown = False
+            if not unknown:
+                summary['unknown'] += results[result]
+            else:
+                # search if result exists in dict but in different order
+                found = None
+                for key in summary.keys():
+                    # replace spaces with _ as one loading the stats file
+                    # later we don't break it correctly.
+                    if set(result.split('_')) == set(key.split(' ')):
+                        # key exists
+                        found = key
+                        break
+                if found is not None:
+                    summary[found] += results[result]
+                else:
+                    summary[result.replace(' ', '_')] = results[result]
+        else:
+            key = filter(lambda x: re.search(x, result)
+                         is not None, Licenses)
+            # standard licenses
+            if len(key) > 0:
+                summary[result] = results[result]
+            else:
+                summary['unknown'] += results[result]
+    return summary
+
+
+def licenses_summary(results):
+    summary = dict(unknown=0)
+    for result in results:
+        if any(keyword in result for keyword in ['and', 'or']):
+            # split all licenses
+            licenses = re.split(', |and |or ', result)
+            for license in licenses:
+                license = license.rstrip()
+                key = filter(lambda x: re.search(x, license)
+                             is not None, Licenses)
+                if len(key) > 0:
+                    # if license already in dict then add it up
+                    if license.replace(' ', '_') in summary.keys():
+                        summary[license.replace(' ', '_')] += results[result]
+                    else:
+                        summary[license.replace(' ', '_')] = results[result]
+                else:
+                    summary['unknown'] += results[result]
+        else:
+            key = filter(lambda x: re.search(x, result)
+                         is not None, Licenses)
+            if len(key) > 0:
+                    # if license already in dict then add it up
+                    if result.replace(' ', '_') in summary.keys():
+                        summary[result.replace(' ', '_')] += results[result]
+                    else:
+                        summary[result.replace(' ', '_')] = results[result]
+            else:
+                summary['unknown'] += results[result]
+    return summary

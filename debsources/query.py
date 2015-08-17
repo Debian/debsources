@@ -9,7 +9,7 @@
 # see the COPYING file at the top-level directory of this distribution and at
 # https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=COPYING;hb=HEAD
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import os
 import stat
@@ -22,7 +22,8 @@ from debsources.consts import PREFIXES_DEFAULT
 from debsources.consts import SUITES
 from debsources.excepts import InvalidPackageOrVersionError
 from debsources.models import (
-    Checksum, Ctag, File, Package, PackageName, Suite, SuiteInfo)
+    Checksum, Ctag, File, Package, PackageName, Suite, SuiteInfo,
+    FileCopyright)
 
 
 LongFMT = namedtuple("LongFMT", ["type", "perms", "size", "symlink_dest"])
@@ -352,3 +353,38 @@ def count_packages(session):
 
     '''
     return (session.query(PackageName).count())
+
+
+def get_license_w_path(session, package, version, path):
+    ''' Retrieve license of file using its `path`, `package` and  `version`
+
+    '''
+    result = (session.query(FileCopyright.license.label('License'))
+              .filter(File.id == FileCopyright.file_id)
+              .filter(File.path == path)
+              .filter(File.package_id == Package.id)
+              .filter(Package.name_id == PackageName.id)
+              .filter(PackageName.name == package)
+              .filter(Package.version == version)
+              ).first()
+    if result:
+        return result[0]
+    else:
+        return None
+
+
+def get_ratio(session, suite=None):
+    """ Get ratio of machine readable files in `suite`
+    """
+    files = (session.query(File.id))
+    files_w_license = (session.query(FileCopyright.file_id))
+    if suite:
+        files_w_license = files_w_license.join(File) \
+            .join(Package) \
+            .join(Suite) \
+            .filter(Suite.suite == suite)
+        files = files.join(Package) \
+            .join(Suite) \
+            .filter(Suite.suite == suite)
+    ratio = 1 - (files_w_license.count() / files.count())
+    return int(ratio * 100)

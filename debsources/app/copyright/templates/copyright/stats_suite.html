@@ -1,0 +1,57 @@
+{#
+  Copyright (C) 2015  The Debsources developers <info@sources.debian.net>.
+  See the AUTHORS file at the top-level directory of this distribution and at
+  https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+  License: GNU Affero General Public License, version 3 or above.
+#}
+{# copied from templates/stats_suite.html #}
+
+{% extends name+"/base.html" %}
+
+{% block title %}Statistics: {{ suite }}{% endblock %}
+
+{% block breadcrumbs %}<a href="{{ url_for('.stats') }}">stats</a> / {{ suite }}{% endblock %}
+
+{% block content %}
+
+<h2>{{ self.title() }}</h2>
+
+<ul>
+  {% if rel_date != "None" %}
+  <li>Release date: {{rel_date}}</li>
+  {% endif %}
+  {% if rel_version != None %}
+  <li>Release version: {{rel_version}}</li>
+  {% endif %}
+    <div>
+    <span class="sidechart">
+    <a href="{{ url_for('static',
+         filename='img/stats/copyright_' + suite + '-license_pie-current.png') }}">
+      <img src="{{ url_for('static',
+        filename='img/stats/copyright_' + suite + '-license_pie-current.png') }}" />
+    </a>
+    </span>
+    <h3>Files per license (without aggregate dual licensing)</h3>
+    <ul>
+      {% for license in licenses %}
+        <li>{{ license }}: {{ results[suite + "." + license] | format_big_num }}</li>
+      {% endfor %}
+    </ul>
+
+    <h3>Files per license (aggregate dual licensing)</h3>
+    <ul>
+      {% for d_license in dual_licenses %}
+        <li>{{ d_license }}: {{ dual_results[suite + "." + d_license] | format_big_num }}</li>
+      {% endfor %}
+    </ul>
+    </div>
+  </li>
+</ul>
+
+{% import "copyright/stats_trends.inc.html" as stats_trends %}
+
+<h3>Historical trends</h3>
+{{ stats_trends.historical_trend(suite) }}
+
+
+{% endblock %}

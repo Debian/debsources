@@ -18,7 +18,7 @@ from ..helper import bind_render
 from . import bp_copyright
 from ..views import (IndexView, PrefixView, ListPackagesView, ErrorHandler,
                      Ping, PackageVersionsView, DocView, AboutView, SearchView)
-from .views import LicenseView, ChecksumLicenseView, SearchFileView
+from .views import LicenseView, ChecksumLicenseView, SearchFileView, StatsView
 
 
 # context vars
@@ -218,3 +218,39 @@ bp_copyright.add_url_rule(
         render_func=jsonify,
         err_func=ErrorHandler(mode='json'),
         get_objects='query'))
+
+# STATSVIEW
+bp_copyright.add_url_rule(
+    '/stats/',
+    view_func=StatsView.as_view(
+        'stats',
+        render_func=bind_render('copyright/stats.html'),
+        err_func=ErrorHandler('copyright'),
+        get_objects='stats',))
+
+# api
+bp_copyright.add_url_rule(
+    '/api/stats/',
+    view_func=StatsView.as_view(
+        'api_stats',
+        err_func=ErrorHandler(mode='json'),
+        get_objects='stats',))
+
+
+bp_copyright.add_url_rule(
+    '/stats/<suite>/',
+    view_func=StatsView.as_view(
+        'stats_suite',
+        render_func=bind_render('copyright/stats_suite.html'),
+        err_func=ErrorHandler('copyright'),
+        get_objects='stats_suite',))
+
+
+# api
+bp_copyright.add_url_rule(
+    '/api/stats/<suite>/',
+    view_func=StatsView.as_view(
+        'api_stats_suite',
+        render_func=jsonify,
+        err_func=ErrorHandler(mode='json'),
+        get_objects='stats_suite'))

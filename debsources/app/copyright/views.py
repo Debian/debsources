@@ -12,20 +12,21 @@
 from __future__ import absolute_import
 
 from collections import defaultdict, Counter
+import os
 
 from flask import current_app, request
 from debian.debian_support import version_compare
 
+import debsources.license_helper as helper
 import debsources.query as qry
+import debsources.statistics as statistics
 from debsources.excepts import (Http404ErrorSuggestions, FileOrFolderNotFound,
                                 InvalidPackageOrVersionError,
-                                Http404MissingCopyright)
-
-from ..views import GeneralView, ChecksumView, session
+                                Http404MissingCopyright, Http404Error)
+from ..views import GeneralView, ChecksumView, session, app
 from ..sourcecode import SourceCodeIterator
-from ..render import RenderLicense
 from ..pagination import Pagination
-from . import license_helper as helper
+from ..extract_stats import extract_stats
 
 
 class LicenseView(GeneralView):
@@ -73,14 +74,13 @@ class LicenseView(GeneralView):
                         code=sourcefile,
                         dump='True',
                         nlines=sourcefile.get_number_of_lines(),)
-        renderer = RenderLicense(c, 'jinja')
         return dict(package=package,
                     version=version,
                     dump='False',
-                    header=renderer.render_header(),
-                    files=renderer.render_files(
-                        "/src/" + package + "/" + version + "/"),
-                    licenses=renderer.render_licenses())
+                    header=helper.get_copyright_header(c),
+                    files=helper.parse_copyright_paragraphs_for_html_render(
+                        c, "/src/" + package + "/" + version + "/"),
+                    licenses=helper.parse_licenses_for_html_render(c))
 
 
 class ChecksumLicenseView(ChecksumView):
@@ -109,8 +109,17 @@ class ChecksumLicenseView(ChecksumView):
         result = []
         for f in files:
             try:
+                # once DB full, remove license path
+                try:
+                    license_path = helper.get_sources_path(session,
+                                                           f['package'],
+                                                           f['version'],
+                                                           current_app.config)
+                except (FileOrFolderNotFound, InvalidPackageOrVersionError):
+                    raise Http404ErrorSuggestions(f['package'], f['version'],
+                                                  '')
                 l = helper.get_license(session, f['package'],
-                                       f['version'], f['path'])
+                                       f['version'], f['path'], license_path)
                 result.append(dict(oracle='debian',
                                    path=f['path'],
                                    package=f['package'],
@@ -216,12 +225,20 @@ class ChecksumLicenseView(ChecksumView):
 class SearchFileView(GeneralView):
 
     def _license_of_files(self, f):
+        # once DB full, remove license path
+        try:
+            license_path = helper.get_sources_path(session, f.package,
+                                                   f.version,
+                                                   current_app.config)
+        except (FileOrFolderNotFound, InvalidPackageOrVersionError):
+            raise Http404ErrorSuggestions(f.package, f.version, '')
         return dict(oracle='debian',
                     path=f.path,
                     package=f.package,
                     version=f.version,
                     license=helper.get_license(session, f.package,
-                                               f.version, f.path),
+                                               f.version, f.path,
+                                               license_path),
                     origin=helper.license_url(f.package, f.version))
 
     def get_objects(self, path_to):
@@ -250,7 +267,6 @@ class SearchFileView(GeneralView):
         else:
             files = qry.get_files_by_path_package(session, path, package,
                                                   version).all()
-
         if 'api' in request.endpoint:
             if not files:
                 return dict(return_code=404,
@@ -269,3 +285,57 @@ class SearchFileView(GeneralView):
                         result=[dict(checksum=res.checksum,
                                 copyright=self._license_of_files(res))
                                 for res in files])
+
+
+class StatsView(GeneralView):
+
+    def get_stats_suite(self, suite, **kwargs):
+        if suite not in statistics.suites(session, 'all'):
+            raise Http404Error()  # security, to avoid suite='../../foo',
+            # to include <img>s, etc.
+        stats_file = os.path.join(current_app.config["CACHE_DIR"],
+                                  "license_stats.data")
+        res = extract_stats(filename=stats_file,
+                            filter_suites=[suite])
+        licenses = [license.replace(suite + '.', '') for license in res.keys()]
+        dual_stats_file = os.path.join(app.config["CACHE_DIR"],
+                                       "dual_license.data")
+        dual_res = extract_stats(filename=dual_stats_file,
+                                 filter_suites=[suite])
+
+        dual_licenses = [license.replace(suite + '.', '') for license
+                         in dual_res.keys()]
+
+        info = qry.get_suite_info(session, suite)
+
+        return dict(results=res,
+                    licenses=sorted(licenses),
+                    dual_results=dual_res,
+                    dual_licenses=sorted(dual_licenses),
+                    suite=suite,
+                    rel_date=str(info.release_date),
+                    rel_version=info.version)
+
+    def get_stats(self):
+
+        stats_file = os.path.join(app.config["CACHE_DIR"],
+                                  "license_stats.data")
+        res = extract_stats(filename=stats_file)
+
+        dual_stats_file = os.path.join(app.config["CACHE_DIR"],
+                                       "dual_license.data")
+        dual_res = extract_stats(filename=dual_stats_file)
+        dual_licenses = [license.replace('overall.', '') for license
+                         in dual_res.keys()
+                         if 'overall.' in license]
+
+        licenses = [license.replace('overall.', '') for license in res.keys()
+                    if 'overall.' in license]
+        all_suites = [suite for suite in
+                      statistics.suites(session, suites='all')]
+        all_suites = all_suites[all_suites.index('squeeze'):]
+        return dict(results=res,
+                    licenses=sorted(licenses),
+                    dual_results=dual_res,
+                    dual_licenses=sorted(dual_licenses),
+                    suites=all_suites)

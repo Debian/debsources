@@ -10,6 +10,7 @@
 # https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=COPYING;hb=HEAD
 
 from __future__ import absolute_import
+from __future__ import division
 
 import glob
 import logging
@@ -21,6 +22,7 @@ import six
 from six.moves import map
 from six.moves import range
 
+from collections import Counter
 from datetime import datetime
 from email.utils import formatdate
 from sqlalchemy import sql, not_
@@ -28,11 +30,12 @@ from sqlalchemy import sql, not_
 from debsources import db_storage
 from debsources import fs_storage
 from debsources import statistics
+from . import query as qry
 
 from debsources.consts import DEBIAN_RELEASES, SLOCCOUNT_LANGUAGES
 from debsources.debmirror import SourceMirror, SourcePackage
 from debsources.models import SuiteInfo, Suite, SuiteAlias, Package, \
-    HistorySize, HistorySlocCount
+    HistorySize, HistorySlocCount, HistoryCopyright
 from debsources.subprocess_workaround import subprocess_setup
 
 KNOWN_EVENTS = ['add-package', 'rm-package']
@@ -497,6 +500,62 @@ def update_statistics(status, conf, session, suites=None):
     if not conf['dry_run'] and 'fs' in conf['backends']:
         statistics.save_metadata_cache(stats, stats_file)
 
+    def update_license_statistics(suites):
+        # compute License stats
+        license_stats_file = os.path.join(conf['cache_dir'],
+                                          'license_stats.data')
+        dual_license_file = os.path.join(conf['cache_dir'],
+                                         'dual_license.data')
+        overall_licenses = Counter()
+        license_stats = dict()
+
+        overall_d_licenses = Counter()
+        license_d_stats = dict()
+
+        # per suite stats
+        if 'squeeze' in suites:
+            suites = suites[suites.index('squeeze'):]
+
+        for suite in suites:
+            query = Counter(statistics.license_summary(session, dual=False,
+                                                       suite=suite))
+            dual_query = Counter(statistics.license_summary(session,
+                                                            dual=True,
+                                                            suite=suite))
+            overall_d_licenses = overall_d_licenses + dual_query
+            overall_licenses = overall_licenses + query
+            for res in query:
+                lic = HistoryCopyright(suite, timestamp=now)
+                license_stats[suite + "." + res.rstrip()] = query[res]
+                setattr(lic, 'license', res.replace('_', ' '))
+                setattr(lic, 'files', query[res])
+                if not conf['dry_run'] and 'db' in conf['backends']:
+                        session.add(lic)
+            # no historical here, only save to file
+            for res in dual_query:
+                license_d_stats[suite + "." + res.rstrip()] = dual_query[res]
+
+        for stat in overall_d_licenses:
+            license_d_stats['overall.' + stat] = overall_d_licenses[stat]
+
+        if not conf['dry_run'] and 'fs' in conf['backends']:
+            statistics.save_metadata_cache(license_d_stats, dual_license_file)
+
+        session.flush()
+        for stat in overall_licenses:
+            lic = HistoryCopyright('ALL', timestamp=now)
+            setattr(lic, 'license', stat.replace('_', ' '))
+            setattr(lic, 'files', overall_licenses[stat])
+            license_stats['overall.' + stat] = overall_licenses[stat]
+            if not conf['dry_run'] and 'db' in conf['backends']:
+                session.add(lic)
+        session.flush()
+        if not conf['dry_run'] and 'fs' in conf['backends']:
+            statistics.save_metadata_cache(license_stats, license_stats_file)
+
+    if 'copyright' in conf['hooks']:
+        update_license_statistics(suites)
+
 
 def update_metadata(status, conf, session):
     """update stage: update metadata
@@ -559,7 +618,7 @@ def update_charts(status, conf, session, suites=None):
                                       '%s-sloc-%s.png' %
                                       (suite, period.replace(' ', '-')))
             if not conf['dry_run']:
-                charts.sloc_plot(mseries, chart_file)
+                charts.multiseries_plot(mseries, chart_file)
 
     # sloccount: current pie charts
     sloc_per_suite = []
@@ -573,7 +632,7 @@ def update_charts(status, conf, session, suites=None):
         chart_file = os.path.join(conf['cache_dir'], 'stats',
                                   '%s-sloc_pie-current.png' % suite)
         if not conf['dry_run']:
-            charts.sloc_pie(slocs, chart_file)
+            charts.pie_chart(slocs, chart_file)
 
     # sloccount: bar chart plot
     if 'charts_top_langs' in conf.keys():
@@ -581,7 +640,58 @@ def update_charts(status, conf, session, suites=None):
     else:
         top_langs = 6
     chart_file = os.path.join(conf['cache_dir'], 'stats', 'sloc_bar_plot.png')
-    charts.bar_chart(sloc_per_suite, suites, chart_file, top_langs)
+    charts.bar_chart(sloc_per_suite, suites, chart_file, top_langs, 'SLOC')
+
+    def update_license_charts():
+        # License: historical histogramms
+        for (period, granularity) in CHARTS:
+            for suite in suites + ['ALL']:
+                mseries = getattr(statistics,
+                                  'history_copyright_' + granularity)(
+                    session, interval=period, suite=suite)
+                chart_file = os.path.join(conf['cache_dir'], 'stats',
+                                          'copyright_%s-license-%s.png' %
+                                          (suite, period.replace(' ', '-')))
+                if not conf['dry_run']:
+                    charts.multiseries_plot(mseries, chart_file, cols=3)
+
+        # License: overall pie chart
+        overall_licenses = statistics.license_summary(session, dual=False)
+        ratio = qry.get_ratio(session)
+        chart_file = os.path.join(conf['cache_dir'], 'stats',
+                                  'copyright_overall-license_pie.png')
+        if not conf['dry_run']:
+            charts.pie_chart(overall_licenses, chart_file, ratio)
+
+        # License: bar chart and per suite pie chart.
+        all_suites = statistics.sticky_suites(session) \
+            + __target_suites(session, None)
+        # select suites after squeeze (the introduction of dep5)
+        all_suites = all_suites[all_suites.index('squeeze'):]
+        licenses_per_suite = []
+        for suite in all_suites:
+            licenses = statistics.license_summary(session, dual=False,
+                                                  suite=suite)
+            ratio = qry.get_ratio(session, suite=suite)
+            # draw license pie chart
+            if not conf['dry_run']:
+                chart_file = os.path.join(conf['cache_dir'], 'stats',
+                                          'copyright_%s'
+                                          '-license_pie-current.png'
+                                          % suite)
+                charts.pie_chart(licenses, chart_file, ratio)
+
+            licenses_per_suite.append(licenses)
+
+        chart_file = os.path.join(conf['cache_dir'], 'stats',
+                                  'copyright_license_bar_plot.png')
+        if not conf['dry_run']:
+            charts.bar_chart(licenses_per_suite, all_suites, chart_file,
+                             top_langs, 'Number of files')
+
+    # LICENSE CHARTS
+    if 'copyright' in conf['hooks']:
+        update_license_charts()
 
 # update stages
 (STAGE_EXTRACT,

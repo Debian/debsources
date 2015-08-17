@@ -63,10 +63,10 @@ CHART_TEXTURES = ["/", "-", "+", "x", "o", ".", "*"]
 CHART_STYLES = [c + t for t in CHART_TEXTURES for c in COLORS]
 
 
-def sloc_plot(multiseries, fname):
-    """plot multiple sloccount time series --- available from `multiseries` as
-    a dictionary mapping series name to list of <timestamp, value> paris ---
-    and save it to file `fname`
+def multiseries_plot(multiseries, fname, cols=7):
+    """plot multiple metric (sloccount license) time series --- available from
+     `multiseries` as a dictionary mapping series name to list of <timestamp,
+    value> paris --- and save it to file `fname`
 
     """
     logging.debug('generate sloccount plot to %s...' % fname)
@@ -87,53 +87,60 @@ def sloc_plot(multiseries, fname):
     # plt.legend(bbox_to_anchor=(0, -0.04),
     plt.xticks(rotation=30)
     plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), mode='expand',
-               loc='lower left', ncol=7,
+               loc='lower left', ncol=cols,
                prop={'size': 8})
 
     plt.savefig(fname, bbox_inches='tight')
     plt.close()
 
 
-def sloc_pie(slocs, fname):
-    """plot a pie chart of sloccount in `slocs`, a dictionary which maps
-    language names to slocs. Save the obtained chart to `fname`
+def pie_chart(items, fname, ratio=None):
+    """plot a pie chart of `items` (i.e slocs, licenses), a dictionary
+    which maps a metric to a value. Save the obtained chart to `fname`
 
     """
     logging.debug('generate sloccount pie chart to %s...' % fname)
     cols = cm.Set1(np.arange(20) / 20.)
     plt.figure()
-    langs, slocs = _split_series(list(six.iteritems(slocs)))
-    modified_langs = ["Other: ", "Other"]
-    modified_slocs = [0]
-    for i, sloc in enumerate(slocs):
-        if sloc > sum(slocs) * 2 / 100:
-            modified_slocs.append(sloc)
-            modified_langs.append(langs[i])
+    keys, values = _split_series(list(six.iteritems(items)))
+    modified_keys = ["Other: ", "Other"]
+    modified_values = [0]
+    for i, value in enumerate(values):
+        if value > sum(values) * 2 / 100:
+            modified_values.append(value)
+            modified_keys.append(keys[i])
         else:
-            modified_slocs[0] = (sloc + modified_slocs[0])
-            modified_langs[0] = modified_langs[0] + " " + langs[i]
-            if i % 12 == 0 and i != 0:
-                modified_langs[0] = modified_langs[0] + "\n"
-    plt.pie(modified_slocs, labels=modified_langs[1:], autopct='%1.1f%%',
+            modified_values[0] = (value + modified_values[0])
+            modified_keys[0] = modified_keys[0] + keys[i].replace("_", ' ') \
+                + " / "
+            if len(modified_keys[0].split('\n')[-1]) > 50:
+                modified_keys[0] = modified_keys[0] + "\n"
+    # delete trailing /
+    modified_keys[0] = modified_keys[0][0:-2]
+    plt.pie(modified_values, labels=modified_keys[1:], autopct='%1.1f%%',
             colors=cols)
-    plt.figtext(.02, .02, modified_langs[0])
+    if ratio:
+        modified_keys[0] += '\nPercentage of files with non machine' \
+                            ' readable d/copyright files  = ' \
+                            + str(ratio) + '%'
+    plt.figtext(.02, .02, modified_keys[0])
     plt.savefig(fname)
     plt.close()
 
 
-def bar_chart(sloc_per_suite, suites, fname, N):
+def bar_chart(items_per_suite, suites, fname, N, y_label):
     """plot a bar chart of top-`N` languages of the `suites` using the
-    sloccount available in `sloc_per_suite`. Save the chart in `fname`.
+    sloccount available in `items_per_suite`. Save the chart in `fname`.
 
     """
     logging.debug('generate sloccount bat chart to %s...' % fname)
 
     try:
-        latest_release = sloc_per_suite[-2]
+        latest_release = items_per_suite[-2]
     except IndexError:
-        if len(sloc_per_suite) == 1:
-            logging.warn('sloc bar chart failed ' +
-                         'as only one suite is available')
+        if len(items_per_suite) == 1:
+            logging.warn('sloc bar chart failed '
+                         + 'as only one suite is available')
             return
         else:
             logging.warn('sloc bar chart failed ' +
@@ -151,8 +158,8 @@ def bar_chart(sloc_per_suite, suites, fname, N):
     for key in keys:
         slocs = []
         for i in range(0, len(suites)):
-            slocs.append(sloc_per_suite[i][key]
-                         if key in sloc_per_suite[i].keys() else 0)
+            slocs.append(items_per_suite[i][key]
+                         if key in items_per_suite[i].keys() else 0)
         important.append(slocs)
     plt.figure()
     ind = np.arange(len(suites))
@@ -171,7 +178,7 @@ def bar_chart(sloc_per_suite, suites, fname, N):
                                   bottom=bottom_sum(important[0:i],
                                                     len(suites))))
 
-    plt.ylabel('SLOC')
+    plt.ylabel(y_label)
     plt.xticks(ind + width / 2., (suites), rotation=75)
     plt.legend((p[0] for p in bar_charts),
                (keys), loc='center left', bbox_to_anchor=(1, 0.5))
