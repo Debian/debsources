@@ -26,7 +26,8 @@ MY_NAME = 'metrics'
 MY_EXT = '.stats'
 
 
-def metricsfile_path(pkgdir): return pkgdir + MY_EXT
+def metricsfile_path(pkgdir):
+    return pkgdir + MY_EXT
 
 
 def parse_metrics(path):

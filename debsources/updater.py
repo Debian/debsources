@@ -192,10 +192,10 @@ def is_excluded_package(pkg, exclude_specs):
     # compute list of *matching* package exclusion stanzas
     specs = [spec for spec in exclude_specs
              # ignore non package exclusion stanzas
-             if 'files' not in spec \
-             and spec['package'] == pkg['package'] \
-             and ('version' not in spec \
-                  or spec['version'] == pkg['version'])]
+             if 'files' not in spec and
+             spec['package'] == pkg['package'] and
+             ('version' not in spec or
+              spec['version'] == pkg['version'])]
     return bool(specs)
 
 

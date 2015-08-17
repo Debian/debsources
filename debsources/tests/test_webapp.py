@@ -356,11 +356,13 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertIn('stat: -rw-r--r-- 45,858 bytes', rv.data)
 
         # raw file link
-        self.assertIn('<a id="link_download" href="/data/main/l/ledit/2.01-6/ledit.ml">'
+        self.assertIn('<a id="link_download"' +
+                      ' href="/data/main/l/ledit/2.01-6/ledit.ml">' +
                       'download</a>', rv.data)
 
         # parent folder link
-        self.assertIn('<a id="link_parent_folder" href="/src/ledit/2.01-6/">parent folder</a>',
+        self.assertIn('<a id="link_parent_folder" href="/src/ledit/2.01-6/">' +
+                      'parent folder</a>',
                       rv.data)
 
     def test_source_file_text(self):

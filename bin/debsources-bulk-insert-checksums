@@ -75,7 +75,8 @@ def insert_checksums(conn, sumsfile):
         conn.execute(INSERT_SHA_Q, checksums)
 
 
-def is_checksum(p): return p.endswith(METADATA_SUFFIX)
+def is_checksum(p):
+    return p.endswith(METADATA_SUFFIX)
 
 
 def main(conf, sumsfile=None):

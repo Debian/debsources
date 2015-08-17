@@ -73,7 +73,8 @@ def sloc_plot(multiseries, fname):
     plt.figure()
     plt.yscale('log')
 
-    def by_value((x1, y1), (x2, y2)): return cmp(y1, y2)
+    def by_value((x1, y1), (x2, y2)):
+        return cmp(y1, y2)
 
     styles = cycle(LINE_STYLES)
     for name, series in sorted(six.iteritems(multiseries),

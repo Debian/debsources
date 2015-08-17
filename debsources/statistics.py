@@ -56,8 +56,9 @@ def suites(session, suites='release'):
     db_suites = [row[0] for row in session.query(distinct(Suite.suite))]
     db_suites = [s for s in db_suites if s in SUITES[suites]]
 
-    def by_release_date(s1, s2): return cmp(SUITES[suites].index(s1),
-                                            SUITES[suites].index(s2))
+    def by_release_date(s1, s2):
+        return cmp(SUITES[suites].index(s1),
+                   SUITES[suites].index(s2))
 
     return sorted(db_suites, cmp=by_release_date)
 

@@ -29,7 +29,8 @@ MY_NAME = 'checksums'
 MY_EXT = '.' + MY_NAME
 
 
-def sums_path(pkgdir): return pkgdir + MY_EXT
+def sums_path(pkgdir):
+    return pkgdir + MY_EXT
 
 # maximum number of ctags after which a (bulk) insert is sent to the DB
 BULK_FLUSH_THRESHOLD = 100000
