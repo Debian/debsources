@@ -71,9 +71,6 @@ def add_package(session, pkg, pkgdir, file_table):
         licenses = parse_license_file(license_file)
         db_package = db_storage.lookup_package(session, pkg['package'],
                                                pkg['version'])
-        session.query(FileCopyright) \
-               .join(File) \
-               .filter(File.package_id == db_package.id)
         if not session.query(FileCopyright).join(File)\
                       .filter(File.package_id == db_package.id).first():
             # ASSUMPTION: if *a* license of this package has already been
