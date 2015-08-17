@@ -37,9 +37,14 @@
     {%- endif %}
   </li>
   {% endfor %}
-  </ul>
+</ul>
+<p>
   {% if is_empty == true %}
-    <p>* This package has no patches yet.</p>
+  <small>* This package has no patches yet.</small><br>
   {% endif %}
+
+  <small>Note: packages without a link may have patches in a different format
+    than 3.0 (quilt).</small>
+</p>
 
 {% endblock %}
