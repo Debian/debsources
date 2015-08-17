@@ -3,5 +3,5 @@ CREATE TABLE history_copyright (
   timestamp TIMESTAMP WITHOUT TIME ZONE NOT NULL,
   suite VARCHAR NOT NULL,
   license VARCHAR,
-  files INTEGER,
+  files INTEGER
 );
