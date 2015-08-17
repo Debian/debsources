@@ -30,7 +30,8 @@ MY_NAME = 'sloccount'
 MY_EXT = '.' + MY_NAME
 
 
-def slocfile_path(pkgdir): return pkgdir + MY_EXT
+def slocfile_path(pkgdir):
+    return pkgdir + MY_EXT
 
 
 def grep(args):
