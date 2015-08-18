@@ -51,7 +51,7 @@
           <td><p>{%- for line in patches[patch]['deltas'] %}
             <a href="{{ url_for('sources.source', path_to=path + '/' + line['filepath'])}}">{{ line['filepath'] }}</a> | {{ line['deltas'] }}<br />
           {%- endfor %} {{ patches[patch]['summary'] }}</p></td>
-          <td><pre>{{ patches[patch]['description'] }}</pre>
+          <td><pre>{{ patches[patch]['description'].decode('utf-8') }}</pre>
           {%- if patches[patch]['bug'] != "" %}
           <p>Bug: <a href="https://bugs.debian.org/{{patches[patch]['bug']}}">#{{patches[patch]['bug']}}</a></p>   
           {%- endif %}
