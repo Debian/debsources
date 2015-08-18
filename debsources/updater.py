@@ -478,20 +478,34 @@ def update_statistics(status, conf, session, suites=None):
         session.add(siz)
         session.add(loc)
 
-    # compute per-suite stats
-    for suite in suites:
-        siz = HistorySize(suite, timestamp=now)
-        loc = HistorySlocCount(suite, timestamp=now)
+    # Update HistorySize
+    suite_key = 'debian_'
+    hist_siz = dict((suite, HistorySize(suite, timestamp=now))
+                    for suite in suites)
+    for stat in ['disk_usage', 'source_packages', 'source_files', 'ctags']:
+        stats_result = statistics.stats_grouped_by(session, stat)
+        for res in stats_result:
+            if res[0] in suites:
+                stats[suite_key + res[0] + '.' + stat] = res[1]
+                setattr(hist_siz[res[0]], stat, res[1])
 
-        suite_key = 'debian_' + suite + '.'
-        for stat in ['disk_usage', 'source_packages', 'source_files', 'ctags']:
-            v = getattr(statistics, stat)(session, suite)
-            stats[suite_key + stat] = v
-            setattr(siz, stat, v)
-        store_sloccount_stats(statistics.sloccount_summary(session, suite),
-                              stats, suite_key + 'sloccount', loc)
-        if not conf['dry_run'] and 'db' in conf['backends']:
+    if not conf['dry_run'] and 'db' in conf['backends']:
+        for siz in hist_siz.values():
             session.add(siz)
+
+    # update historySlocCount
+    sloccount_res = statistics.stats_grouped_by(session, 'sloccount')
+    hist_loc = dict((suite, HistorySlocCount(suite, timestamp=now))
+                    for suite in suites)
+    for suite in suites:
+        temp = dict((item[1], item[2]) for item in sloccount_res
+                    if item[0] == suite)
+        store_sloccount_stats(dict(temp), stats,
+                              suite_key + suite + ".sloccount",
+                              hist_loc[suite])
+
+    if not conf['dry_run'] and 'db' in conf['backends']:
+        for loc in hist_loc.values():
             session.add(loc)
 
     session.flush()

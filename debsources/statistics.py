@@ -352,6 +352,57 @@ def sloc_per_package(session, suite=None, areas=None):
     return q.all()
 
 
+def stats_grouped_by(session, stat, areas=None):
+    ''' Compute statistics `stat` query using grouped by
+        to minimize time execution.
+
+        Reference doc/update-stats-query.bench.sql
+    '''
+    logging.debug('Compute stats for all suites')
+    if stat is 'source_packages':
+        q = (session.query(Suite.suite.label("suite"),
+                           sql_func.count(Package.id))
+             .join(Package)
+             .group_by(Suite.suite)
+             )
+    elif stat is 'source_files':
+        q = (session.query(Suite.suite.label("suite"),
+                           sql_func.count(Checksum.id))
+             .join(Package)
+             .join(Checksum)
+             .group_by(Suite.suite)
+             )
+    elif stat is 'disk_usage':
+        q = (session.query(Suite.suite.label("suite"),
+                           sql_func.sum(Metric.value))
+             .filter(Metric.metric == 'size')
+             .join(Package)
+             .join(Metric)
+             .group_by(Suite.suite)
+             )
+    elif stat is 'ctags':
+        q = (session.query(Suite.suite.label('suite'),
+                           sql_func.count(Ctag.id))
+             .join(Package)
+             .join(Ctag)
+             .group_by(Suite.suite)
+             )
+    elif stat is 'sloccount':
+        q = (session.query(Suite.suite.label('suite'),
+                           SlocCount.language.label('language'),
+                           sql_func.sum(SlocCount.count))
+             .join(Package)
+             .join(SlocCount)
+             .group_by(Suite.suite, SlocCount.language)
+             )
+    else:
+        logging.warn("Unrecognised stat %s" % stat)
+        return 0
+    if areas:
+        q = q.filter(Package.area.in_(areas))
+    return q.all()
+
+
 def load_metadata_cache(fname):
     """load a `stats.data` file and return its content as an integer-valued
     dictionary
