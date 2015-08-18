@@ -27,6 +27,9 @@ test-slow:
 test-travis:
 	$(NOSE) $(TESTFLAGS) $(TESTDIR) -a \!notravis
 
+test-coverage:
+	$(NOSE) $(TESTFLAGS) $(TESTDIR) --with-coverage --cover-package=debsources
+
 check:
 	$(FLAKE) $(SRCDIR)/ $(shell grep -H 'env python' $(BINDIR)/debsources-* | cut -f 1 -d :)
 
