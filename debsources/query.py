@@ -14,7 +14,7 @@ from __future__ import absolute_import, division
 import os
 import stat
 
-from sqlalchemy import func as sql_func
+from sqlalchemy import func as sql_func, not_
 from collections import namedtuple
 
 from debian.debian_support import version_compare
@@ -329,9 +329,14 @@ def get_pkg_filter_prefix(session, prefix, suite=None):
     '''
     result = (session.query(PackageName)
               .filter(sql_func.lower(PackageName.name)
-                      .startswith(prefix))
-              .order_by(PackageName.name)
-              )
+                      .startswith(prefix)))
+
+    if prefix == 'l':  # we exclude 'lib*' from the 'l' prefix
+        result = (result
+                .filter(not_(sql_func.lower(PackageName.name)
+                        .startswith('lib'))))
+
+    result = result.order_by(PackageName.name)
 
     if suite is not None and suite is not "":
         return filter_pkg_by_suite(session, result, suite)

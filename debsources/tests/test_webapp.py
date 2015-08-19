@@ -188,6 +188,9 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         # special suite name "all" is specified
         rv = json.loads(self.app.get('/api/prefix/libc/?suite=all').data)
         self.assertIn({'name': "libcaca"}, rv['packages'])
+        # lib* must not be in 'l'
+        rv = json.loads(self.app.get('/api/prefix/l/').data)
+        self.assertNotIn({'name': "libcaca"}, rv['packages'])
 
     def test_by_prefix(self):
         rv = self.app.get('/prefix/libc/')
