@@ -17,7 +17,7 @@ from flask import jsonify, request, render_template
 from ..helper import bind_render, generic_before_request
 from . import bp_copyright
 from ..views import (IndexView, PrefixView, ListPackagesView, ErrorHandler,
-                     Ping, PackageVersionsView, DocView, AboutView, SearchView)
+                     Ping, PackageVersionsView, SearchView)
 from .views import LicenseView, ChecksumLicenseView, SearchFileView, StatsView
 from debsources.excepts import Http404Error
 
@@ -159,47 +159,6 @@ bp_copyright.add_url_rule(
         'api_file',
         render_func=jsonify,
         err_func=ErrorHandler(mode='json')))
-
-# doc
-bp_copyright.add_url_rule(
-    '/doc/',
-    view_func=DocView.as_view(
-        'doc',
-        render_func=bind_render('doc.html'),
-        err_func=ErrorHandler('copyright'),))
-
-# doc overview
-bp_copyright.add_url_rule(
-    '/doc/overview/',
-    view_func=DocView.as_view(
-        'doc_overview',
-        render_func=bind_render('doc_overview.html'),
-        err_func=ErrorHandler('copyright'),))
-
-# doc-url
-bp_copyright.add_url_rule(
-    '/doc/url/',
-    view_func=DocView.as_view(
-        'doc_url',
-        render_func=bind_render('copyright/doc_url.html'),
-        err_func=ErrorHandler('copyright'),))
-
-# doc-api
-bp_copyright.add_url_rule(
-    '/doc/api/',
-    view_func=DocView.as_view(
-        'doc_api',
-        render_func=bind_render('copyright/doc_api.html'),
-        err_func=ErrorHandler('copyright'),))
-
-# ABOUTVIEW
-bp_copyright.add_url_rule(
-    '/about/',
-    view_func=AboutView.as_view(
-        'about',
-        render_func=bind_render('about.html'),
-        err_func=ErrorHandler('sources'),))
-
 
 # SEARCHVIEW
 bp_copyright.add_url_rule(
