@@ -22,7 +22,6 @@ import six
 from six.moves import map
 from six.moves import range
 
-from collections import Counter
 from datetime import datetime
 from email.utils import formatdate
 from sqlalchemy import sql, not_
@@ -520,42 +519,44 @@ def update_statistics(status, conf, session, suites=None):
                                           'license_stats.data')
         dual_license_file = os.path.join(conf['cache_dir'],
                                          'dual_license.data')
-        overall_licenses = Counter()
         license_stats = dict()
-
-        overall_d_licenses = Counter()
         license_d_stats = dict()
 
         # per suite stats
         if 'squeeze' in suites:
             suites = suites[suites.index('squeeze'):]
 
+        hist_lic = dict((suite, HistoryCopyright(suite, timestamp=now))
+                        for suite in suites)
+        results = statistics.get_licenses(session)
         for suite in suites:
-            query = Counter(statistics.license_summary(session, dual=False,
-                                                       suite=suite))
-            dual_query = Counter(statistics.license_summary(session,
-                                                            dual=True,
-                                                            suite=suite))
-            overall_d_licenses = overall_d_licenses + dual_query
-            overall_licenses = overall_licenses + query
-            for res in query:
-                lic = HistoryCopyright(suite, timestamp=now)
-                license_stats[suite + "." + res.rstrip()] = query[res]
-                setattr(lic, 'license', res.replace('_', ' '))
-                setattr(lic, 'files', query[res])
+            temp = dict((item[0], item[2]) for item in results
+                        if item[1] == suite)
+            summary = statistics.licenses_summary(temp)
+            for res in summary:
+                license_stats[suite + "." + res.rstrip()] = summary[res]
+                setattr(hist_lic[suite], 'license', res.replace('_', ' '))
+                setattr(hist_lic[suite], 'files', summary[res])
                 if not conf['dry_run'] and 'db' in conf['backends']:
-                        session.add(lic)
+                        session.add(hist_lic[suite])
             # no historical here, only save to file
+            dual_query = statistics.licenses_summary_w_dual(temp)
             for res in dual_query:
                 license_d_stats[suite + "." + res.rstrip()] = dual_query[res]
 
+        # overall dual licenses
+        overall_d_licenses = statistics.licenses_summary_w_dual(
+            statistics.get_licenses(session, 'ALL'))
         for stat in overall_d_licenses:
             license_d_stats['overall.' + stat] = overall_d_licenses[stat]
 
+        # save dual licenses to file
         if not conf['dry_run'] and 'fs' in conf['backends']:
             statistics.save_metadata_cache(license_d_stats, dual_license_file)
 
         session.flush()
+        overall_licenses = statistics.licenses_summary(
+            statistics.get_licenses(session, 'ALL'))
         for stat in overall_licenses:
             lic = HistoryCopyright('ALL', timestamp=now)
             setattr(lic, 'license', stat.replace('_', ' '))
@@ -670,7 +671,8 @@ def update_charts(status, conf, session, suites=None):
                     charts.multiseries_plot(mseries, chart_file, cols=3)
 
         # License: overall pie chart
-        overall_licenses = statistics.license_summary(session, dual=False)
+        overall_licenses = statistics.licenses_summary(
+            statistics.get_licenses(session, 'ALL'))
         ratio = qry.get_ratio(session)
         chart_file = os.path.join(conf['cache_dir'], 'stats',
                                   'copyright_overall-license_pie.png')
@@ -683,9 +685,11 @@ def update_charts(status, conf, session, suites=None):
         # select suites after squeeze (the introduction of dep5)
         all_suites = all_suites[all_suites.index('squeeze'):]
         licenses_per_suite = []
+        results = statistics.get_licenses(session)
         for suite in all_suites:
-            licenses = statistics.license_summary(session, dual=False,
-                                                  suite=suite)
+            temp = dict((item[0], item[2]) for item in results
+                        if item[1] == suite)
+            licenses = statistics.licenses_summary(temp)
             ratio = qry.get_ratio(session, suite=suite)
             # draw license pie chart
             if not conf['dry_run']:

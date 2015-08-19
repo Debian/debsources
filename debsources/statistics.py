@@ -427,22 +427,31 @@ def save_metadata_cache(stats, fname):
     os.rename(fname + '.new', fname)
 
 
-def license_summary(session, dual, suite=None):
+def get_licenses(session, suite=None):
     """ Count files per license filtered by `suite`
 
     """
-    logging.debug('license summary for suite %s...' % suite)
-    q = session.query(FileCopyright.license, sql_func.count(FileCopyright.id))
-    if suite:
-        q = q.join(File) \
-             .join(Package) \
-             .join(Suite) \
-             .filter(Suite.suite == suite)
-    q = q.group_by(FileCopyright.license)
-    if dual:
-        return licenses_summary_w_dual(dict(q.all()))
+    logging.debug('grouped by license summary')
+    if not suite:
+        q = (session.query(FileCopyright.license, Suite.suite,
+                           sql_func.count(FileCopyright.id))
+             .join(File)
+             .join(Package)
+             .join(Suite)
+             .group_by(Suite.suite)
+             .group_by(FileCopyright.license)
+             .order_by(Suite.suite))
+        return q.all()
     else:
-        return licenses_summary(dict(q.all()))
+        q = (session.query(FileCopyright.license,
+                           sql_func.count(FileCopyright.id))
+             .join(File)
+             .join(Package))
+        if suite != 'ALL':
+            q = q.join(Suite) \
+                 .filter(Suite.suite == suite)
+        q = q.group_by(FileCopyright.license)
+        return dict(q.all())
 
 
 def _hist_copyright_sample(session, interval, projection, suite=None):
