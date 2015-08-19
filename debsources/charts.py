@@ -161,6 +161,9 @@ def bar_chart(items_per_suite, suites, fname, N, y_label):
             slocs.append(items_per_suite[i][key]
                          if key in items_per_suite[i].keys() else 0)
         important.append(slocs)
+    if not important:
+        return
+
     plt.figure()
     ind = np.arange(len(suites))
     width = 0.33
