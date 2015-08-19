@@ -11,7 +11,7 @@
 
 from __future__ import absolute_import
 
-from flask import url_for
+from flask import url_for, current_app
 
 from debsources.models import (
     PackageName, Package, Suite, SlocCount, Metric, Ctag)
@@ -153,6 +153,10 @@ class Infobox(object):
 
         pkg_infos["ctags_count"] = self._get_ctags_count()
 
-        pkg_infos['license'] = self._get_license_link()
+        if current_app.config.get('BLUEPRINT_COPYRIGHT'):
+            pkg_infos['copyright'] = True
+            pkg_infos['license'] = self._get_license_link()
+        else:
+            pkg_infos['copyright'] = False
 
         return pkg_infos

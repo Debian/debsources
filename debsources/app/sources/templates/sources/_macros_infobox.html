@@ -33,7 +33,9 @@
     <em>{{ package }} {{ version }}</em>
     {% endif %}
     <ul>
+    {% if pkg_infos['copyright'] == true %}
       <li><a href="{{ pkg_infos['license'] }}">view license information</a></li>
+    {% endif %}
       <li>links:
   <a href="{{ pkg_infos['pts_link'] }}"><abbr title="Debian Package Tracking
                  System">PTS</abbr></a>{% if pkg_infos['vcs_browser'] %},
