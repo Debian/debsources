@@ -522,10 +522,6 @@ def update_statistics(status, conf, session, suites=None):
         license_stats = dict()
         license_d_stats = dict()
 
-        # per suite stats
-        if 'squeeze' in suites:
-            suites = suites[suites.index('squeeze'):]
-
         hist_lic = dict((suite, HistoryCopyright(suite, timestamp=now))
                         for suite in suites)
         results = statistics.get_licenses(session)
@@ -682,8 +678,6 @@ def update_charts(status, conf, session, suites=None):
         # License: bar chart and per suite pie chart.
         all_suites = statistics.sticky_suites(session) \
             + __target_suites(session, None)
-        # select suites after squeeze (the introduction of dep5)
-        all_suites = all_suites[all_suites.index('squeeze'):]
         licenses_per_suite = []
         results = statistics.get_licenses(session)
         for suite in all_suites:
