@@ -81,7 +81,7 @@ bp_sources.add_url_rule(
     '/doc/url/',
     view_func=DocView.as_view(
         'doc_url',
-        render_func=bind_render('sources/doc_url.html'),
+        render_func=bind_render('doc_url.html'),
         err_func=ErrorHandler('sources'),))
 
 
@@ -89,7 +89,7 @@ bp_sources.add_url_rule(
     '/doc/api/',
     view_func=DocView.as_view(
         'doc_api',
-        render_func=bind_render('sources/doc_api.html'),
+        render_func=bind_render('doc_api.html'),
         err_func=ErrorHandler('sources'),))
 
 

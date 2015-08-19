@@ -5,38 +5,11 @@
   License: GNU Affero General Public License, version 3 or above.
 #}
 
-{% extends name+"/base.html" %}
-
-{% block head %}
-{{ super() }}
-<style>
-  .url{display: block; /*margin-left: 50px;*/}
-</style>
-{% endblock %}
-{% block title %}API documentation{% endblock %}
-
-{% block breadcrumbs %}<a href="{{ url_for('.doc') }}">doc</a> / api{% endblock %}
-
 {% block content %}
 {% set url_prefix = "//" + config.SOURCES_URL + '/copyright' %}
 
-<h2>{{ self.title() }}</h2>
+<h2 id='copyright'>Copyright</h2>
 
-<div class="warning">
-  This API is not stable yet and, as such, has no associated version number.
-  For the time being use this API at your own risk and keep an eye on this page
-  for changes.
-</div>
-{% if sources == true %}
-<div class="warning">
-  You can also check the documentation for the <a href="{{ url_for('sources.doc_api') }}">sources API</a>
-</div>
-{% endif %}
-{% if patches == true %}
-<div class="warning">
-  You can also check the documentation for the <a href="{{ url_for('patches.doc_api') }}">patches API</a>
-</div>
-{% endif %}
 <p>You can query all information available in Debian Sources, and get a JSON
   object which allows you to navigate packages and source files
   programmaticaly.<br /> The JSON result will be pretty-printed, unless the
