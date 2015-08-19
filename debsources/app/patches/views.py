@@ -49,7 +49,8 @@ class SummaryView(GeneralView):
         """
         patches_info = dict()
         for serie in series:
-            if not serie.startswith('#'):
+            serie = serie.strip()
+            if not serie.startswith('#') or not serie == "":
                 patch = serie.rstrip().split(' ')[0]
                 try:
                     serie_path, loc = get_sources_path(session, package,
