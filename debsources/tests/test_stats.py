@@ -182,9 +182,30 @@ class Stats(unittest.TestCase, DbTestFixture):
         expected_stats = {
             'BSD-3-clause': 1,
             'GFDL-1.3+': 6,
-            'GPL-2': 61,
-            'GPL-2+': 160
+            'GPL-2': 31,
+            'GPL-2+': 105
         }
 
-        jessie_stats = statistics.license_summary(self.session, 'jessie')
+        jessie_stats = statistics.licenses_summary(dict(
+            statistics.get_licenses(self.session, 'jessie')))
         self.assertDictContainsSubset(expected_stats, jessie_stats)
+
+    @istest
+    def test_group_by_stats(self):
+        stats = dict(statistics.stats_grouped_by(self.session, 'disk_usage'))
+        self.assertEqual(stats['etch'], 32736)
+
+        stats = dict(statistics.stats_grouped_by(self.session, 'ctags'))
+        self.assertEqual(stats['wheezy'], 20150)
+
+        stats = dict(statistics.stats_grouped_by(self.session,
+                                                 'source_packages'))
+        self.assertEqual(stats['jessie'], 13)
+
+        stats = dict(statistics.stats_grouped_by(self.session, 'source_files'))
+        self.assertEqual(stats['wheezy'], 1632)
+
+        sloc_list = statistics.stats_grouped_by(self.session, 'sloccount')
+        wheezy_sloc = [[item[1], item[2]] for item in sloc_list
+                       if item[0] == "wheezy"]
+        self.assertEqual(dict(wheezy_sloc)['sh'], 13560)
