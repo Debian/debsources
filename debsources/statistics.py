@@ -547,7 +547,7 @@ def licenses_summary_w_dual(results):
                          is not None, Licenses)
             # standard licenses
             if len(key) > 0:
-                summary[result] = results[result]
+                summary[result.replace(' ', '_')] = results[result]
             else:
                 summary['unknown'] += results[result]
     return summary
