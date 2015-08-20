@@ -72,11 +72,12 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
     def test_non_machine_readable_license(self):
         rv = self.app.get('/copyright/license/gnubg/0.90+20091206-4/')
-        self.assertNotIn("<p class=\'r_glob\'>", rv.data)
+        self.assertNotIn("<div class='r_files' id='copyright_info'>",
+                         rv.data)
 
     def test_machine_readable_license(self):
         rv = self.app.get('/copyright/license/gnubg/1.02.000-2/')
-        self.assertIn("<p class=\'r_glob\'>", rv.data)
+        self.assertIn("<div class='r_files' id='copyright_info'>", rv.data)
 
     def test_common_licenses_link(self):
         rv = self.app.get('/copyright/license/gnubg/1.02.000-2/')
