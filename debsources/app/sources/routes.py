@@ -15,8 +15,8 @@ from flask import redirect, url_for, request, jsonify, render_template
 
 from ..helper import bind_render, generic_before_request
 from ..views import (
-    IndexView, DocView, AboutView, SearchView, CtagView, ChecksumView,
-    PrefixView, ListPackagesView, InfoPackageView, Ping, ErrorHandler,
+    IndexView, SearchView, CtagView, ChecksumView, PrefixView,
+    ListPackagesView, InfoPackageView, Ping, ErrorHandler,
     PackageVersionsView)
 
 from .views import StatsView, SourceView
@@ -66,48 +66,6 @@ bp_sources.add_url_rule(
         render_func=bind_render('sources/index.html'),
         err_func=ErrorHandler('sources'),
         news_html='sources_news.html'))
-
-
-# DOCVIEW
-bp_sources.add_url_rule(
-    '/doc/',
-    view_func=DocView.as_view(
-        'doc',
-        render_func=bind_render('doc.html'),
-        err_func=ErrorHandler('sources'),))
-
-
-bp_sources.add_url_rule(
-    '/doc/url/',
-    view_func=DocView.as_view(
-        'doc_url',
-        render_func=bind_render('doc_url.html'),
-        err_func=ErrorHandler('sources'),))
-
-
-bp_sources.add_url_rule(
-    '/doc/api/',
-    view_func=DocView.as_view(
-        'doc_api',
-        render_func=bind_render('doc_api.html'),
-        err_func=ErrorHandler('sources'),))
-
-
-bp_sources.add_url_rule(
-    '/doc/overview/',
-    view_func=DocView.as_view(
-        'doc_overview',
-        render_func=bind_render('doc_overview.html'),
-        err_func=ErrorHandler('sources'),))
-
-
-# ABOUTVIEW
-bp_sources.add_url_rule(
-    '/about/',
-    view_func=AboutView.as_view(
-        'about',
-        render_func=bind_render('about.html'),
-        err_func=ErrorHandler('sources'),))
 
 
 # STATSVIEW
