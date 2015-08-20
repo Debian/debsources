@@ -139,8 +139,8 @@ def bar_chart(items_per_suite, suites, fname, N, y_label):
         latest_release = items_per_suite[-2]
     except IndexError:
         if len(items_per_suite) == 1:
-            logging.warn('sloc bar chart failed '
-                         + 'as only one suite is available')
+            logging.warn('sloc bar chart failed ' +
+                         'as only one suite is available')
             return
         else:
             logging.warn('sloc bar chart failed ' +

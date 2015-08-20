@@ -23,7 +23,10 @@ conf = None
 
 MY_NAME = 'copyright'
 MY_EXT = '.' + MY_NAME
-license_path = lambda pkgdir: pkgdir + MY_EXT
+
+
+def license_path(pkgdir):
+    return pkgdir + MY_EXT
 
 
 def parse_license_file(path):

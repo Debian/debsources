@@ -333,8 +333,8 @@ def get_pkg_filter_prefix(session, prefix, suite=None):
 
     if prefix == 'l':  # we exclude 'lib*' from the 'l' prefix
         result = (result
-                .filter(not_(sql_func.lower(PackageName.name)
-                        .startswith('lib'))))
+                  .filter(not_(sql_func.lower(PackageName.name)
+                               .startswith('lib'))))
 
     result = result.order_by(PackageName.name)
 
