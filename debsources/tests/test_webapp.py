@@ -166,7 +166,7 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         rv = self.app.get('/doc/url/')
         self.assertIn('URL scheme', rv.data)
 
-        rv = self.app.get('/about/')
+        rv = self.app.get('/doc/about/')
         self.assertIn('source code', rv.data)
         self.assertIn('is available', rv.data)
 
