@@ -9,8 +9,16 @@
   {%- endfor %}
 </div>
 <div class='r_files'><h2>Files</h2>
+<table>
+<tr>
+  <th>Files</th>
+  <th>Copyright</th>
+  <th>License</th>
+  <th>Comment</th>
+</tr>
+<tr>
   {%- for paragraph in files %}
-    <p class='r_glob'> 
+    <td style='width:30%'> 
       {%- for file in paragraph['globs'] %}
         {%- if file['url'] is not none %}
           <a href="{{ file['url'] }}">{{ file['files'] }}</a> 
@@ -18,30 +26,27 @@
           {{ file['files'] }}
         {%- endif %}
       {%- endfor %}
-    </p>
-    <div class='r_files_info'>
-      <div class="r_copyright">
-        <span class='r_decorate'>Copyright: </span>
-        <pre> {{ paragraph['copyright'] }}</pre>
-      </div>
-      {%- if paragraph['comment'] is not none %}
-        <p class='r_comment'>
-          <span class='r_decorate'>Comment: </span> {{ macro.match_d_license(paragraph['comment']) }}
-        </p>
-      {%- endif %}
-      <p class='r_license'>
-        <span class='r_decorate'>License: </span> 
-          {%- if paragraph['license']['license'] is not none %}
-            {%- for text in paragraph['license']['license'] %}
-               {%- if text[1] is not none %} <a href="{{ text[1] }}">{{ text[0] }}</a>{%- else %}{{ text[0] }}{%- endif %}
+    </td>
+    <td>
+      <pre> {{ paragraph['copyright'] }}</pre>
+    </td>
+      <td>
+        {%- if paragraph['license']['license'] is not none %}
+          {%- for text in paragraph['license']['license'] %}
+            {%- if text[1] is not none %} <a href="{{ text[1] }}">{{ text[0] }}</a>{%- else %}{{ text[0] }}{%- endif %}
             {%- endfor %}
           {%- else %}{{ paragraph['license']['license'] }}{%- endif %}
-      </p>
-      {%- if paragraph['license']['text'] is not none %}
-        <pre class='r_synopsis'>{{ paragraph['license']['text'] }} </pre>
-      {%- endif %}
-    </div>
+      </td>
+    <td>
+    {%- if paragraph['comment'] is not none %}
+          {{ macro.match_d_license(paragraph['comment']) }}
+      {%- else %}
+      ----
+      {% endif %}
+    </td>
+    </tr>
   {%- endfor %}
+  </table>
 </div>
 <div class='r_licenses'><h2>Licenses</h2>
   {%- for license in licenses %}

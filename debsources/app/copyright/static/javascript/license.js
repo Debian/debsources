@@ -21,17 +21,18 @@ $(document).ready(function() {
   var pars = $('p[id^="license-"]');
   var num = pars.length;
   for (i=0; i<=num-1; i++) {
-      $('<a class="toggles r_decorate" id="'+i+'" />')
-          .text('Fold License ')
-          .appendTo('#license-'+i);
+      $('<a class="toggles" id="'+i+'" />')
+          .text('(Fold License)')
+          .appendTo('#license-'+i)
+          .wrap('<small></small>');
   }
   $('.toggles').on('click',function(){
        var thisIs = $(this).attr('id');
        $('#desc-'+thisIs).toggle();
        if( $('#desc-'+thisIs).is(':visible')){
-          $(this).text('Fold License ')
+          $(this).text('(Fold License)')
        }else{
-          $(this).text('Unfold License ')
+          $(this).text('(Unfold License)')
        }
   });
 });
