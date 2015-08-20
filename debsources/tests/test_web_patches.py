@@ -146,10 +146,10 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         rv = json.loads(
             self.app.get('/patches/api/summary/beignet/1.0.0-1/').data)
         patches = ["Debian-compliant-compiler-flags-handling.patch",
-                   "Enhance-debug-output.patch",
-                   "Utest-requires-deprecated-function-names.patch",
                    "Enable-test-debug.patch",
-                   "Link-against-terminfo.patch"]
+                   "Enhance-debug-output.patch",
+                   "Link-against-terminfo.patch",
+                   "Utest-requires-deprecated-function-names.patch"]
         self.assertListEqual(patches, rv['patches'])
         self.assertEqual(rv['format'], "3.0 (quilt)")
 

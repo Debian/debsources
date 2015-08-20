@@ -136,7 +136,7 @@ class SummaryView(GeneralView):
             return dict(package=package,
                         version=version,
                         format=format_file.rstrip(),
-                        patches=[key.rstrip() for key in info.keys()])
+                        patches=sorted([key.rstrip() for key in info.keys()]))
         return dict(package=package,
                     version=version,
                     path=path_to,
