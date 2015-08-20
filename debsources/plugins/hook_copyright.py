@@ -11,6 +11,7 @@
 
 from __future__ import absolute_import
 
+import io
 import logging
 import os
 
@@ -51,11 +52,12 @@ def add_package(session, pkg, pkgdir, file_table):
         synopsis = helper.get_license(session, package, version, relpath,
                                       os.path.join(pkgdir, 'debian/copyright'))
         if synopsis is not None:
-            out.write('%s\t%s\n' % (synopsis, relpath))
+            s = '%s\t%s\n' % (synopsis, relpath.decode('utf-8'))
+            out.write(s)
 
     if 'hooks.fs' in conf['backends']:
         if not os.path.exists(license_file):  # run license only if needed
-            with open(license_file_tmp, 'w') as out:
+            with io.open(license_file_tmp, 'w', encoding='utf-8') as out:
                 for (relpath, abspath) in \
                         fs_storage.walk_pkg_files(pkgdir, file_table):
                     emit_license(out, session, pkg['package'], pkg['version'],
