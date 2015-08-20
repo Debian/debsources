@@ -28,7 +28,7 @@
         <div id="logo">
           <a href="https://www.debian.org" title="Debian Home"><img src="{{ url_for('static', filename='img/debian-50.png') }}" alt="Debian"></a>
         </div> <!-- end logo -->
-        <p class="section"><a href="{{ url_for('.index') }}">DEBSOURCES</a></p>
+        <p class="section"><a href="{{ url_for('sources.index') }}">DEBSOURCES</a></p>
         <div id="searchbox">
             {{ macros.searchform(searchform, display="inline", value=query, placeholder="package name", id="query-1") }}
             <form name="codesearch" method="get"

@@ -75,6 +75,12 @@ class AppWrapper(object):
             self.app.register_blueprint(bp_sources,
                                         # hook on the root
                                         url_prefix=None)
+        # import documentation BP
+        from debsources.app.doc import bp_doc
+        # add a url-prefix
+        self.app.register_blueprint(bp_doc,
+                                    # hook on the root
+                                    url_prefix='/doc')
 
     def setup_conf(self):
         """

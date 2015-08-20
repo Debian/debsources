@@ -7,9 +7,8 @@
 
 {# copied from templates/doc.html #}
 
-{% extends name+"/base.html" %}
-{% import "sources/_macros_pubs.html" as pubs %}
-
+{% extends "sources/base.html" %}
+{% import "doc/_macros_pubs.html" as macro %}
 {% block title %}Documentation{% endblock %}
 
 {% block breadcrumbs %}doc{% endblock %}
@@ -20,8 +19,8 @@
 
 <ul>
 <li><a href="{{ url_for('.doc_overview') }}">Overview</a></li>
-<li><a href="{{ url_for('sources.doc_url') }}">URL scheme</a></li>
-<li><a href="{{ url_for('sources.doc_api') }}">API documentation</a></li>
+<li><a href="{{ url_for('.doc_url') }}">URL scheme</a></li>
+<li><a href="{{ url_for('.doc_api') }}">API documentation</a></li>
 <li><a href="{{ url_for('static', filename='db-schema/index.html') }}">Database schema</a></li>
 </ul>
 
@@ -30,7 +29,7 @@
 
 Debsources has been featured in the following scientific papers:
 
-{{ pubs.render_biblio() }}
+{{ macro.render_biblio() }}
 
 <h3>Misc</h3>
 Raphael Geissert has developed a plugin to enable source code edition in your
