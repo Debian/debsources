@@ -56,7 +56,7 @@
           <p>Bug: <a href="https://bugs.debian.org/{{patches[patch]['bug']}}">#{{patches[patch]['bug']}}</a></p>   
           {%- endif %}
           </td>
-          <td><a href="{{ url_for('.patch', path_to=path + '/' +patch.rstrip().split(' ')[0])}}">View</a></td>
+          <td><a href="{{ url_for('.patch_view', packagename=package, version=version, path_to=patch.rstrip().split(' ')[0])}}">View</a></td>
           <td><a href="{{ patches[patch]['download'] }}">download</a></td>
         </tr>
         {% endfor %}

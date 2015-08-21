@@ -13,7 +13,7 @@ from __future__ import absolute_import
 
 import os
 
-from flask import current_app, request, jsonify
+from flask import current_app, request, jsonify, url_for
 
 from debsources.excepts import (
     Http403Error, Http404ErrorSuggestions, Http404Error, FileOrFolderNotFound,
@@ -95,7 +95,10 @@ class SourceView(GeneralView):
                 redirect_url = os.path.normpath(
                     os.path.join(os.path.dirname(location.path_to),
                                  symlink_dest))
-                return self._redirect_to_url(request.endpoint, redirect_url)
+                self.render_func = bind_redirect(url_for(request.endpoint,
+                                                 path_to=redirect_url),
+                                                 code=301)
+                return dict(redirect=redirect_url)
             else:
                 raise Http403Error(
                     'insecure symlink, pointing outside package/version/')
@@ -246,17 +249,5 @@ class SourceView(GeneralView):
         package = path_dict[0]
         version = path_dict[1]
         path = '/'.join(path_dict[2:])
-
-        if version == "latest":  # we search the latest available version
-            return self._handle_latest_version(request.endpoint, package, path)
-
-        versions = self.handle_versions(version, package, path)
-        if versions and version:
-            redirect_url_parts = [package, versions[-1]]
-            if path:
-                redirect_url_parts.append(path)
-            redirect_url = '/'.join(redirect_url_parts)
-            return self._redirect_to_url(request.endpoint, redirect_url,
-                                         redirect_code=302)
 
         return self._render_location(package, version, path)
