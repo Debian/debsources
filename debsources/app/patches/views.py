@@ -12,6 +12,7 @@
 from __future__ import absolute_import
 
 import io
+from collections import OrderedDict
 
 from flask import request, current_app
 
@@ -47,7 +48,7 @@ class SummaryView(GeneralView):
             changes.
 
         """
-        patches_info = dict()
+        patches_info = OrderedDict()
         for serie in series:
             serie = serie.strip()
             if not serie.startswith('#') and not serie == "":
@@ -136,7 +137,7 @@ class SummaryView(GeneralView):
             return dict(package=package,
                         version=version,
                         format=format_file.rstrip(),
-                        patches=sorted([key.rstrip() for key in info.keys()]))
+                        patches=[key.rstrip() for key in info.keys()])
         return dict(package=package,
                     version=version,
                     path=path_to,
