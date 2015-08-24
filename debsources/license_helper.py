@@ -125,6 +125,11 @@ def get_license(session, package, version, path, license_path=None):
                          " missing a license field" % (path, package,
                                                        version))
             return None
+        except ValueError:
+            logging.warn("License of path %s in package %s with version %s has"
+                         " multiple lines without quotes" % (path,
+                                                             package, version))
+            return None
     else:
         return None
 
