@@ -111,12 +111,14 @@ def rm_package(session, pkg, pkgdir, file_table):
     if 'hooks.db' in conf['backends']:
         db_package = db_storage.lookup_package(session, pkg['package'],
                                                pkg['version'])
-        files = (session.query(FileCopyright.id)
-                 .join(File)
-                 .filter(File.package_id == db_package.id)).all()
-        for f in files:
-            session.query(FileCopyright) \
-                   .filter(FileCopyright.id == f).delete()
+
+        session.execute(
+            'DELETE FROM copyright c '
+            'Using files f '
+            'WHERE f.package_id = :package '
+            'AND c.file_id = f.id',
+            {"package": db_package.id}
+        )
 
 
 def init_plugin(debsources):
