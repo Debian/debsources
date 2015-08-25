@@ -16,6 +16,7 @@ import os
 
 from flask import current_app, request
 from debian.debian_support import version_compare
+from debian import copyright
 
 import debsources.license_helper as helper
 import debsources.query as qry
@@ -118,8 +119,13 @@ class ChecksumLicenseView(ChecksumView):
                 except (FileOrFolderNotFound, InvalidPackageOrVersionError):
                     raise Http404ErrorSuggestions(f['package'], f['version'],
                                                   '')
-                l = helper.get_license(session, f['package'],
-                                       f['version'], f['path'], license_path)
+                # parse file
+                try:
+                    c = helper.parse_license(license_path)
+                    l = helper.get_license(f['package'], f['version'],
+                                           f['path'], c)
+                except copyright.NotMachineReadableError:
+                    l = None
                 result.append(dict(oracle='debian',
                                    path=f['path'],
                                    package=f['package'],
@@ -232,13 +238,17 @@ class SearchFileView(GeneralView):
                                                    current_app.config)
         except (FileOrFolderNotFound, InvalidPackageOrVersionError):
             raise Http404ErrorSuggestions(f.package, f.version, '')
+
+        try:
+            c = helper.parse_license(license_path)
+            l = helper.get_license(f.package, f.version, f.path, c)
+        except copyright.NotMachineReadableError:
+            l = None
         return dict(oracle='debian',
                     path=f.path,
                     package=f.package,
                     version=f.version,
-                    license=helper.get_license(session, f.package,
-                                               f.version, f.path,
-                                               license_path),
+                    license=l,
                     origin=helper.license_url(f.package, f.version))
 
     def get_objects(self, path_to):

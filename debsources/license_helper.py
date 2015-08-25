@@ -105,17 +105,10 @@ def license_url(package, version):
     return url_for('.license', path_to=(package + '/' + version))
 
 
-def get_license(session, package, version, path, license_path=None):
+def get_license(package, version, path, c):
     # if not license_path:
     #     # retrieve license from DB
     #     return qry.get_license_w_path(session, package, version, path)
-
-    # parse license file to get license
-    try:
-        c = parse_license(license_path)
-    except copyright.NotMachineReadableError:
-        return None
-
     paragraph = c.find_files_paragraph(path)
     if paragraph:
         try:

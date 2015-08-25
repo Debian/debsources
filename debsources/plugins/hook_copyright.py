@@ -15,6 +15,8 @@ import io
 import logging
 import os
 
+from debian import copyright
+
 from debsources import db_storage, fs_storage
 from debsources.models import FileCopyright, File
 from debsources import license_helper as helper
@@ -45,15 +47,17 @@ def add_package(session, pkg, pkgdir, file_table):
     license_file = license_path(pkgdir)
     license_file_tmp = license_file + '.new'
 
-    def emit_license(out, session, package, version, relpath, pkgdir):
+    try:
+        c = helper.parse_license(os.path.join(pkgdir, 'debian/copyright'))
+    except copyright.NotMachineReadableError:
+        return
+
+    def emit_license(out, package, version, relpath, copyright):
         """ Retrieve license of the file. We use `relpath` as we want the path
             inside the package directory which is used in the d/copyright files
             paragraphs
         """
-        # join path for debian/copyright file as we are already in the sources
-        # directory.
-        synopsis = helper.get_license(session, package, version, relpath,
-                                      os.path.join(pkgdir, 'debian/copyright'))
+        synopsis = helper.get_license(package, version, relpath, copyright)
         if synopsis is not None:
             s = '%s\t%s\n' % (synopsis, relpath.decode('utf-8'))
             out.write(s)
@@ -63,17 +67,15 @@ def add_package(session, pkg, pkgdir, file_table):
             with io.open(license_file_tmp, 'w', encoding='utf-8') as out:
                 for (relpath, abspath) in \
                         fs_storage.walk_pkg_files(pkgdir, file_table):
-                    emit_license(out, session, pkg['package'], pkg['version'],
-                                 relpath, pkgdir)
+                    emit_license(out, pkg['package'], pkg['version'],
+                                 relpath, c)
             os.rename(license_file_tmp, license_file)
 
     if 'hooks.db' in conf['backends']:
         licenses = parse_license_file(license_file)
         db_package = db_storage.lookup_package(session, pkg['package'],
                                                pkg['version'])
-        session.query(FileCopyright) \
-               .join(File) \
-               .filter(File.package_id == db_package.id)
+
         if not session.query(FileCopyright).join(File)\
                       .filter(File.package_id == db_package.id).first():
             # ASSUMPTION: if *a* license of this package has already been
