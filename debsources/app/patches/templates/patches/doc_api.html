@@ -27,15 +27,14 @@
   <span class="url">{{ url_prefix }}/api/<strong>packagename</strong>/<strong>version</strong></span>
   The package summary contains the names of the patches and some basic information about the package
   <br/>
-  <a href="{{ url_prefix }}/api/beignet/1.0.0-1/">example</a>
-
+  <a href="{{ url_prefix }}/api/beignet/latest/">example</a>
 <h4>Patch view</h4>
 <p>
   The URL for a patch view is:
   <span class="url">{{ url_prefix }}/api/<strong>packagename</strong>/<strong>version</strong>/<strong>path</strong></span>
   Both package name and version are required parameters. The path is the relative path of the patch starting from the debian/patches directory.<br />
   This query retrieves the file-deltas, the description and the bug number if they exist.
-  <a href="{{ url_prefix }}/api/beignet/1.0.0-1/Debian-compliant-compiler-flags-handling.patch/">See example</a>
+  <a href="{{ url_prefix }}/api/beignet/1.0.3%2Bdfsg-1/Debian-compliant-compiler-flags-handling.patch/">See example</a>
 </p>
 
 <h3>Package list</h3>
