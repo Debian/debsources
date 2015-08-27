@@ -35,11 +35,12 @@ class SummaryView(GeneralView):
 
         """
         file_deltas = []
-        for line in summary.splitlines()[0:-1]:
-            filepath, deltas = line.split(' | ')
+        lines = summary.splitlines()
+        for line in lines[0:-1]:
+            filepath, deltas = line.split('|')
             file_deltas.append(dict(filepath=filepath.replace(' ', ''),
                                     deltas=deltas))
-        deltas_summary = '\n' + summary.splitlines()[-1]
+        deltas_summary = '\n' + lines[-1]
         return file_deltas, deltas_summary
 
     def parse_patch_series(self, session, package, version, config, series):
