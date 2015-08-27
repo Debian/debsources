@@ -155,7 +155,7 @@ def parse_copyright_paragraphs_for_html_render(copyright, base_url):
             l = {'license': parse_license_synopsis(copyright,
                                                    par.license.synopsis),
                  'text': par.license.text}
-        except AttributeError:
+        except (AttributeError, ValueError):
             l = {'license': None,
                  'text': None}
         paragraphs.append({
@@ -231,8 +231,12 @@ def anchor_to_license(copyright, synopsis):
         creates an anchor link there.
 
     """
-    licenses = [par.license.synopsis
-                for par in copyright.all_license_paragraphs()]
+    licenses = []
+    for par in copyright.all_license_paragraphs():
+        try:
+            licenses.append(par.license.synopsis)
+        except (AttributeError, ValueError):
+            pass
     if synopsis in licenses:
         return '#license-' + str(licenses.index(synopsis))
     else:
