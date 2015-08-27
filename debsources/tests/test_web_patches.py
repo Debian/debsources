@@ -80,6 +80,10 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertIn("utests/builtin_acos_asin.cpp</a>", rv.data)
         self.assertIn("8 \t5 +\t3 -\t0 !", rv.data)
 
+        # test debian/patches/series link
+        self.assertIn('<a href="/src/beignet/1.0.0-1/debian/patches/series/">',
+                      rv.data)
+
         # test non quilt package
         rv = self.app.get('/patches/summary/cvsnt/2.5.03.2382-3/')
         self.assertIn("The format of the patches in the package", rv.data)
