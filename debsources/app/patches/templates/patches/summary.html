@@ -42,6 +42,11 @@
     <p>This package has no patches.</p>
   {% else %}
     <h3>Patch series</h3>
+    <small>
+      <a href="{{ url_for('sources.source', path_to=package + '/' + version + '/debian/patches/series') }}">
+        view the series file
+      </a>
+    </small>
       <table>
        <tr class="head">
           <th>Patch</th>
