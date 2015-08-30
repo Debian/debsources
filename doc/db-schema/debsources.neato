@@ -8,9 +8,13 @@ edge [];
 
 "checksums" [shape = record, label = "{<col0> \N| id:  serial\lpackage_id:  integer\lfile_id:  integer\lsha256:  character varying(64)\l}" ];
 
+"copyright" [shape = record, label = "{<col0> \N| id:  serial\lfile_id:  integer\loracle:  copyright_oracles\llicense:  character varying\l}" ];
+
 "ctags" [shape = record, label = "{<col0> \N| id:  serial\lpackage_id:  integer\ltag:  character varying\lfile_id:  integer\lline:  integer\lkind:  character varying\llanguage:  ctags_languages\l}" ];
 
 "files" [shape = record, label = "{<col0> \N| id:  serial\lpackage_id:  integer\lpath:  bytea\l}" ];
+
+"history_copyright" [shape = record, label = "{<col0> \N| id:  serial\ltimestamp:  timestamp without time zone\lsuite:  character varying\llicense:  character varying\lfiles:  integer\l}" ];
 
 "history_size" [shape = record, label = "{<col0> \N| timestamp:  timestamp without time zone\lsuite:  character varying\lsource_packages:  integer\lbinary_packages:  integer\ldisk_usage:  integer\lsource_files:  integer\lctags:  integer\l}" ];
 
@@ -35,6 +39,7 @@ edge [];
 "binaries" -> "packages" [label="binaries_package_id_fkey"];
 "checksums" -> "packages" [label="checksums_package_id_fkey"];
 "checksums" -> "files" [label="checksums_file_id_fkey"];
+"copyright" -> "files" [label="copyright_file_id_fkey"];
 "ctags" -> "packages" [label="ctags_package_id_fkey"];
 "ctags" -> "files" [label="ctags_file_id_fkey"];
 "files" -> "packages" [label="files_package_id_fkey"];

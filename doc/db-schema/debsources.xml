@@ -410,6 +410,134 @@
       </para>
     </section>
 
+      <section id="public.table.copyright"
+               xreflabel="public.copyright">
+        <title id="public.table.copyright-title">
+         Table:
+         
+         <structname>copyright</structname>
+        </title>
+ 
+
+
+        <para>
+          <variablelist>
+            <title>
+              Structure of <structname>copyright</structname>
+            </title>
+
+
+            <varlistentry>
+              <term><structfield>id</structfield></term>
+              <listitem><para>
+                <type>serial</type>
+
+
+                <literal>PRIMARY KEY</literal>
+
+
+
+
+
+
+
+
+
+
+
+
+
+              </para>
+
+            </listitem>
+          </varlistentry>
+
+            <varlistentry>
+              <term><structfield>file_id</structfield></term>
+              <listitem><para>
+                <type>integer</type>
+
+
+
+
+
+
+
+                <literal>NOT NULL</literal>
+
+
+
+
+
+
+                <literal>REFERENCES</literal> <xref linkend="public.table.files"/>
+
+
+              </para>
+
+            </listitem>
+          </varlistentry>
+
+            <varlistentry>
+              <term><structfield>oracle</structfield></term>
+              <listitem><para>
+                <type>copyright_oracles</type>
+
+
+
+                <literal>NOT NULL</literal>
+
+
+
+
+
+              </para>
+
+            </listitem>
+          </varlistentry>
+
+            <varlistentry>
+              <term><structfield>license</structfield></term>
+              <listitem><para>
+                <type>character varying</type>
+
+
+
+
+
+
+
+              </para>
+
+            </listitem>
+          </varlistentry>
+
+        </variablelist>
+
+
+
+
+
+        <variablelist>
+          <title>Indexes on copyright</title>
+
+          <varlistentry>
+            <term>ix_copyright_file_id</term>
+            <listitem><para>file_id</para></listitem>
+          </varlistentry>
+
+        </variablelist>
+
+
+
+
+
+
+
+
+      </para>
+    </section>
+
       <section id="public.table.ctags"
                xreflabel="public.ctags">
         <title id="public.table.ctags-title">
@@ -756,11 +884,162 @@
 
           <listitem>
             <para>
+              <xref linkend="public.table.copyright"/>
+            </para>
+          </listitem>
+
+
+
+          <listitem>
+            <para>
               <xref linkend="public.table.ctags"/>
             </para>
           </listitem>
 
         </itemizedlist>
+
+
+
+
+
+
+      </para>
+    </section>
+
+      <section id="public.table.history-copyright"
+               xreflabel="public.history_copyright">
+        <title id="public.table.history-copyright-title">
+         Table:
+         
+         <structname>history_copyright</structname>
+        </title>
+ 
+
+
+        <para>
+          <variablelist>
+            <title>
+              Structure of <structname>history_copyright</structname>
+            </title>
+
+
+            <varlistentry>
+              <term><structfield>id</structfield></term>
+              <listitem><para>
+                <type>serial</type>
+
+
+                <literal>PRIMARY KEY</literal>
+
+
+
+
+
+
+
+
+
+
+
+
+
+              </para>
+
+            </listitem>
+          </varlistentry>
+
+            <varlistentry>
+              <term><structfield>timestamp</structfield></term>
+              <listitem><para>
+                <type>timestamp without time zone</type>
+
+
+
+                <literal>NOT NULL</literal>
+
+
+
+
+
+              </para>
+
+            </listitem>
+          </varlistentry>
+
+            <varlistentry>
+              <term><structfield>suite</structfield></term>
+              <listitem><para>
+                <type>character varying</type>
+
+
+
+                <literal>NOT NULL</literal>
+
+
+
+
+
+              </para>
+
+            </listitem>
+          </varlistentry>
+
+            <varlistentry>
+              <term><structfield>license</structfield></term>
+              <listitem><para>
+                <type>character varying</type>
+
+
+
+
+
+
+
+              </para>
+
+            </listitem>
+          </varlistentry>
+
+            <varlistentry>
+              <term><structfield>files</structfield></term>
+              <listitem><para>
+                <type>integer</type>
+
+
+
+
+
+
+
+              </para>
+
+            </listitem>
+          </varlistentry>
+
+        </variablelist>
+
+
+
+
+
+        <variablelist>
+          <title>Indexes on history_copyright</title>
+
+          <varlistentry>
+            <term>ix_history_copyright_suite</term>
+            <listitem><para>suite</para></listitem>
+          </varlistentry>
+
+
+
+          <varlistentry>
+            <term>ix_history_copyright_timestamp</term>
+            <listitem><para>&quot;timestamp&quot;</para></listitem>
+          </varlistentry>
+
+        </variablelist>
+
+
 
 
 
@@ -2389,15 +2668,7 @@
                 <type>character varying</type>
 
 
-
-
-                      <literal>UNIQUE</literal>
-
-
-
                 <literal>PRIMARY KEY</literal>
-
-
 
 
 
@@ -2420,15 +2691,6 @@
               <term><structfield>suite</structfield></term>
               <listitem><para>
                 <type>character varying</type>
-
-
-                <literal>PRIMARY KEY</literal>
-
-
-
-
-
-
 
 
 
