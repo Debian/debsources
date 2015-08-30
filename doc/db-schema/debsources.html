@@ -112,12 +112,12 @@
   <body>
 
     <!-- Primary Index -->
-	<p><br><br>Dumped on 2014-11-16</p>
+	<p><br><br>Dumped on 2015-08-30</p>
 <h1><a name="index">Index of database - debsources</a></h1>
 <ul>
     
     <li><a name="public.schema">public</a></li><ul>
-    	<li><a href="#public.table.binaries">binaries</a></li><li><a href="#public.table.binary-names">binary_names</a></li><li><a href="#public.table.checksums">checksums</a></li><li><a href="#public.table.ctags">ctags</a></li><li><a href="#public.table.files">files</a></li><li><a href="#public.table.history-size">history_size</a></li><li><a href="#public.table.history-sloccount">history_sloccount</a></li><li><a href="#public.table.metrics">metrics</a></li><li><a href="#public.table.package-names">package_names</a></li><li><a href="#public.table.packages">packages</a></li><li><a href="#public.table.sloccounts">sloccounts</a></li><li><a href="#public.table.suites">suites</a></li><li><a href="#public.table.suites-aliases">suites_aliases</a></li><li><a href="#public.table.suites-info">suites_info</a></li>
+    	<li><a href="#public.table.binaries">binaries</a></li><li><a href="#public.table.binary-names">binary_names</a></li><li><a href="#public.table.checksums">checksums</a></li><li><a href="#public.table.copyright">copyright</a></li><li><a href="#public.table.ctags">ctags</a></li><li><a href="#public.table.files">files</a></li><li><a href="#public.table.history-copyright">history_copyright</a></li><li><a href="#public.table.history-size">history_size</a></li><li><a href="#public.table.history-sloccount">history_sloccount</a></li><li><a href="#public.table.metrics">metrics</a></li><li><a href="#public.table.package-names">package_names</a></li><li><a href="#public.table.packages">packages</a></li><li><a href="#public.table.sloccounts">sloccounts</a></li><li><a href="#public.table.suites">suites</a></li><li><a href="#public.table.suites-aliases">suites_aliases</a></li><li><a href="#public.table.suites-info">suites_info</a></li>
   	
     </ul>
     
@@ -511,6 +511,132 @@
 	
         <hr>
 		<h2>Table:
+			<a name="public.table.copyright">copyright</a>
+		</h2>
+        
+
+
+        <table width="100%" cellspacing="0" cellpadding="3">
+                <caption>copyright Structure</caption>
+                <tr>
+                <th>F-Key</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Description</th>
+                </tr>
+            
+            <tr class="tr0">
+				<td>
+                
+                  
+                
+                </td>
+            	<td>id</td>
+            	<td>serial</td>
+                <td><i>
+				
+					PRIMARY KEY
+					
+
+					
+				
+
+				
+				
+				</i>
+				
+				</td>
+			 </tr>
+            
+            <tr class="tr1">
+				<td>
+                
+                  
+                  <a href="#public.table.files">files.id</a>
+                  
+                
+                </td>
+            	<td>file_id</td>
+            	<td>integer</td>
+                <td><i>
+				
+					
+
+					
+				
+
+				NOT NULL
+				
+				</i>
+				
+				</td>
+			 </tr>
+            
+            <tr class="tr0">
+				<td>
+                
+                </td>
+            	<td>oracle</td>
+            	<td>copyright_oracles</td>
+                <td><i>
+				
+
+				NOT NULL
+				
+				</i>
+				
+				</td>
+			 </tr>
+            
+            <tr class="tr1">
+				<td>
+                
+                </td>
+            	<td>license</td>
+            	<td>character varying</td>
+                <td><i>
+				
+
+				
+				
+				</i>
+				
+				</td>
+			 </tr>
+            
+        </table>
+
+        <!-- Inherits -->
+		
+
+		
+		
+		
+
+        <!-- Constraint List -->
+		
+
+        <!-- Foreign Key Discovery -->
+		
+
+    <!-- Indexes -->
+    
+       ix_copyright_file_id file_id
+    
+
+	<!-- View Definition -->
+	
+
+	<!-- List off permissions -->
+	
+
+	<p>
+		<a href="#index">Index</a> -
+		<a href="#public.schema">Schema public</a>
+    </p>
+	
+        <hr>
+		<h2>Table:
 			<a name="public.table.ctags">ctags</a>
 		</h2>
         
@@ -811,6 +937,10 @@
 			</ul>
 		
 			<ul>
+				<li><a href="#public.table.copyright">copyright</a></li>
+			</ul>
+		
+			<ul>
 				<li><a href="#public.table.ctags">ctags</a></li>
 			</ul>
 		
@@ -821,6 +951,142 @@
        ix_files_package_id package_id
     
        ix_files_path path
+    
+
+	<!-- View Definition -->
+	
+
+	<!-- List off permissions -->
+	
+
+	<p>
+		<a href="#index">Index</a> -
+		<a href="#public.schema">Schema public</a>
+    </p>
+	
+        <hr>
+		<h2>Table:
+			<a name="public.table.history-copyright">history_copyright</a>
+		</h2>
+        
+
+
+        <table width="100%" cellspacing="0" cellpadding="3">
+                <caption>history_copyright Structure</caption>
+                <tr>
+                <th>F-Key</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Description</th>
+                </tr>
+            
+            <tr class="tr0">
+				<td>
+                
+                  
+                
+                </td>
+            	<td>id</td>
+            	<td>serial</td>
+                <td><i>
+				
+					PRIMARY KEY
+					
+
+					
+				
+
+				
+				
+				</i>
+				
+				</td>
+			 </tr>
+            
+            <tr class="tr1">
+				<td>
+                
+                </td>
+            	<td>timestamp</td>
+            	<td>timestamp without time zone</td>
+                <td><i>
+				
+
+				NOT NULL
+				
+				</i>
+				
+				</td>
+			 </tr>
+            
+            <tr class="tr0">
+				<td>
+                
+                </td>
+            	<td>suite</td>
+            	<td>character varying</td>
+                <td><i>
+				
+
+				NOT NULL
+				
+				</i>
+				
+				</td>
+			 </tr>
+            
+            <tr class="tr1">
+				<td>
+                
+                </td>
+            	<td>license</td>
+            	<td>character varying</td>
+                <td><i>
+				
+
+				
+				
+				</i>
+				
+				</td>
+			 </tr>
+            
+            <tr class="tr0">
+				<td>
+                
+                </td>
+            	<td>files</td>
+            	<td>integer</td>
+                <td><i>
+				
+
+				
+				
+				</i>
+				
+				</td>
+			 </tr>
+            
+        </table>
+
+        <!-- Inherits -->
+		
+
+		
+		
+		
+
+        <!-- Constraint List -->
+		
+
+        <!-- Foreign Key Discovery -->
+		
+
+    <!-- Indexes -->
+    
+       ix_history_copyright_suite suite
+    
+       ix_history_copyright_timestamp "timestamp"
     
 
 	<!-- View Definition -->
@@ -2383,18 +2649,10 @@
                 
                   
                 
-                  
-                
                 </td>
             	<td>alias</td>
             	<td>character varying</td>
                 <td><i>
-				
-					
-
-					
-                       UNIQUE
-                    
 				
 					PRIMARY KEY
 					
@@ -2411,8 +2669,6 @@
             
             <tr class="tr1">
 				<td>
-
-                  
                 
                   
                   <a href="#public.table.suites-info">suites_info.name</a>
@@ -2422,11 +2678,6 @@
             	<td>suite</td>
             	<td>character varying</td>
                 <td><i>
-				
-					PRIMARY KEY
-					
-
-					
 				
 					
 
