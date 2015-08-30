@@ -72,3 +72,11 @@ Debian packages:
 - python-psycopg2
 - python-sqlalchemy
 - sloccount
+
+Other
+-----
+
+To re-generate the documentation:
+
+- graphviz
+- postgresql-autodoc
