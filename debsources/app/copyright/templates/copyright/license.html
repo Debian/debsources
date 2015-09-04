@@ -27,6 +27,7 @@
 {% if dump == 'True' %}
     {% include "source_file_code.inc.html" %}
 {% else %}
+<div class="warning"><a href="{{url_for('.spdx', path_to=package + '/' + version) }}">Export this license in SPDX</a></div>
     {% include "copyright/license_render.inc.html" %}
 {% endif %}
 {% endblock %}
