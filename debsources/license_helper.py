@@ -12,11 +12,15 @@ from __future__ import absolute_import
 import io
 import logging
 import re
+import hashlib
+from datetime import datetime
 
 from flask import url_for
 from debian import copyright
 
+from debsources.models import Checksum, File, Package, PackageName
 from debsources.navigation import Location, SourceFile
+from debsources.excepts import MissingCopyrightField
 
 # import debsources.query as qry
 
@@ -134,6 +138,10 @@ def get_license(session, package, version, path, license_path=None):
         return None
 
 
+def get_paragraph(c, path):
+    return c.find_files_paragraph(path)
+
+
 def get_copyright_header(copyright):
     """ Return all the header attributs
 
@@ -197,6 +205,8 @@ def create_url(glob="", base=None,):
 def match_license(synopsis):
     """ Matches a `synopsis` with a license and creates a url
     """
+    if any(keyword in synopsis for keyword in ['with', 'exception']):
+        return None
     key = filter(lambda x: re.search(x, synopsis) is not None, Licenses)
     if len(key) is not 0:
         return Licenses[key[0]]
@@ -241,3 +251,166 @@ def anchor_to_license(copyright, synopsis):
         return '#license-' + str(licenses.index(synopsis))
     else:
         return None
+
+
+def export_copyright_to_spdx(c, package, version, session):
+    """ Creates the SPDX document and saves the result in fname
+
+    """
+
+    def create_package_code(session, package, version):
+        sha = (session.query(Checksum.sha256.label("sha256"))
+               .filter(Checksum.package_id == Package.id)
+               .filter(Checksum.file_id == File.id)
+               .filter(Package.name_id == PackageName.id)
+               .filter(PackageName.name == package)
+               .filter(Package.version == version)
+               .order_by("sha256")
+               ).all()
+        sha_values = [sha256[0] for sha256 in sha]
+        return hashlib.sha256("".join(sha_values)).hexdigest()
+
+    def create_license_ref(license, count, refs, unknown):
+        """ Creates license references and adds it in the specific
+            dictionnary. Also adds the non standard licenses in unknown
+            licenses.
+        """
+        if license not in refs.keys() and license is not u'':
+            if not match_license(license):
+                l_id = 'LicenseRef-' + str(count)
+                refs[license] = l_id
+                count += 1
+                unknown[license] = "LicenseId: " + l_id + \
+                                   "\nLicenseName: " + l
+            else:
+                refs[license] = license
+        return refs, unknown, count
+
+    # set upstream name for native packages
+    if c.header.upstream_name is not None:
+        upstream_name = c.header.upstream_name
+    else:
+        upstream_name = package
+    # find out which are not standard and save SPDX required information
+    # Non standard licenses are referenced as LicenseRef-<number>
+    refs = dict()
+    count = 0
+    unknown = dict()
+    for par in c.all_files_paragraphs():
+        try:
+            l = par.license.synopsis
+            if any(keyword in l for keyword in ['and', 'or']):
+                licenses = re.split(', |and |or ', l)
+                for license in licenses:
+                    refs, unknown, count = create_license_ref(license.rstrip(),
+                                                              count, refs,
+                                                              unknown)
+            else:
+                refs, unknown, count = create_license_ref(l, count,
+                                                          refs, unknown)
+
+        except (AttributeError, ValueError):
+            pass
+
+    # add the available extracted license text for unknown licenses
+    for par in c.all_license_paragraphs():
+        try:
+            l = par.license.synopsis
+            if l in refs.keys() and not match_license(l):
+                unknown[l] = "LicenseID: " + refs[l] + \
+                             "\nExtractedText: <text>" + \
+                             par.license.text + "</text>" + \
+                             "\nLicenseName: " + l
+        except (AttributeError, ValueError):
+            pass
+
+    time = datetime.now()
+    now = str(time.date()) + 'T' + str(time.time()).split('.')[0] + 'Z'
+
+    spdx = ["SPDXVersion: SPDX-2.0", "DataLicense:CC0-1.0",
+            "SPDXID: SPDXRef-DOCUMENT",
+            "Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-Package",
+            "DocumentName: " + upstream_name,
+            "DocumentNamespace: http://spdx.org/spdxdocs/" +
+            "spdx-example-444504E0-4F89-41D3-9A0C-0305E82C3301",
+            "LicenseListVersion: 2.0",
+            "Creator: Person: Debsources",
+            "Creator: Organization: Debsources",
+            "Creator: Tool: Debsources",
+            "Created: " + now,
+            "CreatorComment: <text> This document was created by" +
+            "Debsources by parsing the respective debian/copyright" +
+            "file of the package provided by the Debian project. You" +
+            "may follow these links: http://debian.org/ " +
+            "http://sources.debian.net/ to get more information about " +
+            "Debian and Debsources. </text>",
+            "DocumentComment: <text>This document was created using" +
+            "SPDX 2.0, version 2.3 of the SPDX License List.</text>",
+            "PackageName: " + upstream_name,
+            "SPDXID: SPDXRef-Package",
+            "PackageDownloadLocation: NOASSERTION",
+            "PackageVerificationCode: " + create_package_code(session,
+                                                              package,
+                                                              version),
+            "PackageLicenseConcluded: NOASSERTION"]
+    for value in set(refs.values()):
+        spdx.append("PackageLicenseInfoFromFiles: " + value)
+
+    spdx.extend(["PackageLicenseDeclared: NOASSERTION",
+                "PackageCopyrightText: NOASSERTION"])
+    for files in get_files_spdx(refs, package, version, session, c):
+        for item in files:
+            spdx.append(str(item))
+    for u in unknown:
+            spdx.append(unknown[u])
+    return spdx
+
+
+def get_files_spdx(refs, package, version, session, c):
+    """ Get all files from the DB for a specific package and version and
+        then create a dictionnary for the SPDX entries
+
+    """
+
+    def replace_all(text, dic):
+        """ Replace all occurences of the keys in dic by the corresponding
+            value
+        """
+        for i, j in dic.iteritems():
+            text = text.replace(i, j)
+        return text
+
+    files = (session.query(Checksum.sha256.label("sha256"),
+                           File.path.label("path"))
+             .filter(Checksum.package_id == Package.id)
+             .filter(Checksum.file_id == File.id)
+             .filter(Package.name_id == PackageName.id)
+             .filter(PackageName.name == package)
+             .filter(Package.version == version)
+             )
+
+    files_info = []
+
+    for i, f in enumerate(files.all()):
+        par = get_paragraph(c, f.path)
+        try:
+            if not match_license(par.license.synopsis):
+                license_concluded = replace_all(par.license.synopsis, refs)
+            else:
+                license_concluded = par.license.synopsis
+        except (AttributeError, ValueError):
+            license_concluded = "None"
+        # NOASSERTION means that the SPDX generator did not calculate that
+        # value.
+        sha = 'NOASSERTION' if not f.sha256 else f.sha256
+        try:
+            files_info.append(["FileName: " + f.path,
+                               "SPDXID: SPDX-FILE-REF-" + str(i),
+                               "FileChecksum: SHA256: " + sha,
+                               "LicenseConcluded: " + license_concluded,
+                               "LicenseInfoInFile: NOASSERTION",
+                               "FileCopyrightText: <text>" +
+                               par.copyright.encode('utf-8') + "</text>"])
+        except AttributeError:
+            raise MissingCopyrightField(package, version, par.files)
+    return files_info

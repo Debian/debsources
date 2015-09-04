@@ -299,3 +299,37 @@ class StatsView(GeneralView):
                     dual_results=dual_res,
                     dual_licenses=sorted(dual_licenses),
                     suites=all_suites)
+
+
+class SPDXView(GeneralView):
+
+    def _generate_file(self, spdx_values):
+        output = ''
+        for value in spdx_values:
+            output += value.decode('utf-8') + '\n'
+        return output
+
+    def get_objects(self, packagename, version):
+        try:
+            sources_path = helper.get_sources_path(session, packagename,
+                                                   version,
+                                                   current_app.config)
+        except FileOrFolderNotFound:
+            raise Http404ErrorSuggestions(packagename, version,
+                                          'debian/copyright')
+        except InvalidPackageOrVersionError:
+            raise Http404ErrorSuggestions(packagename, version, '')
+
+        try:
+            c = helper.parse_license(sources_path)
+        except Exception:
+            # non machine readable license
+            return dict(return_code=404)
+
+        spdx = helper.export_copyright_to_spdx(
+            c, session=session, package=packagename,
+            version=version)
+        attachment = "attachment;" + "filename=" + \
+            packagename + '_' + version + ".spdx"
+        return dict(spdx=self._generate_file(spdx),
+                    header=attachment)
