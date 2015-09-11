@@ -12,3 +12,5 @@ CREATE TABLE copyright (
     ON DELETE CASCADE,
   PRIMARY KEY (id)
 );
+
+CREATE INDEX ix_copyright_file_id ON copyright (file_id);
