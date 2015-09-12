@@ -8,7 +8,10 @@
 
 {% macro render_trends(suite) %}
 
+{#
 {% set granularities = ['1-month', '1-year', '5-years', '20-years'] %}
+#}
+{% set granularities = ['1-month', '1-year', '5-years'] %}
 
 {% macro historical_trend(metric) -%}
   {% for g in granularities %}
