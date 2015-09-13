@@ -358,7 +358,7 @@ def stats_grouped_by(session, stat, areas=None):
 
         Reference doc/update-stats-query.bench.sql
     '''
-    logging.debug('Compute stats for all suites')
+    logging.debug('Compute %s stats for all suites' % stat)
     if stat is 'source_packages':
         q = (session.query(Suite.suite.label("suite"),
                            sql_func.count(Package.id))
