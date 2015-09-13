@@ -71,7 +71,7 @@ main () {
 
     export PGPASSWORD="$pg_pass"
     $PG_DUMP $PG_DUMP_FLAGS --host $pg_host --username $pg_user \
-	$pg_dbname > ${backup_dir}/${DUMP}.1
+	$pg_dbname > ${backup_dir}/${DUMP}.1 && \
     mv ${backup_dir}/${DUMP}.1 ${backup_dir}/${DUMP}
 
     info "all done at $(date)\n"
