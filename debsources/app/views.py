@@ -19,7 +19,8 @@ import six
 from debian.debian_support import version_compare
 
 from flask import (
-    current_app, jsonify, render_template, request, url_for, redirect)
+    current_app, jsonify, render_template, request, url_for, redirect,
+    make_response)
 from flask.views import View
 
 from debsources.excepts import (
@@ -192,6 +193,10 @@ class GeneralView(View):
         """
         try:
             context = self.get_objects(**kwargs)
+            if self.render_func is make_response:
+                response = make_response(context['spdx'])
+                response.headers["Content-Disposition"] = context['header']
+                return response
             return self.render_func(**context)
         except Http403Error as e:
             return self.err_func(e, http=403)

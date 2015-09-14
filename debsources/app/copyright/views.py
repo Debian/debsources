@@ -16,6 +16,7 @@ import os
 
 from flask import current_app, request
 from debian.debian_support import version_compare
+from debian import copyright
 
 import debsources.license_helper as helper
 import debsources.query as qry
@@ -118,8 +119,13 @@ class ChecksumLicenseView(ChecksumView):
                 except (FileOrFolderNotFound, InvalidPackageOrVersionError):
                     raise Http404ErrorSuggestions(f['package'], f['version'],
                                                   '')
-                l = helper.get_license(session, f['package'],
-                                       f['version'], f['path'], license_path)
+                # parse file
+                try:
+                    c = helper.parse_license(license_path)
+                    l = helper.get_license(f['package'], f['version'],
+                                           f['path'], c)
+                except copyright.NotMachineReadableError:
+                    l = None
                 result.append(dict(oracle='debian',
                                    path=f['path'],
                                    package=f['package'],
@@ -232,13 +238,17 @@ class SearchFileView(GeneralView):
                                                    current_app.config)
         except (FileOrFolderNotFound, InvalidPackageOrVersionError):
             raise Http404ErrorSuggestions(f.package, f.version, '')
+
+        try:
+            c = helper.parse_license(license_path)
+            l = helper.get_license(f.package, f.version, f.path, c)
+        except copyright.NotMachineReadableError:
+            l = None
         return dict(oracle='debian',
                     path=f.path,
                     package=f.package,
                     version=f.version,
-                    license=helper.get_license(session, f.package,
-                                               f.version, f.path,
-                                               license_path),
+                    license=l,
                     origin=helper.license_url(f.package, f.version))
 
     def get_objects(self, path_to):
@@ -339,3 +349,53 @@ class StatsView(GeneralView):
                     dual_results=dual_res,
                     dual_licenses=sorted(dual_licenses),
                     suites=all_suites)
+
+
+class SPDXView(GeneralView):
+
+    def _generate_file(self, spdx_values):
+        output = ''
+        for value in spdx_values:
+            output += value.decode('utf-8') + '\n'
+        return output
+
+    def get_objects(self, path_to):
+        path_dict = path_to.split('/')
+
+        package = path_dict[0]
+        version = path_dict[1]
+        path = '/'.join(path_dict[2:])
+
+        if version == "latest":  # we search the latest available version
+            return self._handle_latest_version(request.endpoint,
+                                               package, path)
+
+        versions = self.handle_versions(version, package, path)
+        if versions:
+            redirect_url_parts = [package, versions[-1]]
+            if path:
+                redirect_url_parts.append(path)
+            redirect_url = '/'.join(redirect_url_parts)
+            return self._redirect_to_url(request.endpoint,
+                                         redirect_url, redirect_code=302)
+
+        try:
+            sources_path = helper.get_sources_path(session, package, version,
+                                                   current_app.config)
+        except FileOrFolderNotFound:
+            raise Http404ErrorSuggestions(package, version,
+                                          'debian/copyright')
+        except InvalidPackageOrVersionError:
+            raise Http404ErrorSuggestions(package, version, '')
+
+        try:
+            c = helper.parse_license(sources_path)
+        except Exception:
+            # non machine readable license
+            return dict(return_code=404)
+        spdx = helper.export_copyright_to_spdx(
+            c, session=session, package=package, version=version)
+        attachment = "attachment;" + "filename=" + \
+            path_to.replace('/', '_') + ".spdx"
+        return dict(spdx=self._generate_file(spdx),
+                    header=attachment)

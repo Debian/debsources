@@ -12,10 +12,13 @@ from __future__ import absolute_import
 import io
 import logging
 import re
+import hashlib
+from datetime import datetime
 
 from flask import url_for
 from debian import copyright
 
+from debsources.models import Checksum, File, Package, PackageName
 from debsources.navigation import Location, SourceFile
 
 # import debsources.query as qry
@@ -105,17 +108,10 @@ def license_url(package, version):
     return url_for('.license', path_to=(package + '/' + version))
 
 
-def get_license(session, package, version, path, license_path=None):
+def get_license(package, version, path, c):
     # if not license_path:
     #     # retrieve license from DB
     #     return qry.get_license_w_path(session, package, version, path)
-
-    # parse license file to get license
-    try:
-        c = parse_license(license_path)
-    except copyright.NotMachineReadableError:
-        return None
-
     paragraph = c.find_files_paragraph(path)
     if paragraph:
         try:
@@ -132,6 +128,10 @@ def get_license(session, package, version, path, license_path=None):
             return None
     else:
         return None
+
+
+def get_paragraph(c, path):
+    return c.find_files_paragraph(path)
 
 
 def get_copyright_header(copyright):
@@ -241,3 +241,124 @@ def anchor_to_license(copyright, synopsis):
         return '#license-' + str(licenses.index(synopsis))
     else:
         return None
+
+
+def export_copyright_to_spdx(c, package, version, session):
+    """ Creates the SPDX document and saves the result in fname
+
+    """
+
+    def create_package_code(session, package, version):
+        sha = (session.query(Checksum.sha256.label("sha256"))
+               .filter(Checksum.package_id == Package.id)
+               .filter(Checksum.file_id == File.id)
+               .filter(Package.name_id == PackageName.id)
+               .filter(PackageName.name == package)
+               .filter(Package.version == version)
+               .order_by("sha256")
+               ).all()
+        sha_values = [sha256[0] for sha256 in sha]
+        return hashlib.sha256("".join(sha_values)).hexdigest()
+
+    unknown_licenses = []
+    license_names = []
+    for par in c.all_files_paragraphs():
+        try:
+            license_names.append(par.license.synopsis)
+        except (AttributeError, ValueError):
+            pass
+    # find out which are not standard and save SPDX required information
+    # Non standard licenses are referenced as LicenseRed-<number>
+    count = 0
+    license_refs = dict()
+    for l in license_names:
+        if not match_license(l):
+            license_refs[l] = 'LicenseRef-' + str(count)
+        else:
+            license_refs[l] = 'LicenseRef-' + l
+        count += 1
+    for par in c.all_license_paragraphs():
+        if not match_license(par.license.synopsis):
+            unknown_licenses.append(["LicenseID: " +
+                                     license_refs[par.license.synopsis],
+                                     "ExtractedText: <text>" +
+                                     par.license.text + "</text>",
+                                     "LicenseName: " + par.license.synopsis])
+    time = datetime.now()
+    now = str(time.date()) + 'T' + str(time.time()).split('.')[0] + 'Z'
+
+    spdx = ["SPDXVersion: SPDX-2.0", "DataLicense:CC0-1.0",
+            "SPDXID: SPDXRef-DOCUMENT",
+            "Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-Package",
+            "DocumentName: " + c.header.upstream_name,
+            "DocumentNamespace: http://spdx.org/spdxdocs/" +
+            "spdx-example-444504E0-4F89-41D3-9A0C-0305E82C3301",
+            "LicenseListVersion: 2.0",
+            "Creator: Person: Debsources",
+            "Creator: Organization: Debsources",
+            "Creator: Tool: Debsources",
+            "Created: " + now,
+            "CreatorComment: <text> This document was created by" +
+            "Debsources by parsing the respective debian/copyright" +
+            "file of the package provided by the Debian project. You" +
+            "may follow these links: http://debian.org/ " +
+            "http://sources.debian.net/ to get more information about " +
+            "Debian and Debsources. </text>",
+            "DocumentComment: <text>This document was created using" +
+            "SPDX 2.0, version 2.3 of the SPDX License List.</text>",
+            "PackageName: " + c.header.upstream_name,
+            "SPDXID: SPDXRef-Package",
+            "PackageDownloadLocation: NOASSERTION",
+            "PackageVerificationCode: " + create_package_code(session,
+                                                              package,
+                                                              version),
+            "PackageLicenseConcluded: NOASSERTION"]
+    for value in set(license_refs.values()):
+        spdx.append("PackageLicenseInfoFromFiles:" + value)
+
+    spdx.extend(["PackageLicenseDeclared: NOASSERTION",
+                "PackageCopyrightText: NOASSERTION"])
+    for files in get_files_spdx(license_refs, package, version, session, c):
+        for item in files:
+            spdx.append(str(item))
+    for unknown in unknown_licenses:
+        for item in unknown:
+            spdx.append(str(item))
+    return spdx
+
+
+def get_files_spdx(license_refs, package, version, session, c):
+    """ Get all files from the DB for a specific package and version and
+        then create a dictionnary for the SPDX entries
+
+    """
+    files = (session.query(Checksum.sha256.label("sha256"),
+                           File.path.label("path"))
+             .filter(Checksum.package_id == Package.id)
+             .filter(Checksum.file_id == File.id)
+             .filter(Package.name_id == PackageName.id)
+             .filter(PackageName.name == package)
+             .filter(Package.version == version)
+             )
+
+    files_info = []
+
+    for i, f in enumerate(files.all()):
+        par = get_paragraph(c, f.path)
+        try:
+            if not match_license(par.license.synopsis):
+                license_concluded = license_refs[par.license.synopsis]
+            else:
+                license_concluded = f.license.synopsis
+        except (AttributeError, ValueError):
+            license_concluded = None
+        # NOASSERTION means that the SPDX generator did not calculate that
+        # value.
+        files_info.append(["FileName: " + f.path,
+                           "SPDXID: SPDX-FILE-REF-" + str(i),
+                           "FileChecksum: SHA256: " + f.sha256,
+                           "LicenseConcluded: " + license_concluded,
+                           "LicenseInfoInFile: NOASSERTION",
+                           "FileCopyrightText: <text>" +
+                           par.copyright.encode('utf-8') + "</text>"])
+    return files_info
