@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2013-2014  The Debsources developers <info@sources.debian.net>.
+# Copyright (C) 2013-2015  The Debsources developers <info@sources.debian.net>.
 # See the AUTHORS file at the top-level directory of this distribution and at
 # https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
 #
@@ -36,8 +36,7 @@ fi
 umask 0002
 export LANG=C
 
-# minimal interpolation support, for the few configuration values needed
-# by the update driver
+# minimal interpolation support, for the few configuration values needed here
 root_dir=$(grep "^root_dir:" "$conffile" | awk '{ print $2 }')
 log_dir=$(grep "^log_dir:" "$conffile" | awk '{ print $2 }')
 
