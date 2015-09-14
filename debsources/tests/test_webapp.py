@@ -27,13 +27,11 @@ from debsources.tests.testdata import TEST_DB_NAME
 class DebsourcesBaseWebTests(DbTestFixture):
     @classmethod
     def setUpClass(cls):
-        """
-        We use the class method here. setUpClass is called at the class
-        creation, and tearDownClass at the class destruction (instead of
-        setUp and tearDown before and after each test). This is doable
-        here because the app never modifies the db (so it's useless to
-        create/destroy it many times), and this a big gain of time.
-        """
+        # We use the class method here. setUpClass is called at the class
+        # creation, and tearDownClass at the class destruction (instead of
+        # setUp and tearDown before and after each test). This is doable here
+        # because the app never modifies the db (so it's useless to
+        # create/destroy it many times), and this a big gain of time.
         cls.db_setup_cls()
 
         # creates an app object, which is used to run queries
@@ -59,7 +57,7 @@ class DebsourcesBaseWebTests(DbTestFixture):
 @attr('webapp')
 class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
     def test_app_config(self):
-        """use existing config to initialize app wrapper"""
+        # use existing config to initialize app wrapper
         config = dict(domain="test.debian.test")
         app_wrapper = AppWrapper(config=config)
         self.assertEqual(app_wrapper.app.config["domain"],

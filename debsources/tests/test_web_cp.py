@@ -199,10 +199,10 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
     def test_api_search_filename_package(self):
         # test package requirement
-        '''rv = json.loads(self.app.get(
-            "/copyright/api/file/random/debian/copyright/").data)
-        self.assertEqual(rv['error'], 'File not found')
-        self.assertEqual(rv['return_code'], 404)'''
+        # rv = json.loads(self.app.get(
+        #     "/copyright/api/file/random/debian/copyright/").data)
+        # self.assertEqual(rv['error'], 'File not found')
+        # self.assertEqual(rv['return_code'], 404)
 
         rv = json.loads(self.app.get(
             "/copyright/api/file/gnubg/1.02.000-2/Makefile.am/").data)
