@@ -95,6 +95,9 @@ DEBIAN_RELEASES = {
                 'date': datetime.date(2011,  2,  6), 'archived': False},
     'wheezy':  {'version': '7',
                 'date': datetime.date(2013,  5,  4), 'archived': False},
+    'jessie':  {'version': '8',
+                'date': datetime.date(2015,  4,  25), 'archived': False},
+
 }
 
 SUITES = {
