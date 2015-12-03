@@ -33,6 +33,9 @@ test-coverage:
 check:
 	$(FLAKE) $(SRCDIR)/ $(shell grep -H 'env python' $(BINDIR)/debsources-* | cut -f 1 -d :)
 
+test-online-app:
+	contrib/test-online-app
+
 clean:
 	$(MAKE) -C doc $@
 

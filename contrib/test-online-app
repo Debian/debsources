@@ -1,0 +1,25 @@
+#!/bin/bash
+set -e
+
+# Checks that the webapp doesn't return http error codes
+
+CURL="curl -f -I"
+SERVER="http://sources.debian.net"
+
+PATHS=( "/"
+"/prefix/libc/" 
+"/src/0ad-data/"
+"/src/0ad-data/0.0.18-1/"
+"/src/0ad-data/0.0.18-1/debian/rules/"
+"/sha256/?checksum=2c3ed26dafc60eed8089f788401460f290840b50f44701a8c11ddee4935425c5&page=1"
+"/list/1/"
+"/search/vlc/"
+"/sha256/?checksum=2c3ed26dafc60eed8089f788401460f290840b50f44701a8c11ddee4935425c5&package="
+"/doc/overview/"
+"/stats/")
+
+for path in "${PATHS[@]}"
+do
+    echo $path
+    $CURL $SERVER$path
+done
