@@ -1,0 +1,20 @@
+Notes about let's encrypt
+=========================
+
+Installation
+------------
+
+* virtualenv was broken. A hack to fix it was:
+  `cd /usr/lib/python2.7/ && sudo ln -s plat-x86_64-linux-gnu/_sysconfigdata_nd.py .'
+  source: http://openmdao.org/forum/questions/767/fixed-get-setup-importerror-no-module-named-_sysconfigdata_nd-from-module-_sysconfigdata
+
+* gcc-4.9 cherry-picked from jessie
+
+* create alias for .well-known in apache
+
+Running
+-------
+
+```
+/srv/debsources-letsencrypt/letsencrypt/letsencrypt-auto certonly --webroot -w /srv/www/debsources/public_html/ -d sources.debian.net --email info@sources.debian.net
+```
