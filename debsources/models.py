@@ -15,6 +15,7 @@ from sqlalchemy import Column, ForeignKey
 from sqlalchemy import UniqueConstraint, PrimaryKeyConstraint
 from sqlalchemy import Index
 from sqlalchemy import Boolean, Date, DateTime, Integer, LargeBinary, String
+from sqlalchemy.dialects.postgresql import BIGINT
 from sqlalchemy import Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -26,14 +27,14 @@ Base = declarative_base()
 
 
 # used for migrations, see scripts under debsources/migrate/
-DB_SCHEMA_VERSION = 10
+DB_SCHEMA_VERSION = 11
 
 
 class PackageName(Base):
     """ a source package name """
     __tablename__ = 'package_names'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BIGINT, primary_key=True)
     name = Column(String, index=True, unique=True)
     versions = relationship("Package", backref="name",
                             cascade="all, delete-orphan",
@@ -57,9 +58,9 @@ class Package(Base):
     """ a (versioned) source package """
     __tablename__ = 'packages'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BIGINT, primary_key=True)
     version = Column(String, index=True)
-    name_id = Column(Integer,
+    name_id = Column(BIGINT,
                      ForeignKey('package_names.id', ondelete="CASCADE"),
                      index=True, nullable=False)
     area = Column(String(8), index=True)  # main, contrib, non-free
@@ -95,8 +96,8 @@ class Suite(Base):
     __tablename__ = 'suites'
     __table_args__ = (UniqueConstraint('package_id', 'suite'),)
 
-    id = Column(Integer, primary_key=True)
-    package_id = Column(Integer,
+    id = Column(BIGINT, primary_key=True)
+    package_id = Column(BIGINT,
                         ForeignKey('packages.id', ondelete="CASCADE"),
                         index=True, nullable=False)
     suite = Column(String, index=True)
@@ -147,8 +148,8 @@ class File(Base):
     __tablename__ = 'files'
     __table_args__ = (UniqueConstraint('package_id', 'path'),)
 
-    id = Column(Integer, primary_key=True)
-    package_id = Column(Integer,
+    id = Column(BIGINT, primary_key=True)
+    package_id = Column(BIGINT,
                         ForeignKey('packages.id', ondelete="CASCADE"),
                         index=True, nullable=False)
     path = Column(LargeBinary, index=True,  # path/whitin/source/pkg
@@ -163,11 +164,11 @@ class Checksum(Base):
     __tablename__ = 'checksums'
     __table_args__ = (UniqueConstraint('package_id', 'file_id'),)
 
-    id = Column(Integer, primary_key=True)
-    package_id = Column(Integer,
+    id = Column(BIGINT, primary_key=True)
+    package_id = Column(BIGINT,
                         ForeignKey('packages.id', ondelete="CASCADE"),
                         index=True, nullable=False)
-    file_id = Column(Integer,
+    file_id = Column(BIGINT,
                      ForeignKey('files.id', ondelete="CASCADE"),
                      index=True, nullable=False)
     sha256 = Column(String(64), nullable=False, index=True)
@@ -181,7 +182,7 @@ class Checksum(Base):
 class BinaryName(Base):
     __tablename__ = 'binary_names'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BIGINT, primary_key=True)
     name = Column(String, index=True, unique=True)
     versions = relationship("Binary", backref="name",
                             cascade="all, delete-orphan",
@@ -197,12 +198,12 @@ class BinaryName(Base):
 class Binary(Base):
     __tablename__ = 'binaries'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BIGINT, primary_key=True)
     version = Column(String)
-    name_id = Column(Integer,
+    name_id = Column(BIGINT,
                      ForeignKey('binary_names.id', ondelete="CASCADE"),
                      index=True, nullable=False)
-    package_id = Column(Integer,
+    package_id = Column(BIGINT,
                         ForeignKey('packages.id', ondelete="CASCADE"),
                         index=True, nullable=False)
 
@@ -217,14 +218,14 @@ class SlocCount(Base):
     __tablename__ = 'sloccounts'
     __table_args__ = (UniqueConstraint('package_id', 'language'),)
 
-    id = Column(Integer, primary_key=True)
-    package_id = Column(Integer,
+    id = Column(BIGINT, primary_key=True)
+    package_id = Column(BIGINT,
                         ForeignKey('packages.id', ondelete="CASCADE"),
                         index=True, nullable=False)
     language = Column(Enum(*SLOCCOUNT_LANGUAGES, name="language_names"),
                       # TODO rename enum s/language_names/sloccount/languages
                       nullable=False)
-    count = Column(Integer, nullable=False)
+    count = Column(BIGINT, nullable=False)
 
     def __init__(self, version, lang, locs):
         self.package_id = version.id
@@ -235,12 +236,12 @@ class SlocCount(Base):
 class Ctag(Base):
     __tablename__ = 'ctags'
 
-    id = Column(Integer, primary_key=True)
-    package_id = Column(Integer,
+    id = Column(BIGINT, primary_key=True)
+    package_id = Column(BIGINT,
                         ForeignKey('packages.id', ondelete="CASCADE"),
                         index=True, nullable=False)
     tag = Column(String, nullable=False, index=True)
-    file_id = Column(Integer,
+    file_id = Column(BIGINT,
                      ForeignKey('files.id', ondelete="CASCADE"),
                      index=True, nullable=False)
     line = Column(Integer, nullable=False)
@@ -278,12 +279,12 @@ class Metric(Base):
     __tablename__ = 'metrics'
     __table_args__ = (UniqueConstraint('package_id', 'metric'),)
 
-    id = Column(Integer, primary_key=True)
-    package_id = Column(Integer,
+    id = Column(BIGINT, primary_key=True)
+    package_id = Column(BIGINT,
                         ForeignKey('packages.id', ondelete="CASCADE"),
                         index=True, nullable=False)
     metric = Column(Enum(*METRIC_TYPES, name="metric_types"), nullable=False)
-    value = Column("value_", Integer, nullable=False)
+    value = Column("value_", BIGINT, nullable=False)
 
     def __init__(self, version, metric, value):
         self.package_id = version.id
@@ -305,10 +306,10 @@ class HistorySize(Base):
     source_packages = Column(Integer, nullable=True)
     binary_packages = Column(Integer, nullable=True)
 
-    disk_usage = Column(Integer, nullable=True)
-    source_files = Column(Integer, nullable=True)
+    disk_usage = Column(BIGINT, nullable=True)
+    source_files = Column(BIGINT, nullable=True)
 
-    ctags = Column(Integer, nullable=True)
+    ctags = Column(BIGINT, nullable=True)
 
     def __init__(self, suite, timestamp):
         self.suite = suite
@@ -327,39 +328,39 @@ class HistorySlocCount(Base):
                    index=True, nullable=False)
 
     # see consts.SLOCCOUNT_LANGUAGES for the language list rationale
-    lang_ada = Column(Integer, nullable=True)
-    lang_ansic = Column(Integer, nullable=True)
-    lang_asm = Column(Integer, nullable=True)
-    lang_awk = Column(Integer, nullable=True)
-    lang_cobol = Column(Integer, nullable=True)
-    lang_cpp = Column(Integer, nullable=True)
-    lang_cs = Column(Integer, nullable=True)
-    lang_csh = Column(Integer, nullable=True)
-    lang_erlang = Column(Integer, nullable=True)
-    lang_exp = Column(Integer, nullable=True)
-    lang_f90 = Column(Integer, nullable=True)
-    lang_fortran = Column(Integer, nullable=True)
-    lang_haskell = Column(Integer, nullable=True)
-    lang_java = Column(Integer, nullable=True)
-    lang_jsp = Column(Integer, nullable=True)
-    lang_lex = Column(Integer, nullable=True)
-    lang_lisp = Column(Integer, nullable=True)
-    lang_makefile = Column(Integer, nullable=True)
-    lang_ml = Column(Integer, nullable=True)
-    lang_modula3 = Column(Integer, nullable=True)
-    lang_objc = Column(Integer, nullable=True)
-    lang_pascal = Column(Integer, nullable=True)
-    lang_perl = Column(Integer, nullable=True)
-    lang_php = Column(Integer, nullable=True)
-    lang_python = Column(Integer, nullable=True)
-    lang_ruby = Column(Integer, nullable=True)
-    lang_sed = Column(Integer, nullable=True)
-    lang_sh = Column(Integer, nullable=True)
-    lang_sql = Column(Integer, nullable=True)
-    lang_tcl = Column(Integer, nullable=True)
-    lang_vhdl = Column(Integer, nullable=True)
-    lang_xml = Column(Integer, nullable=True)
-    lang_yacc = Column(Integer, nullable=True)
+    lang_ada = Column(BIGINT, nullable=True)
+    lang_ansic = Column(BIGINT, nullable=True)
+    lang_asm = Column(BIGINT, nullable=True)
+    lang_awk = Column(BIGINT, nullable=True)
+    lang_cobol = Column(BIGINT, nullable=True)
+    lang_cpp = Column(BIGINT, nullable=True)
+    lang_cs = Column(BIGINT, nullable=True)
+    lang_csh = Column(BIGINT, nullable=True)
+    lang_erlang = Column(BIGINT, nullable=True)
+    lang_exp = Column(BIGINT, nullable=True)
+    lang_f90 = Column(BIGINT, nullable=True)
+    lang_fortran = Column(BIGINT, nullable=True)
+    lang_haskell = Column(BIGINT, nullable=True)
+    lang_java = Column(BIGINT, nullable=True)
+    lang_jsp = Column(BIGINT, nullable=True)
+    lang_lex = Column(BIGINT, nullable=True)
+    lang_lisp = Column(BIGINT, nullable=True)
+    lang_makefile = Column(BIGINT, nullable=True)
+    lang_ml = Column(BIGINT, nullable=True)
+    lang_modula3 = Column(BIGINT, nullable=True)
+    lang_objc = Column(BIGINT, nullable=True)
+    lang_pascal = Column(BIGINT, nullable=True)
+    lang_perl = Column(BIGINT, nullable=True)
+    lang_php = Column(BIGINT, nullable=True)
+    lang_python = Column(BIGINT, nullable=True)
+    lang_ruby = Column(BIGINT, nullable=True)
+    lang_sed = Column(BIGINT, nullable=True)
+    lang_sh = Column(BIGINT, nullable=True)
+    lang_sql = Column(BIGINT, nullable=True)
+    lang_tcl = Column(BIGINT, nullable=True)
+    lang_vhdl = Column(BIGINT, nullable=True)
+    lang_xml = Column(BIGINT, nullable=True)
+    lang_yacc = Column(BIGINT, nullable=True)
 
     def __init__(self, suite, timestamp):
         self.suite = suite
@@ -370,8 +371,8 @@ class FileCopyright(Base):
 
     __tablename__ = 'copyright'
 
-    id = Column(Integer, primary_key=True)
-    file_id = Column(Integer,
+    id = Column(BIGINT, primary_key=True)
+    file_id = Column(BIGINT,
                      ForeignKey('files.id', ondelete="CASCADE"),
                      index=True, nullable=False)
     oracle = Column(Enum(*COPYRIGHT_ORACLES, name="copyright_oracles"),
@@ -395,13 +396,13 @@ class HistoryCopyright(Base):
 
     __tablename__ = 'history_copyright'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BIGINT, primary_key=True)
     timestamp = Column(DateTime(timezone=False),
                        index=True, nullable=False)
     suite = Column(String,      # suite == "ALL" means totals
                    index=True, nullable=False)
     license = Column(String)
-    files = Column(Integer, nullable=True)
+    files = Column(BIGINT, nullable=True)
 
     def __init__(self, suite, timestamp):
         self.suite = suite
