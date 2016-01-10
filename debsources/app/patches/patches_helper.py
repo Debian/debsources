@@ -95,7 +95,7 @@ def get_patch_format(session, package, version, config):
                                           'debian/source/format')
     with io.open(source_format, mode='r', encoding='utf-8') as f:
         format_file = f.read()
-    return format_file
+    return format_file.strip()
 
 
 def is_supported(format_):

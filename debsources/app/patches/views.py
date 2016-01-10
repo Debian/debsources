@@ -125,7 +125,7 @@ class SummaryView(GeneralView):
                             path=path_to,
                             patches=[],
                             format='unknown')
-        if not helper.is_supported(format_file.rstrip()):
+        if not helper.is_supported(format_file):
             return dict(package=packagename,
                         version=version,
                         path=path_to,
@@ -150,7 +150,7 @@ class SummaryView(GeneralView):
         if 'api' in request.endpoint:
             return dict(package=packagename,
                         version=version,
-                        format=format_file.rstrip(),
+                        format=format_file,
                         patches=[key.rstrip() for key in info.keys()])
         return dict(package=packagename,
                     version=version,
