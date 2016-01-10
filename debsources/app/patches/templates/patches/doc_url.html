@@ -25,7 +25,7 @@
   <span class="url">{{ url_prefix
   }}/<strong>packagename</strong>/<strong>version</strong>/<strong>path</strong></span>
   Both package name and version are required parameters. The path is the relative path of the patch starting from the debian/patches directory.
-  <a href="{{ url_prefix }}/beignet/1.0.3%2Bdfsg-1/Debian-compliant-compiler-flags-handling.patch/">See example</a>
+  <a href="{{ url_prefix }}/beignet/latest/Debian-compliant-compiler-flags-handling.patch/">See example</a>
 </p>
 
 <h3>Package list</h3>
@@ -57,14 +57,14 @@
   You can list the different versions of a package, accessing this URL:
   <span class="url">{{ url_prefix
     }}/license/<strong>packagename</strong></span>
-  <a href="{{ url_prefix }}/license/ocaml">See example</a>
+  <a href="{{ url_prefix }}/ocaml">See example</a>
 </p>
 
 <p>
   a suite parameter can be given to limit listing to a given suite.
   <span class="url">{{ url_prefix
     }}/license/<strong>packagename?suite=suite_name</strong></span>
-  <a href="{{ url_prefix }}/license/ocaml?suite=squeeze">See example</a>
+  <a href="{{ url_prefix }}/ocaml?suite=squeeze">See example</a>
 </p>
 
 <p>Package versions with no links signify that the patch format <strong>is not 3.0 quilt</strong>.<br />The <strong>asterisk (*)</strong> at a package versions implies that although the patch format is 3.0 quilt, the specific version has no patches yet.</p>
