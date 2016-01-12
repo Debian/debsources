@@ -1,0 +1,48 @@
+#!/usr/bin/python3
+
+# sample cron entry:
+# m  h    dom mon dow   command
+# 49 */12 *   *   *     $HOME/bin/check_debsources_updatedness
+
+import requests
+import smtplib
+
+from datetime import datetime, timedelta
+from email.mime.text import MIMEText
+from email.utils import parsedate_to_datetime as parsedate
+
+
+DEBSOURCES_URL = 'http://sources.debian.net'
+MAX_LAG = timedelta(days=1)
+# MAX_LAG = timedelta(hours=6)
+
+MAIL_FROM = 'zack+debsourcesbot@upsilon.cc'
+MAIL_TO = 'qa-debsources@lists.alioth.debian.org'
+MAIL_SUBJECT = 'Warning: Debsources is out of date'
+SMTP_HOST = 'localhost'
+
+
+def notify(msg):
+    email = MIMEText(msg)
+    email['From'] = MAIL_FROM
+    email['To'] = MAIL_FROM
+    email['Subject'] = MAIL_SUBJECT
+
+    s = smtplib.SMTP(SMTP_HOST)
+    s.send_message(email)
+    s.quit()
+
+
+def main():
+    r = requests.get('%s/api/ping/' % DEBSOURCES_URL)
+    last_update = parsedate(r.json()['last_update'])
+
+    now = datetime.now()
+    if last_update + MAX_LAG < now:
+        notify('http://sources.debian.net is out of date by %s'
+               ' and max lag is %s'
+               % (now - last_update, MAX_LAG))
+
+
+if __name__ == '__main__':
+    main()
