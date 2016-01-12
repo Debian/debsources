@@ -65,15 +65,28 @@ def url_for_other_page(page):
 
 
 def redirect_to_url(endpoint, redirect_url, redirect_code=301):
+    """ This is a nasty little hack. The problem is that from the
+        different endpoints we can have as url parameters just the
+        package, or the package and a version or a path.
+
+        If we are in .versions we only need to supply a packagename.
+
+        If we are in patches.summary or copyright.license then we need
+        to give packagename and version.
+
+        Navigating through patches, sources or files for license always
+        requires a path hence the last case.
+
+    """
     if request.blueprint == 'sources' and request.endpoint != '.versions':
         return redirect(url_for(endpoint, path_to=redirect_url),
                         code=redirect_code)
 
     parts = redirect_url.split('/')
-    if len(parts) == 1:  # package
+    if len(parts) == 1:  # endpoint is versions
         return redirect(url_for(endpoint, packagename=redirect_url),
                         code=redirect_code)
-    elif len(parts) == 2:  # package/version
+    elif len(parts) == 2:  # endpoint is summary or license view
         return redirect(url_for(endpoint, packagename=parts[0],
                                 version=parts[1]),
                         code=redirect_code)
