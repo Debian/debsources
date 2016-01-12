@@ -25,7 +25,7 @@ SMTP_HOST = 'localhost'
 def notify(msg):
     email = MIMEText(msg)
     email['From'] = MAIL_FROM
-    email['To'] = MAIL_FROM
+    email['To'] = MAIL_TO
     email['Subject'] = MAIL_SUBJECT
 
     s = smtplib.SMTP(SMTP_HOST)
