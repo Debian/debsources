@@ -1,10 +1,14 @@
 {% import "_macros.html" as macros %}
-
+{% if request.blueprint == 'doc' %}
+    {% set endpoint = 'sources.list_packages' %}
+  {% else %}
+    {% set endpoint = '.list_packages' %}
+  {% endif %}
 <p style="margin: 0 0 0 0; line-height: 1em;">
   Browse by prefix: &ensp;
   {{ macros.render_packages_prefixes(packages_prefixes) }}
   &ensp; | &ensp;
-  Browse <a href="{{ url_for('.list_packages', page=1) }}">by page</a>
+  Browse <a href="{{ url_for(endpoint, page=1) }}">by page</a>
 </p>
 <hr />
 <div style="position: relative">

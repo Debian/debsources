@@ -12,15 +12,15 @@
 
 from __future__ import absolute_import
 
-from flask import jsonify
+from flask import jsonify, request, render_template
 
 from . import bp_patches
 
-from ..helper import bind_render
+from ..helper import bind_render, generic_before_request
 from ..views import (IndexView, Ping, PrefixView, ErrorHandler,
-                     ListPackagesView, PackageVersionsView, SearchView,
-                     DocView, AboutView)
-from .views import SummaryView, PatchView
+                     ListPackagesView, SearchView)
+from .views import SummaryView, PatchView, VersionsView
+from debsources.excepts import Http404Error
 
 
 # context vars
@@ -36,6 +36,16 @@ bp_patches.errorhandler(403)(
 bp_patches.errorhandler(404)(
     lambda e: (ErrorHandler()(e, http=404), 404))
 
+
+# Before request
+@bp_patches.before_request
+def before_request():
+    endpoints = ['summary', 'api_summary', 'patch_view', 'api_patch_view']
+    if request.endpoint.replace('patches.', '', 1) in endpoints:
+        try:
+            return generic_before_request(request, 2)
+        except Http404Error:
+            return render_template('404.html'), 404
 
 # INDEXVIEW
 bp_patches.add_url_rule(
@@ -90,27 +100,23 @@ bp_patches.add_url_rule(
 
 # VERSIONSVIEW
 bp_patches.add_url_rule(
-    '/summary/<string:packagename>/',
-    view_func=PackageVersionsView.as_view(
+    '/<string:packagename>/',
+    view_func=VersionsView.as_view(
         'versions',
         render_func=bind_render('patches/package.html'),
         err_func=ErrorHandler('patches')))
 
 # api
 bp_patches.add_url_rule(
-    '/api/summary/<string:packagename>/',
-    view_func=PackageVersionsView.as_view(
+    '/api/<string:packagename>/',
+    view_func=VersionsView.as_view(
         'api_patch_versions',
         render_func=jsonify,
         err_func=ErrorHandler(mode='json')))
 
 # SUMMARYVIEW
-# Why not summary/<string:packagename>/<string:version>
-# Because then the patches blueprint must have its own show versions in the
-# macros since the other two blueprints will have a path_to parameter instead
-# of a packagename and version parameters.
 bp_patches.add_url_rule(
-    '/summary/<path:path_to>/',
+    '/<string:packagename>/<string:version>/',
     view_func=SummaryView.as_view(
         'summary',
         render_func=bind_render('patches/summary.html'),
@@ -118,7 +124,7 @@ bp_patches.add_url_rule(
 
 # api
 bp_patches.add_url_rule(
-    '/api/summary/<path:path_to>/',
+    '/api/<string:packagename>/<string:version>/',
     view_func=SummaryView.as_view(
         'api_summary',
         render_func=jsonify,
@@ -155,56 +161,16 @@ bp_patches.add_url_rule(
 
 # PATCHVIEW
 bp_patches.add_url_rule(
-    '/patch/<path:path_to>/',
+    '/<string:packagename>/<string:version>/<path:path_to>/',
     view_func=PatchView.as_view(
-        'patch',
+        'patch_view',
         render_func=bind_render('patches/patch.html'),
         err_func=ErrorHandler('patches')))
 
 # api
 bp_patches.add_url_rule(
-    '/api/patch/<path:path_to>/',
+    '/api/<string:packagename>/<string:version>/<path:path_to>/',
     view_func=PatchView.as_view(
-        'api_patch',
+        'api_patch_view',
         render_func=jsonify,
         err_func=ErrorHandler(mode='json')))
-
-# doc
-bp_patches.add_url_rule(
-    '/doc/',
-    view_func=DocView.as_view(
-        'doc',
-        render_func=bind_render('doc.html'),
-        err_func=ErrorHandler('patches'),))
-
-# doc overview
-bp_patches.add_url_rule(
-    '/doc/overview/',
-    view_func=DocView.as_view(
-        'doc_overview',
-        render_func=bind_render('doc_overview.html'),
-        err_func=ErrorHandler('patches'),))
-
-# doc-url
-bp_patches.add_url_rule(
-    '/doc/url/',
-    view_func=DocView.as_view(
-        'doc_url',
-        render_func=bind_render('patches/doc_url.html'),
-        err_func=ErrorHandler('patches'),))
-
-# doc-api
-bp_patches.add_url_rule(
-    '/doc/api/',
-    view_func=DocView.as_view(
-        'doc_api',
-        render_func=bind_render('patches/doc_api.html'),
-        err_func=ErrorHandler('patches'),))
-
-# ABOUTVIEW
-bp_patches.add_url_rule(
-    '/about/',
-    view_func=AboutView.as_view(
-        'about',
-        render_func=bind_render('about.html'),
-        err_func=ErrorHandler('sources'),))

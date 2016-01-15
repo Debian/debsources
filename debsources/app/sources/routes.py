@@ -11,16 +11,17 @@
 
 from __future__ import absolute_import
 
-from flask import redirect, url_for, request, jsonify
+from flask import redirect, url_for, request, jsonify, render_template
 
-from ..helper import bind_render
+from ..helper import bind_render, generic_before_request
 from ..views import (
-    IndexView, DocView, AboutView, SearchView, CtagView, ChecksumView,
-    PrefixView, ListPackagesView, InfoPackageView, Ping, ErrorHandler,
+    IndexView, SearchView, CtagView, ChecksumView, PrefixView,
+    ListPackagesView, InfoPackageView, Ping, ErrorHandler,
     PackageVersionsView)
 
 from .views import StatsView, SourceView
 from . import bp_sources
+from debsources.excepts import Http404Error
 
 
 # context vars
@@ -39,6 +40,17 @@ bp_sources.errorhandler(404)(
     lambda e: (ErrorHandler()(e, http=404), 404))
 
 
+# Before request
+@bp_sources.before_request
+def before_request():
+    try:
+        if 'embedded' in request.endpoint:
+            return generic_before_request(request, 3)
+        elif 'source' in request.endpoint.split('.')[1]:
+            return generic_before_request(request, 2)
+    except Http404Error:
+        return render_template('404.html'), 404
+
 # ping service
 bp_sources.add_url_rule(
     '/api/ping/',
@@ -54,48 +66,6 @@ bp_sources.add_url_rule(
         render_func=bind_render('sources/index.html'),
         err_func=ErrorHandler('sources'),
         news_html='sources_news.html'))
-
-
-# DOCVIEW
-bp_sources.add_url_rule(
-    '/doc/',
-    view_func=DocView.as_view(
-        'doc',
-        render_func=bind_render('doc.html'),
-        err_func=ErrorHandler('sources'),))
-
-
-bp_sources.add_url_rule(
-    '/doc/url/',
-    view_func=DocView.as_view(
-        'doc_url',
-        render_func=bind_render('sources/doc_url.html'),
-        err_func=ErrorHandler('sources'),))
-
-
-bp_sources.add_url_rule(
-    '/doc/api/',
-    view_func=DocView.as_view(
-        'doc_api',
-        render_func=bind_render('sources/doc_api.html'),
-        err_func=ErrorHandler('sources'),))
-
-
-bp_sources.add_url_rule(
-    '/doc/overview/',
-    view_func=DocView.as_view(
-        'doc_overview',
-        render_func=bind_render('doc_overview.html'),
-        err_func=ErrorHandler('sources'),))
-
-
-# ABOUTVIEW
-bp_sources.add_url_rule(
-    '/about/',
-    view_func=AboutView.as_view(
-        'about',
-        render_func=bind_render('about.html'),
-        err_func=ErrorHandler('sources'),))
 
 
 # STATSVIEW
@@ -334,6 +304,6 @@ bp_sources.add_url_rule(
 bp_sources.add_url_rule(
     '/embed/pkginfo/<package>/<version>/',
     view_func=InfoPackageView.as_view(
-        'sources/embedded_info_package_html',
+        'embedded_info_package',
         render_func=bind_render('sources/infopackage_embed.html'),
         err_func=ErrorHandler('sources')))

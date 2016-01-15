@@ -10,7 +10,7 @@
   package structure, inspect individual source files, and obtain links to
   individual lines. If you have Javascript enabled in your browser, source code
   will be <b>syntax-highlighted</b>; otherwise the raw file will be
-  returned. Using specific <a href="{{ url_for('.doc_url') }}"><b>URL
+  returned. Using specific <a href="{{ url_for('doc.doc_url') }}"><b>URL
   schemes</b></a> you can <b>highlight</b> specific code lines as well as
   associate <b>pop-up messages</b> to them.</p>
 <p>You can <b>search</b> within the actual source code using regular
@@ -20,5 +20,5 @@
   Debsources, so there might be update lags between the two services.</p>
 
 <p>You can also use Debsources programmatically via its
-  <a href="{{ url_for('sources.doc_api') }}"><b>API</b></a>, or simply as a stable base
+  <a href="{{ url_for('doc.doc_api') }}"><b>API</b></a>, or simply as a stable base
   to point to particular lines in a source file.</p>

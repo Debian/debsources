@@ -12,13 +12,14 @@
 from __future__ import absolute_import
 
 
-from flask import jsonify
+from flask import jsonify, request, render_template
 
-from ..helper import bind_render
+from ..helper import bind_render, generic_before_request
 from . import bp_copyright
 from ..views import (IndexView, PrefixView, ListPackagesView, ErrorHandler,
-                     Ping, PackageVersionsView, DocView, AboutView, SearchView)
+                     Ping, PackageVersionsView, SearchView)
 from .views import LicenseView, ChecksumLicenseView, SearchFileView, StatsView
+from debsources.excepts import Http404Error
 
 
 # context vars
@@ -34,6 +35,16 @@ bp_copyright.errorhandler(403)(
 bp_copyright.errorhandler(404)(
     lambda e: (ErrorHandler()(e, http=404), 404))
 
+
+# Before request
+@bp_copyright.before_request
+def before_request():
+    endpoints = ['license', 'file', 'api_file']
+    if request.endpoint.replace('copyright.', '', 1) in endpoints:
+        try:
+            return generic_before_request(request, 3)
+        except Http404Error:
+            return render_template('404.html'), 404
 
 # INDEXVIEW
 bp_copyright.add_url_rule(
@@ -106,7 +117,7 @@ bp_copyright.add_url_rule(
 
 # LICENSEVIEW
 bp_copyright.add_url_rule(
-    '/license/<path:path_to>/',
+    '/license/<string:packagename>/<string:version>/',
     view_func=LicenseView.as_view(
         'license',
         render_func=bind_render('copyright/license.html'),
@@ -135,7 +146,7 @@ bp_copyright.add_url_rule(
 # FileSearch VIEW
 
 bp_copyright.add_url_rule(
-    '/file/<path:path_to>/',
+    '/file/<string:packagename>/<string:version>/<path:path_to>/',
     view_func=SearchFileView.as_view(
         'file',
         render_func=bind_render('copyright/file.html'),
@@ -143,52 +154,11 @@ bp_copyright.add_url_rule(
 
 # api
 bp_copyright.add_url_rule(
-    '/api/file/<path:path_to>/',
+    '/api/file/<string:packagename>/<string:version>/<path:path_to>/',
     view_func=SearchFileView.as_view(
         'api_file',
         render_func=jsonify,
         err_func=ErrorHandler(mode='json')))
-
-# doc
-bp_copyright.add_url_rule(
-    '/doc/',
-    view_func=DocView.as_view(
-        'doc',
-        render_func=bind_render('doc.html'),
-        err_func=ErrorHandler('copyright'),))
-
-# doc overview
-bp_copyright.add_url_rule(
-    '/doc/overview/',
-    view_func=DocView.as_view(
-        'doc_overview',
-        render_func=bind_render('doc_overview.html'),
-        err_func=ErrorHandler('copyright'),))
-
-# doc-url
-bp_copyright.add_url_rule(
-    '/doc/url/',
-    view_func=DocView.as_view(
-        'doc_url',
-        render_func=bind_render('copyright/doc_url.html'),
-        err_func=ErrorHandler('copyright'),))
-
-# doc-api
-bp_copyright.add_url_rule(
-    '/doc/api/',
-    view_func=DocView.as_view(
-        'doc_api',
-        render_func=bind_render('copyright/doc_api.html'),
-        err_func=ErrorHandler('copyright'),))
-
-# ABOUTVIEW
-bp_copyright.add_url_rule(
-    '/about/',
-    view_func=AboutView.as_view(
-        'about',
-        render_func=bind_render('about.html'),
-        err_func=ErrorHandler('sources'),))
-
 
 # SEARCHVIEW
 bp_copyright.add_url_rule(

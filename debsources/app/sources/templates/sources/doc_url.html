@@ -4,35 +4,11 @@
   https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
   License: GNU Affero General Public License, version 3 or above.
 #}
-{# copied from templates/doc_url.html #}
-{% extends "sources/base.html" %}
-
-{% block head %}
-{{ super() }}
-<style>
-  .url{display: block; /*margin-left: 50px;*/}
-</style>
-{% endblock %}
-
-{% block title %}URL scheme{% endblock %}
-
-{% block breadcrumbs %}<a href="{{ url_for('.doc') }}">doc</a> / url scheme{% endblock %}
 
 {% block content %}
 {% set url_prefix = "//" + config.SOURCES_URL %}
 
-<h2>{{ self.title() }}</h2>
-
-{% if copyright == true %}
-<div class="warning">
-  You can also check the <a href="{{ url_for('copyright.doc_url') }}">copyright URl scheme</a>
-</div>
-{% endif %}
-{% if patches == true %}
-<div class="warning">
-  You can also check the documentation for the <a href="{{ url_for('patches.doc_api') }}">patches API</a>
-</div>
-{% endif %}
+<h2 id='sources'>Sources</h2>
 <h3>Search</h3>
 
 <h4>Package search</h4>

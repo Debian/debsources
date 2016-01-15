@@ -122,9 +122,17 @@ def location_get_path_links(endpoint, path_to):
     # this method)
     from flask import url_for
 
-    for (i, p) in enumerate(path_dict):
-        pathl.append((p, url_for(endpoint,
-                                 path_to='/'.join(path_dict[:i + 1]))))
+    # once more here we verify our endpoint in order to provide a valid url
+    # This hack is similar to the one in helper.py in redirect_to_url function
+
+    if endpoint == '.versions':
+        for (i, p) in enumerate(path_dict):
+            pathl.append((p, url_for(endpoint,
+                                     packagename='/'.join(path_dict[:i + 1]))))
+    else:
+        for (i, p) in enumerate(path_dict):
+            pathl.append((p, url_for(endpoint,
+                                     path_to='/'.join(path_dict[:i + 1]))))
     return pathl
 
 

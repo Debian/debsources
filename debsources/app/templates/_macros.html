@@ -33,7 +33,12 @@ https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginati
 {%- endmacro %}
 
 {% macro searchform(form, display="block") -%}
-  <form action="{{ url_for('.recv_search') }}" name="searchform"
+  {% if request.blueprint == 'doc' %}
+    {% set endpoint = 'sources.recv_search' %}
+  {% else %}
+    {% set endpoint = '.recv_search' %}
+  {% endif %}
+  <form action="{{ url_for(endpoint) }}" name="searchform"
         method="post" style="display: {{ display }};">
       {{ form.query(**kwargs) }}
     {% for error in form.errors.query %}
@@ -47,8 +52,13 @@ https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginati
 
 
 {% macro render_packages_prefixes(prefixes) %}
+{% if request.blueprint == 'doc' %}
+    {% set endpoint = 'sources.prefix' %}
+  {% else %}
+    {% set endpoint = '.prefix' %}
+  {% endif %}
   {%- for prefix in prefixes %}
-    <a href="{{ url_for('.prefix', prefix=prefix) }}">{{ prefix }}</a>
+    <a href="{{ url_for(endpoint, prefix=prefix) }}">{{ prefix }}</a>
   {%- endfor %}
 {% endmacro %}
 

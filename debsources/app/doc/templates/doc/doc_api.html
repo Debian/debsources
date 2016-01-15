@@ -1,0 +1,47 @@
+{#
+  Copyright (C) 2015  The Debsources developers <info@sources.debian.net>.
+  See the AUTHORS file at the top-level directory of this distribution and at
+  https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+  License: GNU Affero General Public License, version 3 or above.
+#}
+
+{% extends "sources/base.html" %}
+
+{% block head %}
+{{ super() }}
+<style>
+  .url{display: block; /*margin-left: 50px;*/}
+</style>
+{% endblock %}
+
+{% block title %}API documentation{% endblock %}
+
+{% block breadcrumbs %}<a href="{{ url_for('.doc') }}">doc</a> / api{% endblock %}
+
+{% block content %}
+
+<h1>Table of contents</h1>
+<ul>
+  {% if sources %}
+    <li><a href="#sources">Sources</a></li>
+  {% endif %}
+  {% if copyright %}
+    <li><a href="#copyright">Copyright</a></li>
+  {% endif %}
+  {% if patches %}
+    <li><a href="#patches">Patches</a></li>
+  {% endif %}
+</ul>
+
+
+
+{% if sources %}
+  {% include "sources/doc_api.html" %}
+{% endif %}
+{% if copyright %}
+  {% include "copyright/doc_api.html" %}
+{% endif %}
+{% if patches%}
+  {% include "patches/doc_api.html" %}
+{% endif %}
+{% endblock %}
