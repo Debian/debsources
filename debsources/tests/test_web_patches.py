@@ -20,7 +20,7 @@ from debsources.tests.test_webapp import DebsourcesBaseWebTests
 
 
 @attr('patches')
-class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
+class PatchesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
     def test_api_ping(self):
         rv = json.loads(self.app.get('/patches/api/ping/').data)
@@ -120,8 +120,8 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertIn('collected debian patches for gnubg', rv.data)
         # test long dsc
         rv = self.app.get('/patches/beignet/1.0.0-1/')
-        long_dsc = 'Turn on udebug so tests print their full output, and mark' \
-                   ' failures\nby &#34;failed:&#34; instead of invisible-in-' \
+        long_dsc = 'Turn on udebug so tests print their full output, and mark'\
+                   ' failures\nby &#34;failed:&#34; instead of invisible-in-'\
                    'logs colour.'
         self.assertIn(long_dsc, rv.data)
         # test no description header
