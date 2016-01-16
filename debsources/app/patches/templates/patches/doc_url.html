@@ -4,8 +4,6 @@
   https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
   License: GNU Affero General Public License, version 3 or above.
 #}
-
-{% block content %}
 {% set url_prefix = "//" + config.SOURCES_URL + '/patches' %}
 
 <h2 id='patches'>Patches</h2>
@@ -68,5 +66,3 @@
 </p>
 
 <p>Package versions with no links signify that the patch format <strong>is not 3.0 quilt</strong>.<br />The <strong>asterisk (*)</strong> at a package versions implies that although the patch format is 3.0 quilt, the specific version has no patches yet.</p>
-
-{% endblock %}
