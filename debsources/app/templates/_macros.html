@@ -32,7 +32,7 @@ https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginati
   </div>
 {%- endmacro %}
 
-{% macro searchform(form, display="block") -%}
+{% macro searchform(form, request, display="block") -%}
   {% if request.blueprint == 'doc' %}
     {% set endpoint = 'sources.recv_search' %}
   {% else %}
@@ -51,7 +51,7 @@ https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginati
 {%- endmacro %}
 
 
-{% macro render_packages_prefixes(prefixes) %}
+{% macro render_packages_prefixes(prefixes, request) %}
 {% if request.blueprint == 'doc' %}
     {% set endpoint = 'sources.prefix' %}
   {% else %}

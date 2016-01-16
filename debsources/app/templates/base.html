@@ -30,7 +30,7 @@
         </div> <!-- end logo -->
         <p class="section"><a href="{{ url_for('sources.index') }}">DEBSOURCES</a></p>
         <div id="searchbox">
-            {{ macros.searchform(searchform, display="inline", value=query, placeholder="package name", id="query-1") }}
+            {{ macros.searchform(searchform, request, display="inline", value=query, placeholder="package name", id="query-1") }}
             <form name="codesearch" method="get"
             action="https://codesearch.debian.net/search">
               <input name="q"
