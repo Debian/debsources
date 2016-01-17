@@ -6,7 +6,7 @@
   {% endif %}
 <p style="margin: 0 0 0 0; line-height: 1em;">
   Browse by prefix: &ensp;
-  {{ macros.render_packages_prefixes(packages_prefixes) }}
+  {{ macros.render_packages_prefixes(packages_prefixes, request) }}
   &ensp; | &ensp;
   Browse <a href="{{ url_for(endpoint, page=1) }}">by page</a>
 </p>

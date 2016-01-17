@@ -4,8 +4,6 @@
   https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
   License: GNU Affero General Public License, version 3 or above.
 #}
-
-{% block content %}
 {% set url_prefix = "//" + config.SOURCES_URL %}
 
 <h2 id='sources'>Sources</h2>
@@ -169,5 +167,3 @@
   <span class="url">{{ url_prefix
   }}/embed/pkginfo/<strong>packagename</strong>/<strong>version</strong></span>
 </p>
-
-{% endblock %}
