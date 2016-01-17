@@ -22,7 +22,8 @@ import debsources.query as qry
 import debsources.statistics as statistics
 from debsources.excepts import (Http404ErrorSuggestions, FileOrFolderNotFound,
                                 InvalidPackageOrVersionError,
-                                Http404MissingCopyright, Http404Error)
+                                Http404MissingCopyright, Http404Error,
+                                CopyrightValueError)
 from ..views import GeneralView, ChecksumView, session, app
 from ..sourcecode import SourceCodeIterator
 from ..pagination import Pagination
@@ -52,13 +53,16 @@ class LicenseView(GeneralView):
                         code=sourcefile,
                         dump='True',
                         nlines=sourcefile.get_number_of_lines(),)
-        return dict(package=packagename,
-                    version=version,
-                    dump='False',
-                    header=helper.get_copyright_header(c),
-                    files=helper.parse_copyright_paragraphs_for_html_render(
-                        c, "/src/" + packagename + "/" + version + "/"),
-                    licenses=helper.parse_licenses_for_html_render(c))
+        try:
+            return dict(package=packagename,
+                        version=version,
+                        dump='False',
+                        header=helper.get_copyright_header(c),
+                        files=helper.parse_copyright_paragraphs_html_render(
+                            c, "/src/" + packagename + "/" + version + "/"),
+                        licenses=helper.parse_licenses_for_html_render(c))
+        except ValueError as e:
+            raise CopyrightValueError(packagename, version, e.message)
 
 
 class ChecksumLicenseView(ChecksumView):

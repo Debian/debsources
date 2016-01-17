@@ -149,7 +149,7 @@ def get_copyright_header(copyright):
     return copyright.header._RestrictedWrapper__data
 
 
-def parse_copyright_paragraphs_for_html_render(copyright, base_url):
+def parse_copyright_paragraphs_html_render(copyright, base_url):
     """ Returns list of File objects. If `base_url` is provided
         then it creates links to base_url+glob
     """

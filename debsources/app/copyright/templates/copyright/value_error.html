@@ -1,0 +1,20 @@
+{#
+  Copyright (C) 2016  The Debsources developers <info@sources.debian.net>.
+  See the AUTHORS file at the top-level directory of this distribution and at
+  https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+  License: GNU Affero General Public License, version 3 or above.
+#}
+{% extends name+"/base.html" %}
+
+{% block title %}Error{% endblock %}
+{% block content %}
+<h2>{{ self.title() }}</h2>
+<p>Parsing the debian/copyright file failed due to one or more of the following causes:
+<ul>
+    <li>continued line must begin with " "</li>
+    <li>missing value in one of the required attributes (Files, Copyright, License)</li>
+</ul>
+
+<p><a href="{{ url_for('sources.source', packagename=package, version=version) }}">View raw copyright file</a></p>
+</p> 
+{% endblock %}
