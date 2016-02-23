@@ -12,9 +12,18 @@ Installation
 
 * create alias for .well-known in apache
 
-Running
--------
+Creating certs
+--------------
 
 ```
 /srv/debsources-letsencrypt/letsencrypt/letsencrypt-auto certonly --webroot -w /srv/www/debsources/public_html/ -d sources.debian.net --email info@sources.debian.net
 ```
+
+Renewing certs
+--------------
+
+```
+/srv/debsources-letsencrypt/letsencrypt/letsencrypt-auto renew
+```
+
+Currently done manually /o\
