@@ -92,7 +92,7 @@ DEBIAN_RELEASES = {
     'lenny':   {'version': '5.0',
                 'date': datetime.date(2009,  2, 15), 'archived': True},
     'squeeze': {'version': '6.0',
-                'date': datetime.date(2011,  2,  6), 'archived': False},
+                'date': datetime.date(2011,  2,  6), 'archived': True},
     'wheezy':  {'version': '7',
                 'date': datetime.date(2013,  5,  4), 'archived': False},
     'jessie':  {'version': '8',
