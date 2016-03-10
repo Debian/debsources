@@ -53,5 +53,6 @@ debmirror \
   --section=${mirror_sections} \
   --arch=none \
   --ignore-release-gpg \
+  --ignore-missing-release \
   $* \
   "$mirror_dir"
