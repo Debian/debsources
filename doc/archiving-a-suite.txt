@@ -1,0 +1,16 @@
+How to mark a suite as sticky (ensuring its packages remain around) *before* it
+gets removed from the mirror network.
+
+1) edit debsources/consts.py, setting 'archived': True on the relevant suite
+   (it it exists there otherwise, e.g., *-lts variants, don't bother)
+
+2) on the DB: set to 't' the column 'sticky' of the relevant suite, e.g.:
+
+     update suites_info set sticky = 't' where name = 'squeeze';
+
+3) archive the suite using the archiver add action, e.g.:
+
+     bin/debsources-suite-archive add squeeze
+
+4) run 'bin/debsources-suite-archive list' and check that the given suite is
+   marked as both available and indexed, i.e., True on both columns
