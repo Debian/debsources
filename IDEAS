@@ -41,3 +41,16 @@ Support of other hashing algorithms
 
 In the files table, we currently only compute the sha256 sum. It would
 be interesting to have other checksums.
+
+Integrated sources editor
+-------------------------
+
+Raphael Geissert has developed a Firefox/Chrome plugin to allow the
+edition of a file directly in Debsources, and to generate a patch
+ready to be sent to the maintainer of the modified package.
+See http://rgeissert.blogspot.fr/2015/08/updates-to-sourcesdebiannet-editor.html
+It would be awesome to:
+- integrate it in Debsources' code base, so that users don't require
+  to install the browser extension,
+- and improve it to support e.g. multi-file editing (that needs
+  session management) and/or other features.
