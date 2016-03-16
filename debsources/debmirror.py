@@ -130,7 +130,7 @@ class SourcePackage(deb822.Sources):
         """return (absolute) path to .dsc file for this package
         """
         dsc = filter(lambda f: f['name'].endswith('.dsc'),
-                     self['files'])[0]['name']
+                     self['checksums-sha256'])[0]['name']
         return os.path.join(self['x-debsources-mirror-root'],
                             self['directory'], dsc)
 
