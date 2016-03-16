@@ -129,8 +129,17 @@ class SourcePackage(deb822.Sources):
     def dsc_path(self):
         """return (absolute) path to .dsc file for this package
         """
+        files_field = None
+        for field in ['checksums-sha256', 'files']:
+            if field in self:
+                files_field = field
+                break
+        if not files_field:
+            raise ValueError('cannot list components of source package: %s'
+                             % self)
+
         dsc = filter(lambda f: f['name'].endswith('.dsc'),
-                     self['checksums-sha256'])[0]['name']
+                     self[files_field])[0]['name']
         return os.path.join(self['x-debsources-mirror-root'],
                             self['directory'], dsc)
 
