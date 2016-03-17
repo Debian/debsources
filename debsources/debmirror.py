@@ -17,6 +17,15 @@ import os
 from debian import deb822
 from debian.debian_support import version_compare
 
+# supported compression formats for Sources files. Order does matter: formats
+# appearing early in the list will be preferred to those appearing later
+SOURCES_COMP_FMTS = ['gz', 'xz']
+
+
+class DebmirrorError(RuntimeError):
+    """runtime error when using a local Debian mirror"""
+    pass
+
 
 class SourcePackage(deb822.Sources):
     """Debian source package, as it appears in a source mirror
@@ -201,15 +210,31 @@ class SourceMirror(object):
         assert self._packages is not None
         return self._packages
 
-    def __find_Sources_gz(self):
-        """Find Sources.gz entries contained in the mirror
+    def __find_Sources(self):
+        """Find Sources entries contained in the mirror, in various supported
+        compression formats
 
-        return them as <suite, path> pairs
+        Return them as <suite, path> pairs. It will be up to client code to
+        recognize if they are compressed (e.g., based on file extension) and
+        uncompress them if needed
+
         """
+        def choose_comp(base):
+            """pick the preferred compressed variant of a given Sources file"""
+            variants = [base + '.' + fmt
+                        for fmt in SOURCES_COMP_FMTS
+                        if os.path.exists(base + '.' + fmt)]
+            if not variants:
+                raise DebmirrorError('no supported compressed variants of '
+                                     'Sources file: ' + base)
+            else:
+                return variants[0]
+
         for root, dirs, files in os.walk(self._dists_dir):
-            src_indexes = [os.path.join(root, file)
-                           for file in files
-                           if file == "Sources.gz"]
+            src_bases = set([os.path.join(root, os.path.splitext(file)[0])
+                             for file in files
+                             if os.path.splitext(file)[0] == 'Sources'])
+            src_indexes = [choose_comp(b) for b in src_bases]
             for f in src_indexes:
                 steps = f.split('/')
                 suite = steps[-4]  # wheezy, jessie, sid, ...
@@ -245,7 +270,7 @@ class SourceMirror(object):
         self._suites = {}
         self._packages = set()
 
-        for cursuite, src_index in self.__find_Sources_gz():
+        for cursuite, src_index in self.__find_Sources():
             if suite is not None and cursuite != suite:
                 continue
             with open(src_index) as i:
