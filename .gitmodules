@@ -1,3 +1,6 @@
 [submodule "testdata"]
 	path = testdata
 	url = git://git.upsilon.cc/hacks/debsources-testdata.git
+[submodule "archvsync"]
+	path = archvsync
+	url = https://ftp-master.debian.org/git/archvsync.git
