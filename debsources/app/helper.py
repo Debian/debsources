@@ -17,6 +17,7 @@ from debian.debian_support import version_compare
 from flask import request, url_for, render_template, redirect
 
 import debsources.query as qry
+from debsources import consts
 from debsources.models import SuiteAlias
 from debsources.excepts import (InvalidPackageOrVersionError, Http404Error)
 from . import app_wrapper
@@ -102,14 +103,19 @@ def handle_latest_version(endpoint, package, path):
     redirects to the latest version for the requested page,
     when 'latest' is provided instead of a version number
     """
+
+    suite_order = consts.SUITES['all']
+
     try:
-        versions = qry.pkg_names_list_versions(session, package)
+        versions = qry.pkg_names_list_versions(session,
+                                               package,
+                                               suite_order=suite_order)
+
     except InvalidPackageOrVersionError:
         raise Http404Error("%s not found" % package)
-    # the latest version is the latest item in the
-    # sorted list (by debian_support.version_compare)
-    version = sorted([v.version for v in versions],
-                     cmp=version_compare)[-1]
+    # This is already sorted in the pkg_names_list_versions function.
+    # So, we just extract the required value.
+    version = [v.version for v in versions][-1]
 
     # avoids extra '/' at the end
     if path == "":

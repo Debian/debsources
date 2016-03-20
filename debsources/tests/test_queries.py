@@ -62,6 +62,21 @@ class QueriesTest(unittest.TestCase, DbTestFixture):
         packages = qry.pkg_names_list_versions(self.session, "gnubg", "wheezy")
         self.assertEqual([p.version for p in packages], ["0.90+20120429-1"])
 
+        # Test when suit_order is given as parameter
+        packages = qry.pkg_names_list_versions(self.session, "gnubg",
+                                               suite_order=["squeeze",
+                                                            "jessie", "sid",
+                                                            "wheezy"])
+        self.assertEqual([p.version for p in packages],
+                         ["0.90+20091206-4", "1.02.000-2", "0.90+20120429-1"])
+
+        packages = qry.pkg_names_list_versions(self.session, "gnubg",
+                                               suite_order=["squeeze",
+                                                            "wheezy",
+                                                            "jessie", "sid"])
+        self.assertEqual([p.version for p in packages],
+                         ["0.90+20091206-4", "0.90+20120429-1", "1.02.000-2"])
+
         # Test returning suites without suit as parameter
         self.assertTrue({'suites': [u'wheezy'], 'version': u'0.90+20120429-1',
                          'area': u'main'} in

@@ -44,39 +44,66 @@ def pkg_names_get_packages_prefixes(cache_dir):
     return prefixes
 
 
-def pkg_names_list_versions(session, packagename, suite=""):
+def pkg_names_list_versions(session, packagename, suite="", suite_order=None):
     """
-    return all versions of a packagename. if suite is specified, only
-    versions contained in that suite are returned.
+    return all versions of a packagename. If suite is specified, only
+    versions contained in that suite are returned. If suite order is
+    specified, then ordering is suite first and then by debian version.
     """
+    def compare_with_suite_order(a, b):
+        try:
+            latest_a = max(suite_order.index(x.lower()) for x in a.suites)
+        except ValueError:
+            latest_a = -1
+        try:
+            latest_b = max(suite_order.index(x.lower()) for x in b.suites)
+        except ValueError:
+            latest_b = -1
+
+        if latest_a == latest_b:
+            return version_compare(a.version, b.version)
+        else:
+            return 1 if latest_a > latest_b else -1
+
     try:
         name_id = session.query(PackageName) \
                          .filter(PackageName.name == packagename) \
                          .first().id
     except Exception:
         raise InvalidPackageOrVersionError(packagename)
+
     try:
         if not suite:
-            versions = session.query(Package) \
-                              .filter(Package.name_id == name_id).all()
+            if not suite_order:
+                versions = session.query(Package) \
+                                  .filter(Package.name_id == name_id).all()
+                versions = sorted(versions, cmp=version_compare)
+            else:
+                versions_w_suites = pkg_names_list_versions_w_suites(
+                    session, packagename, as_object=True)
+                versions = sorted(versions_w_suites,
+                                  cmp=compare_with_suite_order)
         else:
             versions = (session.query(Package)
                                .filter(Package.name_id == name_id)
                                .filter(sql_func.lower(Suite.suite) == suite)
                                .filter(Suite.package_id == Package.id)
                                .all())
+            versions = sorted(versions, cmp=version_compare)
     except Exception:
         raise InvalidPackageOrVersionError(packagename)
     # we sort the versions according to debian versions rules
-    versions = sorted(versions, cmp=version_compare)
+
     return versions
 
 
 def pkg_names_list_versions_w_suites(session, packagename,
-                                     suite="", reverse=False):
+                                     suite="", reverse=False,
+                                     as_object=False):
     """
     return versions with suites. if suite is provided, then only return
-    versions contained in that suite.
+    versions contained in that suite. if as_object is true, the version
+    is returned as a Package object with suites list added to it.
     """
     # FIXME a left outer join on (Package, Suite) is more preferred.
     # However, per https://stackoverflow.com/a/997467, custom aggregation
@@ -93,8 +120,13 @@ def pkg_names_list_versions_w_suites(session, packagename,
             # use keyfunc to make it py3 compatible
             suites.sort(key=lambda s: SUITES['all'].index(s.suite))
             suites = [s.suite for s in suites]
-            v = v.to_dict()
-            v['suites'] = suites
+
+            if as_object:
+                v.suites = suites
+            else:
+                v = v.to_dict()
+                v['suites'] = suites
+
             versions_w_suites.append(v)
     except Exception:
         raise InvalidPackageOrVersionError(packagename)
