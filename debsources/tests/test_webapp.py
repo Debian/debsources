@@ -556,6 +556,36 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
             rv = self.app.get('/copyright/')
             self.assertEqual(200, rv.status_code)
 
+    def test_news(self):
+        # news_routes = { news_filename: associated_route }
+        news_routes = {
+            'sources_news.html':    '/',
+            'copyright_news.html': '/copyright/',
+            'patches_news.html':   '/patches/'
+        }
+        # Go through each news_route and ensure it contains the data we expect
+        # which is the data in local/news.html file.
+        # If data doesn't exist, create dummy data to test.
+        for news_file in news_routes.keys():
+            fullpath = os.path.join(self.app_wrapper.app.config["LOCAL_DIR"],
+                                    news_file)
+            news_string = ""
+            if not os.path.isdir(self.app_wrapper.app.config["LOCAL_DIR"]):
+                if os.path.exists(self.app_wrapper.app.config["LOCAL_DIR"]):
+                    # for some reason local_dir is a file, raise an IOError
+                    raise IOError
+                else:
+                    os.makedirs(self.app_wrapper.app.config["LOCAL_DIR"])
+            if os.path.isfile(fullpath):
+                with open(fullpath, 'r') as f:
+                    news_string = f.read()
+            else:
+                news_string = "<ul><li>This item was created in a test for " \
+                              + news_file + "</li></ul>"
+                with open(fullpath, 'w') as f:
+                    f.write(news_string)
+            rv = self.app.get(news_routes[news_file])
+            self.assertIn(news_string, rv.data)
 
 if __name__ == '__main__':
     unittest.main(exit=False)
