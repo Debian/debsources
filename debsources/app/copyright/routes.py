@@ -17,7 +17,7 @@ from flask import jsonify, request, render_template
 from ..helper import bind_render, generic_before_request
 from . import bp_copyright
 from ..views import (IndexView, PrefixView, ListPackagesView, ErrorHandler,
-                     Ping, PackageVersionsView, SearchView)
+                     Ping, PackageVersionsView, SearchView, NewsArchiveView)
 from .views import LicenseView, ChecksumLicenseView, SearchFileView, StatsView
 from debsources.excepts import Http404Error
 
@@ -53,7 +53,18 @@ bp_copyright.add_url_rule(
         'index',
         render_func=bind_render('copyright/index.html'),
         err_func=ErrorHandler('copyright'),
-        news_html='copyright_news.html'))
+        news_html='copyright_news.html',
+        news_archive_html='copyright_news_archive.html'))
+
+
+# NEWSARCHIVEVIEW
+bp_copyright.add_url_rule(
+    '/news_archive',
+    view_func=NewsArchiveView.as_view(
+        'news_archive',
+        render_func=bind_render('news_archive.html'),
+        err_func=ErrorHandler('copyright'),
+        news_archive_html='copyright_news_archive.html'))
 
 # ping service
 bp_copyright.add_url_rule(

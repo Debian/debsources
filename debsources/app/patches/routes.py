@@ -18,7 +18,7 @@ from . import bp_patches
 
 from ..helper import bind_render, generic_before_request
 from ..views import (IndexView, Ping, PrefixView, ErrorHandler,
-                     ListPackagesView, SearchView)
+                     ListPackagesView, SearchView, NewsArchiveView)
 from .views import SummaryView, PatchView, VersionsView
 from debsources.excepts import Http404Error
 
@@ -54,7 +54,17 @@ bp_patches.add_url_rule(
         'index',
         render_func=bind_render('patches/index.html'),
         err_func=ErrorHandler('patches'),
-        news_html='patches_news.html'))
+        news_html='patches_news.html',
+        news_archive_html='patches_news_archive.html'))
+
+# NEWSARCHIVEVIEW
+bp_patches.add_url_rule(
+    '/news_archive',
+    view_func=NewsArchiveView.as_view(
+        'news_archive',
+        render_func=bind_render('news_archive.html'),
+        err_func=ErrorHandler('patches'),
+        news_archive_html='patches_news_archive.html'))
 
 # ping service
 bp_patches.add_url_rule(

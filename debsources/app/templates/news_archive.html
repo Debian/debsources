@@ -1,0 +1,37 @@
+{#
+  Copyright (C) 2016  The Debsources developers <info@sources.debian.net>.
+  See the AUTHORS file at the top-level directory of this distribution and at
+  https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+  License: GNU Affero General Public License, version 3 or above.
+#}
+
+{% extends name+"/base.html" %}
+
+{% block title %}News archive{% endblock %}
+
+{% block breadcrumbs %} <a href='{{ url_for(".index") }}'>{{ request.blueprint }}</a> / News archive
+{% endblock %}
+
+{% block content %}
+
+<div id="indexmenu">
+
+  <h1 class="h1mainpage">{{ self.title() }}</h1>
+
+  <div class="content" style="text-align: left">
+    {% if archived_news %}
+      {{ archived_news|safe }}
+    {% else %}
+      <h3>Looks like the news archive is empty!</h3>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{# show the background debian image #}
+{% block bg_wrapper %}
+<div id="bg-wrapper" style="background-image: url('{{ url_for('static', filename='img/debsources.png') }}');">
+  <div id="content">{{ self.content() }}</div>
+  <footer id="footer">{{ self.footer() }}</footer>
+</div>
+{% endblock %}

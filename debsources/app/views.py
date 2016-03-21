@@ -225,8 +225,21 @@ class IndexView(GeneralView):
     def get_objects(self, **kwargs):
         news_file = os.path.join(current_app.config["LOCAL_DIR"],
                                  self.d['news_html'])
+        archived_news_file = os.path.join(current_app.config["LOCAL_DIR"],
+                                          self.d['news_archive_html'])
         news = local_info.read_html(news_file)
-        return dict(news=news)
+        archived_news = local_info.read_html(archived_news_file)
+        return dict(news=news, archived_news=archived_news)
+
+
+# for /news_archive
+class NewsArchiveView(GeneralView):
+
+    def get_objects(self, **kwargs):
+        archived_news_file = os.path.join(current_app.config["LOCAL_DIR"],
+                                          self.d['news_archive_html'])
+        archived_news = local_info.read_html(archived_news_file)
+        return dict(archived_news=archived_news)
 
 
 # for /docs/*

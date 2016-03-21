@@ -17,7 +17,7 @@ from ..helper import bind_render, generic_before_request
 from ..views import (
     IndexView, SearchView, CtagView, ChecksumView, PrefixView,
     ListPackagesView, InfoPackageView, Ping, ErrorHandler,
-    PackageVersionsView)
+    PackageVersionsView, NewsArchiveView)
 
 from .views import StatsView, SourceView
 from . import bp_sources
@@ -65,7 +65,18 @@ bp_sources.add_url_rule(
         'index',
         render_func=bind_render('sources/index.html'),
         err_func=ErrorHandler('sources'),
-        news_html='sources_news.html'))
+        news_html='sources_news.html',
+        news_archive_html='sources_news_archive.html'))
+
+
+# NEWSARCHIVEVIEW
+bp_sources.add_url_rule(
+    '/news_archive',
+    view_func=NewsArchiveView.as_view(
+        'news_archive',
+        render_func=bind_render('news_archive.html'),
+        err_func=ErrorHandler('sources'),
+        news_archive_html='sources_news_archive.html'))
 
 
 # STATSVIEW
