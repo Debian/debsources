@@ -17,12 +17,14 @@ import os
 import six
 
 from flask import (
-    current_app, jsonify, render_template, request, url_for, redirect)
+    current_app, jsonify, render_template, request, url_for, redirect,
+    make_response)
 from flask.views import View
 
 from debsources.excepts import (
     Http500Error, Http404Error, Http404ErrorSuggestions, Http403Error,
-    InvalidPackageOrVersionError, Http404MissingCopyright)
+    InvalidPackageOrVersionError, Http404MissingCopyright,
+    MissingCopyrightField, CopyrightValueError)
 from debsources.models import Package
 import debsources.query as qry
 from debsources.sqla_session import _close_session
@@ -126,6 +128,16 @@ class ErrorHandler(object):
                 else:
                     return render_template('copyright/404_missing.html',
                                            suggestions=suggestions), 404
+            elif isinstance(error, MissingCopyrightField):
+                return render_template('copyright/missing_copyright.html',
+                                       paragraph=error.par,
+                                       package=error.package,
+                                       version=error.version)
+            elif isinstance(error, CopyrightValueError):
+                return render_template('copyright/value_error.html',
+                                       error=error.error,
+                                       package=error.package,
+                                       version=error.version)
             else:
                 return render_template('404.html'), 404
 
@@ -189,6 +201,10 @@ class GeneralView(View):
         """
         try:
             context = self.get_objects(**kwargs)
+            if self.render_func is make_response:
+                response = make_response(context['spdx'])
+                response.headers["Content-Disposition"] = context['header']
+                return response
             return self.render_func(**context)
         except Http403Error as e:
             return self.err_func(e, http=403)

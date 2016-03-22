@@ -12,13 +12,14 @@
 from __future__ import absolute_import
 
 
-from flask import jsonify, request, render_template
+from flask import jsonify, request, render_template, make_response
 
 from ..helper import bind_render, generic_before_request
 from . import bp_copyright
 from ..views import (IndexView, PrefixView, ListPackagesView, ErrorHandler,
                      Ping, PackageVersionsView, SearchView)
-from .views import LicenseView, ChecksumLicenseView, SearchFileView, StatsView
+from .views import (LicenseView, ChecksumLicenseView, SearchFileView,
+                    StatsView, SPDXView)
 from debsources.excepts import Http404Error
 
 
@@ -39,7 +40,7 @@ bp_copyright.errorhandler(404)(
 # Before request
 @bp_copyright.before_request
 def before_request():
-    endpoints = ['license', 'file', 'api_file']
+    endpoints = ['license', 'file', 'api_file', 'spdx']
     if request.endpoint.replace('copyright.', '', 1) in endpoints:
         try:
             return generic_before_request(request, 3)
@@ -224,3 +225,11 @@ bp_copyright.add_url_rule(
         render_func=jsonify,
         err_func=ErrorHandler(mode='json'),
         get_objects='stats_suite'))
+
+# SDPX view
+bp_copyright.add_url_rule(
+    '/spdx/<string:packagename>/<string:version>/',
+    view_func=SPDXView.as_view(
+        'spdx',
+        render_func=make_response,
+        err_func=ErrorHandler('copyright')))

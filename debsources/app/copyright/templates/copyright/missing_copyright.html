@@ -1,0 +1,22 @@
+{#
+  Copyright (C) 2016  The Debsources developers <info@sources.debian.net>.
+  See the AUTHORS file at the top-level directory of this distribution and at
+  https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+  License: GNU Affero General Public License, version 3 or above.
+#}
+{% extends name+"/base.html" %}
+
+{% block title %}Error{% endblock %}
+{% block content %}
+<h2>{{ self.title() }}</h2>
+<p>The debian/copyright file has a file paragraph without the <b>required</b> copyright field. The files paragraph is:
+<ul>
+{% for files in paragraph %}
+<li>{{ files }}</li>
+{% endfor %}
+</ul>
+<a href="{{ url_for('sources.source', path_to=(package +'/'+version+'/debian/copyright'))}}">View raw copyright file</a>
+</p> 
+<a href="{{ url_for('.license', packagename=package, version=version)}}">Go back to the license page</a>
+
+{% endblock %}

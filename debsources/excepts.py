@@ -46,3 +46,19 @@ class Http404MissingCopyright(Http404Error):
 
 class Http403Error(Exception):
     pass
+
+
+class MissingCopyrightField(Http404Error):
+    def __init__(self, package, version, par):
+        self.package = package
+        self.version = version
+        self.par = par
+        super(MissingCopyrightField, self).__init__()
+
+
+class CopyrightValueError(Http404Error):
+    def __init__(self, package, version, error):
+        self.package = package
+        self.version = version
+        self.error = error
+        super(CopyrightValueError, self).__init__()
