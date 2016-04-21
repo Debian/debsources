@@ -15,3 +15,6 @@ DEBSRC=/srv/debsources
 
 # daily DB dump
 13  20         *   *   *   debsources  $DEBSRC/bin/debsources-backup-db
+
+# updates https certs every month
+0   0          1   *   *   debsources  $DEBSRC/contrib/renew_letsencrypt.sh 2>> /var/log/acme_tiny.log
