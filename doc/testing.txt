@@ -1,6 +1,8 @@
 Test runner
 ===========
 
+Run tests locally
+-----------------
 Debsources test suite is managed with [Nose](https://nose.readthedocs.org/).
 To run the test suite execute the following from Debsources top-level dir:
 
@@ -10,6 +12,14 @@ Check [Nose documentation](https://nose.readthedocs.org/en/latest/) for more
 advanced options, including how to only run specific tests, based on
 attributes.
 
+Run tests in docker
+-------------------
+
+You can run debsources test suite in a docker container using the following
+commands:
+
+  $ cd contrib/docker
+  $ docker-compose run debsources /opt/run-tests
 
 Test attributes
 ---------------
