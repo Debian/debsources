@@ -31,9 +31,11 @@ RUN apt-get update && \
     postgresql-client-9.4
 
 # SETUP
+ADD scripts/* /opt/
 RUN mkdir /etc/debsources
 ADD config.ini /etc/debsources/
 RUN mkdir /opt/debsources
+
 ENV PYTHONPATH /opt/debsources
 
 EXPOSE 5000
