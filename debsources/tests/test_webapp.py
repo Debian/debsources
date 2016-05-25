@@ -103,6 +103,18 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertEqual(rv['results']['other'], [{'name': "gnubg"}])
         self.assertIsNone(rv['results']['exact'])
 
+    def test_static_files(self):
+        static_files = [
+            '/static/css/base.css',
+            '/static/css/debian.css',
+            '/static/favicon.ico',
+            '/static/bootstrap/bootstrap.min.css',
+            '/static/bootstrap/bootstrap.min.js'
+        ]
+        for path in static_files:
+            status = self.app.get(path).status_code
+            self.assertEqual(status, 200)
+
     def test_package_search(self):
         # test exact search result
         rv = self.app.get('/search/gnubg/')
