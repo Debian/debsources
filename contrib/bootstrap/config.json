@@ -1,0 +1,16 @@
+{
+  "vars": {
+  },
+  "css": [
+    "grid.less",
+    "forms.less",
+    "navs.less",
+    "navbar.less",
+    "component-animations.less"
+  ],
+  "js": [
+    "collapse.js",
+    "transition.js"
+  ],
+  "customizerUrl": "http://getbootstrap.com/customize/?id=d19c6ca31aa5642c86aa68a7cdd83729"
+}
