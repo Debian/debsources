@@ -1,0 +1,3 @@
+#!/bin/bash
+/opt/db-init
+nosetests -v /opt/debsources/debsources/tests/
