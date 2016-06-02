@@ -9,6 +9,7 @@
 
 /* displayed on index.html */
 
+
 #indexmenu {
     text-align: center;
     padding-top: 20px;
@@ -27,36 +28,34 @@
     padding-top: 0;
 }
 
-#indexmenu table {
-    width: 700px;
+#indexmenu div {
     margin: auto;
     border-spacing: 20px;
     border-spacing: collapse;
+    background-color: rgba(255, 255, 255, 0.33);
 }
 
-#indexmenu table td {
+#indexmenu div div {
     border: 0;
-    padding: 5px;
     padding-top: 0px;
     padding-bottom: 0px;
-    background-color: transparent;
-    background-color: #f5f6f7;
-    opacity: 0.9;
     border-radius: 15px;
+    background-color: none !important;
 }
 
-#indexmenu table td p {
+#indexmenu div div #browse {
     text-align: center;
     margin-bottom: 1em;
     margin-top: 0.5em;
 }
-#indexmenu table td ul {
+#indexmenu div div ul {
     margin-bottom: 1em;
     margin-top: 0.5em;
 }
 
-#indexmenu table #search {
-    width: 60%;
+#indexmenu div #search input{
+    min-width: 50%;
+    max-width: 150px;
 }
 
 /* lists made in multiple columns (e.g. in macros.listpackages() */

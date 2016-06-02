@@ -1,8 +1,8 @@
 {#
-  Copyright (C) 2013  The Debsources developers <info@sources.debian.net>.
-  See the AUTHORS file at the top-level directory of this distribution and at
-  https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
-  License: GNU Affero General Public License, version 3 or above.
+Copyright (C) 2013  The Debsources developers <info@sources.debian.net>.
+See the AUTHORS file at the top-level directory of this distribution and at
+https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+License: GNU Affero General Public License, version 3 or above.
 #}
 {# XXX copyed from templates/base.html #}
 {% import "_macros.html" as macros %}
@@ -11,58 +11,82 @@
 <html>
   <head>
     {% block head %}
-      <meta charset="UTF-8">
-      <link rel="stylesheet" type="text/css"
-            href="{{ url_for('static', filename='css/debian.css') }}" />
-      <link rel="stylesheet" type="text/css"
-            href="{{ url_for('static', filename='css/base.css') }}" />
-      <link rel="shortcut icon"
-            href="{{ url_for('static', filename='favicon.ico') }}" />
-      {# title_suffix could be like 'Debian sources' or 'Debian copyright' #}
-      <title>{% block title %}{% endblock %}{% block title_suffix %}{% endblock %}</title>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" type="text/css"
+                           href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" />
+    <link rel="stylesheet" type="text/css"
+                           href="{{ url_for('static', filename='css/debian.css') }}" />
+    <link rel="stylesheet" type="text/css"
+                           href="{{ url_for('static', filename='css/base.css') }}" />
+    <script src="{{ config.JQUERY_JS_FOLDER }}/jquery.js"></script> 
+    <link rel="shortcut icon"
+          href="{{ url_for('static', filename='favicon.ico') }}" />
+    {# title_suffix could be like 'Debian sources' or 'Debian copyright' #}
+    <title>{% block title %}{% endblock %}{% block title_suffix %}{% endblock %}</title>
     {% endblock %}
   </head>
   <body>
-    <header id="header">
-      <div id="upperheader">
-        <div id="logo">
-          <a href="https://www.debian.org" title="Debian Home"><img src="{{ url_for('static', filename='img/debian-50.png') }}" alt="Debian"></a>
-        </div> <!-- end logo -->
-        <p class="section"><a href="{{ url_for('sources.index') }}">DEBSOURCES</a></p>
-        <div id="searchbox">
-            {{ macros.searchform(searchform, request, display="inline", value=query, placeholder="package name", id="query-1") }}
-            <form name="codesearch" method="get"
-            action="https://codesearch.debian.net/search">
-              <input name="q"
-              {%- if package %} value="package:{{ package }} "
-              {%- else %} placeholder="code regex"
-              {%- endif %}
-              type="text" />
-              <input type="submit" value="Search code" />
-            </form>
-        </div>   <!-- end sitetools -->
-      </div> <!-- end upperheader -->
-
-      <nav id="navbar">
-        <p class="hidecss"><a href="#content">Skip Quicknav</a></p>
+    <nav class="navbar navbar-default">
+      <div id="container-fluid">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed"
+                    data-toggle="collapse" data-target="#ds-navbar-collapse-1"
+                    aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">
+                debsources
+            </a>
+        </div>
         {% block nav %}{% endblock %}
-      </nav> <!-- end navbar -->
+      </div>
+    </nav> <!-- end header -->
 
-      <p id="breadcrumbs">{% block breadcrumbs %}{% endblock %}</p>
-    </header> <!-- end header -->
-
-    {% block bg_wrapper %}
-      <div id="content">
-        {% block content %}
-        {% endblock %}
+    <div class="container-fluid">
+      <div class="row">
+        <!-- XXX Fix search bar alignment -->
+        <div class="col-md-6">
+          {{ macros.searchform(searchform, request, display="inline", placeholder="package name", id="query-1") }}
+        </div>
+        <div class="col-md-6">
+          <form name="codesearch" method="get"
+                                  action="https://codesearch.debian.net/search">
+            <input name="q"
+            {%- if package %}
+              value="package:{{ package }} "
+            {%- else %}
+              placeholder="code regex"
+            {%- endif %}
+            type="text" />
+            <input type="submit" value="Search code"  placeholder="Search" />
+          </form>
+        </div>
       </div>
 
-      <footer id="footer">
-        {% block footer %}
-          {% include "footer.inc.html" %}
-        {% endblock %}
-      </footer>
+      <p class="hidecss"><a href="#content">Skip Quicknav</a></p>
+      <div class="row">
+        <!-- XXX Fix breadcrumbs javascript incompatabliity?? --> 
+        <p id="breadcrumbs">{% block breadcrumbs %}{% endblock %}</p>
+      </div>
+    </div>
+    {% block bg_wrapper %}
+    <div id="content" class="container"> <!-- XXX fix background image-->
+      {% block content %}
+      {% endblock %}
+    </div>
+    <footer id="footer" class="container">
+      {% block footer %}
+      {% include "footer.inc.html" %}
+      {% endblock %}
+    </footer>
     {% endblock %}
 
+    <script src="{{ config.BOOTSTRAP_JS_FOLDER }}/js/bootstrap.min.js"></script>
   </body>
 </html>

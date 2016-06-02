@@ -82,7 +82,8 @@ body {
 	*/
 }
 #content {
-	margin: 0 10px 0 52px;
+	/* removed for debsources margin: 0 10px 0 52px;
+     * as interferes with bootstrap containers */
 	min-height: 300px; /* added for debsources, required to avoid the
 			      infobox to overlap the footer */
 }

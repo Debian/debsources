@@ -109,3 +109,26 @@ https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginati
     {{ news|safe }}
   {% endif %}
 {% endmacro %}
+
+{% macro render_navbar(nav_map) %}
+    {#  render_navbar takes dictionary and produced a navbar
+        Each key refers to a link the key is directly placed into the
+        `<li></li>` while the value is to looked up by url_for()
+
+        Example Input:
+            {'Home':'home', '<span class="back">Back<span>':'back'}
+       
+        Output:
+            ...
+            <li><a href="{{url_for('home')}}">Home</a></li>
+            <li><a href="{{url_for('back'}}"><span class="back">Back</span></a></li>
+            ...
+    #}
+    <div class="collapse navbar-collapse" id="ds-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+        {% for key in nav_map %}
+            <li><a href="{{url_for(nav_map[key])}}">{{key}}</a></li>
+        {% endfor %}
+        </ul>
+    </div>
+{% endmacro %}
