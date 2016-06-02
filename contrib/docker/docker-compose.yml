@@ -1,0 +1,21 @@
+db:
+  image: postgres:9.4
+  environment:
+    POSTGRES_USER: docker
+    POSTGRES_PASSWORD: docker
+    POSTGRES_DB: debsources
+
+debsources:
+  build: .
+  ports:
+    - "5000:5000"
+  volumes:
+    - "../../:/opt/debsources"
+  links:
+    - db
+  environment:
+    PGUSER: docker
+    PGPASSWORD: docker
+    PGHOST: db_1
+  working_dir: /opt/debsources
+  command: /opt/run-web
