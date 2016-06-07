@@ -16,12 +16,12 @@ License: GNU Affero General Public License, version 3 or above.
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" type="text/css"
-                           href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" />
+                           href="{{ url_for('static', filename='bootstrap/bootstrap.min.css') }}" />
     <link rel="stylesheet" type="text/css"
                            href="{{ url_for('static', filename='css/debian.css') }}" />
     <link rel="stylesheet" type="text/css"
                            href="{{ url_for('static', filename='css/base.css') }}" />
-    <script src="{{ config.JQUERY_JS_FOLDER }}/jquery.js"></script> 
+    <script src="{{ config.JQUERY_JS_FOLDER }}/jquery.js"></script>
     <link rel="shortcut icon"
           href="{{ url_for('static', filename='favicon.ico') }}" />
     {# title_suffix could be like 'Debian sources' or 'Debian copyright' #}
@@ -87,6 +87,6 @@ License: GNU Affero General Public License, version 3 or above.
     </footer>
     {% endblock %}
 
-    <script src="{{ config.BOOTSTRAP_JS_FOLDER }}/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='bootstrap/bootstrap.min.js') }}"></script>
   </body>
 </html>

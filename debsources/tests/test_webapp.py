@@ -108,9 +108,8 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
             '/static/css/base.css',
             '/static/css/debian.css',
             '/static/favicon.ico',
-            # since bootstrap isn't in the <head> yet, leave this test
-            #'/static/bootstrap/css/bootstrap.min.css',
-            #'/static/bootstrap/js/bootstrap.min.js',
+            '/static/bootstrap/bootstrap.min.css',
+            '/static/bootstrap/bootstrap.min.js',
         ]
         for path in static_files:
             status = self.app.get(path).status_code

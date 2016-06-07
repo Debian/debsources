@@ -23,3 +23,16 @@ How To Generate
   mv tmp/js/bootstrap.min.js tmp/css/bootstrap.min.css $BASE/debsources/app/static/bootstrap
   rm -rf ./tmp # all done now :)
   ```
+
+Expected files
+--------------
+
+Lookups will be made to 
+
+- `/static/bootstrap/bootstrap.min.css`
+
+- `/static/bootstrap/bootstrap.min.js`
+
+Assuming you placed the files in `debsources/app/static` like that, then
+you're good to go <3
+
