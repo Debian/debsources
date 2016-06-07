@@ -23,3 +23,5 @@ do
     echo $path
     $CURL $SERVER$path
 done
+
+echo | openssl s_client -connect sources.debian.net:443 2>/dev/null | openssl x509 -noout -dates
