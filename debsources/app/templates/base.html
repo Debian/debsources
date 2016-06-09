@@ -12,15 +12,13 @@ License: GNU Affero General Public License, version 3 or above.
   <head>
     {% block head %}
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <link rel="stylesheet" type="text/css"
-                           href="{{ url_for('static', filename='bootstrap/bootstrap.min.css') }}" />
+          href="{{ url_for('static', filename='bootstrap/bootstrap.min.css') }}" />
     <link rel="stylesheet" type="text/css"
-                           href="{{ url_for('static', filename='css/debian.css') }}" />
+          href="{{ url_for('static', filename='css/debian.css') }}" />
     <link rel="stylesheet" type="text/css"
-                           href="{{ url_for('static', filename='css/base.css') }}" />
+          href="{{ url_for('static', filename='css/base.css') }}" />
     <script src="{{ config.JQUERY_JS_FOLDER }}/jquery.js"></script>
     <link rel="shortcut icon"
           href="{{ url_for('static', filename='favicon.ico') }}" />
@@ -29,17 +27,61 @@ License: GNU Affero General Public License, version 3 or above.
     {% endblock %}
   </head>
   <body>
-    {% include "header.inc.html" %}
-    {% block bg_wrapper %}
-      <div id="content" class="container"> <!-- XXX fix background image-->
-        {% block content %}
-        {% endblock %}
+    <nav class="navbar navbar-default">
+      <div id="container-fluid" id="nav-search">
+        <div class="row hidden-xs hidden-sm">
+          <div class="col-md-6">
+            {{
+            macros.searchform(searchform, request, display="inline",
+            placeholder="package name", id="query-1")
+            }}
+          </div>
+          <div class="col-md-6">
+              <form name="codesearch" method="get"
+                    action="https://codesearch.debian.net/search">
+              <input name="q"
+              {%- if package %}
+                value="package:{{ package }} "
+              {%- else %}
+                placeholder="code regex"
+              {%- endif %}
+              type="text" />
+              <input type="submit" value="Search code"  placeholder="Search" />
+            </form>
+          </div>
+        </div>
+
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed"
+                  data-toggle="collapse" data-target="#ds-navbar-collapse-1"
+                  aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">
+            debsources
+          </a>
+        </div>
+
+        {% block nav %}{% endblock %}
+      
+        <p class="hidecss"><a href="#content">Skip Quicknav</a></p>
+        <p id="breadcrumbs">{% block breadcrumbs %}{% endblock %}</p>
       </div>
-      <footer id="footer" class="container">
-        {% block footer %}
-        {% include "footer.inc.html" %}
-        {% endblock %}
-      </footer>
+    </nav> <!-- end header -->
+
+    {% block bg_wrapper %}
+    <div id="content" class="container"> <!-- XXX fix background image-->
+      {% block content %}
+      {% endblock %}
+    </div>
+    <footer id="footer" class="container">
+      {% block footer %}
+      {% include "footer.inc.html" %}
+      {% endblock %}
+    </footer>
     {% endblock %}
     <script src="{{ url_for('static', filename='bootstrap/bootstrap.min.js') }}"></script>
   </body>
