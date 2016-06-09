@@ -28,15 +28,12 @@ License: GNU Affero General Public License, version 3 or above.
   </head>
   <body>
     <nav class="navbar navbar-default">
-      <div id="container-fluid" id="nav-search">
-        <div class="row hidden-xs hidden-sm">
-          <div class="col-md-6">
+      <div id="container-fluid">
+        <div class="row hidden-xs hidden-sm" id="searchbox">
             {{
             macros.searchform(searchform, request, display="inline",
             placeholder="package name", id="query-1")
             }}
-          </div>
-          <div class="col-md-6">
               <form name="codesearch" method="get"
                     action="https://codesearch.debian.net/search">
               <input name="q"
@@ -48,7 +45,6 @@ License: GNU Affero General Public License, version 3 or above.
               type="text" />
               <input type="submit" value="Search code"  placeholder="Search" />
             </form>
-          </div>
         </div>
 
         <div class="navbar-header">
@@ -60,8 +56,9 @@ License: GNU Affero General Public License, version 3 or above.
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/">
-            debsources
+          <a class="navbar-brand debsources-brand" href="https://www.debian.org" title="Debian Home">
+              <img src="/static/img/debian-50.png" alt="Debian"></img>
+              <p>debsources</p>
           </a>
         </div>
 

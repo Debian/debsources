@@ -198,14 +198,12 @@ ul.subnav li {
 	margin-right: 1em;
 }
 #searchbox {
-	text-align:left;
+	float: right;
+    text-align:left;
 	line-height: 1;
 	margin: 0 10px 0 0.5em;
 	padding: 1px 0 1px 0;
-	position: absolute;
-	top:0;
-	right:0;
-	font-size: 0.75em;
+	font-size: 1em;
 }
 #searchbox p {
 	margin: 0;
