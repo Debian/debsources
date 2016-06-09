@@ -29,64 +29,18 @@ License: GNU Affero General Public License, version 3 or above.
     {% endblock %}
   </head>
   <body>
-    <nav class="navbar navbar-default">
-      <div id="container-fluid">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed"
-                    data-toggle="collapse" data-target="#ds-navbar-collapse-1"
-                    aria-expanded="false">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/">
-                debsources
-            </a>
-        </div>
-        {% block nav %}{% endblock %}
-      </div>
-    </nav> <!-- end header -->
-
-    <div class="container-fluid">
-      <div class="row">
-        <!-- XXX Fix search bar alignment -->
-        <div class="col-md-6">
-          {{ macros.searchform(searchform, request, display="inline", placeholder="package name", id="query-1") }}
-        </div>
-        <div class="col-md-6">
-          <form name="codesearch" method="get"
-                                  action="https://codesearch.debian.net/search">
-            <input name="q"
-            {%- if package %}
-              value="package:{{ package }} "
-            {%- else %}
-              placeholder="code regex"
-            {%- endif %}
-            type="text" />
-            <input type="submit" value="Search code"  placeholder="Search" />
-          </form>
-        </div>
-      </div>
-
-      <p class="hidecss"><a href="#content">Skip Quicknav</a></p>
-      <div class="row">
-        <!-- XXX Fix breadcrumbs javascript incompatabliity?? --> 
-        <p id="breadcrumbs">{% block breadcrumbs %}{% endblock %}</p>
-      </div>
-    </div>
+    {% include "header.inc.html" %}
     {% block bg_wrapper %}
-    <div id="content" class="container"> <!-- XXX fix background image-->
-      {% block content %}
-      {% endblock %}
-    </div>
-    <footer id="footer" class="container">
-      {% block footer %}
-      {% include "footer.inc.html" %}
-      {% endblock %}
-    </footer>
+      <div id="content" class="container"> <!-- XXX fix background image-->
+        {% block content %}
+        {% endblock %}
+      </div>
+      <footer id="footer" class="container">
+        {% block footer %}
+        {% include "footer.inc.html" %}
+        {% endblock %}
+      </footer>
     {% endblock %}
-
     <script src="{{ url_for('static', filename='bootstrap/bootstrap.min.js') }}"></script>
   </body>
 </html>

@@ -1,0 +1,55 @@
+{#
+Copyright (C) 2013  The Debsources developers <info@sources.debian.net>.
+See the AUTHORS file at the top-level directory of this distribution and at
+https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+License: GNU Affero General Public License, version 3 or above.
+#}
+{% import "_macros.html" as macros %}
+
+<nav class="navbar navbar-default">
+  <div id="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed"
+                            data-toggle="collapse" data-target="#ds-navbar-collapse-1"
+                                                   aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">
+        debsources
+      </a>
+    </div>
+    {% block nav %}{% endblock %}
+  </div>
+</nav> <!-- end header -->
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- XXX Fix search bar alignment -->
+    <div class="col-md-6">
+      {{ macros.searchform(searchform, request, display="inline", placeholder="package name", id="query-1") }}
+    </div>
+    <div class="col-md-6">
+      <form name="codesearch" method="get"
+                              action="https://codesearch.debian.net/search">
+        <input name="q"
+               {%- if package %}
+               value="package:{{ package }} "
+               {%- else %}
+               placeholder="code regex"
+               {%- endif %}
+               type="text" />
+        <input type="submit" value="Search code"  placeholder="Search" />
+      </form>
+    </div>
+  </div>
+
+  <p class="hidecss"><a href="#content">Skip Quicknav</a></p>
+  <div class="row">
+    <!-- XXX Fix breadcrumbs javascript incompatabliity?? --> 
+    <p id="breadcrumbs">{% block breadcrumbs %}{% endblock %}</p>
+  </div>
+</div>
+
