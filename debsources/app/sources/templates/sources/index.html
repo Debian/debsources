@@ -55,8 +55,9 @@ License: GNU Affero General Public License, version 3 or above.
 
 {# show the background debian image #}
 {% block bg_wrapper %}
-<div id="bg-wrapper" style="background-image: url('{{ url_for('static', filename='img/debsources.png') }}');">
-  <div id="content">{{ self.content() }}</div>
-  <footer id="footer">{{ self.footer() }}</footer>
-</div>
+  {{ super() }}
+
+  <p style="display: none;" id="bg-url"
+     data-url="{{ url_for('static', filename='img/debsources.png') }}">
+  </p>
 {% endblock %}
