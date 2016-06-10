@@ -18,10 +18,10 @@
 </tr>
 <tr>
   {%- for paragraph in files %}
-    <td style='width:30%'> 
+    <td style='width:30%'>
       {%- for file in paragraph['globs'] %}
         {%- if file['url'] is not none %}
-          <a href="{{ file['url'] }}">{{ file['files'] }}</a> 
+          <a href="{{ file['url'] }}">{{ file['files'] }}</a>
         {%- else %}
           {{ file['files'] }}
         {%- endif %}
@@ -52,9 +52,9 @@
   {%- for license in licenses %}
     <div class='license'>
       <p class='r_license' id='license-{{ loop.index0 }}'>
-        <span class='r_decorate'>License: </span> 
+        <span class='r_decorate'>License: </span>
         {%- if license['link'] is not none %}
-            <a href="{{ license['link'] }}"> {{ license['synopsis'] }}</a> 
+            <a href="{{ license['link'] }}"> {{ license['synopsis'] }}</a>
           {%- else %}{{ license['synopsis'] }}
         {%- endif %}
       </p>

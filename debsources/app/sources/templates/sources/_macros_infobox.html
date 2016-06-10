@@ -19,11 +19,15 @@
     }
   </script>
 
-{% if position == "fixed" %}
-<div id="pkginfobox" class="pkginfobox_fixed">
-{% else %}
-<div id="pkginfobox" class="pkginfobox_large">
-{% endif %}
+<!-- Some behavour of this box is contained inside debsources.js
+     (for smaller screens) -->
+
+  {% if position == "fixed" %}
+  <div id="pkginfobox" class="pkginfobox_fixed">
+  {% else %}
+  <div id="pkginfobox" class="pkginfobox_large">
+  {% endif %}
+
   {% if position == "fixed" %}
   <span onclick="toggle('infobox_content')">package info
     <small>(click to toggle)</small></span>

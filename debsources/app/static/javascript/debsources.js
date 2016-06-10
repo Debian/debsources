@@ -201,13 +201,21 @@ var debsources_responsive = {
       /* Currently uses hacky invisible p to get url
        * This is due to the fact we use url_for(), a jinja method.
        * */
-      url = $("#bg-url").attr('data-url');
+      var url = $("#bg-url").attr('data-url');
       return url;
+    },
+
+    mobile_infobox: function() {
+      var infobox = $(".pkginfobox");
+      if (infobox) {
+        console.log("Running infobox for mobiles");
+      }
     },
 
     run: function() {
       console.log("Running Responsive Utilities");
       this.render_bg(this.fetch_url());
+      this.mobile_infobox();
     }
 };
 

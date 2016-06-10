@@ -13,7 +13,7 @@
         href="{{ url_for('sources.static', filename='css/source_file.css') }}" />
   <link rel="stylesheet"
         href="{{ config.HIGHLIGHT_JS_FOLDER }}/styles/{{ config.HIGHLIGHT_STYLE }}.css">
-  <script src="{{ config.HIGHLIGHT_JS_FOLDER }}/highlight.min.js"></script> 
+  <script src="{{ config.HIGHLIGHT_JS_FOLDER }}/highlight.min.js"></script>
 {% endblock %}
 {% block breadcrumbs %} <a href='{{ url_for(".index") }}'>Patches</a> / Patch / <a href="{{ url_for('.versions', packagename=package) }}">{{ package }}</a> / <a href="{{ url_for('.summary', packagename=package, version=version) }}">{{ version }}</a>
 {% endblock %}

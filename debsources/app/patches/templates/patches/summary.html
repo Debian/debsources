@@ -8,7 +8,7 @@
 {% extends name+"/base.html" %}
 
 {% block head %}
-{{ super() }} 
+{{ super() }}
 <style>
   .description{
     font-size: 120%;
@@ -62,7 +62,7 @@
           {%- endfor %} {{ patches[patch]['summary'] }}</p></td>
           <td><pre class="description">{{ patches[patch]['description'].decode('utf-8') }}</pre>
           {%- if patches[patch]['bug'] != "" %}
-          <p>Bug: <a href="https://bugs.debian.org/{{patches[patch]['bug']}}">#{{patches[patch]['bug']}}</a></p>   
+          <p>Bug: <a href="https://bugs.debian.org/{{patches[patch]['bug']}}">#{{patches[patch]['bug']}}</a></p>
           {%- endif %}
           </td>
         </tr>

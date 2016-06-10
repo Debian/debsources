@@ -33,11 +33,11 @@
     {% else %} is: <i>{{ frequent_licenses[0] }}</i>{% endif %}</p>
     <h3>Details</h3>
   {% endif %}
-  
+
   {% for c in copyright %}
     {{ macro.view_license(c) }}
   {% endfor %}
-  
+
   {% if pagination != none%}
   {{ macros.render_pagination(pagination) }}
   {% endif %}

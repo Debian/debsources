@@ -15,9 +15,9 @@
   <link rel="stylesheet" type="text/css"
         href="{{ url_for('.static', filename='css/license.css') }}" />
   <script src="{{ config.JQUERY_JS_FOLDER }}/jquery.min.js"></script>
-  <script src="{{ url_for('.static', filename='javascript/license.js') }}"></script> 
+  <script src="{{ url_for('.static', filename='javascript/license.js') }}"></script>
 {% endblock %}
-{% block breadcrumbs %} <a href='{{ url_for(".index") }}'>Copyright</a> / <a href="{{ url_for('.versions', packagename=package) }}">{{ package }}</a> 
+{% block breadcrumbs %} <a href='{{ url_for(".index") }}'>Copyright</a> / <a href="{{ url_for('.versions', packagename=package) }}">{{ package }}</a>
             /{{ version }}
 {% endblock %}
 {% block title %}Package: {{ package }}{% endblock %}
