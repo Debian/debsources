@@ -13,24 +13,38 @@ License: GNU Affero General Public License, version 3 or above.
 
 {% block content %}
 
+
 <div id="indexmenu">
-
-  <h1 class="h1mainpage">{{ self.title() }}</h1>
-  <h3><em>All Debian source are belong to us</em> &emsp;
-    <small>&mdash; Anonymous</small>
-    <sup><a href="https://en.wikipedia.org/wiki/All_your_base_are_belong_to_us"><span style="font-family: monospace; color: black;">[^]</span></a></sup>
-  </h3>
-  <p>Browse through the source code of the
-  <a href="https://www.debian.org">Debian</a> operating system.
-  <a href="{{ url_for('doc.doc_overview') }}">Read more…</a></p>
-
-  <div class="row row-eq-height">
-    <!-- XXX Fix width of boxes slightly -->
-    <div class="col-md-5" id="browse">
-      <p><strong>Browse</strong> by prefix</p>
-      <p>{{ macros.render_packages_prefixes(packages_prefixes, request) }}</p>
+  
+  <div class="row">
+    <h1 class="h1mainpage">{{ self.title() }}</h1>
+    <h3 class="hidden-xs">
+      <em>All Debian source are belong to us</em> &emsp;
+      <small>&mdash; Anonymous</small>
+      <sup>
+        <a href="https://en.wikipedia.org/wiki/All_your_base_are_belong_to_us">
+          <span style="font-family: monospace; color: black;">[^]</span>
+        </a>
+      </sup>
+    </h3>
+    
+    <div class="col-xs-2"></div>
+    <div class="col-xs-8"> 
+      <p>Browse through the source code of the
+      <a href="https://www.debian.org">Debian</a> operating system.
+      <a href="{{ url_for('doc.doc_overview') }}">Read more…</a></p>
     </div>
-    <div class="col-md-7" id="search">
+    <div class="col-xs-2"></div>
+  </div>
+
+  <div id="sources-nav" class="row">  
+    <div class="col-xs-12 col-sm-6" id="browse">
+      <div id="browse-container"> <!-- needed to keep width stable -->
+        <p><strong>Browse</strong> by prefix</p>
+        <p>{{ macros.render_packages_prefixes(packages_prefixes, request) }}</p>
+      </div>
+    </div>
+    <div class="col-xs-12 col-sm-6" id="search">
       <p><strong>Search</strong></p>
       <ul style="list-style-type: none">
         <li>by <em>package name</em>:<br />
@@ -39,7 +53,7 @@ License: GNU Affero General Public License, version 3 or above.
         <li>the <em>source code</em>
           <small>(via <a href="https://codesearch.debian.net">codesearch</a>)</small>:<br />
           <form name="codesearch" method="get"
-                                  action="https://codesearch.debian.net/search">
+                action="https://codesearch.debian.net/search">
             <input type="text" name="q" size="25" />
             <input type="submit" value="Search code" />
           </form>
