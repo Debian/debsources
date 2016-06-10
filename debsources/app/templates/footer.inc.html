@@ -1,34 +1,44 @@
 {% import "_macros.html" as macros %}
+
 {% if request.blueprint == 'doc' %}
-    {% set endpoint = 'sources.list_packages' %}
-  {% else %}
-    {% set endpoint = '.list_packages' %}
-  {% endif %}
-<p style="margin: 0 0 0 0; line-height: 1em;">
-  Browse by prefix: &ensp;
-  {{ macros.render_packages_prefixes(packages_prefixes, request) }}
-  &ensp; | &ensp;
-  Browse <a href="{{ url_for(endpoint, page=1) }}">by page</a>
-</p>
-<hr />
-<div style="position: relative">
-{% if credits -%}
-<div style="position: absolute; right: 0">
-{{ credits|safe }}
-</div>
+  {% set endpoint = 'sources.list_packages' %}
+{% else %}
+  {% set endpoint = '.list_packages' %}
 {% endif %}
-<p>
-  Debsources &mdash; Copyright (C) 2011&ndash;2015,
-  <a href="{{ config.GITWEB_URL }}/tree/AUTHORS">The Debsources developers</a>.
-  License:
-  <a href="https://www.gnu.org/licenses/agpl.html">GNU AGPLv3+</a>.
-  <br />
-  Hosted source files are available under their own
-  <a href="https://www.debian.org/doc/debian-policy/ch-source.html#s-dpkgcopyright">copyright
-  and licenses</a>.
-  <br />
-  Source code: <a href="{{ config.GITWEB_URL }}">Git</a>.
-  Contact: <a href="mailto:info@{{ config.SOURCES_URL }}">info@{{ config.SOURCES_URL }}</a>.
-  Last update: {{ last_update }}.
-</p>
+
+<div class="row">
+  <div class="col-md-12">
+    <p style="margin: 0 0 0 0; line-height: 1em;">
+      Browse by prefix: &ensp;
+      {{ macros.render_packages_prefixes(packages_prefixes, request) }}
+      &ensp; | &ensp;
+      Browse <a href="{{ url_for(endpoint, page=1) }}">by page</a>
+    </p>
+  </div>
+  <hr />
+  <!-- XXX fix: visability of this-->
+  {% if credits -%} 
+  <div style="position: relative">
+    <div style="position: absolute; right: 0">
+      {{ credits|safe }}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="col-md-12">
+    <p>
+      Debsources &mdash; Copyright (C) 2011&ndash;2015,
+      <a href="{{ config.GITWEB_URL }}/tree/AUTHORS">The Debsources developers</a>.
+      License:
+      <a href="https://www.gnu.org/licenses/agpl.html">GNU AGPLv3+</a>.
+      <br />
+      Hosted source files are available under their own
+      <a href="https://www.debian.org/doc/debian-policy/ch-source.html#s-dpkgcopyright">copyright
+      and licenses</a>.
+      <br />
+      Source code: <a href="{{ config.GITWEB_URL }}">Git</a>.
+      Contact: <a href="mailto:info@{{ config.SOURCES_URL }}">info@{{ config.SOURCES_URL }}</a>.
+      Last update: {{ last_update }}.
+    </p>
+  </div>
 </div>

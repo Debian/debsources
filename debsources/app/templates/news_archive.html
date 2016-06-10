@@ -16,13 +16,14 @@
 
 
 <div class="row">
-  <h1 class="h1mainpage">{{ self.title() }}</h1>
-
-  {% if archived_news %}
-    {{ archived_news|safe }}
-  {% else %}
+  <div class="col-md-12">
+    <h1 class="h1mainpage">{{ self.title() }}</h1>
+    {% if archived_news %}
+      {{ archived_news|safe }}
+    {% else %}
     <h3>Looks like the news archive is empty!</h3>
-  {% endif %}
+    {% endif %}
+  </div>
 </div>
 
 {% endblock %}

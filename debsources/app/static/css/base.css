@@ -199,3 +199,11 @@ hr.doc{
     min-width: 100%;
     height: 100%;
 }
+
+.debsources-list-item {
+    padding-left: 2em;
+}
+
+#codetable {
+    overflow: auto;
+}

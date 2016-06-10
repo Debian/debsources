@@ -512,7 +512,7 @@ acronym, abbr {
 	border: 1px solid #dfdfe0;
 	padding:1em;
 	background-color: rgba(245, 246, 247, 0.6); /* modified */
-	margin: 30px 10px 0 52px; /* modified wrt Debian version */
+	/* margin: 30px 10px 0 52px;  removed for debsources version */
 	line-height: 1.5em;
 	border-left: 0;
 	border-right: 0;
@@ -523,7 +523,8 @@ acronym, abbr {
 	margin-left: 0;
 }
 #footer p {
-	margin: 1em 0 1em 0;
+
+	/* margin: 1em 0 1em 0; removed for debsources version */
 }
 #footer hr {
 	border-top: 1px solid #d2d3d7;
