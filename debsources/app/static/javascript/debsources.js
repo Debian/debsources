@@ -184,3 +184,34 @@ var debsources = {
 		}
 	}
 };
+
+var debsources_responsive = {
+    // debsources_responsive
+    // 
+    // relys on:
+    // - JQuery (as does bootstra)
+    render_bg: function(url) {
+      if (typeof url === typeof "string") {
+        $('#bg-wrapper').css('background-image', 'url('+ url + ')')
+        console.log("Changed background image")
+      }
+    },
+
+    fetch_url: function() {
+      /* Currently uses hacky invisible p to get url
+       * This is due to the fact we use url_for(), a jinja method.
+       * */
+      url = $("#bg-url").attr('data-url');
+      return url;
+    },
+
+    run: function() {
+      console.log("Running Responsive Utilities");
+      this.render_bg(this.fetch_url());
+    }
+};
+
+$(document).ready( function() {
+  console.log("Debsources Javascript Active");
+  debsources_responsive.run();
+});

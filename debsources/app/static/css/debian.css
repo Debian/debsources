@@ -201,7 +201,7 @@ ul.subnav li {
 	float: right;
     text-align:left;
 	line-height: 1;
-	margin: 0 10px 0 0.5em;
+	margin: 0 10px 0 0;
 	padding: 1px 0 1px 0;
 	font-size: 1em;
 }
@@ -951,7 +951,6 @@ ul.nodecoration {
         background-color: transparent;
     }
     div#content {
-        margin: 0 2px 0 2px;
     }
     ul.toc {
         max-width: none;

@@ -177,10 +177,25 @@ hr.doc{
     width:10%;
 }
 
+/* Related to responsiveness (mobile friendily css) */
+
 #searchbox{
     font-height: 16px;
 }
 
-.navbar-brand {
-    height: 80px;   l
+.navbar-header {
+    height: 80px;
+}
+
+.debsources-brand {
+    padding: 0;
+}
+
+.debsources-bg {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    display: inline;
+    min-width: 100%;
+    height: 100%;
 }
