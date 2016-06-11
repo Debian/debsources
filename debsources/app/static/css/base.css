@@ -80,9 +80,7 @@
 }
 
 .search-box {
-    background-color: #f5f6f7;
-    border-radius: 15px;
-    padding: 0 10px 0 10px;
+    padding-top: 2em;
 }
 
 .search-box h3 {
