@@ -7,6 +7,7 @@
 {# copied from templates/source_base.html #}
 
 {% extends "sources/base.html" %}
+{% import "sources/_macros_js.html" as js %}
 
 {% block breadcrumbs %}<a href="{{ url_for('.index') }}">{{ request.blueprint }}</a> / {% for (p, link) in pathl[:-1]
     %}<a href="{{ link }}">{{ p }}</a> / {%
