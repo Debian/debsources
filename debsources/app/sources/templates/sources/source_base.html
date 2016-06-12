@@ -13,8 +13,10 @@
     %}<a href="{{ link }}">{{ p }}</a> / {%
   endfor %}{{ pathl[-1][0] }}{% endblock %}
 
-{% block content %}
-
-{% block source_content %}{% endblock %}
-
+{% block bg_wrapper %}
+<div class="fluid-container">
+  {% block source_content %}{% endblock %}
+</div>
+{{ super() }}
 {% endblock %}
+
