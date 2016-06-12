@@ -9,7 +9,7 @@
 {# from
 https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Pagination.iter_pages #}
 {% macro render_pagination(pagination) -%}
-  <div class=pagination>
+  <div class="pagination">
   {% if pagination.has_prev %}
   <a href="{{ url_for_other_page(pagination.page - 1)
     }}">&laquo; Previous</a>

@@ -135,6 +135,23 @@ table.rrd tr td {
     top: 200px;
 }
 
+/* max-width: @screen-sm-max 
+ * This will target sm, and xs */
+@media (max-width: 768px) {
+    .pkginfobox_fixed {
+        position: relative;
+        display: block;
+        max-width: inherit;
+        padding: inherit;
+        right: inherit;
+        top: inherit;
+    }
+
+    #infobox_content {
+        padding-right: 30px;
+    }
+}
+
 #infobox_content ul {
     margin-top: 0px;
     margin-bottom: 0px;
