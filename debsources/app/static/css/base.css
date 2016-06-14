@@ -177,3 +177,15 @@ span.sidechart img {
 hr.doc{
     width:10%;
 }
+
+/* bootstrap resets */
+
+a, a:hover, a:focus {
+    color: #222;
+    text-decoration: none;
+}
+
+input, button, select, textarea {
+    font-size: normal 100% sans-serif;
+    line-height: 1.5;
+}
