@@ -37,17 +37,20 @@ https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginati
     {% set endpoint = 'sources.recv_search' %}
   {% else %}
     {% set endpoint = '.recv_search' %}
-  {% endif %}
+  {% endif %} 
+  
+  {% for error in form.errors.query %}
+    {# XXX: doesn't display proplery on the navbar #}
+    {% if display == "block" %}<p>{% endif %}
+    <strong class="error">{{ error }}</strong>
+    {% if display == "block" %}</p>{% endif %}
+  {% endfor %}
   <form action="{{ url_for(endpoint) }}" name="searchform"
         method="post" style="display: {{ display }};">
       {{ form.query(**kwargs) }}
-    {% for error in form.errors.query %}
-      {% if display == "block" %}<br />{% endif %}
-      <strong>{{ error }}</strong>
-    {% endfor %}
     {% if display == "block" %}<br />{% endif %}
     <input type="submit" value="Search package" />
-  </form>
+  </form>  
 {%- endmacro %}
 
 
