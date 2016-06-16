@@ -238,4 +238,7 @@ hr.doc{
     margin-bottom: 0;
 }
 
-#sources-nav
+#bg-url {
+    display: none;
+}
+
