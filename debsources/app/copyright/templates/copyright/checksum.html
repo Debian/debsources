@@ -13,40 +13,44 @@
 {% block breadcrumbs %} <a href='{{ url_for(".index") }}'>Copyright</a> / Checksum / {{ checksum }}{% endblock %}
 
 {% block content %}
-<h2>{{ self.title() }}</h2>
-{% import "copyright/macros.html" as macro %}
-{% if count > 1 %}
-  <h3>Summary</h3>
-  <p>This checksum appears {{ count }} times in our database. It appears in under the following licenses:
-  <ul>
-  {% for l in licenses %}
-    <li>{{l}}</li>
-  {% endfor %}
-  </ul>
+<div class="row">
+  <div class="col-md-12">
+    <h2>{{ self.title() }}</h2>
+    {% import "copyright/macros.html" as macro %}
+    {% if count > 1 %}
+      <h3>Summary</h3>
+      <p>This checksum appears {{ count }} times in our database. It appears in under the following licenses:
+      <ul>
+      {% for l in licenses %}
+        <li>{{l}}</li>
+      {% endfor %}
+      </ul>
 
-  {% if package_filter != true %}
-    <p>Most frequent package{% if frequent_packages|length > 1 %}s are: {% for p in frequent_packages %} <i>{{ p }}</i>{% if not loop.last %}, {% endif %} {% endfor %}
-    {% else %} is: <i>{{ frequent_packages[0] }}</i>{% endif %}</p>
-  {% endif %}
-  {% if frequent_licenses|length != 0 %}
-    <p>Most frequent license{% if frequent_licenses|length > 1 %}s are: {% for l in frequent_licenses %} <i>{{ l }}</i>{% if not loop.last %}, {% endif %} {% endfor %}
-    {% else %} is: <i>{{ frequent_licenses[0] }}</i>{% endif %}</p>
-    <h3>Details</h3>
-  {% endif %}
+      {% if package_filter != true %}
+        <p>Most frequent package{% if frequent_packages|length > 1 %}s are: {% for p in frequent_packages %} <i>{{ p }}</i>{% if not loop.last %}, {% endif %} {% endfor %}
+        {% else %} is: <i>{{ frequent_packages[0] }}</i>{% endif %}</p>
+      {% endif %}
+      {% if frequent_licenses|length != 0 %}
+        <p>Most frequent license{% if frequent_licenses|length > 1 %}s are: {% for l in frequent_licenses %} <i>{{ l }}</i>{% if not loop.last %}, {% endif %} {% endfor %}
+        {% else %} is: <i>{{ frequent_licenses[0] }}</i>{% endif %}</p>
+        <h3>Details</h3>
+      {% endif %}
 
-  {% for c in copyright %}
-    {{ macro.view_license(c) }}
-  {% endfor %}
+      {% for c in copyright %}
+        {{ macro.view_license(c) }}
+      {% endfor %}
 
-  {% if pagination != none%}
-  {{ macros.render_pagination(pagination) }}
-  {% endif %}
+      {% if pagination != none%}
+      {{ macros.render_pagination(pagination) }}
+      {% endif %}
 
-{% elif count == 0 %}
-  <p>0 results</p>
-{% else %}
-  <h3>Summary</h3>
-  <p>This checksum appears {{ count }} time in our database.</p>
-  {{ macro.view_license(copyright[0]) }}
-{% endif %}
+    {% elif count == 0 %}
+      <p>0 results</p>
+    {% else %}
+      <h3>Summary</h3>
+      <p>This checksum appears {{ count }} time in our database.</p>
+      {{ macro.view_license(copyright[0]) }}
+    {% endif %}
+  </div>
+</div>
 {% endblock %}

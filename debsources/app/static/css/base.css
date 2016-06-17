@@ -242,3 +242,10 @@ hr.doc{
     display: none;
 }
 
+/* Firefox specific hack for fieldsetting
+ * see: https://stackoverflow.com/q/17408815 */
+@-moz-document url-prefix() {
+    fieldset { 
+        display: table-cell;
+    }
+}

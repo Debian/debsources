@@ -7,11 +7,12 @@
     "responsive-utilities.less", 
     "navs.less",
     "navbar.less",
+    "tables.less",
     "component-animations.less"
   ],
   "js": [
     "collapse.js",
     "transition.js"
   ],
-  "customizerUrl": "http://getbootstrap.com/customize/?id=d19c6ca31aa5642c86aa68a7cdd83729"
+  "customizerUrl": "http://getbootstrap.com/customize/?id=1f3b38b6668e6ad1a48013323b997500"
 }
