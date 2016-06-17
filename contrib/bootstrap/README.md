@@ -17,11 +17,15 @@ How To Generate
 - Download the `bootstrap.zip` file
   ```sh
   BASE=/path/to/debsouces/repo # make sure this points to top level
-  mkdir tmp
-  unzip ~/Downloads/bootstrap.zip -d ./tmp # Download location may vary
-  mv tmp/config.json $BASE/contrib/bootstrap
-  mv tmp/js/bootstrap.min.js tmp/css/bootstrap.min.css $BASE/debsources/app/static/bootstrap
-  rm -rf ./tmp # all done now :)
+  unzip ~/Downloads/bootstrap.zip -d /tmp # Download location may vary
+  mv /tmp/js/bootstrap.min.js /tmp/css/bootstrap.min.css $BASE/debsources/app/static/bootstrap
+  ```
+
+- Remove unchanged vars from `config.json` and place in folder.
+  
+  ```sh
+  $EDITOR /tmp/config.json
+  mv /tmp/config.json  $BASE/contrib/bootstrap
   ```
 
 Expected files

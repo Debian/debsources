@@ -8,11 +8,12 @@
     "navs.less",
     "navbar.less",
     "tables.less",
+    "navs.less",
+    "navbar.less",
     "component-animations.less"
   ],
   "js": [
     "collapse.js",
     "transition.js"
-  ],
-  "customizerUrl": "http://getbootstrap.com/customize/?id=1f3b38b6668e6ad1a48013323b997500"
+  ]
 }
