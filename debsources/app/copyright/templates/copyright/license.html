@@ -28,6 +28,7 @@
 {% block title %}Package: {{ package }}{% endblock %}
 
 {% block bg_wrapper %} 
+  {{ macros.remove_content_height() }}
   <div class="container">
     <div class="row">
       <h2>{{ self.title() }} / {{ version }}</h2>

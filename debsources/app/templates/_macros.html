@@ -121,24 +121,39 @@ https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginati
 {% endmacro %}
 
 {% macro render_navbar(nav_map) %}
-    {#  render_navbar takes dictionary and produced a navbar
-        Each key refers to a link the key is directly placed into the
-        `<li></li>` while the value is to looked up by url_for()
+  {#  render_navbar takes dictionary and produced a navbar
+      Each key refers to a link the key is directly placed into the
+      `<li></li>` while the value is to looked up by url_for()
 
-        Example Input:
-            {'Home':'home', '<span class="back">Back<span>':'back'}
+      Example Input:
+          {'Home':'home', '<span class="back">Back<span>':'back'}
 
-        Output:
-            ...
-            <li><a href="{{url_for('home')}}">Home</a></li>
-            <li><a href="{{url_for('back'}}"><span class="back">Back</span></a></li>
-            ...
-    #}
-    <div class="collapse navbar-collapse" id="ds-navbar-collapse-1">
-        <ul class="nav navbar-nav">
-        {% for key in nav_map %}
-            <li><a href="{{url_for(nav_map[key])}}">{{key}}</a></li>
-        {% endfor %}
-        </ul>
-    </div>
+      Output:
+          ...
+          <li><a href="{{url_for('home')}}">Home</a></li>
+          <li><a href="{{url_for('back'}}"><span class="back">Back</span></a></li>
+          ...
+  #}
+  <div class="collapse navbar-collapse" id="ds-navbar-collapse-1">
+    <ul class="nav navbar-nav">
+    {% for key in nav_map %}
+      <li><a href="{{url_for(nav_map[key])}}">{{key}}</a></li>
+    {% endfor %}
+    </ul>
+  </div>
+{% endmacro %}
+
+{% macro remove_content_height() %}
+  {# This is an inline style that removes the content height 
+     
+     The reason it's implemented as a macro is to allow it to be used as 
+     an optional opt-in for certain debsources pages, without affecting
+     other parts of the site.
+  #}
+  <style>
+  /* added by a macro */
+  #content {
+    min-height: 0 !important;
+  }
+  </style>
 {% endmacro %}
