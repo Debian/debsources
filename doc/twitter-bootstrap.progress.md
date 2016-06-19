@@ -72,9 +72,9 @@
 | `license_render.inc.html`| 5 |
 | `macros.html`| 2 |
 | `package.html`| 5 |
-| `stats.html`| 5 |
-| `stats_suite.html`| 5 |
-| `stats_trends.inc.html`| 5 |
+| `stats.html`| 2 |
+| `stats_suite.html`| 2 |
+| `stats_trends.inc.html`| 3 |
 
 
 ### `debsources/app/patches/templates/patches/`
