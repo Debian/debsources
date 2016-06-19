@@ -15,7 +15,7 @@
         href="{{ config.HIGHLIGHT_JS_FOLDER }}/styles/{{ config.HIGHLIGHT_STYLE }}.css">
   <script src="{{ config.HIGHLIGHT_JS_FOLDER }}/highlight.min.js"></script>
 
-  <script src="{{ url_for('static', filename='javascript/debsources.js') }}"></script>
+
   <link rel="stylesheet" type="text/css"
         href="{{ url_for('.static', filename='css/source_file.css') }}" />
 
@@ -23,7 +23,7 @@
 
 {% block title %}File: {{ file }}{% endblock %}
 
-{% block source_content %}
+{% block source_content_file %}
 <h2>{{ self.title() }}</h2>
 
 {% if pkg_infos %}
@@ -33,10 +33,11 @@
 
 {% include "source_file_code.inc.html" %}
 
-<script type="text/javascript">
-  debsources.source_file();
-  hljs.highlightBlock(document.getElementById('sourcecode'))
+{{ js.debsources_source_file() }}
+{{ js.highlight_block_id("sourcecode") }}
 
-</script>
+<!-- script type="text/javascript">
+  debsources.source_file();
+  </script --!>
 
 {% endblock %}

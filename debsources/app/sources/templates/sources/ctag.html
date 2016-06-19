@@ -16,23 +16,25 @@ n
 
 {% block content %}
 
-<h2>{{ self.title() }}</h2>
+<div class="row">
+  <h2>{{ self.title() }}</h2>
 
-{{ count }} result{% if count >= 2 %}s{% endif %}:
+  {{ count }} result{% if count >= 2 %}s{% endif %}:
 
-<ul>
-  {% for result in results %}
-    <li>
-      <a href="{{ url_for('.source',
-       path_to="%s/%s/%s" % (result.package, result.version,
-       result.path),
-       hl = result.line,
-       _anchor="L%d" % result.line) }}">
-  {{ result.package }}/{{ result.version }}/{{ result.path }}</a>
-    </li>
-  {% endfor %}
-</ul>
+  <ul>
+    {% for result in results %}
+      <li>
+        <a href="{{ url_for('.source',
+         path_to="%s/%s/%s" % (result.package, result.version,
+         result.path),
+         hl = result.line,
+         _anchor="L%d" % result.line) }}">
+    {{ result.package }}/{{ result.version }}/{{ result.path }}</a>
+      </li>
+    {% endfor %}
+  </ul>
 
-{{ macros.render_pagination(pagination) }}
+  {{ macros.render_pagination(pagination) }}
+</div>
 
 {% endblock %}

@@ -4,7 +4,8 @@
   https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
   License: GNU Affero General Public License, version 3 or above.
 #}
-{# copied from templates/index.html #}
+{# XXX copied from templates/index.html #}
+{# this should be a macro: repetitive code which makes change awkward #}
 {% extends name+"/base.html" %}
 
 {% block title %}Debian Sources{% endblock %}
@@ -15,31 +16,43 @@
 
 <div id="indexmenu">
 
-<h1 class="h1mainpage">{{ self.title() }}</h1>
-<h3><em>All Debian license are belong to us</em> &emsp;
-  <small>&mdash; Anonymous</small>
-  <sup><a href="https://en.wikipedia.org/wiki/All_your_base_are_belong_to_us"><span style="font-family: monospace; color: black;">[^]</span></a></sup>
-</h3>
-<p>Browse through the licenses of the
-  <a href="https://www.debian.org">Debian</a> operating system.
-  <a href="{{ url_for('doc.doc_overview') }}">Read more…</a></p>
-<table>
-  <tr>
-    <td id="browse">
-      <p><strong>Browse</strong> by prefix</p>
-      <p>{{ macros.render_packages_prefixes(packages_prefixes, request) }}</p>
-    </td>
-    <td id="search">
+  <div class="row">
+    <h1 class="h1mainpage">{{ self.title() }}</h1>
+    <h3 class="hidden-xs">
+      <em>All Debian license are belong to us</em> &emsp;
+      <small>&mdash; Anonymous</small>
+      <sup>
+        <a href="https://en.wikipedia.org/wiki/All_your_base_are_belong_to_us">
+          <span style="font-family: monospace; color: black;">[^]</span>
+        </a>
+      </sup>
+    </h3>
+
+    <div class="col-xs-2"></div>
+    <div class="col-xs-8">
+      <p>Browse through the licenses of the
+      <a href="https://www.debian.org">Debian</a> operating system.
+      <a href="{{ url_for('doc.doc_overview') }}">Read more…</a></p>
+    </div>
+    <div class="col-xs-2"></div>
+  </div> 
+
+  <div id="sources-nav" class="row">
+    <div class="col-xs-12 col-sm-6" id="browse">
+      <div id="browse-container">
+        <p><strong>Browse</strong> by prefix</p>
+        <p>{{ macros.render_packages_prefixes(packages_prefixes, request) }}</p>
+      </div>
+    </div>
+    <div class="col-xs-12 col-sm-6" id="search">
       <p><strong>Search</strong></p>
       <ul style="list-style-type: none">
-  <li>by <em>package name</em>:<br />
-	  {{ macros.searchform(searchform, request, value=query, display="inline", size="25", autofocus=True, id="query-2") }}
-	</li>
+        <li>by <em>package name</em>:<br />
+	    {{ macros.searchform(searchform, request, value=query, display="inline", size="25", autofocus=True, id="query-2") }}
+	    </li>
       </ul>
-    </td>
-  </tr>
-</table>
-
+    </div>
+  </div> <!-- end indexmenu div -->
 </div>
 
 {{ macros.render_news(news, archived_news) }}
@@ -48,8 +61,8 @@
 
 {# show the background debian image #}
 {% block bg_wrapper %}
-<div id="bg-wrapper" style="background-image: url('{{ url_for('static', filename='img/debsources.png') }}');">
-  <div id="content">{{ self.content() }}</div>
-  <footer id="footer">{{ self.footer() }}</footer>
-</div>
+  {{ super() }}
+  <p id="bg-url"
+     data-url="{{ url_for('static', filename='img/debsources.png') }}">
+  </p>
 {% endblock %}

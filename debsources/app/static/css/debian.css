@@ -82,7 +82,8 @@ body {
 	*/
 }
 #content {
-	margin: 0 10px 0 52px;
+	/* removed for debsources margin: 0 10px 0 52px;
+     * as interferes with bootstrap containers */
 	min-height: 300px; /* added for debsources, required to avoid the
 			      infobox to overlap the footer */
 }
@@ -197,14 +198,12 @@ ul.subnav li {
 	margin-right: 1em;
 }
 #searchbox {
-	text-align:left;
+	float: right;
+    text-align:left;
 	line-height: 1;
-	margin: 0 10px 0 0.5em;
+	margin: 0 10px 0 0;
 	padding: 1px 0 1px 0;
-	position: absolute;
-	top:0;
-	right:0;
-	font-size: 0.75em;
+	font-size: 1em;
 }
 #searchbox p {
 	margin: 0;
@@ -417,7 +416,7 @@ hr {
 	margin: 1.4375em 0 1.5em 0;
 }
 pre {
-	margin: 1.5em 0 1.5em 0;
+	margin: 1em 0 1em 0; 
 	overflow: auto;
 	font-family: monospace;
 	white-space: pre;
@@ -513,7 +512,7 @@ acronym, abbr {
 	border: 1px solid #dfdfe0;
 	padding:1em;
 	background-color: rgba(245, 246, 247, 0.6); /* modified */
-	margin: 30px 10px 0 52px; /* modified wrt Debian version */
+	/* margin: 30px 10px 0 52px;  removed for debsources version */
 	line-height: 1.5em;
 	border-left: 0;
 	border-right: 0;
@@ -524,7 +523,8 @@ acronym, abbr {
 	margin-left: 0;
 }
 #footer p {
-	margin: 1em 0 1em 0;
+
+	/* margin: 1em 0 1em 0; removed for debsources version */
 }
 #footer hr {
 	border-top: 1px solid #d2d3d7;
@@ -952,7 +952,6 @@ ul.nodecoration {
         background-color: transparent;
     }
     div#content {
-        margin: 0 2px 0 2px;
     }
     ul.toc {
         max-width: none;

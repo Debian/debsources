@@ -14,24 +14,41 @@
 
 {% block content %}
 
-<div id="indexmenu">
 
-  <h1 class="h1mainpage">{{ self.title() }}</h1>
-
-  <div class="content" style="text-align: left">
+<div class="row">
+  <div class="col-md-12">
+    <h1 class="h1mainpage">{{ self.title() }}</h1>
     {% if archived_news %}
       {{ archived_news|safe }}
     {% else %}
-      <h3>Looks like the news archive is empty!</h3>
+    <h3>Looks like the news archive is empty!</h3>
     {% endif %}
   </div>
 </div>
+
 {% endblock %}
 
-{# show the background debian image #}
+{# XXX: This is the old way bg_wrapping is handled. The new modified way uses
+        super() to change the image.
+        If this is rejected this block of code will be needed.
+
+show the background debian image
 {% block bg_wrapper %}
 <div id="bg-wrapper" style="background-image: url('{{ url_for('static', filename='img/debsources.png') }}');">
   <div id="content">{{ self.content() }}</div>
   <footer id="footer">{{ self.footer() }}</footer>
 </div>
 {% endblock %}
+
+#}
+
+{% block bg_wrapper %}
+
+  {{ super() }}
+
+  <p style="display:none;" id="bg-url"
+     data-url="{{ url_for('static', filename='img/debsources.png')}}">
+  </p>
+
+{% endblock %}
+

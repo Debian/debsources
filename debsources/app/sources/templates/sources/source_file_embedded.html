@@ -19,10 +19,6 @@
 
   <body>
     {% include "source_file_code.inc.html" %}
-
-<script type="text/javascript">
-  hljs.highlightBlock(document.getElementById('sourcecode'))
-</script>
-
+    {{ js.debsources_source_file() }}
   </body>
 </html>

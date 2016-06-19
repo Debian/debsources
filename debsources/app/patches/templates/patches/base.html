@@ -10,10 +10,8 @@
 {% endblock %}
 
 {% block nav %}
-  <ul>
-    <li><a href="{{ url_for('patches.index') }}">Home</a></li>
-    <li><a href="{{ url_for('patches.doc') }}">Documentation</a></li>
-    {#<li><a href="{{ url_for('patches.stats') }}">Stats</a></li>#}
-    <li><a href="{{ url_for('patches.about') }}">About</a></li>
-  </ul>
+{{ macros.render_navbar({
+  'Home': 'patches.index',
+  'Documentation': 'patches.doc',
+  'About': 'patches.about'}) }}
 {% endblock %}

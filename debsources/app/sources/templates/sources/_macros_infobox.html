@@ -19,11 +19,12 @@
     }
   </script>
 
-{% if position == "fixed" %}
-<div id="pkginfobox" class="pkginfobox_fixed">
-{% else %}
-<div id="pkginfobox" class="pkginfobox_large">
-{% endif %}
+  {% if position == "fixed" %}
+  <div id="pkginfobox" class="pkginfobox_fixed">
+  {% else %}
+  <div id="pkginfobox" class="pkginfobox_large">
+  {% endif %}
+
   {% if position == "fixed" %}
   <span onclick="toggle('infobox_content')">package info
     <small>(click to toggle)</small></span>
