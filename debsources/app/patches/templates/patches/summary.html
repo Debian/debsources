@@ -15,39 +15,50 @@
   }
 </style>
 {% endblock %}
-{% block breadcrumbs %} <a href='{{ url_for(".index") }}'>Patches</a> / <a href="{{ url_for('.versions', packagename=package) }}">{{ package }}</a> /{{ version }}
+
+{% block breadcrumbs %}
+  <a href='{{ url_for(".index") }}'>
+    Patches</a> /
+  <a href="{{ url_for('.versions', packagename=package) }}">
+  {{ package }}</a> / {{ version }}
 {% endblock %}
+
 {% block title %}Package: {{ package }}{% endblock %}
+
 {% block content %}
-<h2>{{ self.title() }} / {{ version }}</h2>
+<div class="row">
+  <h2>{{ self.title() }} / {{ version }}</h2>
 
-<h3>Metadata</h3>
-<table>
- <tr class="head">
-    <th>Package</th>
-    <th>Version</th>
-    <th>Patches format</th>
-  </tr>
-  <tr>
-    <td>{{ package }}</td>
-    <td>{{ version }}</td>
-    <td>{{ format.rstrip() }}</td>
-  </tr>
-</table>
+  <h3 class="subtitle">Metadata</h3>
+  <table class="table">
+   <tr class="head">
+      <th>Package</th>
+      <th>Version</th>
+      <th>Patches format</th>
+    </tr>
+    <tr>
+      <td>{{ package }}</td>
+      <td>{{ version }}</td>
+      <td>{{ format.rstrip() }}</td>
+    </tr>
+  </table>
+</div>
 
-{% if supported != true %}
-  <p>The format of the patches in the package is not yet supported! </p>
-{% else %}
-  {% if patches|length == 0 %}
-    <p>This package has no patches.</p>
+<div class="row">
+  {% if supported != true %}
+    <p>The format of the patches in the package is not yet supported! </p>
   {% else %}
-    <h3>Patch series</h3>
-    <small>
-      <a href="{{ url_for('sources.source', path_to=package + '/' + version + '/debian/patches/series') }}">
-        view the series file
-      </a>
-    </small>
-      <table>
+    {% if patches|length == 0 %}
+      <p>This package has no patches.</p>
+    {% else %}
+      <h3 class="subtitle">Patch series</h3>
+      <small>
+        <a href="{{ url_for('sources.source', 
+        path_to=package + '/' + version + '/debian/patches/series') }}">
+          view the series file
+        </a>
+      </small>
+      <table class="table">
        <tr class="head">
           <th>Patch</th>
           <th>File delta</th>
@@ -55,19 +66,49 @@
         </tr>
         {% for patch in series %}
         <tr>
-          <td><a href="{{ url_for('.patch_view', packagename=package, version=version, path_to=patch.rstrip().split(' ')[0])}}">{{ patch.rstrip().replace('-', ' ') }}</a> | <a href="{{ patches[patch]['download'] }}">(download)</a></td>
-          <td><p>{%- for line in patches[patch]['deltas'] %}
-              <a href="{{ url_for('sources.source', path_to=path + '/' + line['filepath'])}}">{{ line['filepath'] }}</a> |
-                <span title='from diffstat manual: f0  for  concise, which shows only the value and a single histogram code for each of insert (+), delete (-) or modify (!)'>{{ line['deltas'] }}</span><br />
-          {%- endfor %} {{ patches[patch]['summary'] }}</p></td>
-          <td><pre class="description">{{ patches[patch]['description'].decode('utf-8') }}</pre>
-          {%- if patches[patch]['bug'] != "" %}
-          <p>Bug: <a href="https://bugs.debian.org/{{patches[patch]['bug']}}">#{{patches[patch]['bug']}}</a></p>
-          {%- endif %}
+          <td>
+            <a href="{{ url_for('.patch_view', 
+            packagename=package, version=version, path_to=patch.rstrip().split(' ')[0])}}">
+              {{ patch.rstrip().replace('-', ' ') }}
+            </a> <br class="visable-sm"/>
+            <a href="{{ patches[patch]['download'] }}">
+              (download)
+            </a>
+          </td>
+          <td>
+            <div class="file-delta">
+              {%- for line in patches[patch]['deltas'] %}
+                <a href="{{ url_for('sources.source', 
+                path_to=path + '/' + line['filepath'])}}">
+                {{ line['filepath'] }}</a> 
+                <br />
+                <span class="diff" 
+                title='from diffstat manual: f0  for  concise, which shows only the value and a single histogram code for each of insert (+), delete (-) or modify (!)'>
+                  {{ line['deltas'] }}
+                </span>
+                <br />
+              {%- endfor %}
+              <span class="delta-summary">
+                {{ patches[patch]['summary'] }}
+              </span>
+            </div>
+          </td>
+          <td>
+            <pre class="description">
+              {{ patches[patch]['description'].decode('utf-8') }}
+            </pre>
+            {%- if patches[patch]['bug'] != "" %}
+            <p>Bug:
+              <a href="https://bugs.debian.org/{{patches[patch]['bug']}}">
+                #{{patches[patch]['bug']}}
+              </a>
+            </p>
+            {%- endif %}
           </td>
         </tr>
         {% endfor %}
       </table>
+    {% endif %}
   {% endif %}
-{% endif %}
+</div>
 {% endblock %}

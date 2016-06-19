@@ -10,7 +10,11 @@
 
 {% block title %}Checksum: {{ checksum }}{% endblock %}
 
-{% block breadcrumbs %} <a href='{{ url_for(".index") }}'>Copyright</a> / Checksum / {{ checksum }}{% endblock %}
+{% block breadcrumbs %}
+  <a href='{{ url_for(".index") }}'>
+    Copyright
+  </a> / Checksum / {{ checksum }}
+{% endblock %}
 
 {% block content %}
 <div class="row">
@@ -19,7 +23,8 @@
     {% import "copyright/macros.html" as macro %}
     {% if count > 1 %}
       <h3>Summary</h3>
-      <p>This checksum appears {{ count }} times in our database. It appears in under the following licenses:
+      <p>This checksum appears {{ count }} times in our database.
+      It appears in under the following licenses:
       <ul>
       {% for l in licenses %}
         <li>{{l}}</li>
@@ -27,12 +32,24 @@
       </ul>
 
       {% if package_filter != true %}
-        <p>Most frequent package{% if frequent_packages|length > 1 %}s are: {% for p in frequent_packages %} <i>{{ p }}</i>{% if not loop.last %}, {% endif %} {% endfor %}
-        {% else %} is: <i>{{ frequent_packages[0] }}</i>{% endif %}</p>
+        <p>Most frequent package
+          {%- if frequent_packages|length > 1 -%}s are: 
+            {%- for p in frequent_packages -%}
+              <i>{{ p }}</i>
+              {%- if not loop.last -%},{%- endif -%}
+            {%- endfor -%}
+          {% else %} is: <i>{{ frequent_packages[0] }}</i>
+          {%- endif -%}</p>
       {% endif %}
       {% if frequent_licenses|length != 0 %}
-        <p>Most frequent license{% if frequent_licenses|length > 1 %}s are: {% for l in frequent_licenses %} <i>{{ l }}</i>{% if not loop.last %}, {% endif %} {% endfor %}
-        {% else %} is: <i>{{ frequent_licenses[0] }}</i>{% endif %}</p>
+        <p>Most frequent license
+        {%- if frequent_licenses|length > 1 -%}s are: 
+          {%- for l in frequent_licenses -%}
+            <i>{{ l }}</i>
+            {%- if not loop.last -%},{% endif %}
+          {%- endfor -%}
+        {% else %} is: <i>{{ frequent_licenses[0] }}</i>
+        {%- endif -%}</p>
         <h3>Details</h3>
       {% endif %}
 

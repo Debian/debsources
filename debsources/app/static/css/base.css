@@ -5,9 +5,10 @@
  */
 
 
-/* Base (templates/base.html styles */
+/* # Base (templates/base.html styles */
 
-/* displayed on index.html */
+
+/* ## Displayed on index.html */
 
 
 #indexmenu {
@@ -65,7 +66,7 @@
     width: 90%;
 }
 
-/* lists made in multiple columns (e.g. in macros.listpackages() */
+/* ## Lists made in multiple columns (e.g. in macros.listpackages() */
 
 .listcolumn li {
     margin-left: 30px;
@@ -117,7 +118,23 @@ table.rrd tr td {
     border: none;
 }
 
-/* infobox */
+/* ## Alternative misc styles */
+
+.subtitle {
+    margin: 0.5em 0 0.5em 0;
+}
+
+/* ## File Deltas */
+
+.file-delta > .diff {
+    color: grey;
+}
+
+.file-delta > .delta-summary {
+    font-size: .7em;
+}
+
+/* ## Infobox */
 
 #pkginfobox {
 }
@@ -184,7 +201,7 @@ hr.doc{
     width:10%;
 }
 
-/* Related to responsiveness (mobile friendily css) */
+/* ##  Related to responsiveness (mobile friendily css) */
 
 /* max-width: @screen-md-max 
  * This will target md, sm, and xs screens */
@@ -197,7 +214,6 @@ hr.doc{
         padding-left: 1em;
         right: inherit;
         top: inherit;
-        
     }
 
     #infobox_content {
@@ -244,12 +260,13 @@ hr.doc{
 
 /* Firefox specific hack for fieldsetting
  * see: https://stackoverflow.com/q/17408815 */
+
 @-moz-document url-prefix() {
     fieldset { 
         display: table-cell;
     }
 
-/* bootstrap resets */
+/* ## Bootstrap Resets */
 
 a, a:hover, a:focus {
     color: #222;

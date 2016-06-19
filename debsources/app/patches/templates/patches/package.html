@@ -17,34 +17,41 @@
 
 {% block title %}Package: {{ package }}{% endblock %}
 {% block source_content %}
-<h2>{{ self.title() }}</h2>
-{{ macros.show_suite(suite) }}
+<div class="row">
+  <h2>{{ self.title() }}</h2>
+  {{ macros.show_suite(suite) }}
 
-<ul id="ls">
-  {% for v in versions %}
-  <li>{%- if v.supported == true %}<a href="{{ url_for('.summary', packagename=package, version=v.version) }}">{{ v.version }}</a>
-      {%- else %}
-        {{ v.version }}
+  <ul id="ls">
+    {% for v in versions %}
+    <li>
+      {%- if v.supported == true -%}
+      <a href="{{ url_for('.summary', packagename=package, version=v.version) }}">
+        {{- v.version -}}
+      </a>
+        {%- else %}
+          {{- v.version -}}
+        {%- endif %}
+      ({{ v.area }})
+      {% if v.suites %}
+          [{{ ", ".join(v.suites) }}]
+      {% endif %}
+      {%- if v.supported == true %}
+        {%- if v.series == 0 %}
+          <strong>*</strong>
+        {%- endif %}
       {%- endif %}
-    ({{ v.area }})
-    {% if v.suites %}
-        [{{ ", ".join(v.suites) }}]
+    </li>
+    {% endfor %}
+  </ul>
+  <p>
+    {% if is_empty == true %}
+    <small>* This package has no patches yet.</small><br>
     {% endif %}
-    {%- if v.supported == true %}
-      {%- if v.series == 0 %}
-        <strong>*</strong>
-      {%- endif %}
-    {%- endif %}
-  </li>
-  {% endfor %}
-</ul>
-<p>
-  {% if is_empty == true %}
-  <small>* This package has no patches yet.</small><br>
-  {% endif %}
 
-  <small>Note: packages without a link may have patches in a different format
-    than 3.0 (quilt).</small>
-</p>
-
+    <small>
+      Note: packages without a link may have patches in a different format
+      than 3.0 (quilt).
+    </small>
+  </p>
+</div>
 {% endblock %}
