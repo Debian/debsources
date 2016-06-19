@@ -14,41 +14,42 @@
 
 {% block content %}
 
-<h2>{{ self.title() }}</h2>
+<div class="row">
+  <h2>{{ self.title() }}</h2>
 
-{% set suite = "debian_" + suite %}
+  {% set suite = "debian_" + suite %}
 
-<ul>
-  {% if rel_date != "None" %}
-  <li>Release date: {{rel_date}}</li>
-  {% endif %}
-  {% if rel_version != None %}
-  <li>Release version: {{rel_version}}</li>
-  {% endif %}
-  <li>Source files: {{ results[suite + ".source_files"] | format_big_num }}</li>
-  <li>Source packages: {{ results[suite + ".source_packages"] | format_big_num }}</li>
-  <li>Disk usage: {{ results[suite + ".disk_usage"] | format_big_num }} kB</li>
-  <li>Ctags: {{ results[suite + ".ctags"] | format_big_num }}</li>
-  <li>Source lines of code: {{ results[suite + ".sloccount"] | format_big_num }}
-    <span class="sidechart">
-    <a href="{{ url_for('static',
-	     filename='img/stats/' + suite[7:] + '-sloc_pie-current.png') }}">
-      <img src="{{ url_for('static',
-		filename='img/stats/' + suite[7:] + '-sloc_pie-current.png') }}" />
-    </a>
-    </span>
-    <ul>
-      {% for lang in languages|sort %}
-        <li>{{ lang }}: {{ results[suite + ".sloccount." + lang] | format_big_num }}</li>
-      {% endfor %}
-    </ul>
-  </li>
-</ul>
+  <ul>
+    {% if rel_date != "None" %}
+    <li>Release date: {{rel_date}}</li>
+    {% endif %}
+    {% if rel_version != None %}
+    <li>Release version: {{rel_version}}</li>
+    {% endif %}
+    <li>Source files: {{ results[suite + ".source_files"] | format_big_num }}</li>
+    <li>Source packages: {{ results[suite + ".source_packages"] | format_big_num }}</li>
+    <li>Disk usage: {{ results[suite + ".disk_usage"] | format_big_num }} kB</li>
+    <li>Ctags: {{ results[suite + ".ctags"] | format_big_num }}</li>
+    <li>Source lines of code: {{ results[suite + ".sloccount"] | format_big_num }}
+      <span class="sidechart">
+      <a href="{{ url_for('static',
+           filename='img/stats/' + suite[7:] + '-sloc_pie-current.png') }}">
+        <img src="{{ url_for('static',
+          filename='img/stats/' + suite[7:] + '-sloc_pie-current.png') }}" />
+      </a>
+      </span>
+      <ul>
+        {% for lang in languages|sort %}
+          <li>{{ lang }}: {{ results[suite + ".sloccount." + lang] | format_big_num }}</li>
+        {% endfor %}
+      </ul>
+    </li>
+  </ul>
 
 
-<h3>Historical trends</h3>
+  <h3>Historical trends</h3>
 
-{% import "sources/stats_trends.inc.html" as stats_trends %}
-{{ stats_trends.render_trends(suite[7:]) }}
-
+  {% import "sources/stats_trends.inc.html" as stats_trends %}
+  {{ stats_trends.render_trends(suite[7:]) }}
+</div>
 {% endblock %}

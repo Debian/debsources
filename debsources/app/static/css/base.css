@@ -157,7 +157,7 @@ table.stats tr td {
     line-height: 1ex;
 }
 table.stats tr.head th {
-    text-align: center;
+    text-align: right;
 }
 table.stats tr th {
     text-align: left;

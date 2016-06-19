@@ -50,9 +50,9 @@
 | `source_file.html`| 3 |
 | `source_folder.html`| 2 |
 | `source_package.html`| 2 |
-| `stats.html`| 3 |
-| `stats_suite.html`| 3  |
-| `stats_trends.inc.html`| 3 |
+| `stats.html`| 2 |
+| `stats_suite.html`| 2  |
+| `stats_trends.inc.html`| 2 |
 
 
 ### `debsources/app/copyright/templates/copyright`  
