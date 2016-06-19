@@ -15,47 +15,58 @@
         {%- endif %}
       {%- endfor %}
     </div>
-
-  <div class='table-responsive r_files' id='copyright_info'><h2>Files</h2>
-    <table class="table">
-      <tr>
-        <th>Files</th>
-        <th>Copyright</th>
-        <th>License</th>
-        <th>Comment</th>
-      </tr>
-      <tr>
-        {%- for paragraph in files %}
-          <td>
-            {%- for file in paragraph['globs'] %}
-              {%- if file['url'] is not none %}
-                <a href="{{ file['url'] }}">{{ file['files'] }}</a>
-              {%- else %}
-                {{ file['files'] }}
-              {%- endif %}
-            {%- endfor %}
-          </td>
-          <td>
-            <pre> {{ paragraph['copyright'] }}</pre>
-          </td>
-          <td>
-            {%- if paragraph['license']['license'] is not none %}
-              {%- for text in paragraph['license']['license'] %}
-                {%- if text[1] is not none %} <a href="{{ text[1] }}">{{ text[0] }}</a>{%- else %}{{ text[0] }}{%- endif %}
-                {%- endfor %}
-              {%- else %}{{ paragraph['license']['license'] }}{%- endif %}
-          </td>
-          <td>
-          {%- if paragraph['comment'] is not none %}
-                {{ macro.match_d_license(paragraph['comment']) }}
-            {%- else %}
-            ----
-            {% endif %}
-          </td>
-      </tr>
-    {%- endfor %}
-    </table>
   </div>
+
+  <div class="row">
+    <h2>Files</h2>
+    <div class='table-responsive r_files' id='copyright_info'>
+      <table class="table">
+        <tr>
+          <th>Files</th>
+          <th>Copyright</th>
+          <th>License</th>
+          <th>Comment</th>
+        </tr>
+        <tr>
+          {%- for paragraph in files %}
+            <td>
+              {%- for file in paragraph['globs'] %}
+                {%- if file['url'] is not none %}
+                  <a href="{{ file['url'] }}">{{ file['files'] }}</a>
+                {%- else %}
+                  {{ file['files'] }}
+                {%- endif %}
+              {%- endfor %}
+            </td>
+            <td>
+              <pre> {{ paragraph['copyright'] }}</pre>
+            </td>
+            <td>
+              {%- if paragraph['license']['license'] is not none %}
+                {%- for text in paragraph['license']['license'] %}
+                  {%- if text[1] is not none %}
+                    <a href="{{ text[1] }}">
+                      {{ text[0] }}
+                    </a>
+                  {%- else %}
+                    {{ text[0] }}
+                  {%- endif %}
+                {%- endfor %}
+              {%- else %}
+                {{ paragraph['license']['license'] }}
+              {%- endif %}
+            </td>
+            <td>
+            {%- if paragraph['comment'] is not none %}
+                  {{ macro.match_d_license(paragraph['comment']) }}
+              {%- else %}
+              ----
+              {% endif %}
+            </td>
+        </tr>
+      {%- endfor %}
+      </table>
+    </div>
 
   <div class='col-md-12 r_licenses'><h2>Licenses</h2>
     {%- for license in licenses %}

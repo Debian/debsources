@@ -416,7 +416,7 @@ hr {
 	margin: 1.4375em 0 1.5em 0;
 }
 pre {
-	margin: 1.5em 0 1.5em 0;
+	margin: 1em 0 1em 0; 
 	overflow: auto;
 	font-family: monospace;
 	white-space: pre;
