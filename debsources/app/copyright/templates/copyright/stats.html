@@ -13,81 +13,94 @@
 
 {% block content %}
 
-<h2>{{ self.title() }}</h2>
+<div class="row">
 
-<ul>
-  <li><a href="#files_license">Files per license (aggregate dual licensing)</a></li>
-  <li><a href="#files_dual_license">Files per license (without aggregate dual licensing)</a></li>
-  <li><a href="#evolution">Licenses evolution</a></li>
-  <li><a href="#historical">Historical trends</a></li>
-</ul>
+  <h2>{{ self.title() }}</h2>
 
-<div>
-<h3><a name="files_license">Files per license (aggregate dual licensing)</a></h3>
-<span class="sidechart">
-     <a href="{{ url_for('static',
-     filename='img/stats/copyright_overall-license_pie.png') }}">
-      <img src="{{ url_for('static',
-            filename='img/stats/copyright_overall-license_pie.png') }}" />
+  <ul>
+    <li><a href="#files_license">Files per license (aggregate dual licensing)</a></li>
+    <li><a href="#files_dual_license">Files per license (without aggregate dual licensing)</a></li>
+    <li><a href="#evolution">Licenses evolution</a></li>
+    <li><a href="#historical">Historical trends</a></li>
+  </ul>
+
+  <div>
+    <h3><a name="files_license">Files per license (aggregate dual licensing)</a></h3>
+    <span class="sidechart">
+         <a href="{{ url_for('static',
+         filename='img/stats/copyright_overall-license_pie.png') }}">
+          <img src="{{ url_for('static',
+                filename='img/stats/copyright_overall-license_pie.png') }}" />
+          </a>
+    </span>
+    <div class="table-responsive">
+      <table class='stats table'>
+        <tr class="head">
+          <th>License</th><th>Number of files</th>
+          {% for license in licenses %}
+          <tr>
+            <th>{{ license.replace('_', ' ') }}</th> <td>{{ results['overall.'+license] }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+
+  <div>
+    <h3>
+      <a name="files_dual_license">
+        Files per license (without aggregate dual licensing)
       </a>
-</span>
+    </h3>
+    <div class="table-responsive">
+      <table class='stats table'>
+        <tr class="head">
+          <th>License</th><th>Number of files</th>
+          {% for d_license in dual_licenses %}
+          <tr>
+            <th>{{ d_license.replace('_', ' ') }}</th>
+            <td>{{ dual_results['overall.'+d_license] }}</td>
+          </tr>
+          {% endfor %}
+        </tr>
+      </table>
+    </div>
+  </div>
 
-<table class='stats'>
-  <tr class="head">
-    <th>License</th><th>Number of files</th>
-    {% for license in licenses %}
-    <tr>
-      <th>{{ license.replace('_', ' ') }}</th> <td>{{ results['overall.'+license] }}</td>
-  </tr>
-  {% endfor %}
-</table>
+  <div style='margin-top:4em'>
+    <h3><a name="evolution">Licenses evolution</a></h3>
+    <span class="sidechart">
+      <a href="{{ url_for('static',
+       filename='img/stats/copyright_license_bar_plot.png') }}">
+        <img src="{{ url_for('static',
+              filename='img/stats/copyright_license_bar_plot.png') }}" />
+        </a>
+    </span>
+
+    <div class="table-responsive">
+      <table class='stats table'>
+        <tr class="head">
+          <th></th>
+          {% for suite in suites %}
+            <th><a href="{{ url_for('.stats_suite', suite=suite) }}">{{ suite }}</a></th>
+          {% endfor %}
+        </tr>
+        {% for license in licenses %}
+        <tr>
+          <th>{{ license.replace('_', ' ') }}</th>
+            {% for suite in suites %}
+              <td>{{ results[suite + "." + license]  or 0 | format_big_num}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+
+  {% import "copyright/stats_trends.inc.html" as stats_trends %}
+
+  <h3 id='historical'>Historical trends</h3>
+  {{ stats_trends.historical_trend('ALL') }}
+
 </div>
-
-<div>
-<h3><a name="files_dual_license">Files per license (without aggregate dual licensing)</a></h3>
-<table class='stats'>
-  <tr class="head">
-    <th>License</th><th>Number of files</th>
-    {% for d_license in dual_licenses %}
-    <tr>
-      <th>{{ d_license.replace('_', ' ') }}</th> <td>{{ dual_results['overall.'+d_license] }}</td>
-  </tr>
-  {% endfor %}
-</table>
-</div>
-
-<div style='margin-top:4em'>
-<h3><a name="evolution">Licenses evolution</a></h3>
-  <span class="sidechart">
-    <a href="{{ url_for('static',
-     filename='img/stats/copyright_license_bar_plot.png') }}">
-      <img src="{{ url_for('static',
-            filename='img/stats/copyright_license_bar_plot.png') }}" />
-      </a>
-  </span>
-
-<table class='stats'>
-  <tr class="head">
-    <th></th>
-    {% for suite in suites %}
-      <th><a href="{{ url_for('.stats_suite', suite=suite) }}">{{ suite }}</a></th>
-    {% endfor %}
-  </tr>
-  {% for license in licenses %}
-  <tr>
-    <th>{{ license.replace('_', ' ') }}</th>
-      {% for suite in suites %}
-        <td>{{ results[suite + "." + license]  or 0 | format_big_num}}</td>
-      {% endfor %}
-  </tr>
-  {% endfor %}
-</table>
-</div>
-
-
-{% import "copyright/stats_trends.inc.html" as stats_trends %}
-
-<h3 id='historical'>Historical trends</h3>
-{{ stats_trends.historical_trend('ALL') }}
-
 {% endblock %}
