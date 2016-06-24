@@ -5,13 +5,18 @@
   License: GNU Affero General Public License, version 3 or above.
 #}
 
-<p>The specific version of the package you requested doesn't exist,
-but other versions of this package are available in the database.
-The file you are looking for might exist in one of the following
-versions:
-<ul>
-{% for s in suggestions %}
-  <li><a href="{{ url_for('.source', path_to=s) }}">{{ s }}</a></li>
-{% endfor %}
-</ul>
-</p>
+
+<div class="row">
+  <p>
+    The specific version of the package you requested doesn't exist,
+    but other versions of this package are available in the database.
+    The file you are looking for might exist in one of the following
+    versions:
+
+    <ul>
+    {% for s in suggestions %}
+      <li><a href="{{ url_for('.source', path_to=s) }}">{{ s }}</a></li>
+    {% endfor %}
+    </ul>
+  </p>
+</div>

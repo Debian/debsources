@@ -10,16 +10,14 @@
 {% block title %}Package info for: {{ package }} {{ version }}
 {% endblock %}
 {% block content %}
-
-<h2>Package info for:
-  <a href="{{ url_for('.source', path_to=package) }}">{{ package }}</a>
-  <a href="{{ url_for('.source', path_to=package+'/'+version) }}">{{ version }}</a>
-</h2>
-
-{% if pkg_infos %}
-{% import "sources/_macros_infobox.html" as infobox %}
-{{ infobox.render_infobox(package, version, pkg_infos, position="not_fixed") }}
-{% endif %}
-
-
+<div class="row">
+  <h2>Package info for:
+    <a href="{{ url_for('.source', path_to=package) }}">{{ package }}</a>
+    <a href="{{ url_for('.source', path_to=package+'/'+version) }}">{{ version }}</a>
+  </h2>
+  {% if pkg_infos %}
+    {% import "sources/_macros_infobox.html" as infobox %}
+    {{ infobox.render_infobox(package, version, pkg_infos, position="not_fixed") }}
+  {% endif %}
+</div>
 {% endblock %}

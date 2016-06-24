@@ -14,19 +14,20 @@
 
 {% block content %}
 
-<h2>{{ self.title() }}</h2>
+<div class="row">
+  <h2>{{ self.title() }}</h2>
 
-{{ count }} result{% if count >= 2 %}s{% endif %}:
+  {{ count }} result{% if count >= 2 %}s{% endif %}:
 
-<ul>
-  {% for result in results %}
-    {% set path_to=result.package + "/" + result.version + "/" + result.path %}
-    <li>
-      <a href="{{ url_for('.source', path_to=path_to) }}">{{ path_to }}</a>
-    </li>
-  {% endfor %}
-</ul>
+  <ul>
+    {% for result in results %}
+      {% set path_to=result.package + "/" + result.version + "/" + result.path %}
+      <li>
+        <a href="{{ url_for('.source', path_to=path_to) }}">{{ path_to }}</a>
+      </li>
+    {% endfor %}
+  </ul>
 
-{{ macros.render_pagination(pagination) }}
-
+  {{ macros.render_pagination(pagination) }}
+</div>
 {% endblock %}

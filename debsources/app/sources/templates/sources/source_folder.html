@@ -11,64 +11,64 @@
 {{ super() }}
 <link rel="stylesheet" type="text/css"
       href="{{ url_for('.static', filename='css/source_folder.css') }}" />
-<script src="{{ url_for('static', filename='javascript/debsources.js') }}"></script>
 {% endblock %}
 
 {% block title %}Folder: {{ directory }}{% endblock %}
 
 {% block source_content %}
 
-{% if pkg_infos %}
-{% import "sources/_macros_infobox.html" as infobox %}
-{{ infobox.render_infobox(pathl[0][0], pathl[1][0], pkg_infos) }}
-{% endif %}
+<div class="row">
 
-<h2 id="folder_title">{{ self.title() }}</h2>
+  {% if pkg_infos %}
+  {% import "sources/_macros_infobox.html" as infobox %}
+  {{ infobox.render_infobox(pathl[0][0], pathl[1][0], pkg_infos) }}
+  {% endif %}
 
-{% if nb_hidden_files %}
-  <a href="#" id="btn_toggle_hidden_files" data-action="show"><span>show</span> hidden ({{ nb_hidden_files }})</a>
-{% endif %}
+  <h2 id="folder_title">{{ self.title() }}</h2>
 
-<table class="dir-listing">
-  <tr>
-    <td class="item-img"><img src="{{ config['ICONS_FOLDER'] }}22x22/places/folder.png" alt="d " /></td>
-    {% if config["DIR_LS_LONG"] %}<td class="stat-type"></td>{% endif %} <!-- place-holder -->
-    <td class="stat-perms"></td> <!-- place-holder -->
-    {% if config["DIR_LS_LONG"] %}<td class="stat-size"></td>{% endif %} <!-- place-holder -->
-    <td class="item-name"><a href="{{ url_for('.source', path_to='/'.join(path.split('/')[:-1])) }}">.. (parent)</a></td>
-  </tr>
+  {% if nb_hidden_files %}
+    <a href="#" id="btn_toggle_hidden_files" data-action="show"><span>show</span> hidden ({{ nb_hidden_files }})</a>
+  {% endif %}
 
-{% for dir in subdirs %}
-  <tr{% if dir['hidden'] %} class="hidden_file"{% endif %}>
-    <td class="item-img"><img src="{{ config['ICONS_FOLDER'] }}22x22/places/folder.png" alt="d " /></td>
-    {% if config["DIR_LS_LONG"] %}<td class="stat-type"><span>{{ dir.stat.type }}</span></td>{% endif %}
-    <td class="stat-perms"><span>{{ dir.stat.perms }}</span></td>
-    {% if config["DIR_LS_LONG"] %}<td class="stat-size"><span>{{ "{:,d}".format(dir.stat.size) }}</span></td>{% endif %}
-    <td class="item-name"><a href="{{ url_for('.source', path_to=path+'/'+dir.name) }}">{{ dir.name }}</a>
-      {% if config["DIR_LS_LONG"] %}
-        {% if dir.stat.symlink_dest is not none %}{{ " → " + dir.stat.symlink_dest }}{% endif %}
-      {% endif %}
-    </td>
-  </tr>
-{% endfor %}
+  <table class="dir-listing">
+    <tr>
+      <td class="item-img"><img src="{{ config['ICONS_FOLDER'] }}22x22/places/folder.png" alt="d " /></td>
+      {% if config["DIR_LS_LONG"] %}<td class="stat-type"></td>{% endif %} <!-- place-holder -->
+      <td class="stat-perms"></td> <!-- place-holder -->
+      {% if config["DIR_LS_LONG"] %}<td class="stat-size"></td>{% endif %} <!-- place-holder -->
+      <td class="item-name"><a href="{{ url_for('.source', path_to='/'.join(path.split('/')[:-1])) }}">.. (parent)</a></td>
+    </tr>
 
-{% for file_ in subfiles %}
-  <tr{% if file_['hidden'] %} class="hidden_file"{% endif %}>
-    <td class="item-img"><img src="{{ config['ICONS_FOLDER'] }}22x22/mimetypes/ascii.png" alt="- " /></td>
-    {% if config["DIR_LS_LONG"] %}<td class="stat-type"><span>{{ file_.stat.type }}</span></td>{% endif %}
-    <td class="stat-perms"><span>{{ file_.stat.perms }}</span></td>
-    {% if config["DIR_LS_LONG"] %}<td class="stat-size"><span>{{ "{:,d}".format(file_.stat.size) }}</span></td>{% endif %}
-    <td class="item-name"><a href="{{ url_for('.source', path_to=path+'/'+file_.name) }}">{{ file_.name }}</a>
-      {% if config["DIR_LS_LONG"] %}
-        {% if file_.stat.symlink_dest is not none %}{{ " → " + file_.stat.symlink_dest }}{% endif %}
-      {% endif %}
-    </td>
-  </tr>
-{% endfor %}
-</table>
+  {% for dir in subdirs %}
+    <tr{% if dir['hidden'] %} class="hidden_file"{% endif %}>
+      <td class="item-img"><img src="{{ config['ICONS_FOLDER'] }}22x22/places/folder.png" alt="d " /></td>
+      {% if config["DIR_LS_LONG"] %}<td class="stat-type"><span>{{ dir.stat.type }}</span></td>{% endif %}
+      <td class="stat-perms"><span>{{ dir.stat.perms }}</span></td>
+      {% if config["DIR_LS_LONG"] %}<td class="stat-size"><span>{{ "{:,d}".format(dir.stat.size) }}</span></td>{% endif %}
+      <td class="item-name"><a href="{{ url_for('.source', path_to=path+'/'+dir.name) }}">{{ dir.name }}</a>
+        {% if config["DIR_LS_LONG"] %}
+          {% if dir.stat.symlink_dest is not none %}{{ " → " + dir.stat.symlink_dest }}{% endif %}
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
 
-<script type="text/javascript">
-  debsources.source_folder();
-</script>
+  {% for file_ in subfiles %}
+    <tr{% if file_['hidden'] %} class="hidden_file"{% endif %}>
+      <td class="item-img"><img src="{{ config['ICONS_FOLDER'] }}22x22/mimetypes/ascii.png" alt="- " /></td>
+      {% if config["DIR_LS_LONG"] %}<td class="stat-type"><span>{{ file_.stat.type }}</span></td>{% endif %}
+      <td class="stat-perms"><span>{{ file_.stat.perms }}</span></td>
+      {% if config["DIR_LS_LONG"] %}<td class="stat-size"><span>{{ "{:,d}".format(file_.stat.size) }}</span></td>{% endif %}
+      <td class="item-name"><a href="{{ url_for('.source', path_to=path+'/'+file_.name) }}">{{ file_.name }}</a>
+        {% if config["DIR_LS_LONG"] %}
+          {% if file_.stat.symlink_dest is not none %}{{ " → " + file_.stat.symlink_dest }}{% endif %}
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </table>
 
+  {{ js.debsources_source_folder() }}
+
+</div>
 {% endblock %}

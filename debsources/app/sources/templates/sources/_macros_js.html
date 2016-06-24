@@ -1,0 +1,31 @@
+{#
+  Copyright (C) 2014  The Debsources developers <info@sources.debian.net>.
+  See the AUTHORS file at the top-level directory of this distribution and at
+  https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+  License: GNU Affero General Public License, version 3 or above.
+#}
+
+{% macro debsources_source_folder() %}
+<script>
+$(document).ready(function() {
+  console.debug("debsources.source_folder() js running...");
+  debsources.source_folder()
+});
+</script>
+{% endmacro %}
+
+{% macro debsources_source_file() %}
+<script>
+$(document).ready(function() {
+  console.debug("debsources.source_file() js running...");
+  debsources.source_file()
+});
+</script>
+{% endmacro %}
+
+{% macro highlight_block_id(element_id) %}
+<script>
+  console.debug("hightlightBlock running");
+  hljs.highlightBlock(document.getElementById("{{ element_id }}"))
+</script>
+{% endmacro %}
