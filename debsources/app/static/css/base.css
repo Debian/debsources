@@ -203,7 +203,7 @@ hr.doc{
 
 /* ##  Related to responsiveness (mobile friendily css) */
 
-/* max-width: @screen-md-max 
+/* @screen-md-max 
  * This will target md, sm, and xs screens */
 @media (max-width: 992px) {
     .pkginfobox_fixed {
@@ -218,6 +218,24 @@ hr.doc{
 
     #infobox_content {
         padding-right: 30px;
+    }
+}
+
+/* @screen-lg-max + 50px */
+@media(min-width: 1250px) {
+    #breadcrumbs {
+        position: relative;
+        top: -2em;
+        left: 6em;
+        background: none;
+        border: none;
+    }
+}
+
+/* @grid-float-breakpoint */
+@media(max-width:800px) {
+    #searchbox {
+        display: none;
     }
 }
 

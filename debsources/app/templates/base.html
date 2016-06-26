@@ -44,7 +44,7 @@ License: GNU Affero General Public License, version 3 or above.
           </a>
         </div>
 
-        <div class="row hidden-xs" id="searchbox">
+        <div class="row" id="searchbox">
             {{
             macros.searchform(searchform, request, display="inline",
             placeholder="package name", id="query-1")
@@ -61,13 +61,14 @@ License: GNU Affero General Public License, version 3 or above.
               <input type="submit" value="Search code"  placeholder="Search" />
             </form>
         </div>
-        {% block nav %}{% endblock %}
+        {% block nav %} 
+        {% endblock %}
 
         <p class="hidecss"><a href="#content">Skip Quicknav</a></p>
-        <p id="breadcrumbs">{% block breadcrumbs %}{% endblock %}</p>
       </div>
     </nav> <!-- end header -->
-
+    <p id="breadcrumbs">{% block breadcrumbs %}{% endblock %}</p>
+    
     {% block bg_wrapper %}
     <div id="bg-wrapper">
       <div id="content" class="container"> <!-- XXX fix background image-->

@@ -1,5 +1,6 @@
 {
   "vars": {
+    "@grid-float-breadkpoint": "800px"
   },
   "css": [
     "grid.less",
