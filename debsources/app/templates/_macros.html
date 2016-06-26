@@ -40,7 +40,6 @@ https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginati
   {% endif %} 
   
   {% for error in form.errors.query %}
-    {# XXX: doesn't display proplery on the navbar #}
     {% if display == "block" %}<p>{% endif %}
     <strong class="error">{{ error }}</strong>
     {% if display == "block" %}</p>{% endif %}
