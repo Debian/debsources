@@ -17,9 +17,10 @@
   {% for g in granularities %}
   <div class="stats">
     <a href="{{ url_for('static',
-	     filename='img/stats/' + suite + '-' + metric + '-' + g + '.png') }}">
+	filename='img/stats/' + suite + '-' + metric + '-' + g + '.png') }}">
       <img src="{{ url_for('static',
-		filename='img/stats/' + suite + '-' + metric + '-' + g + '.png') }}" />
+	  filename='img/stats/' + suite + '-' + metric + '-' + g + '.png') }}"
+      class="img-responsive"/>
     </a>
     <span>{{ g }}</span>
   </div>
