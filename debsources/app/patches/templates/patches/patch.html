@@ -8,7 +8,6 @@
 
 {% block head %}
 {{ super() }}
-  <script src="{{ url_for('static', filename='javascript/debsources.js') }}"></script>
   <link rel="stylesheet" type="text/css"
         href="{{ url_for('sources.static', filename='css/source_file.css') }}" />
   <link rel="stylesheet"
@@ -22,14 +21,14 @@
 {% block title %}Package: {{ package }}{% endblock %}
 
 {% block content %}
+  <h2>{{ self.title() }} / {{ version }}</h2>
 
-<h2>{{ self.title() }} / {{ version }}</h2>
+  {% include "source_file_code.inc.html" %}
+{% endblock %}
 
-{% include "source_file_code.inc.html" %}
-
-<script type="text/javascript">
-  debsources.source_file();
-  hljs.highlightBlock(document.getElementById('sourcecode'))
-</script>
-
+{% block javascript %}
+  <script type="text/javascript">
+    debsources.source_file();
+    hljs.highlightBlock(document.getElementById('sourcecode'))
+  </script>
 {% endblock %}
