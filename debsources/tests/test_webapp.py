@@ -109,7 +109,7 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
             '/static/css/debian.css',
             '/static/favicon.ico',
             '/static/bootstrap/bootstrap.min.css',
-            '/static/bootstrap/bootstrap.min.js'
+            '/static/bootstrap/bootstrap.min.js',
         ]
         for path in static_files:
             status = self.app.get(path).status_code

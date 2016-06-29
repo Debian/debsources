@@ -9,7 +9,7 @@
 {# from
 https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Pagination.iter_pages #}
 {% macro render_pagination(pagination) -%}
-  <div class=pagination>
+  <div class="pagination">
   {% if pagination.has_prev %}
   <a href="{{ url_for_other_page(pagination.page - 1)
     }}">&laquo; Previous</a>
@@ -38,16 +38,18 @@ https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginati
   {% else %}
     {% set endpoint = '.recv_search' %}
   {% endif %}
+  
+  {% for error in form.errors.query %}
+    {% if display == "block" %}<p>{% endif %}
+    <strong class="error">{{ error }}</strong>
+    {% if display == "block" %}</p>{% endif %}
+  {% endfor %}
   <form action="{{ url_for(endpoint) }}" name="searchform"
         method="post" style="display: {{ display }};">
       {{ form.query(**kwargs) }}
-    {% for error in form.errors.query %}
-      {% if display == "block" %}<br />{% endif %}
-      <strong>{{ error }}</strong>
-    {% endfor %}
     {% if display == "block" %}<br />{% endif %}
     <input type="submit" value="Search package" />
-  </form>
+  </form> 
 {%- endmacro %}
 
 
@@ -63,18 +65,21 @@ https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginati
 {% endmacro %}
 
 {% macro listpackages(packages, suite) -%}
-    <ul class="listcolumn">
-      {% for package in packages %}
-        {% if suite %}
-          <li><a href="{{ url_for('.versions', packagename=package.name, suite=suite) }}">
-              {{ package.name }}</a></li>
-        {% else %}
-          <li><a href="{{ url_for('.versions', packagename=package.name) }}">
-              {{ package.name }}</a></li>
-        {% endif %}
-      {% endfor %}
-    </ul>
-  <br style="clear: left" />
+  <div class="row">
+  {% for package in packages %}
+    <div class="col-md-3 col-sm-6 debsources-list-item">
+    {% if suite %}
+      <a href="{{ url_for('.versions', packagename=package.name, suite=suite) }}">
+        {{ package.name }}
+     </a>
+    {% else %}
+      <a href="{{ url_for('.versions', packagename=package.name) }}">
+        {{ package.name }}
+      </a>
+    {% endif %}
+    </div>
+  {% endfor %}
+  </div>
 {%- endmacro %}
 
 {% macro show_suite(suite) %}
@@ -101,11 +106,53 @@ https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginati
 
 {% macro render_news(news, archived_news) %}
   {% if news -%}
-    <h3><a name="news">News</a>
+  <div class="row">
+    <div class="col-md-12">
+      <h3><a name="news">News</a>
       {% if archived_news -%}
       <small><a href="{{ url_for('.news_archive') }}" name="news_archive">(News archive)</a></small>
       {% endif %}
-    </h3>
-    {{ news|safe }}
+      </h3>
+      {{ news|safe }}
+    </div>
+  </div>
   {% endif %}
+{% endmacro %}
+
+{% macro render_navbar(nav_map) %}
+  {#  render_navbar takes dictionary and produced a navbar
+      Each key refers to a link the key is directly placed into the
+      `<li></li>` while the value is to looked up by url_for()
+
+      Example Input:
+          {'Home':'home', '<span class="back">Back<span>':'back'}
+
+      Output:
+          ...
+          <li><a href="{{url_for('home')}}">Home</a></li>
+          <li><a href="{{url_for('back'}}"><span class="back">Back</span></a></li>
+          ...
+  #}
+  <div class="collapse navbar-collapse" id="ds-navbar-collapse-1">
+    <ul class="nav navbar-nav">
+    {% for key in nav_map %}
+      <li><a href="{{url_for(nav_map[key])}}">{{key}}</a></li>
+    {% endfor %}
+    </ul>
+  </div>
+{% endmacro %}
+
+{% macro remove_content_height() %}
+  {# This is an inline style that removes the content height 
+     
+     The reason it's implemented as a macro is to allow it to be used as 
+     an optional opt-in for certain debsources pages, without affecting
+     other parts of the site.
+  #}
+  <style>
+  /* added by a macro */
+  #content {
+    min-height: 0 !important;
+  }
+  </style>
 {% endmacro %}

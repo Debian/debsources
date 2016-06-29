@@ -5,9 +5,11 @@
  */
 
 
-/* Base (templates/base.html styles */
+/* # Base (templates/base.html styles */
 
-/* displayed on index.html */
+
+/* ## Displayed on index.html */
+
 
 #indexmenu {
     text-align: center;
@@ -27,39 +29,44 @@
     padding-top: 0;
 }
 
-#indexmenu table {
-    width: 700px;
-    margin: auto;
-    border-spacing: 20px;
-    border-spacing: collapse;
+#indexmenu {
+    padding-top: 4em;
 }
 
-#indexmenu table td {
+#indexmenu #sources-nav {
+    margin: auto;
+    border-spacing: collapse;
+    background-color: rgba(255, 255, 255, 0.33);
+}
+
+#indexmenu #sources-nav div {
     border: 0;
-    padding: 5px;
     padding-top: 0px;
     padding-bottom: 0px;
-    background-color: transparent;
-    background-color: #f5f6f7;
-    opacity: 0.9;
     border-radius: 15px;
+    background-color: none !important;
 }
 
-#indexmenu table td p {
+#indexmenu #sources-nav  #browse, #indexmenu #sources-nav  #search {
     text-align: center;
-    margin-bottom: 1em;
-    margin-top: 0.5em;
 }
-#indexmenu table td ul {
+
+#indexmenu #sources-nav div ul {
     margin-bottom: 1em;
     margin-top: 0.5em;
 }
 
-#indexmenu table #search {
-    width: 60%;
+#indexmenu #sources-nav #search input{
+    max-width: 85%;
+    min-width: 80%;
 }
 
-/* lists made in multiple columns (e.g. in macros.listpackages() */
+#indexmenu #browse-container {
+    padding-left: 10%;
+    width: 90%;
+}
+
+/* ## Lists made in multiple columns (e.g. in macros.listpackages() */
 
 .listcolumn li {
     margin-left: 30px;
@@ -74,9 +81,7 @@
 }
 
 .search-box {
-    background-color: #f5f6f7;
-    border-radius: 15px;
-    padding: 0 10px 0 10px;
+    padding-top: 2em;
 }
 
 .search-box h3 {
@@ -113,7 +118,23 @@ table.rrd tr td {
     border: none;
 }
 
-/* infobox */
+/* ## Alternative misc styles */
+
+.subtitle {
+    margin: 0.5em 0 0.5em 0;
+}
+
+/* ## File Deltas */
+
+.file-delta > .diff {
+    color: grey;
+}
+
+.file-delta > .delta-summary {
+    font-size: .7em;
+}
+
+/* ## Infobox */
 
 #pkginfobox {
 }
@@ -128,8 +149,10 @@ table.rrd tr td {
     border: 1px solid #d2d3d7;
     position: fixed;
     right: 20px;
-    top: 200px;
+    top: 250px;
+    background-color: rgba(255, 255, 255, .85);
 }
+
 
 #infobox_content ul {
     margin-top: 0px;
@@ -151,7 +174,7 @@ table.stats tr td {
     line-height: 1ex;
 }
 table.stats tr.head th {
-    text-align: center;
+    text-align: right;
 }
 table.stats tr th {
     text-align: left;
@@ -178,7 +201,72 @@ hr.doc{
     width:10%;
 }
 
-/* bootstrap resets */
+/* ##  Related to responsiveness (mobile friendly css) */
+
+/* max-width: @screen-md-max 
+ * This will target md, sm, and xs screens */
+@media (max-width: 992px) {
+    .pkginfobox_fixed {
+        position: relative;
+        display: block;
+        max-width: inherit;
+        padding: inherit;
+        padding-left: 1em;
+        right: inherit;
+        top: inherit;
+    }
+
+    #infobox_content {
+        padding-right: 30px;
+    }
+}
+
+#searchbox{
+    font-height: 16px;
+}
+
+.navbar-header {
+    height: 80px;
+}
+
+.debsources-brand {
+    padding: 0;
+}
+
+.debsources-bg {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    display: inline;
+    min-width: 100%;
+    height: 100%;
+}
+
+.debsources-list-item {
+    padding-left: 2em;
+}
+
+#codetable {
+    overflow: auto;
+}
+
+.navbar {
+    margin-bottom: 0;
+}
+
+#bg-url {
+    display: none;
+}
+
+/* Firefox specific hack for fieldsetting
+ * see: https://stackoverflow.com/q/17408815 */
+
+@-moz-document url-prefix() {
+    fieldset { 
+        display: table-cell;
+    }
+
+/* ## Bootstrap Resets */
 
 a, a:hover, a:focus {
     color: #222;

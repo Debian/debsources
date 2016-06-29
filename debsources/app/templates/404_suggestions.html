@@ -9,9 +9,10 @@
 
 {% block title %}404{% endblock %}
 {% block content %}
-<h2>{{ self.title() }}</h2>
-{% include site_name+"/404_suggestions.html" %}
- 
+<div class="row">
+  <h2>{{ self.title() }}</h2>
+  {% include site_name+"/404_suggestions.html" %}
+</div>
 <a href="/">Go home</a>
 
 {% endblock %}

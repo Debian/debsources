@@ -13,19 +13,47 @@
 {% block breadcrumbs %}search / {{ query }}{% endblock %}
 
 {% block content %}
-<h2>{{ self.title() }}</h2>
-{{ macros.show_suite(suite) }}
-<h3>Exact matches</h3>
+
+
+<div class="row">
+  <div class="col-md-12">
+   <h2>{{ self.title() }}</h2>
+  {{ macros.show_suite(suite) }}
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="col-md-12">
+    <h3>Exact matches</h3>
+  </div>
+</div>
+
 {% if results.exact %}
   {{ macros.listpackages([results.exact], suite) }}
 {% else %}
-  None.
+<div class="row">
+  <div class="col-md-12">
+    None.
+  </div>
+</div>
 {% endif %}
 
-<h3>Other results</h3>
+
+<div class="row">
+  <div class="col-md-12">
+    <h3>Other results</h3>
+  </div>
+</div>
+
 {% if results.other[1] or (not results.exact and results.other[0]) %}
   {{ macros.listpackages(results.other, suite) }}
 {% else %}
-  None.
+<div class="row">
+  <div class="col-md-12">
+    None.
+  </div>
+</div>
 {% endif %}
+
 {% endblock %}

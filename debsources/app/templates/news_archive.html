@@ -14,24 +14,27 @@
 
 {% block content %}
 
-<div id="indexmenu">
 
-  <h1 class="h1mainpage">{{ self.title() }}</h1>
-
-  <div class="content" style="text-align: left">
+<div class="row">
+  <div class="col-md-12">
+    <h1 class="h1mainpage">{{ self.title() }}</h1>
     {% if archived_news %}
       {{ archived_news|safe }}
     {% else %}
-      <h3>Looks like the news archive is empty!</h3>
+    <h3>Looks like the news archive is empty!</h3>
     {% endif %}
   </div>
 </div>
+
 {% endblock %}
 
-{# show the background debian image #}
 {% block bg_wrapper %}
-<div id="bg-wrapper" style="background-image: url('{{ url_for('static', filename='img/debsources.png') }}');">
-  <div id="content">{{ self.content() }}</div>
-  <footer id="footer">{{ self.footer() }}</footer>
-</div>
+
+  {{ super() }}
+
+  <p style="display:none;" id="bg-url"
+     data-url="{{ url_for('static', filename='img/debsources.png')}}">
+  </p>
+
 {% endblock %}
+

@@ -22,7 +22,21 @@ How To Generate
   ```
 
 - Remove unchanged vars from `config.json` and place in folder.
+  
   ```sh
   $EDITOR /tmp/config.json
   mv /tmp/config.json  $BASE/contrib/bootstrap
   ```
+
+Expected files
+--------------
+
+Lookups will be made to 
+
+- `/static/bootstrap/bootstrap.min.css`
+
+- `/static/bootstrap/bootstrap.min.js`
+
+Assuming you placed the files in `debsources/app/static` like that, then
+you're good to go.
+
