@@ -190,7 +190,7 @@ table.stats th {
 }
 
 span.sidechart {
-/    float: right;
+    float: right;
 }
 
 span.sidechart img {
@@ -201,7 +201,7 @@ hr.doc{
     width:10%;
 }
 
-/* ##  Related to responsiveness (mobile friendily css) */
+/* ##  Related to responsiveness (mobile friendly css) */
 
 /* max-width: @screen-md-max 
  * This will target md, sm, and xs screens */

@@ -37,7 +37,7 @@ https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginati
     {% set endpoint = 'sources.recv_search' %}
   {% else %}
     {% set endpoint = '.recv_search' %}
-  {% endif %} 
+  {% endif %}
   
   {% for error in form.errors.query %}
     {% if display == "block" %}<p>{% endif %}
@@ -49,7 +49,7 @@ https://pythonhosted.org/Flask-SQLAlchemy/api.html#flask.ext.sqlalchemy.Paginati
       {{ form.query(**kwargs) }}
     {% if display == "block" %}<br />{% endif %}
     <input type="submit" value="Search package" />
-  </form>  
+  </form> 
 {%- endmacro %}
 
 

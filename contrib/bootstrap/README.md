@@ -38,5 +38,5 @@ Lookups will be made to
 - `/static/bootstrap/bootstrap.min.js`
 
 Assuming you placed the files in `debsources/app/static` like that, then
-you're good to go <3
+you're good to go.
 
