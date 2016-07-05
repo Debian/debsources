@@ -21,7 +21,7 @@ import re
 
 import six
 
-from sqlalchemy import distinct
+from sqlalchemy import distinct, desc
 from sqlalchemy import func as sql_func
 
 from debsources.consts import SLOCCOUNT_LANGUAGES, SUITES
@@ -348,7 +348,7 @@ def sloc_per_package(session, suite=None, areas=None):
     if areas:
         q = q.filter(Package.area.in_(areas))
     q = q.group_by(PackageName.name, Package.version) \
-         .order_by('sloc desc, name, version')
+         .order_by(desc('sloc'), 'name', 'version')
     return q.all()
 
 
