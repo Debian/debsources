@@ -45,21 +45,21 @@ License: GNU Affero General Public License, version 3 or above.
         </div>
 
         <div class="row" id="searchbox">
-            {{
-            macros.searchform(searchform, request, display="inline",
-            placeholder="package name", id="query-1")
-            }}
-              <form name="codesearch" method="get"
-                    action="https://codesearch.debian.net/search">
-              <input name="q"
-              {%- if package %}
-                value="package:{{ package }} "
-              {%- else %}
-                placeholder="code regex"
-              {%- endif %}
-              type="text" />
-              <input type="submit" value="Search code"  placeholder="Search" />
-            </form>
+          {{
+          macros.searchform(searchform, request, display="inline",
+          placeholder="package name", id="query-1")
+          }}
+          <form name="codesearch" method="get"
+                action="https://codesearch.debian.net/search">
+            <input name="q"
+            {%- if package %}
+              value="package:{{ package }} "
+            {%- else %}
+              placeholder="code regex"
+            {%- endif %}
+            type="text" />
+            <input type="submit" value="Search code"  placeholder="Search" />
+          </form>
         </div>
         {% block nav %} 
         {% endblock %}
@@ -70,8 +70,9 @@ License: GNU Affero General Public License, version 3 or above.
     <p id="breadcrumbs">{% block breadcrumbs %}{% endblock %}</p>
     
     {% block bg_wrapper %}
-    <div id="bg-wrapper">
-      <div id="content" class="container"> <!-- XXX fix background image-->
+    <div id="bg-wrapper"
+    style="background-image: url('{{ url_for('static', filename='img/debsources.png') }}');">
+      <div class="container">
         {% block content %}
         {% endblock %}
       </div>

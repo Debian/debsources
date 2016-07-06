@@ -24,20 +24,14 @@
 {% block title %}File: {{ file }}{% endblock %}
 
 {% block source_content_file %}
-<h2>{{ self.title() }}</h2>
 
-{% if pkg_infos %}
-{% import "sources/_macros_infobox.html" as infobox %}
-{{ infobox.render_infobox(pathl[0][0], pathl[1][0], pkg_infos) }}
-{% endif %}
+  <h2>{{ self.title() }}</h2>
 
-{% include "source_file_code.inc.html" %}
+  {% if pkg_infos %}
+  {% import "sources/_macros_infobox.html" as infobox %}
+  {{ infobox.render_infobox(pathl[0][0], pathl[1][0], pkg_infos) }}
+  {% endif %}
 
-{{ js.debsources_source_file() }}
-{{ js.highlight_block_id("sourcecode") }}
-
-<!-- script type="text/javascript">
-  debsources.source_file();
-  </script --!>
+  {% include "source_file_code.inc.html" %}
 
 {% endblock %}

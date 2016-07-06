@@ -21,15 +21,22 @@
   {{ pathl[-1][0] }}
 {% endblock %}
 
-{% block content %}
-  {% block source_content %}{% endblock %}
-{% endblock %}
-
 {% block bg_wrapper %}
-{{ macros.remove_content_height() }}
-<div class="fluid-container">
-  {% block source_content_file %}{% endblock %}
-</div>
-{{ super() }}
-{% endblock %}
 
+  <div class="container">
+    {% block source_content_file %}{% endblock %}
+      <div class="row">
+        <div class="col-md-12 col-lg-pull-1">
+          {% block source_content %}{% endblock %}
+        </div>
+      </div>
+  </div>
+
+  {{ super() }}
+
+  <style>
+    #content {
+      min-width: none;
+    }
+  </style>
+{% endblock %}

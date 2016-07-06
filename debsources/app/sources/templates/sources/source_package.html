@@ -15,9 +15,8 @@
 
 {% block title %}Package: {{ package }}{% endblock %}
 {% block source_content %}
-<h2>{{ self.title() }}</h2>
-{{ macros.show_suite(suite) }}
+  <h2>{{ self.title() }}</h2>
+  {{ macros.show_suite(suite) }}
 
-{{ macros.show_versions(versions, path, '.source', config['ICONS_FOLDER'])}}
-
+  {{ macros.show_versions(versions, path, '.source', config['ICONS_FOLDER'])}}
 {% endblock %}

@@ -13,7 +13,6 @@ License: GNU Affero General Public License, version 3 or above.
 
 {% block content %}
 
-
 <div id="indexmenu">
 
   <div class="row">
@@ -67,11 +66,3 @@ License: GNU Affero General Public License, version 3 or above.
 
 {% endblock %}
 
-{# show the background debian image #}
-{% block bg_wrapper %}
-  {{ super() }}
-
-  <p id="bg-url"
-     data-url="{{ url_for('static', filename='img/debsources.png') }}">
-  </p>
-{% endblock %}
