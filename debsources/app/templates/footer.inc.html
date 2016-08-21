@@ -32,3 +32,11 @@
   Last update: {{ last_update }}.
 </p>
 </div>
+
+<script type="text/javascript">
+var elems = document.querySelectorAll('.js-append-window-location-hash');
+
+for (var i = 0; i < elems.length; ++i) {
+  elems[i].setAttribute('href', elems[i].getAttribute('href') + window.location.hash);
+}
+</script>
