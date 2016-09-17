@@ -35,7 +35,7 @@ from debsources import updater
 from debsources.tests.db_testing import DbTestFixture, DB_COMPARE_QUERIES
 from debsources.tests.updater_testing import mk_conf
 from debsources.subprocess_workaround import subprocess_setup
-from debsources.tests.testdata import *  # NOQA
+from debsources.tests.testdata import TEST_DATA_DIR
 
 
 def compare_dirs(dir1, dir2, exclude=[]):

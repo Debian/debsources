@@ -15,7 +15,7 @@ import os
 
 from os.path import abspath
 
-from debsources.tests.testdata import *  # NOQA
+from debsources.tests.testdata import TEST_DIR, TEST_DB_NAME, TEST_DATA_DIR
 
 
 def mk_conf(tmpdir):

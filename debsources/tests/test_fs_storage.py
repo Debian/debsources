@@ -18,7 +18,7 @@ from nose.tools import istest
 from nose.plugins.attrib import attr
 
 from debsources.fs_storage import parse_path, walk
-from debsources.tests.testdata import *  # NOQA
+from debsources.tests.testdata import TEST_DATA_DIR
 
 
 def make_path(path):

@@ -30,7 +30,7 @@ from debsources import updater
 from debsources.consts import DEBIAN_RELEASES
 from debsources.tests.db_testing import DbTestFixture
 from debsources.tests.updater_testing import mk_conf
-from debsources.tests.testdata import *  # NOQA
+from debsources.tests.testdata import TEST_DATA_DIR
 
 
 @attr('infra')
