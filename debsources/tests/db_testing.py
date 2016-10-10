@@ -18,7 +18,7 @@ import subprocess
 
 
 from debsources.subprocess_workaround import subprocess_setup
-from debsources.tests.testdata import *  # NOQA
+from debsources.tests.testdata import TEST_DATA_DIR, TEST_DB_NAME
 
 
 TEST_DB_DUMP = os.path.join(TEST_DATA_DIR, 'db/pg-dump-custom')

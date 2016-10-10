@@ -560,7 +560,7 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
     def test_suggestions_when_404(self):
         rv = self.app.get('/src/libcaca/0.NOPE.beta17-1/src/cacaview.c/')
         self.assertIn('other versions of this package are available', rv.data)
-        link2 = '<a href="/src/libcaca/0.99.beta17-1/src/cacaview.c/">'
+        link2 = '<a href="/src/libcaca/0.99.beta17-1/src/cacaview.c/'
         self.assertIn(link2, rv.data)
 
     def test_bp_copyright_setup(self):
