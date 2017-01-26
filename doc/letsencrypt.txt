@@ -21,7 +21,7 @@ openssl genrsa 4096 > domain.key
 openssl req -new -sha256 -key domain.key -subj "/CN=sources.debian.net" > domain.csr
 mkdir -p /srv/www/debsources/public_html/.well-known/acme-challenge
 acme-tiny --account-key ./account.key --csr ./domain.csr --acme-dir /srv/www/debsources/public_html/.well-known/acme-challenge > ./signed.crt
-wget -O - https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem > intermediate.pem
+wget -O - https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem > intermediate.pem
 cat signed.crt intermediate.pem > chained.pem
 ```
 
