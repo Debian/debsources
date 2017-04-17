@@ -31,7 +31,7 @@ def add_package(session, pkg, pkgdir, sticky=False):
     - FS cache to avoid re-scanning package dir to iterate over file names
 
     """
-    logging.debug('add to db %s...' % pkg)
+    logging.debug('add to db %s...' % pkg['package'])
     package_name = session.query(PackageName) \
                           .filter_by(name=pkg['package']) \
                           .first()
@@ -45,7 +45,7 @@ def add_package(session, pkg, pkgdir, sticky=False):
                         .first()
     if not db_package:
         db_package = Package(pkg['version'], package_name, sticky)
-        db_package.area = pkg.archive_area()
+        db_package.area = pkg['archive_area']
         if 'vcs-browser' in pkg:
             db_package.vcs_browser = pkg['vcs-browser']
         for vcs_type in VCS_TYPES:
