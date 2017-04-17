@@ -147,6 +147,43 @@ dynamically find workers running on the same machine as the
 "add_package" task, and direct the hooks tasks on those workers.
 
 
+Data locality
+-------------
+
+Resources dependencies
+~~~~~~~~~~~~~~~~~~~~~~
+
+The graph of tasks also contains blue nodes, representing resources:
+
+ - mirror
+
+ - database: connection to postgresql
+
+ - extracted sources: the sources extracted by the extract_new stage
+
+When a node does not have edges, it means the resource is needed by
+all tasks in the cluster.
+
+Running tasks near the resources
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The simplest way to run tasks on machine with access to the needed
+resources is to create several queues, one for each resource:
+
+ - mirror
+
+ - database
+
+For example, several workers can listen to the 'mirror' queue, and all
+tasks routed to that queue will run only on those workers.
+
+The "extracted sources" resource can't be managed with a single queue:
+the sources can be extracted by workers on different machines, and
+thus there is no single repository of sources. In this case, we can
+dynamically find workers running on the same machine as the
+"add_package" task, and direct the hooks tasks on those workers.
+
+
 Implementation details
 ======================
 
