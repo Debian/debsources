@@ -1,3 +1,15 @@
+Roles management
+================
+
+* The updater must have read-write rights on debsources tables and
+  sequences. To enable it, run for example in a psql session:
+# grant select,insert, update, delete on all tables in schema public to debsource_updater;
+# grant select, update on all sequences in schema public to debsource_updater;
+
+* The web application must have read rights on debsources tables:
+# grant select on all tables in schema public to debsource_webapp;
+
+You can specify in your config files different `db_uri` in different sections.
 
 Performance tuning
 ==================
