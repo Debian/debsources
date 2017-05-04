@@ -230,7 +230,7 @@ class SourceMirror(object):
             else:
                 return variants[0]
 
-        for root, dirs, files in os.walk(self._dists_dir):
+        for root, dirs, files in os.walk(self._dists_dir, followlinks=True):
             src_bases = set([os.path.join(root, os.path.splitext(file)[0])
                              for file in files
                              if os.path.splitext(file)[0] == 'Sources'])

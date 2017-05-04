@@ -69,7 +69,7 @@ def walk(sources_dir, test=None):
     if test is given then it should be callable predicate; only paths on which
     it returns True will be returned
     """
-    for cwd, dirs, files in os.walk(sources_dir):
+    for cwd, dirs, files in os.walk(sources_dir, followlinks=True):
         cwd_rel = os.path.relpath(cwd, sources_dir)
         depth = len(cwd_rel.split('/'))
         if depth == 3:
@@ -100,7 +100,7 @@ def walk_pkg_files(pkgdir, file_table=None):
             abspath = os.path.join(pkgdir, relpath)
             yield (relpath, abspath)
     else:
-        for root, dirs, files in os.walk(pkgdir):
+        for root, dirs, files in os.walk(pkgdir, followlinks=True):
             for f in files:
                 abspath = os.path.join(root, f)
                 relpath = os.path.relpath(abspath, pkgdir)
