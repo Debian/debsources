@@ -90,6 +90,10 @@ Docker container
 
   Debsources should be up and running in http://localhost:5000
 
+- (optional) Attach terminal to the web container:
+
+  $ docker exec -it docker_debsources_1 /bin/bash
+
 You're ready for Debsources hacking!  How about giving Debsources easy hacks a
 go now?  <http://deb.li/debsrceasy>
 
