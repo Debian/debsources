@@ -39,7 +39,7 @@ class DebsourcesBaseWebTests(DbTestFixture):
 
         # erases a few configuration parameters needed for testing:
         uri = "postgresql:///" + TEST_DB_NAME
-        app_wrapper.app.config["SQLALCHEMY_DATABASE_URI"] = uri
+        app_wrapper.app.config["DB_URI"] = uri
         app_wrapper.app.config['LIST_OFFSET'] = 5
         app_wrapper.app.testing = True
 

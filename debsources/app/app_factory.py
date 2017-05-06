@@ -94,7 +94,7 @@ class AppWrapper(object):
         Creates an engine and a session for SQLAlchemy, using the database URI
         in the configuration.
         """
-        db_uri = self.app.config["SQLALCHEMY_DATABASE_URI"]
+        db_uri = self.app.config["DB_URI"]
         e, s = _get_engine_session(db_uri,
                                    verbose=self.app.config["SQLALCHEMY_ECHO"])
         self.engine, self.session = e, s
