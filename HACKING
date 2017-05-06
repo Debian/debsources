@@ -78,21 +78,21 @@ Docker container
   the Debsources image (may take a while):
 
   $ cd contrib/docker
-  $ docker-compose build --pull
+  $ make build
 
 - Update DB data (may take a while):
 
-  $ docker-compose run debsources /opt/db-update
+  $ make update-db
 
 - Run debsources web app:
 
-  $ docker-compose up
+  $ make run
 
   Debsources should be up and running in http://localhost:5000
 
 - (optional) Attach terminal to the web container:
 
-  $ docker exec -it docker_debsources_1 /bin/bash
+  $ make attach
 
 You're ready for Debsources hacking!  How about giving Debsources easy hacks a
 go now?  <http://deb.li/debsrceasy>
