@@ -1,4 +1,4 @@
-.PHONY:
+.PHONY: build update-db run attach
 
 build:
 	docker-compose build --pull
