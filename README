@@ -44,18 +44,17 @@ Webapp
 Debian packages:
 
 - apache2
+- diffstat
 - libapache2-mod-fcgid (for FastCGI deployment)
 - libapache2-mod-wsgi (for WSGI deployment)
 - libjs-highlight.js
 - libjs-jquery
-- python-apt
 - python-debian
 - python-flask
 - python-flaskext.wtf
 - python-flup (for FastCGI deployment)
 - python-magic
 - tango-icon-theme
-- diffstat
 
 
 Infrastructure
@@ -65,10 +64,11 @@ Infrastructure
 
 Debian packages:
 
-- dpkg-dev
 - debmirror
+- dpkg-dev
 - exuberant-ctags
 - postgresql >= 9.1
+- python-apt
 - python-matplotlib
 - python-psycopg2
 - python-sqlalchemy
