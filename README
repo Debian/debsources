@@ -53,6 +53,7 @@ Debian packages:
 - python-flask
 - python-flaskext.wtf
 - python-flup (for FastCGI deployment)
+- python-lzma
 - python-magic
 - tango-icon-theme
 

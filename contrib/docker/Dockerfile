@@ -27,6 +27,7 @@ RUN apt-get update && \
     diffstat \
     netcat \
     git \
+    python-lzma \
     python-setuptools \
     postgresql-client-9.4
 

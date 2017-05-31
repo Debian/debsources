@@ -12,6 +12,8 @@
 from __future__ import absolute_import
 
 import logging
+import lzma
+import magic
 import os
 
 from debian import deb822
@@ -273,8 +275,21 @@ class SourceMirror(object):
         for cursuite, src_index in self.__find_Sources():
             if suite is not None and cursuite != suite:
                 continue
+
+            # we check the type of the Sources file
+            mime = magic.open(magic.MIME_TYPE)
+            mime.load()
+            type_ = mime.file(src_index)
+            mime.close()
+
             with open(src_index) as i:
-                for pkg in SourcePackage.iter_paragraphs(i):
+                if type_ == 'application/x-xz':
+                    # we need to decompress ourselves xz files
+                    content = lzma.decompress(i.read()).decode('utf-8')
+                else:
+                    content = i
+
+                for pkg in SourcePackage.iter_paragraphs(content):
                     pkg_id = (pkg['package'], pkg['version'])
 
                     if cursuite not in self._suites:
