@@ -115,3 +115,5 @@ if __name__ == '__main__':
     session = Session(bind=db)
 
     main(conf, session, args.fix)
+
+    session.close()

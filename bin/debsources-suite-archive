@@ -47,10 +47,11 @@ def main():
     conf['observers'], conf['file_exts'] = mainlib.load_hooks(conf)
     mainlib.conf_warnings(conf)
 
+    db = sqlalchemy.create_engine(conf['db_uri'], echo=args.verbose >= 4)
+    Session = sqlalchemy.orm.sessionmaker()
+    session = Session(bind=db, autocommit=not conf['single_transaction'])
+
     try:
-        db = sqlalchemy.create_engine(conf['db_uri'], echo=args.verbose >= 4)
-        Session = sqlalchemy.orm.sessionmaker()
-        session = Session(bind=db, autocommit=not conf['single_transaction'])
         archive = debmirror.SourceMirrorArchive(conf['mirror_archive_dir'])
         if args.action == 'add':
             archiver.add_suite(conf, session, args.suite, archive)
@@ -69,6 +70,8 @@ def main():
     except:  # store trace in log, then exit
         logging.exception('unhandled exception. Abort')
         sys.exit(2)
+    finally:
+        session.close()
 
 
 if __name__ == '__main__':

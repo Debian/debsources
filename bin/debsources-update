@@ -49,6 +49,8 @@ def main():
     except:  # store trace in log, then exit
         logging.exception('unhandled exception. Abort')
         sys.exit(2)
+    finally:
+        session.close()
 
 
 if __name__ == '__main__':
