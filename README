@@ -19,14 +19,14 @@ Development
   script that does the above for you)
 
 * for discussions about Debsources please **contact** the
-  [debian-qa mailing list][4] or the `#debian-qa` IRC channel on [OFTC][5]
+  [debian-qa-debsources mailing list][4] or the `#debian-debsources` IRC channel on [OFTC][5]
 
 * opportunities for new contributors (AKA **easy hacks**) are [available][7] as
   well (short URL: <http://deb.li/debsrceasy>)
 
 [1]: http://git-scm.com/
 [2]: https://anonscm.debian.org/gitweb/?p=qa/debsources.git
-[4]: https://lists.debian.org/debian-qa/
+[4]: https://lists.alioth.debian.org/mailman/listinfo/qa-debsources/
 [5]: http://www.oftc.net/
 [6]: https://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=qa.debian.org;tag=debsources
 [7]: https://bugs.debian.org/cgi-bin/pkgreport.cgi?package=qa.debian.org;include=subject:debsources;tag=newcomer
