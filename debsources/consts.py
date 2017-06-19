@@ -97,13 +97,15 @@ DEBIAN_RELEASES = {
                 'date': datetime.date(2013,  5,  4), 'archived': False},
     'jessie':  {'version': '8',
                 'date': datetime.date(2015,  4,  25), 'archived': False},
+    'stretch':  {'version': '9',
+                'date': datetime.date(2017,  6,  17), 'archived': False},
 
 }
 
 SUITES = {
     'release': [  # known releases sorted by release date
         'buzz', 'rex', 'bo', 'hamm', 'slink', 'potato', 'woody', 'sarge',
-        'etch', 'lenny', 'squeeze', 'wheezy', 'jessie', 'stretch', 'sid'
+        'etch', 'lenny', 'squeeze', 'wheezy', 'jessie', 'stretch', 'buster', 'sid'
     ],
     'devel': [],  # known release variants; filled below
     'all': [],	  # all known releases + variants; filled below
