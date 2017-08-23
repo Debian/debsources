@@ -252,8 +252,12 @@ def _rm_package(pkg, conf, session, db_package=None):
         if not conf['dry_run'] and 'fs' in conf['backends']:
             fs_storage.remove_package(pkg, pkgdir)
         if not conf['dry_run'] and 'db' in conf['backends']:
-            with session.begin_nested():
-                db_storage.rm_package(session, pkg, db_package)
+            if not conf['single_transaction']:
+                with session.begin():
+                    db_storage.rm_package(session, pkg, db_package)
+            else:
+                with session.begin_nested():
+                    db_storage.rm_package(session, pkg, db_package)
     except:
         logging.exception('failed to remove %s' % pkg)
 
