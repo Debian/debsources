@@ -22,8 +22,6 @@
 # Driver for update runs, both synchronous (e.g. cmdline) and asynchronous
 # (e.g. cron and pushes)
 
-export PYTHONPATH="/srv/debsources"  # XXX
-
 conffile=`python -c 'from debsources import mainlib; print(mainlib.guess_conffile())'`
 if [ $? -ne 0 ]
 then
