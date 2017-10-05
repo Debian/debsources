@@ -76,8 +76,10 @@ main () {
     fi
     echo $$ > "$lockfile"
 
-    info "update source mirror..."
-    ${bin_dir}/debsources-debian-source-mirror "$conffile" >> $logfile 2>&1
+    if [ "$1" == "with-debmirror" ]; then
+        info "update source mirror..."
+        ${bin_dir}/debsources-debian-source-mirror "$conffile" >> $logfile 2>&1
+    fi
 
     info "debsources-update..."
     # note: debsources-update does his own logging to $logfile
@@ -97,9 +99,12 @@ case "$1" in
 	echo "Updates are now enabled."
 	;;
     update)
-	main
+	main "with-debmirror"
 	;;
+    update-without-debmirror)
+        main "without-debmirror"
+        ;;
     *)
-	echo "Usage: debsources-main { update | enable | disable }"
+	echo "Usage: debsources-main { update | update-without-debmirror | enable | disable }"
 	;;
 esac
