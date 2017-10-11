@@ -83,7 +83,7 @@ main () {
 
     info "debsources-update..."
     # note: debsources-update does his own logging to $logfile
-    sudo -u debsources ${bin_dir}/debsources-update
+    ${bin_dir}/debsources-update
 
     rm -f "$lockfile"
     info "all done at $(date)\n"
