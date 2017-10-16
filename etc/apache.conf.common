@@ -61,7 +61,7 @@
 
 	# # begin: WSGI deployment
 	# WSGIScriptAlias / /srv/debsources/etc/debsources.wsgi
-	# WSGIDaemonProcess debsources python-path=/srv/debsources user=www-data group=www-data threads=8
+	# WSGIDaemonProcess debsources user=www-data group=www-data threads=8
 	# WSGIProcessGroup debsources
 	# WSGIApplicationGroup debsources
 	# # end: WSGI deployment
