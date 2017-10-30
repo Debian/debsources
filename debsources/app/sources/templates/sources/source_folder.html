@@ -10,7 +10,7 @@
 {% block head %}
 {{ super() }}
 <link rel="stylesheet" type="text/css"
-      href="{{ url_for('.static', filename='css/source_folder.css') }}" />
+      href="{{ url_for('static', filename='css/source_folder.css') }}" />
 <script src="{{ url_for('static', filename='javascript/debsources.js') }}"></script>
 {% endblock %}
 
