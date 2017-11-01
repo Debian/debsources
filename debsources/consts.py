@@ -113,13 +113,15 @@ SUITES = {
 SUITE_VARIANTS = ['%s-updates', '%s-proposed-updates', '%s-backports',
                   '%s-lts']
 for s in SUITES['release']:
-    SUITES['all'].append(s)
     for v in SUITE_VARIANTS:
         variant = v % s
-        SUITES['all'].append(variant)
         SUITES['devel'].append(variant)
+
 SUITES['devel'].append('experimental')
-SUITES['all'].append('experimental')
+SUITES['devel'].append('etch-m68k')
+SUITES['devel'].append('jessie-kfreebsd')
+
+SUITES['all'] = SUITES['release'] + SUITES['devel']
 
 DPKG_EXTRACT_UMASK = 0o022
 
