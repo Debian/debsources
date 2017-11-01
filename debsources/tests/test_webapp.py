@@ -355,7 +355,7 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
         # highlight.js present?
         self.assertIn('hljs.highlightBlock', rv.data)
-        self.assertIn('<script src="/javascript/highlight/highlight.min.js">'
+        self.assertIn('<script src="/static/javascript/highlight/highlight.min.js">'
                       '</script>', rv.data)
 
         # content of the file
