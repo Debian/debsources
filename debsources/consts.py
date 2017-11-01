@@ -119,7 +119,10 @@ for s in SUITES['release']:
 
 SUITES['devel'].append('experimental')
 SUITES['devel'].append('etch-m68k')
+SUITES['devel'].append('wheezy-backports-sloppy')
+SUITES['devel'].append('jessie-backports-sloppy')
 SUITES['devel'].append('jessie-kfreebsd')
+SUITES['devel'].append('jessie-kfreebsd-proposed-updates')
 
 SUITES['all'] = SUITES['release'] + SUITES['devel']
 
