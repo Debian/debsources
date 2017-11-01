@@ -164,22 +164,25 @@ var debsources = {
   },
 
   source_folder: function() {
-    document.getElementById("btn_toggle_hidden_files").onclick = function(event) {
-      event.preventDefault();
-      var action = this.getAttribute('data-action');
-      var actionTextElement = document.querySelectorAll("#btn_toggle_hidden_files span")[0];
-      var elements = document.querySelectorAll(".dir-listing tr.hidden_file");
-      for (i = 0; i < elements.length; ++i) {
-	var element = elements[i];
-	if (action == "show") {
-	  element.className = element.className + " visible";
-	  action = "hide";
-	} else {
-	  element.className = element.className.replace(/\bvisible\b/, '');
-	  action = "show";
-	}
-	actionTextElement.innerText = action;
-	this.setAttribute('data-action', action.toLowerCase());
+    var toggleButton = document.getElementById("btn_toggle_hidden_files");
+    if (toggleButton) {
+      toggleButton.onclick = function(event) {
+        event.preventDefault();
+        var action = this.getAttribute('data-action');
+        var actionTextElement = document.querySelectorAll("#btn_toggle_hidden_files span")[0];
+        var elements = document.querySelectorAll(".dir-listing tr.hidden_file");
+        for (i = 0; i < elements.length; ++i) {
+	  var element = elements[i];
+	  if (action == "show") {
+	    element.className = element.className + " visible";
+	    action = "hide";
+	  } else {
+	    element.className = element.className.replace(/\bvisible\b/, '');
+	    action = "show";
+	  }
+	  actionTextElement.innerText = action;
+	  this.setAttribute('data-action', action.toLowerCase());
+        }
       }
     }
   }
