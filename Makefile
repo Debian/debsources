@@ -1,7 +1,7 @@
 NOSE = nosetests
 FLAKE = flake8
 
-SRCDIR = debsources
+SRCDIR = lib/debsources
 BINDIR = bin
 TESTDIR = $(SRCDIR)/tests
 TESTFLAGS = -v

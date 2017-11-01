@@ -28,7 +28,7 @@ before_install:
 before_script:
   - cp etc/config.travis.ini etc/config.ini
   - sed -i 's?TRAVISWD?'`pwd`'?' etc/config.ini
-  - export PYTHONPATH=$PYTHONPATH:$(pwd)/debsources
+  - export PYTHONPATH=$PYTHONPATH:$(pwd)/debsources/lib
   - psql -c 'create database debsources;' -U postgres
   - bin/debsources-dbadmin --createdb postgresql://postgres@localhost/debsources
   - bin/debsources-update -vv

@@ -37,6 +37,6 @@ RUN mkdir /etc/debsources
 ADD config.ini /etc/debsources/
 RUN mkdir /opt/debsources
 
-ENV PYTHONPATH /opt/debsources
+ENV PYTHONPATH /opt/debsources/lib/
 
 EXPOSE 5000

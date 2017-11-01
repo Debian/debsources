@@ -70,7 +70,7 @@
 	# note: ScriptAlias should come *after* other Alias directives, to
 	# avoid shadowing them
 	ScriptAlias / /srv/debsources/etc/debsources.fcgi/
-	FcgidInitialEnv PYTHONPATH "/srv/debsources"
+	FcgidInitialEnv PYTHONPATH "/srv/debsources/lib"
 	FcgidProcessLifeTime 3600
 	FcgidMaxRequestsPerProcess 1000
 	# end: FastCGI deployment
