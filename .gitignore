@@ -1,7 +1,8 @@
 backup
 cache
 local
-/sources
+sources
+debian-archive
 *.pyc
 etc/config.local.ini
 .coverage
