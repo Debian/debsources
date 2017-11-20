@@ -55,7 +55,7 @@ LOG_LEVELS = {  # XXX module logging has no built-in way to do this conversion
     'critical': logging.CRITICAL,
 }
 
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 PROBABLE_CONF_FILES = [
     os.path.join(ROOT_DIR, 'etc', 'config.local.ini'),
