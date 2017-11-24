@@ -273,11 +273,12 @@ class SourceMirror(object):
         self._packages = set()
 
         for cursuite, src_index in self.__find_Sources():
+            logging.info('Dealing sources file {}'.format(src_index)
             if suite is not None and cursuite != suite:
                 continue
 
             # we check the type of the Sources file
-            mime = magic.open(magic.MIME_TYPE)
+            mime = magic.open(magic.MIME_TYPE + magic.SYMLINK)
             mime.load()
             type_ = mime.file(src_index)
             mime.close()
