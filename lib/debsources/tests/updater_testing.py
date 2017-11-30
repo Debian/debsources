@@ -25,7 +25,7 @@ def mk_conf(tmpdir):
 
     """
     conf = {
-        'bin_dir': abspath(os.path.join(TEST_DIR, '../../bin')),
+        'bin_dir': abspath(os.path.join(TEST_DIR, '../../../bin')),
         'cache_dir': os.path.join(tmpdir, 'cache'),
         'db_uri': 'postgresql:///' + TEST_DB_NAME,
         'single_transaction': 'true',
