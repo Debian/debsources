@@ -187,4 +187,6 @@ class PatchView(GeneralView):
                     version=version,
                     nlines=sourcefile.get_number_of_lines(),
                     file_language='diff',
-                    code=sourcefile)
+                    raw_url=loc.get_raw_url(),
+                    code=sourcefile,
+                    path_to=path_to)

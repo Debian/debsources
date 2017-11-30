@@ -1,0 +1,16 @@
+<table id="file_metadata">
+  <tr>
+    <td>
+    file content ({{ nlines }} line{% if nlines > 1 %}s{% endif %})
+    | stat: {{ stat.type }}{{ stat.perms }} {{ "{:,d}".format(stat.size) }} byte{% if stat.size > 1 %}s{% endif %}
+    </td>
+    <td style="text-align: right;">
+    <a id="link_parent_folder" href="{{ url_for('.source', path_to='/'.join(path.split('/')[:-1])) }}">parent folder</a>
+    | <a id="link_download" href="{{ raw_url }}">download</a>
+    {% if number_of_duplicates > 1 %}
+    | <a id="link_duplicates" href="{{ url_for('.checksum', checksum=checksum, page=1) }}">
+	  duplicates ({{ number_of_duplicates }})</a>
+    {% endif %}
+    </td>
+  </tr>
+</table>
