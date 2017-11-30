@@ -338,10 +338,7 @@ class ChecksumView(GeneralView):
         """
         Returns the files whose checksum corresponds to the one given.
         """
-        try:
-            page = int(request.args.get("page"))
-        except:
-            page = 1
+        page = request.args.get("page", 1, type=int)
         checksum = request.args.get("checksum")
         package = request.args.get("package") or None
 

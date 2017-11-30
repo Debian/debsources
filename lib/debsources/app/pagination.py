@@ -19,10 +19,11 @@ from six.moves import range
 
 
 class Pagination(object):
-    def __init__(self, page, per_page, total_count):
+    def __init__(self, page, per_page, total_count, page_path_params=None):
         self.page = page
         self.per_page = per_page
         self.total_count = total_count
+        self.page_path_params = page_path_params
 
     @property
     def pages(self):
