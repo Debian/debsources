@@ -130,7 +130,8 @@ bp_patches.add_url_rule(
     view_func=SummaryView.as_view(
         'summary',
         render_func=bind_render('patches/summary.html'),
-        err_func=ErrorHandler('patches')))
+        err_func=ErrorHandler('patches'),
+        pagination=True))
 
 # api
 bp_patches.add_url_rule(

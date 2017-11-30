@@ -19,6 +19,7 @@ from debsources.excepts import (Http404ErrorSuggestions, FileOrFolderNotFound,
                                 InvalidPackageOrVersionError, Http404Error)
 import debsources.query as qry
 from ..sourcecode import SourceCodeIterator
+from ..pagination import Pagination
 from . import patches_helper as helper
 
 
@@ -112,6 +113,7 @@ class SummaryView(GeneralView):
         return patches_info
 
     def get_objects(self, packagename, version):
+        page = request.args.get("page", 1, type=int)
         path_to = packagename + '/' + version
 
         try:
@@ -130,6 +132,7 @@ class SummaryView(GeneralView):
                         version=version,
                         path=path_to,
                         format=format_file,
+                        pagination=None,
                         patches=[],
                         supported=False)
 
@@ -142,15 +145,24 @@ class SummaryView(GeneralView):
                         version=version,
                         path=path_to,
                         format=format_file,
+                        pagination=None,
                         patches=[],
                         supported=True)
 
+        count = len(series)
+        offset = int(current_app.config.get("LIST_OFFSET") or 60)
+        start = (page - 1) * offset
+        end = start + offset
+        pagination = Pagination(
+            page, offset, count,
+            {'packagename': packagename, 'version': version})
         info = self.parse_patch_series(session, packagename, version,
-                                       current_app.config, series)
+                                       current_app.config, series[start:end])
         if 'api' in request.endpoint:
             return dict(package=packagename,
                         version=version,
                         format=format_file,
+                        count=count,
                         patches=[key.rstrip() for key in info.keys()])
         return dict(package=packagename,
                     version=version,
@@ -158,7 +170,8 @@ class SummaryView(GeneralView):
                     format=format_file,
                     series=info.keys(),
                     patches=info,
-                    supported=True)
+                    supported=True,
+                    pagination=pagination)
 
 
 class PatchView(GeneralView):

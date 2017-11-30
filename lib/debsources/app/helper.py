@@ -56,12 +56,14 @@ def format_big_num(num):
     return res
 
 
-def url_for_other_page(page):
+def url_for_other_page(page, page_path_params=None):
     """
     wrapper function of url_for, used for pagination.
     """
     args = dict(request.args.copy())
     args['page'] = page
+    if page_path_params:
+        args.update(page_path_params)
     return url_for(request.endpoint, **args)
 
 
