@@ -13,7 +13,7 @@
         href="{{ url_for('static', filename='css/source_file.css') }}" />
   <link rel="stylesheet"
         href="{{ config.HIGHLIGHT_JS_FOLDER }}/styles/{{ config.HIGHLIGHT_STYLE }}.css">
-  <script src="{{ config.HIGHLIGHT_JS_FOLDER }}/highlight.min.js"></script> 
+  <script src="{{ config.HIGHLIGHT_JS_FOLDER }}/highlight.min.js"></script>
 {% endblock %}
 {% block breadcrumbs %} <a href='{{ url_for(".index") }}'>Patches</a> / Patch / <a href="{{ url_for('.versions', packagename=package) }}">{{ package }}</a> / <a href="{{ url_for('.summary', packagename=package, version=version) }}">{{ version }}</a>
 {% endblock %}
@@ -21,6 +21,17 @@
 {% block content %}
 <h2>{{ self.title() }} / {{ version }}</h2>
 
+<table id="file_metadata">
+  <tr>
+    <td>
+    {{ path_to }}
+    </td>
+    <td style="text-align: right;">
+    <a id="link_parent_folder" href="{{ url_for('.summary', packagename=package, version=version) }}">Patch series</a>
+    | <a id="link_download" href="{{ raw_url }}">download</a>
+    </td>
+  </tr>
+</table>
 {% include "source_file_code.inc.html" %}
 <script type="text/javascript">
   debsources.source_file();
