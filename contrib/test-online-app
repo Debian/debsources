@@ -4,7 +4,7 @@ set -e
 # Checks that the webapp doesn't return http error codes
 
 CURL="curl -f -I"
-SERVER="http://sources.debian.net"
+SERVER="https://sources.debian.org"
 
 PATHS=( "/"
 "/prefix/libc/" 
@@ -24,4 +24,4 @@ do
     $CURL $SERVER$path
 done
 
-echo | openssl s_client -connect sources.debian.net:443 2>/dev/null | openssl x509 -noout -dates
+echo | openssl s_client -connect sources.debian.org:443 2>/dev/null | openssl x509 -noout -dates

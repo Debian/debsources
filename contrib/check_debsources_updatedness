@@ -12,7 +12,7 @@ from email.mime.text import MIMEText
 from email.utils import parsedate_to_datetime as parsedate
 
 
-DEBSOURCES_URL = 'http://sources.debian.net'
+DEBSOURCES_URL = 'https://sources.debian.org'
 MAX_LAG = timedelta(days=1)
 # MAX_LAG = timedelta(hours=6)
 
@@ -39,7 +39,7 @@ def main():
 
     now = datetime.now()
     if last_update + MAX_LAG < now:
-        notify('http://sources.debian.net is out of date by %s'
+        notify('https://sources.debian.org is out of date by %s'
                ' and max lag is %s'
                % (now - last_update, MAX_LAG))
 
