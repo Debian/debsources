@@ -1,4 +1,4 @@
-# Copyright (C) 2015  The Debsources developers <info@sources.debian.net>.
+# Copyright (C) 2015  The Debsources developers <qa-debsources@lists.alioth.debian.org>.
 # See the AUTHORS file at the top-level directory of this distribution and at
 # https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
 #
