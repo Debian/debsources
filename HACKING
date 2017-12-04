@@ -42,7 +42,7 @@ Local Debsources deployment
   https://sqlalchemy.readthedocs.org/en/latest/core/engines.html#database-urls for
   details on how to connect to remote databases.
 
-- $ cp doc/examples/sample-config.local.ini etc/config.local.ini
+- $ cp etc/config.ini etc/config.local.ini
 
   (when etc/config.local.ini, debsources will ignore etc/config.ini, and use
   the ".local." variant as its main configuration file)
