@@ -58,9 +58,13 @@ making Debsources feel part of the broader Debian ecosystem:
 Thank you!
 
 
-sources.debian.net
+sources.debian.org
 ------------------
 
-The instance of Debsources available at https://sources.debian.net (indexing the
-main Debian archive) is currently hosted at [IRILL](https://www.irill.org/) who
-has kindly offered server, bandwidth, and physical space for it. Thanks!
+The instance of Debsources available at https://sources.debian.org
+(indexing the main Debian archive) is currently hosted on Debian
+hardware and managed by DSA. Thanks!
+
+Previously, this instance was available on https://sources.debian.net
+at [IRILL](https://www.irill.org/) who has kindly offered server,
+bandwidth, and physical space for it. Thanks!
