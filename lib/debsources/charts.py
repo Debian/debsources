@@ -176,10 +176,12 @@ def bar_chart(items_per_suite, suites, fname, N, y_label):
     # Add the rest of the languages
     for i in range(1, len(keys)):
         c, t = next(styles)
+        bottom = bottom_sum(important[0:i], len(suites))
+        bottom = map(lambda x: int(x), bottom) # converts sqlalchemy's Decimal to int
+
         bar_charts.append(plt.bar(ind, important[i], width,
                                   color=c, hatch=t,
-                                  bottom=bottom_sum(important[0:i],
-                                                    len(suites))))
+                                  bottom=bottom))
 
     plt.ylabel(y_label)
     plt.xticks(ind + width / 2., (suites), rotation=75)
