@@ -81,8 +81,7 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
     def test_common_licenses_link(self):
         rv = self.app.get('/copyright/license/gnubg/1.02.000-2/')
-        self.assertIn("http://sources.debian.net/src/base-files/"
-                      "latest/licenses/GFDL-1.3", rv.data)
+        self.assertIn("/src/base-files/latest/licenses/GFDL-1.3", rv.data)
 
     def test_api_checksum(self):
         rv = json.loads(self.app.get(

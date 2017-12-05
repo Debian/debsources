@@ -3,8 +3,8 @@
     {%- if '/usr/share/common-licenses/' in comment %}
         {%- for word in comment.split() %}
             {%- if '/usr/share/common-licenses/' in word %}
-                {%- set path_dict = word.split('/usr/share/common-licenses/') %}
-                {%- set comment = comment|replace(word, "<a href='http://sources.debian.net/src/base-files/latest/licenses/" + path_dict[1] + "'>" + word + "</a>" ) %}
+                {%- set url = url_for('sources.source', path_to='base-files/latest/licenses/'+ word.split('/usr/share/common-licenses/')[1])%}
+                {%- set comment = comment|replace(word, "<a href="+ url +">" + word + "</a>" ) %}
             {{comment|safe}}
             {%- endif %}
         {%- endfor %}
