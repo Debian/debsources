@@ -150,6 +150,15 @@ class PatchesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertListEqual(patches, rv['patches'])
         self.assertEqual(rv['format'], "3.0 (quilt)")
 
+    def test_pagination(self):
+        base_url = '/patches/gnubg/1.02.000-2/'
+        rv = self.app.get(base_url + '?page=2')
+        self.assertIn('<a href=\"' + base_url + '?page=1\">&laquo; Previous</a>',
+                      rv.data)
+        rv = self.app.get(base_url + '?page=1')
+        self.assertNotIn('<a href=' + base_url + '?page=2>Next &raquo;</a>',
+                         rv.data)
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)
