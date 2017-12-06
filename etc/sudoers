@@ -1,2 +1,0 @@
-Defaults!/srv/debsources/bin/debsources-update env_keep=PYTHONPATH
-debian-mirror ALL = (debsources) NOPASSWD: /srv/debsources/bin/debsources-update
