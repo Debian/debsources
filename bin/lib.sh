@@ -1,6 +1,6 @@
 # Copyright (C) 2011-2013  The Debsources developers <qa-debsources@lists.alioth.debian.org>.
 # See the AUTHORS file at the top-level directory of this distribution and at
-# https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=AUTHORS;hb=HEAD
+# https://salsa.debian.org/qa/debsources/blob/master/AUTHORS
 #
 # This file is part of Debsources.
 #

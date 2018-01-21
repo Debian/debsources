@@ -10,7 +10,9 @@ Local Debsources deployment
 
 - clone the Debsources Git repository:
 
-  $ git clone https://anonscm.debian.org/git/qa/debsources.git
+  $ git clone https://salsa.debian.org/qa/debsources.git
+or
+  $ git clone git@salsa.debian.org:qa/debsources.git
 
 - ensure the Python interpreter can find Debsources' Python modules:
 

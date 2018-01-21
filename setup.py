@@ -40,6 +40,6 @@ setup(
     long_description=long_description,
     description=description,
     license="AGPL3+",
-    url="https://anonscm.debian.org/gitweb/?p=qa/debsources.git",
+    url="https://salsa.debian.org/qa/debsources",
     platforms=['any'],
 )

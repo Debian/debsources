@@ -9,7 +9,7 @@ my $LICENSE = <<EOT;
 # Public License as published by the Free Software Foundation, either version 3
 # of the License, or (at your option) any later version.  For more information
 # see the COPYING file at the top-level directory of this distribution and at
-# https://anonscm.debian.org/gitweb/?p=qa/debsources.git;a=blob;f=COPYING;hb=HEAD
+# https://salsa.debian.org/qa/debsources/blob/master/COPYING
 EOT
 
 while (my $l = <>) {  # before (C) block: verbatim copy

@@ -3,7 +3,8 @@ Development
 
 * **source code** is available using [Git][1]:
 
-        $ git clone git://anonscm.debian.org/qa/debsources.git
+        $ git clone https://salsa.debian.org/qa/debsources.git
+     or $ git clone git@salsa.debian.org:qa/debsources.git
 
   and browsable [on the Web][2].
 
@@ -25,7 +26,7 @@ Development
   well (short URL: <http://deb.li/debsrceasy>)
 
 [1]: http://git-scm.com/
-[2]: https://anonscm.debian.org/gitweb/?p=qa/debsources.git
+[2]: https://salsa.debian.org/qa/debsources
 [4]: https://lists.alioth.debian.org/mailman/listinfo/qa-debsources/
 [5]: http://www.oftc.net/
 [6]: https://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=qa.debian.org;tag=debsources
