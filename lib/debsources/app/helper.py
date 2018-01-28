@@ -106,12 +106,8 @@ def handle_latest_version(endpoint, package, path):
     when 'latest' is provided instead of a version number
     """
 
-    suite_order = consts.SUITES['all']
-
     try:
-        versions = qry.pkg_names_list_versions(session,
-                                               package,
-                                               suite_order=suite_order)
+        versions = qry.pkg_names_list_versions(session, package)
 
     except InvalidPackageOrVersionError:
         raise Http404Error("%s not found" % package)
