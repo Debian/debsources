@@ -683,11 +683,9 @@ def update_charts(status, conf, session, suites=None):
         all_suites = statistics.sticky_suites(session) \
             + __target_suites(session, None)
         licenses_per_suite = []
-        results = statistics.get_licenses(session)
         for suite in all_suites:
-            temp = dict((item[0], item[2]) for item in results
-                        if item[1] == suite)
-            licenses = statistics.licenses_summary(temp)
+            licenses = statistics.licenses_summary(
+                statistics.get_licenses(session, suite))
             ratio = qry.get_ratio(session, suite=suite)
             # draw license pie chart
             if not conf['dry_run']:
