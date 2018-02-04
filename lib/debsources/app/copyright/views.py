@@ -298,11 +298,14 @@ class StatsView(GeneralView):
 
         licenses = [license.replace('overall.', '') for license in res.keys()
                     if 'overall.' in license]
-        all_suites = [suite for suite in
-                      statistics.suites(session, suites='all')]
-        all_suites = all_suites[all_suites.index('squeeze'):]
+
+        release_suites = [x for x in
+                          statistics.suites(session, suites='release')]
+        devel_suites = [x for x in statistics.suites(session, suites='devel')]
+
         return dict(results=res,
                     licenses=sorted(licenses),
                     dual_results=dual_res,
                     dual_licenses=sorted(dual_licenses),
-                    suites=all_suites)
+                    release_suites=release_suites,
+                    devel_suites=devel_suites)

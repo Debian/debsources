@@ -66,23 +66,31 @@
       </a>
   </span>
 
-<table class='stats'>
-  <tr class="head">
-    <th></th>
-    {% for suite in suites %}
-      <th><a href="{{ url_for('.stats_suite', suite=suite) }}">{{ suite }}</a></th>
-    {% endfor %}
-  </tr>
-  {% for license in licenses %}
-  <tr>
-    <th>{{ license.replace('_', ' ') }}</th>
+  {% macro license_table(suites) -%}
+  <table class='stats'>
+    <tr class="head">
+      <th></th>
       {% for suite in suites %}
-        <td>{{ results[suite + "." + license]  or 0 | format_big_num}}</td>
+        <th><a href="{{ url_for('.stats_suite', suite=suite) }}">{{ suite }}</a></th>
       {% endfor %}
-  </tr>
-  {% endfor %}
-</table>
+    </tr>
+    {% for license in licenses %}
+    <tr>
+      <th>{{ license.replace('_', ' ') }}</th>
+        {% for suite in suites %}
+          <td>{{ results[suite + "." + license]  or 0 | format_big_num}}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+  {% endmacro -%}
 </div>
+
+<h4><a name="size_cur_releases" />Releases</h4>
+{{ license_table(release_suites) }}
+
+<h4><a name="size_cur_devel" />Development suites</h4>
+{{ license_table(devel_suites) }}
 
 
 {% import "copyright/stats_trends.inc.html" as stats_trends %}
