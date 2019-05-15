@@ -94,7 +94,7 @@ DEBIAN_RELEASES = {
     'squeeze': {'version': '6.0',
                 'date': datetime.date(2011,  2,  6), 'archived': True},
     'wheezy':  {'version': '7',
-                'date': datetime.date(2013,  5,  4), 'archived': False},
+                'date': datetime.date(2013,  5,  4), 'archived': True},
     'jessie':  {'version': '8',
                 'date': datetime.date(2015,  4,  25), 'archived': False},
     'stretch':  {'version': '9',
