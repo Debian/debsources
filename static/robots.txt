@@ -1,1 +1,0 @@
-../lib/debsources/app/static/robots.txt
