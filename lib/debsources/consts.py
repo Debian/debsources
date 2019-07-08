@@ -96,7 +96,7 @@ DEBIAN_RELEASES = {
     'wheezy':  {'version': '7',
                 'date': datetime.date(2013,  5,  4), 'archived': True},
     'jessie':  {'version': '8',
-                'date': datetime.date(2015,  4,  25), 'archived': False},
+                'date': datetime.date(2015,  4,  25), 'archived': True},
     'stretch':  {'version': '9',
                  'date': datetime.date(2017,  6,  17), 'archived': False},
     'buster':  {'version': '10',
