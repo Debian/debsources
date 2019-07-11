@@ -1,4 +1,4 @@
 # When a new Debian release is out
 
 * update debsources/consts.txt
-* archive oldoldstable
+* archive oldoldstable (see doc/archiving-a-suite.txt)
