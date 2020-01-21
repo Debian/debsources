@@ -10,7 +10,6 @@ RUN apt-get update && \
     libjs-highlight \
     python-debian \
     python-flask \
-    python-flup \
     python-magic \
     tango-icon-theme \
     debmirror \
