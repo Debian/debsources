@@ -340,7 +340,7 @@ def get_files_by_checksum(session, checksum, package=None, suite=None):
         results = (results.filter(Suite.suite == suite)
                    .filter(Suite.package_id == Checksum.package_id))
 
-    return results.order_by("package", "version", "path")
+    return results.order_by(PackageName.name, Package.version, File.path)
 
 
 def get_files_by_path_package(session, path, package, version=None):
@@ -360,7 +360,7 @@ def get_files_by_path_package(session, path, package, version=None):
     if version is not None and version is not "":
         results = results.filter(Package.version == version)
 
-    return results.order_by("package", "version", "path")
+    return results.order_by(PackageName.name, Package.version, File.path)
 
 
 def get_pkg_filter_prefix(session, prefix, suite=None):
