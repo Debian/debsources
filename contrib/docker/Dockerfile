@@ -7,20 +7,20 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && \
     apt-get install -y \
     libjs-jquery \
-    libjs-highlight \
-    python-debian \
-    python-flask \
-    python-magic \
+    libjs-highlight.js \
+    python3-debian \
+    python3-flask \
+    python3-magic \
     tango-icon-theme \
     debmirror \
     exuberant-ctags \
-    python-matplotlib \
-    python-psycopg2 \
-    python-sqlalchemy \
+    python3-matplotlib \
+    python3-psycopg2 \
+    python3-sqlalchemy \
     sloccount \
-    python-nose \
-    python-nose2-cov \
-    python-flaskext.wtf \
+    python3-nose \
+    python3-nose2-cov \
+    python3-flaskext.wtf \
     dpkg-dev \
     diffstat \
     netcat \
