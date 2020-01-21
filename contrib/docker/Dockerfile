@@ -25,7 +25,6 @@ RUN apt-get update && \
     diffstat \
     netcat \
     git \
-    python-setuptools \
     postgresql-client
 
 # SETUP
