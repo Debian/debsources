@@ -93,10 +93,11 @@ def get_sources_path(session, package, version, config):
 
 
 def parse_license(sources_path):
-    required_fields = ['Format:', 'Files:', 'Copyright:', 'License:']
-    d_file = open(sources_path).read()
-    if not all(field in d_file for field in required_fields):
-        raise copyright.NotMachineReadableError
+    required_fields = [b'Format:', b'Files:', b'Copyright:', b'License:']
+    with open(sources_path, 'rb') as f:
+        d_file = f.read()
+        if not all(field in d_file for field in required_fields):
+            raise copyright.NotMachineReadableError
     with io.open(sources_path, mode='rt', encoding='utf-8') as f:
         return copyright.Copyright(f)
 

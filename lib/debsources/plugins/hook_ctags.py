@@ -85,12 +85,12 @@ def parse_ctags(path):
         assert len(tag['tag']) <= MAX_KEY_LENGTH
         return tag
 
-    with open(path) as ctags:
+    with open(path, 'rb') as ctags:
         bad_tags = 0
         for line in ctags:
             # e.g. 'music\tsound.c\t13;"\tkind:v\tline:13\tlanguage:C\tfile:\n'
             # see CTAGS(1), section "TAG FILE FORMAT"
-            if line.startswith('!_TAG'):  # skip ctags metadata
+            if line.startswith(b'!_TAG'):  # skip ctags metadata
                 continue
             try:
                 yield parse_tag(line)
