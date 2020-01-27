@@ -149,8 +149,9 @@ class SourcePackage(deb822.Sources):
             raise ValueError('cannot list components of source package: %s'
                              % self)
 
-        dsc = filter(lambda f: f['name'].endswith('.dsc'),
-                     self[files_field])[0]['name']
+        dsc = next(filter(
+            lambda f: f['name'].endswith('.dsc'),
+            self[files_field]))['name']
         return os.path.join(self['x-debsources-mirror-root'],
                             self['directory'], dsc)
 

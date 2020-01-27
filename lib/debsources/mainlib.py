@@ -14,7 +14,6 @@ from __future__ import absolute_import
 import importlib
 import logging
 import os
-import string
 from collections import defaultdict
 
 from debian import deb822
@@ -34,7 +33,7 @@ DEFAULT_CONFIG.update({
         'stages':      'extract suites gc stats cache charts',
         'log_level':   'info',
         'expire_days': '0',
-        'force_triggers': [],
+        'force_triggers': '',  # space-separated list
         'single_transaction': 'true',
         },
     'webapp': {
@@ -101,6 +100,8 @@ def parse_conf_infra(items):
         elif key == 'dry_run':
             assert value in ['true', 'false']
             value = (value == 'true')
+        elif key == 'force_triggers':
+            value = value.split(' ')
         elif key == 'hooks':
             value = value.split()
         elif key == 'log_level':
@@ -210,10 +211,11 @@ def add_arguments(cmdline):
                          'times. Warning: if not used with "--backend none" '
                          'it might lead to multiple execution of the same '
                          'hook. E.g.: -t add-package/checksums' %
-                         string.join(updater.KNOWN_EVENTS, ', '),
+                         ', '.join(updater.KNOWN_EVENTS),
                          dest='force_triggers')
     cmdline.add_argument('--verbose', '-v',
                          action='count',
+                         default=0,
                          help='increase console verbosity')
 
 

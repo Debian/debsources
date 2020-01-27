@@ -73,12 +73,11 @@ def multiseries_plot(multiseries, fname, cols=7):
     plt.figure()
     plt.yscale('log')
 
-    def by_value((x1, y1), (x2, y2)):
-        return cmp(y1, y2)
-
     styles = cycle(LINE_STYLES)
-    for name, series in sorted(six.iteritems(multiseries),
-                               cmp=by_value, reverse=True):
+    for name, series in sorted(
+            six.iteritems(multiseries),
+            key=lambda x: x[1],  # by value
+            reverse=True):
         ts, values = _split_series(series)
         if any(values):
             plt.plot(ts, values, next(styles), label=name)

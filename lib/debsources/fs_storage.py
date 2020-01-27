@@ -90,11 +90,11 @@ def walk_pkg_files(pkgdir, file_table=None):
 
     """
     if isinstance(pkgdir, six.text_type):
-        # dumb down pkgdir to byte string. Whereas pkgdir comes from Sources
-        # and hence is ASCII clean, the paths that os.walk() will encounter
-        # might not even be UTF-8 clean. Using str() we ensure that path
-        # operations will happen between raw strings, avoding encoding issues.
-        pkgdir = str(pkgdir)
+        # dumb down pkgdir to bytes. Whereas pkgdir comes from Sources and
+        # hence is ASCII clean, the paths that os.walk() will encounter might
+        # not even be UTF-8 clean. Using .encode() we ensure that path
+        # operations will happen between bytes, avoding encoding issues.
+        pkgdir = pkgdir.encode('utf8')
     if file_table:
         for relpath in six.iterkeys(file_table):
             abspath = os.path.join(pkgdir, relpath)

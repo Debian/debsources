@@ -9,18 +9,11 @@
 # see the COPYING file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
-from __future__ import absolute_import
-from __future__ import division
 
 import glob
 import logging
 import os
-import string
 import subprocess
-
-import six
-from six.moves import map
-from six.moves import range
 
 from datetime import datetime
 from email.utils import formatdate
@@ -38,13 +31,13 @@ from debsources.models import SuiteInfo, Suite, SuiteAlias, Package, \
 from debsources.subprocess_workaround import subprocess_setup
 
 KNOWN_EVENTS = ['add-package', 'rm-package']
-NO_OBSERVERS = dict([(e, []) for e in KNOWN_EVENTS])
+NO_OBSERVERS = {e: [] for e in KNOWN_EVENTS}
 
 # maximum number of pending rows before performing a (bulk) insert
 BULK_FLUSH_THRESHOLD = 50000
 
 
-class UpdateStatus(object):
+class UpdateStatus:
     """store update status during update runs"""
 
     def __init__(self):
@@ -101,7 +94,7 @@ def notify(conf, event, session, pkg, pkgdir, file_table=None):
     package version
 
     """
-    logging.debug('notify %s for %s' % (event, pkg))
+    logging.debug('notify {} for {}'.format(event, pkg))
     package, version = pkg['package'], pkg['version']
     cmd = ['run-parts', '--exit-on-error',
            '--arg', pkgdir,
@@ -140,7 +133,7 @@ def notify_plugins(observers, event, session, pkg, pkgdir,
                 if not dry:
                     action(session, pkg, pkgdir, file_table)
         except:
-            logging.error('plugin hooks for %s on %s failed' % (event, pkg))
+            logging.error('plugin hooks for {} on {} failed'.format(event, pkg))
             raise
 
 
@@ -370,7 +363,7 @@ def update_suites(status, conf, session, mirror):
     if not conf['dry_run'] and 'db' in conf['backends']:
         session.query(SuiteAlias).delete()
 
-    for (suite, pkgs) in six.iteritems(mirror.suites):
+    for (suite, pkgs) in mirror.suites.items():
         if not conf['dry_run'] and 'db' in conf['backends']:
             session.query(Suite).filter_by(suite=suite).delete()
         for pkg_id in pkgs:
@@ -410,11 +403,11 @@ def update_suites(status, conf, session, mirror):
     # update sources.txt, now that we know the suite mappings
     src_list_path = os.path.join(conf['cache_dir'], 'sources.txt')
     with open(src_list_path + '.new', 'w') as src_list:
-        for pkg_id, src_entry in six.iteritems(status.sources):
+        for pkg_id, src_entry in status.sources.items():
             fields = list(pkg_id)
             fields.extend(src_entry[:-1])  # all except suites
-            fields.append(string.join(src_entry[-1], ','))
-            src_list.write(string.join(fields, '\t') + '\n')
+            fields.append(','.join(src_entry[-1]))
+            src_list.write('\t'.join(fields) + '\n')
     os.rename(src_list_path + '.new', src_list_path)
 
 
@@ -483,8 +476,8 @@ def update_statistics(status, conf, session, suites=None):
 
     # Update HistorySize
     suite_key = 'debian_'
-    hist_siz = dict((suite, HistorySize(suite, timestamp=now))
-                    for suite in suites)
+    hist_siz = {suite: HistorySize(suite, timestamp=now)
+                    for suite in suites}
     for stat in ['disk_usage', 'source_packages', 'source_files', 'ctags']:
         stats_result = statistics.stats_grouped_by(session, stat)
         for res in stats_result:
@@ -498,11 +491,11 @@ def update_statistics(status, conf, session, suites=None):
 
     # update historySlocCount
     sloccount_res = statistics.stats_grouped_by(session, 'sloccount')
-    hist_loc = dict((suite, HistorySlocCount(suite, timestamp=now))
-                    for suite in suites)
+    hist_loc = {suite: HistorySlocCount(suite, timestamp=now)
+                    for suite in suites}
     for suite in suites:
-        temp = dict((item[1], item[2]) for item in sloccount_res
-                    if item[0] == suite)
+        temp = {item[1]: item[2] for item in sloccount_res
+                    if item[0] == suite}
         store_sloccount_stats(dict(temp), stats,
                               suite_key + suite + ".sloccount",
                               hist_loc[suite])
@@ -526,12 +519,12 @@ def update_statistics(status, conf, session, suites=None):
         license_stats = dict()
         license_d_stats = dict()
 
-        hist_lic = dict((suite, HistoryCopyright(suite, timestamp=now))
-                        for suite in suites)
+        hist_lic = {suite: HistoryCopyright(suite, timestamp=now)
+                        for suite in suites}
         results = statistics.get_licenses(session)
         for suite in suites:
-            temp = dict((item[0], item[2]) for item in results
-                        if item[1] == suite)
+            temp = {item[0]: item[2] for item in results
+                        if item[1] == suite}
             summary = statistics.licenses_summary(temp)
             for res in summary:
                 license_stats[suite + "." + res.rstrip()] = summary[res]
