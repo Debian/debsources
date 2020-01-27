@@ -110,9 +110,12 @@ DB_COMPARE_QUERIES = {
 
 
 def pg_restore(dbname, dumpfile):
-    subprocess.check_call(['pg_restore', '--no-owner', '--no-privileges',
-                           '--dbname', dbname, dumpfile],
-                          preexec_fn=subprocess_setup)
+    subprocess.check_call(
+        ['pg_restore', '--no-owner', '--no-privileges',
+         '--dbname', dbname, '--clean', '--if-exists', dumpfile],
+        # --clean and --if-exists are there to prevent the error "schema public
+        # already exists"
+        preexec_fn=subprocess_setup)
 
 
 def pg_dump(dbname, dumpfile):
