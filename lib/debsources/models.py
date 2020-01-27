@@ -342,6 +342,7 @@ class HistorySlocCount(Base):
     lang_fortran = Column(BIGINT, nullable=True)
     lang_haskell = Column(BIGINT, nullable=True)
     lang_java = Column(BIGINT, nullable=True)
+    lang_javascript = Column(BIGINT, nullable=True)
     lang_jsp = Column(BIGINT, nullable=True)
     lang_lex = Column(BIGINT, nullable=True)
     lang_lisp = Column(BIGINT, nullable=True)

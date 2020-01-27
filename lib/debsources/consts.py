@@ -36,8 +36,8 @@ SLOCCOUNT_LANGUAGES = (
     "modula3", "objc", "pascal", "perl", "php", "python",
     "ruby", "sed", "sql", "tcl", "yacc",
 
-    # enhancements from Debian patches, version 2.26-5
-    "erlang", "jsp", "vhdl", "xml",
+    # enhancements from Debian patches, version 2.26-5.2
+    "erlang", "jsp", "vhdl", "xml", "javascript"
 )
 
 # this list should be kept in sync with languages supported by (exuberant)
