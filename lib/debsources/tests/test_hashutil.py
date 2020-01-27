@@ -17,7 +17,7 @@ import unittest
 from nose.tools import istest
 from nose.plugins.attrib import attr
 
-from debsources.hashutil import sha1sum, sha256sum
+from debsources.hashutil import sha256sum
 from debsources.tests.testdata import TEST_DATA_DIR
 
 
@@ -28,12 +28,6 @@ def make_path(path):
 @attr('hashutil')
 class HashutilTests(unittest.TestCase):
     """ Unit tests for debsources.hashutil """
-
-    @istest
-    def assertSha1Sum(self):
-        self.assertEqual(
-            sha1sum(make_path('main/libc/libcaca/0.99.beta18-1/COPYING')),
-            'b57075f60950289e0f32be3145b74b7b17e6e5c5')
 
     @istest
     def assertSha256Sum(self):
