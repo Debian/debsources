@@ -101,7 +101,7 @@ def parse_conf_infra(items):
             assert value in ['true', 'false']
             value = (value == 'true')
         elif key == 'force_triggers':
-            value = value.split(' ')
+            value = value.split()
         elif key == 'hooks':
             value = value.split()
         elif key == 'log_level':
