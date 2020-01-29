@@ -63,15 +63,18 @@ def parse_ctags(path):
         tag = {'kind': None, 'line': None, 'language': None}
         # initialize with extension fields which are not guaranteed to exist
 
-        fields = line.rstrip().split('\t')
-        # will fail when encountering encoding
-        # issues; that is intended
-        tag['tag'] = fields[0].decode()
+        fields = line.rstrip().split(b'\t')
+
+        try:
+            tag['tag'] = fields[0].decode()
+        except UnicodeDecodeError:
+            raise ValueError('Tag can not be decoded to utf-8.')
         tag['path'] = fields[1]
         # note: ignore fields[2], ex_cmd
 
         for ext in fields[3:]:  # parse extension fields
-            k, v = ext.split(':', 1)  # caution: "typeref:struct:__RAW_R_INFO"
+            # caution: "typeref:struct:__RAW_R_INFO"
+            k, v = ext.decode().split(':', 1)
             if k == 'kind':
                 tag['kind'] = v
             elif k == 'line':
@@ -81,8 +84,9 @@ def parse_ctags(path):
             else:
                 pass  # ignore other fields
 
-        assert tag['line'] is not None
-        assert len(tag['tag']) <= MAX_KEY_LENGTH
+        if tag['line'] is None or len(tag['tag']) > MAX_KEY_LENGTH:
+            raise ValueError('Tag is incomplete or malformed.')
+
         return tag
 
     with open(path, 'rb') as ctags:
@@ -94,10 +98,11 @@ def parse_ctags(path):
                 continue
             try:
                 yield parse_tag(line)
-            except:
+            except ValueError:
                 bad_tags += 1
                 if bad_tags <= BAD_TAGS_THRESHOLD:
                     logging.warn('ignore malformed tag "%s"' % line.rstrip())
+
         if bad_tags > BAD_TAGS_THRESHOLD:
             logging.warn('%d extra malformed tag(s) ignored' %
                          (bad_tags - BAD_TAGS_THRESHOLD))
