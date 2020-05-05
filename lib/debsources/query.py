@@ -11,6 +11,7 @@
 
 from __future__ import absolute_import, division
 
+from functools import cmp_to_key
 import os
 import stat
 
@@ -77,19 +78,19 @@ def pkg_names_list_versions(session, packagename, suite="", suite_order=None):
             if not suite_order:
                 versions = session.query(Package) \
                                   .filter(Package.name_id == name_id).all()
-                versions = sorted(versions, cmp=version_compare)
+                versions = sorted(versions, key=cmp_to_key(version_compare))
             else:
                 versions_w_suites = pkg_names_list_versions_w_suites(
                     session, packagename, as_object=True)
                 versions = sorted(versions_w_suites,
-                                  cmp=compare_with_suite_order)
+                                  key=cmp_to_key(compare_with_suite_order))
         else:
             versions = (session.query(Package)
                                .filter(Package.name_id == name_id)
                                .filter(sql_func.lower(Suite.suite) == suite)
                                .filter(Suite.package_id == Package.id)
                                .all())
-            versions = sorted(versions, cmp=version_compare)
+            versions = sorted(versions, key=cmp_to_key(version_compare))
     except Exception:
         raise InvalidPackageOrVersionError(packagename)
     # we sort the versions according to debian versions rules

@@ -539,8 +539,8 @@ def licenses_summary_w_dual(results):
                 else:
                     summary[result.replace(' ', '_')] = results[result]
         else:
-            key = filter(lambda x: re.search(x, result)
-                         is not None, Licenses)
+            key = list(filter(lambda x: re.search(x, result)
+                              is not None, Licenses))
             # standard licenses
             if len(key) > 0:
                 summary[result.replace(' ', '_')] = results[result]
@@ -557,8 +557,8 @@ def licenses_summary(results):
             licenses = re.split(', |and |or ', result)
             for license in licenses:
                 license = license.rstrip()
-                key = filter(lambda x: re.search(x, license)
-                             is not None, Licenses)
+                key = list(filter(lambda x: re.search(x, license)
+                                  is not None, Licenses))
                 if len(key) > 0:
                     # if license already in dict then add it up
                     if license.replace(' ', '_') in summary.keys():
@@ -568,8 +568,8 @@ def licenses_summary(results):
                 else:
                     summary['unknown'] += results[result]
         else:
-            key = filter(lambda x: re.search(x, result)
-                         is not None, Licenses)
+            key = list(filter(lambda x: re.search(x, result)
+                              is not None, Licenses))
             if len(key) > 0:
                     # if license already in dict then add it up
                     if result.replace(' ', '_') in summary.keys():

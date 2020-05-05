@@ -95,7 +95,8 @@ class QueriesTest(unittest.TestCase, DbTestFixture):
 
         ctags = qry.find_ctag(self.session, "swap", "gnubg")
         self.assertEqual(ctags[0], 5)
-        self.assertTrue({'path': 'eval.c', 'line': 1747,
+        # import pdb; pdb.set_trace()
+        self.assertTrue({'path': b'eval.c', 'line': 1747,
                         'version': u'0.90+20091206-4', 'package': u'gnubg'}
                         in ctags[1])
 

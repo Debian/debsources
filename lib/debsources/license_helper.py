@@ -98,7 +98,8 @@ def parse_license(sources_path):
         d_file = f.read()
         if not all(field in d_file for field in required_fields):
             raise copyright.NotMachineReadableError
-    with io.open(sources_path, mode='rt', encoding='utf-8') as f:
+    # import pdb; pdb.set_trace()
+    with io.open(sources_path, mode='rb') as f:
         return copyright.Copyright(f)
 
 
@@ -110,7 +111,12 @@ def get_license(package, version, path, c):
     # if not license_path:
     #     # retrieve license from DB
     #     return qry.get_license_w_path(session, package, version, path)
-    paragraph = c.find_files_paragraph(path)
+    # import pdb; pdb.set_trace()
+
+    # We need to decode the path to utf8, because debian.copyright seems to
+    # only work with utf8 when reading the copyright file. Trade-off: non-utf8
+    # paths won't be properly recognized.
+    paragraph = c.find_files_paragraph(path.decode('utf8', errors='replace'))
     if paragraph:
         try:
             return paragraph.license.synopsis

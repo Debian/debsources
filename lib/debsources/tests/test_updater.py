@@ -88,9 +88,16 @@ def assert_db_schema_equal(test_subj, expected_schema, actual_schema):
                     test_subj.session.execute(q % {'schema': expected_schema})]
         actual = [dict(list(r.items())) for r in
                   test_subj.session.execute(q % {'schema': actual_schema})]
-        test_subj.assertSequenceEqual(expected, actual,
+        try:
+            test_subj.assertSequenceEqual(expected, actual,
                                       msg='table %s differs from reference'
                                       % tbl)
+        except Exception as e:
+            import sys
+            print(tbl, file=sys.stderr)
+            print(q, file=sys.stderr)
+            raise e
+            import pdb; pdb.set_trace()
 
 
 def assert_dir_equal(test_subj, dir1, dir2, exclude=[]):

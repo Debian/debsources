@@ -11,3 +11,6 @@ run:
 
 attach:
 	docker exec -it docker_debsources_1 /bin/bash
+
+tests:
+	docker exec -it docker_debsources_1 /opt/run-tests

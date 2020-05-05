@@ -33,10 +33,12 @@ def license_path(pkgdir):
 
 def parse_license_file(path):
     license_list = []
-    with open(path) as licenses:
+    with open(path, 'rb') as licenses:
         for line in licenses:
-            fields = line.rstrip().split('\t')
-            license_list.append((fields[0], fields[1]))
+            fields = line.rstrip().split(b'\t')
+            license = fields[0].decode('utf8')
+            filename = fields[1]
+            license_list.append((license, filename))
     return license_list
 
 
@@ -59,12 +61,12 @@ def add_package(session, pkg, pkgdir, file_table):
         """
         synopsis = helper.get_license(package, version, relpath, copyright)
         if synopsis is not None:
-            s = '%s\t%s\n' % (synopsis, relpath.decode('utf-8'))
+            s = b'%s\t%s\n' % (synopsis.encode('utf8'), relpath)
             out.write(s)
 
     if 'hooks.fs' in conf['backends']:
         if not os.path.exists(license_file):  # run license only if needed
-            with io.open(license_file_tmp, 'w', encoding='utf-8') as out:
+            with io.open(license_file_tmp, 'wb') as out:
                 for (relpath, abspath) in \
                         fs_storage.walk_pkg_files(pkgdir, file_table):
                     emit_license(out, pkg['package'], pkg['version'],

@@ -43,10 +43,10 @@ def parse_checksums(path):
 
     yield (sha256, path) pairs
     """
-    with open(path) as checksums:
+    with open(path, 'rb') as checksums:
         for line in checksums:
             line = line.rstrip()
-            sha256 = line[0:64]
+            sha256 = line[0:64].decode()  # checksums are stored as strings
             path = line[66:]
             yield (sha256, path)
 
@@ -66,11 +66,15 @@ def add_package(session, pkg, pkgdir, file_table):
             # (and they are in old releases)
             return
         sha256 = hashutil.sha256sum(abspath)
-        out.write('%s  %s\n' % (sha256, relpath))
+        # out.write(sha256.encode('utf8'))
+        # out.write(b'  ')
+        # out.write(relpath)
+        # out.write(b'\n')
+        out.write(b'%s  %s\n' % (sha256.encode('utf8'), relpath))
 
     if 'hooks.fs' in conf['backends']:
         if not os.path.exists(sumsfile):  # compute checksums only if needed
-            with open(sumsfile_tmp, 'w') as out:
+            with open(sumsfile_tmp, 'wb') as out:
                 for (relpath, abspath) in \
                         fs_storage.walk_pkg_files(pkgdir, file_table):
                     emit_checksum(out, relpath, abspath)

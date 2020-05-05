@@ -96,6 +96,7 @@ def notify(conf, event, session, pkg, pkgdir, file_table=None):
     """
     logging.debug('notify {} for {}'.format(event, pkg))
     package, version = pkg['package'], pkg['version']
+    # TODO: useless, they were removed
     cmd = ['run-parts', '--exit-on-error',
            '--arg', pkgdir,
            '--arg', package,
