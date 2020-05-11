@@ -14,9 +14,9 @@ from __future__ import absolute_import
 
 from wtforms import TextField
 from wtforms.validators import Required
-from flask.ext.wtf import Form
+from flask_wtf import FlaskForm
 
 
-class SearchForm(Form):
+class SearchForm(FlaskForm):
     query = TextField('package name', validators=[Required()])
     suite = TextField('suite name')
