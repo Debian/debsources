@@ -33,4 +33,4 @@ class HashutilTests(unittest.TestCase):
     def assertSha256Sum(self):
         self.assertEqual(
             sha256sum(make_path('main/libc/libcaca/0.99.beta18-1/COPYING')),
-            'd10f0447c835a590ef137d99dd0e3ed29b5e032e7434a87315b30402bf14e7fd')
+            b'd10f0447c835a590ef137d99dd0e3ed29b5e032e7434a87315b30402bf14e7fd')

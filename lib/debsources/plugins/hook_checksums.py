@@ -13,11 +13,11 @@ from __future__ import absolute_import
 
 import logging
 import os
+from pathlib import Path
 
 from sqlalchemy import sql
 
 from debsources import db_storage
-from debsources import fs_storage
 from debsources import hashutil
 
 from debsources.models import Checksum, File
@@ -29,8 +29,8 @@ MY_NAME = 'checksums'
 MY_EXT = '.' + MY_NAME
 
 
-def sums_path(pkgdir):
-    return pkgdir + MY_EXT
+def sums_path(pkgdir: Path) -> Path:
+    return Path(str(pkgdir) + MY_EXT)
 
 # maximum number of ctags after which a (bulk) insert is sent to the DB
 BULK_FLUSH_THRESHOLD = 100000
@@ -56,27 +56,23 @@ def add_package(session, pkg, pkgdir, file_table):
     logging.debug('add-package %s' % pkg)
 
     sumsfile = sums_path(pkgdir)
-    sumsfile_tmp = sumsfile + '.new'
+    sumsfile_tmp = Path(str(sumsfile) + '.new')
 
     def emit_checksum(out, relpath, abspath):
-        if os.path.islink(abspath) or not os.path.isfile(abspath):
+        if abspath.is_symlink() or not abspath.is_file():
             # Do not checksum symlinks, if they are not dangling / external we
             # will checksum their target anyhow. Do not check special files
             # either; they shouldn't be there per policy, but they might be
             # (and they are in old releases)
             return
-        sha256 = hashutil.sha256sum(abspath)
-        # out.write(sha256.encode('utf8'))
-        # out.write(b'  ')
-        # out.write(relpath)
-        # out.write(b'\n')
-        out.write(b'%s  %s\n' % (sha256.encode('utf8'), relpath))
+        sha256 = hashutil.sha256sum(bytes(abspath))
+        out.write(b'%s  %s\n' % (sha256, bytes(relpath)))
 
     if 'hooks.fs' in conf['backends']:
-        if not os.path.exists(sumsfile):  # compute checksums only if needed
+        if not sumsfile.exists():  # compute checksums only if needed
             with open(sumsfile_tmp, 'wb') as out:
                 for relpath in file_table:
-                    abspath = relpath.relative_to(pkgdir)
+                    abspath = pkgdir / relpath
                     emit_checksum(out, relpath, abspath)
             os.rename(sumsfile_tmp, sumsfile)
 
@@ -124,8 +120,8 @@ def rm_package(session, pkg, pkgdir, file_table):
 
     if 'hooks.fs' in conf['backends']:
         sumsfile = sums_path(pkgdir)
-        if os.path.exists(sumsfile):
-            os.unlink(sumsfile)
+        if sumsfile.exists():
+            sumsfile.unlink()
 
     if 'hooks.db' in conf['backends']:
         db_package = db_storage.lookup_package(session, pkg['package'],

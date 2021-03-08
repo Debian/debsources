@@ -14,6 +14,7 @@ from __future__ import absolute_import
 import logging
 import os
 import subprocess
+from pathlib import Path
 
 from sqlalchemy import sql
 
@@ -36,8 +37,8 @@ MY_NAME = 'ctags'
 MY_EXT = '.' + MY_NAME
 
 
-def ctags_path(pkgdir):
-    return pkgdir + MY_EXT
+def ctags_path(pkgdir: Path) -> Path:
+    return Path(str(pkgdir) + MY_EXT)
 
 # maximum number of ctags after which a (bulk) insert is sent to the DB
 BULK_FLUSH_THRESHOLD = 20000
@@ -113,10 +114,10 @@ def add_package(session, pkg, pkgdir, file_table):
     logging.debug('add-package %s' % pkg)
 
     ctagsfile = ctags_path(pkgdir)
-    ctagsfile_tmp = ctagsfile + '.new'
+    ctagsfile_tmp = Path(str(ctagsfile) + '.new')
 
     if 'hooks.fs' in conf['backends']:
-        if not os.path.exists(ctagsfile):  # extract tags only if needed
+        if not ctagsfile.exists():  # extract tags only if needed
             cmd = ['ctags'] + CTAGS_FLAGS + ['-o', ctagsfile_tmp]
             # ASSUMPTION: will be run under pkgdir as CWD, which is needed to
             # get relative paths right. The assumption is enforced by the
@@ -178,8 +179,8 @@ def rm_package(session, pkg, pkgdir, file_table):
 
     if 'hooks.fs' in conf['backends']:
         ctagsfile = ctags_path(pkgdir)
-        if os.path.exists(ctagsfile):
-            os.unlink(ctagsfile)
+        if ctagsfile.exists():
+            ctagsfile.unlink()
 
     if 'hooks.db' in conf['backends']:
         db_package = db_storage.lookup_package(session, pkg['package'],

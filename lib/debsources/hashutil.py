@@ -26,4 +26,4 @@ def sha256sum(path):
             if not chunk:
                 break
             m.update(chunk)
-    return m.hexdigest()
+    return m.digest()

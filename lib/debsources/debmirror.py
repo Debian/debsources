@@ -296,7 +296,7 @@ class SourceMirror(object):
 
                     if pkg_id not in self._packages:
                         self._packages.add(pkg_id)
-                        pkg['x-debsources-mirror-root'] = self.mirror_root
+                        pkg['x-debsources-mirror-root'] = str(self.mirror_root)
                         yield pkg
 
     def ls_suites(self, aliases=False):
