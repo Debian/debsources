@@ -11,9 +11,6 @@
 
 from __future__ import absolute_import
 
-# XXX copied from app/views.py
-
-import os
 import six
 from pathlib import Path
 
@@ -63,14 +60,14 @@ def shutdown_session(exception=None):
 # TODO the context need a little bit modification
 @app.context_processor
 def skeleton_variables():
-    update_ts_file = os.path.join(app.config['CACHE_DIR'], 'last-update')
+    update_ts_file = app.config['CACHE_DIR'] / 'last-update'
     # TODO, this part should be moved to per blueprint context processor
     last_update = local_info.read_update_ts(update_ts_file)
 
     packages_prefixes = qry.pkg_names_get_packages_prefixes(
         app.config["CACHE_DIR"])
 
-    credits_file = os.path.join(app.config["LOCAL_DIR"], "credits.html")
+    credits_file = app.config["LOCAL_DIR"] / "credits.html"
     credits = local_info.read_html(credits_file)
 
     return dict(packages_prefixes=packages_prefixes,
@@ -208,8 +205,7 @@ class GeneralView(View):
 # If we want to stop traffic from codesearch.d.n, just return 500 error
 class Ping(View):
     def dispatch_request(self):
-        update_ts_file = os.path.join(
-            current_app.config['CACHE_DIR'], 'last-update')
+        update_ts_file = current_app.config['CACHE_DIR'] / 'last-update'
         last_update = local_info.read_update_ts(update_ts_file)
         try:
             session.query(Package).first().id  # database check
@@ -224,10 +220,8 @@ class Ping(View):
 class IndexView(GeneralView):
 
     def get_objects(self, **kwargs):
-        news_file = os.path.join(current_app.config["LOCAL_DIR"],
-                                 self.d['news_html'])
-        archived_news_file = os.path.join(current_app.config["LOCAL_DIR"],
-                                          self.d['news_archive_html'])
+        news_file = current_app.config["LOCAL_DIR"] / self.d['news_html']
+        archived_news_file = current_app.config["LOCAL_DIR"] / self.d['news_archive_html']
         news = local_info.read_html(news_file)
         archived_news = local_info.read_html(archived_news_file)
         return dict(news=news, archived_news=archived_news)
@@ -237,8 +231,7 @@ class IndexView(GeneralView):
 class NewsArchiveView(GeneralView):
 
     def get_objects(self, **kwargs):
-        archived_news_file = os.path.join(current_app.config["LOCAL_DIR"],
-                                          self.d['news_archive_html'])
+        archived_news_file = current_app.config["LOCAL_DIR"] / self.d['news_archive_html']
         archived_news = local_info.read_html(archived_news_file)
         return dict(archived_news=archived_news)
 

@@ -17,7 +17,6 @@ from __future__ import absolute_import
 
 import argparse
 import logging
-import os
 import shutil
 from pathlib import Path
 
@@ -67,26 +66,26 @@ def fs_check_stale(conf, session, fix=False):
     logging.info('fs storage: check for stale data...')
     for entry in fs_storage.walk(conf['sources_dir']):
         path = fs_storage.parse_path(entry)
-        if os.path.isdir(entry):
+        if entry.is_dir():
             if not have_version(path['package'], path['version']):
                 logging.warn('orphan package directory: %s' % entry)
                 if fix:
                     logging.info('removing orphan package directory %s' %
                                  entry)
                     shutil.rmtree(entry)
-        elif os.path.isfile(entry):
+        elif entry.is_file():
             if path['ext'] in file_extensions:
                 if not have_version(path['package'], path['version']):
                     logging.warn('orphan metadata file: %s' % entry)
                     if fix:
                         logging.info('removing orphan metadata file %s' %
                                      entry)
-                        os.unlink(entry)
+                        entry.unlink()
             else:
                 logging.warn('unknown metadata file: %s' % entry)
                 if fix:
                     logging.info('removing unknown metadata file %s' % entry)
-                    os.unlink(entry)
+                    entry.unlink()
 
 
 def main(conf, session, fix):

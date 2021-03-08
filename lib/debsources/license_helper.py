@@ -191,7 +191,7 @@ def match_license(synopsis):
     """ Matches a `synopsis` with a license and creates a url
     """
     key = list(filter(lambda x: re.search(x, synopsis) is not None, Licenses))
-    if len(key) >= 0:
+    if len(key) > 0:
         return Licenses[key[0]]
     else:
         return None

@@ -1,13 +1,12 @@
-# # if the debsources Python module is not installed system-wide, you will need
-# # to add its root directory to Python's path, e.g.:
-#
-import os
+# WSGI Python file to bridge apache2 / Flask application
+
 import sys
-DEBSOURCES_LIB = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    'lib')
+from pathlib import Path
+
+DEBSOURCES_LIB = Path(__file__).resolve().parent.parent / "lib"
 sys.path.append(DEBSOURCES_LIB)
 
 from debsources.app import app_wrapper
+
 app_wrapper.go()
 application = app_wrapper.app

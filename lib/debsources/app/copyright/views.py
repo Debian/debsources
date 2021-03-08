@@ -13,7 +13,6 @@ from __future__ import absolute_import
 
 from collections import defaultdict, Counter
 from functools import cmp_to_key
-import os
 
 from flask import current_app, request
 from debian.debian_support import version_compare
@@ -262,13 +261,11 @@ class StatsView(GeneralView):
         if suite not in statistics.suites(session, 'all'):
             raise Http404Error()  # security, to avoid suite='../../foo',
             # to include <img>s, etc.
-        stats_file = os.path.join(current_app.config["CACHE_DIR"],
-                                  "license_stats.data")
+        stats_file = current_app.config["CACHE_DIR"] / "license_stats.data"
         res = extract_stats(filename=stats_file,
                             filter_suites=[suite])
         licenses = [license.replace(suite + '.', '') for license in res.keys()]
-        dual_stats_file = os.path.join(app.config["CACHE_DIR"],
-                                       "dual_license.data")
+        dual_stats_file = app.config["CACHE_DIR"] / "dual_license.data"
         dual_res = extract_stats(filename=dual_stats_file,
                                  filter_suites=[suite])
 
@@ -286,13 +283,10 @@ class StatsView(GeneralView):
                     rel_version=info.version)
 
     def get_stats(self):
-
-        stats_file = os.path.join(app.config["CACHE_DIR"],
-                                  "license_stats.data")
+        stats_file = app.config["CACHE_DIR"] / "license_stats.data"
         res = extract_stats(filename=stats_file)
 
-        dual_stats_file = os.path.join(app.config["CACHE_DIR"],
-                                       "dual_license.data")
+        dual_stats_file = app.config["CACHE_DIR"] / "dual_license.data"
         dual_res = extract_stats(filename=dual_stats_file)
         dual_licenses = [license.replace('overall.', '') for license
                          in dual_res.keys()
