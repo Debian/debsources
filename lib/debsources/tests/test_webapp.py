@@ -15,6 +15,7 @@ import datetime
 import json
 import os
 import unittest
+from pathlib import Path
 
 from nose.plugins.attrib import attr
 
@@ -118,16 +119,16 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
     def test_package_search(self):
         # test exact search result
         rv = self.app.get('/search/gnubg/')
-        self.assertIn("/src/gnubg/", rv.data)
+        self.assertIn(b"/src/gnubg/", rv.data)
         # with suite specified
         rv = self.app.get('/search/gnubg/?suite=squeeze')
-        self.assertIn("/src/gnubg/", rv.data)
+        self.assertIn(b"/src/gnubg/", rv.data)
         # with a non-existing suite name specified
         rv = self.app.get('/search/gnubg/?suite=nonexisting')
-        self.assertNotIn("/src/gnubg/", rv.data)
+        self.assertNotIn(b"/src/gnubg/", rv.data)
         # other results
         rv = self.app.get('/search/gnu/')
-        self.assertIn("/src/gnubg/", rv.data)
+        self.assertIn(b"/src/gnubg/", rv.data)
 
     def test_api_case_insensitive_package_search(self):
         # exact search (lower case)
@@ -148,37 +149,37 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
     def test_case_insensitive_package_search(self):
         # exact search (mixed case)
         rv = self.app.get('/search/gNuBg/')
-        self.assertIn("/src/gnubg/", rv.data)
+        self.assertIn(b"/src/gnubg/", rv.data)
 
         # with suite specified (mixed case)
         rv = self.app.get('/search/gnubg/?suite=sQuEeZe')
-        self.assertIn("/src/gnubg/", rv.data)
+        self.assertIn(b"/src/gnubg/", rv.data)
 
         # other results (mixed case)
         rv = self.app.get('/search/gNu/')
-        self.assertIn("/src/gnubg/", rv.data)
+        self.assertIn(b"/src/gnubg/", rv.data)
 
     def test_static_pages(self):
         rv = self.app.get('/')
-        self.assertIn('Debsources', rv.data)
+        self.assertIn(b'Debsources', rv.data)
 
         rv = self.app.get('/advancedsearch/')
-        self.assertIn('Package search', rv.data)
-        self.assertIn('File search', rv.data)
-        self.assertIn('Code search', rv.data)
+        self.assertIn(b'Package search', rv.data)
+        self.assertIn(b'File search', rv.data)
+        self.assertIn(b'Code search', rv.data)
 
         rv = self.app.get('/doc/overview/')
-        self.assertIn('Debsources provides Web access', rv.data)
+        self.assertIn(b'Debsources provides Web access', rv.data)
 
         rv = self.app.get('/doc/api/')
-        self.assertIn('API documentation', rv.data)
+        self.assertIn(b'API documentation', rv.data)
 
         rv = self.app.get('/doc/url/')
-        self.assertIn('URL scheme', rv.data)
+        self.assertIn(b'URL scheme', rv.data)
 
         rv = self.app.get('/doc/about/')
-        self.assertIn('source code', rv.data)
-        self.assertIn('is available', rv.data)
+        self.assertIn(b'source code', rv.data)
+        self.assertIn(b'is available', rv.data)
 
     def test_api_packages_list(self):
         rv = json.loads(self.app.get('/api/list/').data)
@@ -204,16 +205,16 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
     def test_by_prefix(self):
         rv = self.app.get('/prefix/libc/')
-        self.assertIn("/src/libcaca", rv.data)
+        self.assertIn(b"/src/libcaca", rv.data)
         # suite specified
         rv = self.app.get('/prefix/libc/?suite=squeeze')
-        self.assertIn("/src/libcaca", rv.data)
+        self.assertIn(b"/src/libcaca", rv.data)
         # a non-existing suite specified
         rv = self.app.get('/prefix/libc/?suite=non-existing')
-        self.assertNotIn("/src/libcaca", rv.data)
+        self.assertNotIn(b"/src/libcaca", rv.data)
         # special suite name "all" is specified
         rv = self.app.get('/prefix/libc/?suite=all')
-        self.assertIn("/src/libcaca", rv.data)
+        self.assertIn(b"/src/libcaca", rv.data)
 
     def test_api_case_insensitive_prefix(self):
         rv_lower_case = json.loads(self.app.get('/api/prefix/g/').data)
@@ -259,22 +260,22 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
     def test_package(self):
         rv = self.app.get('/src/ledit/')
-        self.assertIn("/src/ledit/2.01-6/", rv.data)
-        self.assertIn("/src/ledit/2.03-1/", rv.data)
-        self.assertIn("/src/ledit/2.03-2/", rv.data)
-        self.assertIn("[jessie, sid]", rv.data)
+        self.assertIn(b"/src/ledit/2.01-6/", rv.data)
+        self.assertIn(b"/src/ledit/2.03-1/", rv.data)
+        self.assertIn(b"/src/ledit/2.03-2/", rv.data)
+        self.assertIn(b"[jessie, sid]", rv.data)
         # with suite specified
         rv = self.app.get('/src/ledit/?suite=squeeze')
-        self.assertIn("/src/ledit/2.01-6/", rv.data)
-        self.assertNotIn("/src/ledit/2.03-1/", rv.data)
-        self.assertNotIn("/src/ledit/2.03-2/", rv.data)
-        self.assertNotIn("[jessie, sid]", rv.data)
+        self.assertIn(b"/src/ledit/2.01-6/", rv.data)
+        self.assertNotIn(b"/src/ledit/2.03-1/", rv.data)
+        self.assertNotIn(b"/src/ledit/2.03-2/", rv.data)
+        self.assertNotIn(b"[jessie, sid]", rv.data)
         # with a non-existing suite
         rv = self.app.get('/src/ledit/?suite=non-existing')
-        self.assertNotIn("/src/ledit/2.01-6/", rv.data)
-        self.assertNotIn("/src/ledit/2.03-1/", rv.data)
-        self.assertNotIn("/src/ledit/2.03-2/", rv.data)
-        self.assertNotIn("[jessie, sid]", rv.data)
+        self.assertNotIn(b"/src/ledit/2.01-6/", rv.data)
+        self.assertNotIn(b"/src/ledit/2.03-1/", rv.data)
+        self.assertNotIn(b"/src/ledit/2.03-2/", rv.data)
+        self.assertNotIn(b"[jessie, sid]", rv.data)
 
     def test_api_folder(self):
         rv = json.loads(self.app.get('/api/src/ledit/2.01-6/').data)
@@ -318,7 +319,7 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         rv = self.app.get('/src/beignet/1.0.0-1/README.md/')
 
         # safe symlink
-        self.assertIn('/src/beignet/1.0.0-1/docs/Beignet.mdwn/', rv.data)
+        self.assertIn(b'/src/beignet/1.0.0-1/docs/Beignet.mdwn/', rv.data)
 
         # unsafe symlinks (relatives and absolutes)
 
@@ -351,57 +352,57 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         rv = self.app.get('/src/ledit/2.01-6/ledit.ml/')
 
         # source code detection
-        self.assertIn('<code id="sourcecode" class="ocaml">', rv.data)
+        self.assertIn(b'<code id="sourcecode" class="ocaml">', rv.data)
 
         # highlight.js present?
-        self.assertIn('hljs.highlightBlock', rv.data)
-        self.assertIn('<script src="/static/javascript-lib/highlight/highlight.min.js">'
-                      '</script>', rv.data)
+        self.assertIn(b'hljs.highlightBlock', rv.data)
+        self.assertIn(b'<script src="/static/javascript-lib/highlight/highlight.min.js">'
+                      b'</script>', rv.data)
 
         # content of the file
-        self.assertIn('Institut National de Recherche en Informatique',
+        self.assertIn(b'Institut National de Recherche en Informatique',
                       rv.data)
 
         # correct number of lines
-        self.assertIn('1506 lines', rv.data)
+        self.assertIn(b'1506 lines', rv.data)
 
         # stat of the file
-        self.assertIn('stat: -rw-r--r-- 45,858 bytes', rv.data)
+        self.assertIn(b'stat: -rw-r--r-- 45,858 bytes', rv.data)
 
         # raw file link
-        self.assertIn('<a id="link_download"' +
-                      ' href="/data/main/l/ledit/2.01-6/ledit.ml">' +
-                      'download</a>', rv.data)
+        self.assertIn(b'<a id="link_download"' +
+                      b' href="/data/main/l/ledit/2.01-6/ledit.ml">' +
+                      b'download</a>', rv.data)
 
         # parent folder link
-        self.assertIn('<a id="link_parent_folder" href="/src/ledit/2.01-6/">' +
-                      'parent folder</a>',
+        self.assertIn(b'<a id="link_parent_folder" href="/src/ledit/2.01-6/">' +
+                      b'parent folder</a>',
                       rv.data)
 
     def test_source_file_text(self):
         rv = self.app.get('/src/ledit/2.01-6/README/')
-        self.assertIn('<code id="sourcecode" class="no-highlight">', rv.data)
+        self.assertIn(b'<code id="sourcecode" class="no-highlight">', rv.data)
 
     def test_popup(self):
         # One popup
         rv = self.app.get('src/ledit/2.01-6/go.ml/?msg=22:Cowsay:See? \
                           %20Cowsay%20variables%20are%20declared%20here.')
-        self.assertIn('<pre class="messages" data-position="22">', rv.data)
+        self.assertIn(b'<pre class="messages" data-position="22">', rv.data)
 
         # two popups
         rv = self.app.get('src/ledit/2.01-6/go.ml/?msg=22:Cowsay:See? \
                           %20Cowsay%20variables%20are%20declared%20here. \
                           &msg=10:Cowsay:See? \
                           %20Cowsay%20variables%20are%20declared%20here')
-        self.assertIn('<pre class="messages" data-position="22">', rv.data)
-        self.assertIn('<pre class="messages" data-position="10">', rv.data)
+        self.assertIn(b'<pre class="messages" data-position="22">', rv.data)
+        self.assertIn(b'<pre class="messages" data-position="10">', rv.data)
 
     def test_source_file_embedded(self):
         rv = self.app.get('/embed/file/ledit/2.01-6/ledit.ml/')
-        self.assertIn('<code id="sourcecode" class="ocaml">', rv.data)
-        self.assertIn('Institut National de Recherche en Informatique',
+        self.assertIn(b'<code id="sourcecode" class="ocaml">', rv.data)
+        self.assertIn(b'Institut National de Recherche en Informatique',
                       rv.data)
-        self.assertNotIn('<div id="logo">', rv.data)
+        self.assertNotIn(b'<div id="logo">', rv.data)
 
     def test_source_file_lang(self):
         # note we must have a trailing slash here.
@@ -411,11 +412,11 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         # no redirection. no highlight
         rv = self.app.get('/src/make-doc-non-dfsg/4.0-2/doc/'
                           'make.info-1/?lang=none')
-        self.assertIn('<code id="sourcecode" class="no-highlight">', rv.data)
+        self.assertIn(b'<code id="sourcecode" class="no-highlight">', rv.data)
         # no redirection. highlight with cpp syntax
         rv = self.app.get('/src/make-doc-non-dfsg/4.0-2/doc/'
                           'make.info-1/?lang=cpp')
-        self.assertIn('<code id="sourcecode" class="cpp">', rv.data)
+        self.assertIn(b'<code id="sourcecode" class="cpp">', rv.data)
 
     def test_api_errors(self):
         rv = json.loads(self.app.get('/api/src/blablabla/').data)
@@ -433,7 +434,7 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
     def test_source_file_text_suite(self):
         rv = self.app.get('/src/ledit/unstable/README', follow_redirects=True)
-        self.assertIn('<code id="sourcecode" class="no-highlight">', rv.data)
+        self.assertIn(b'<code id="sourcecode" class="no-highlight">', rv.data)
         rv = json.loads(self.app.get('/api/src/ledit/unstable/README/',
                                      follow_redirects=True).data)
         self.assertIn("2.03-2", rv['path'])
@@ -445,7 +446,7 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
     def test_source_file_text_suite_alias(self):
         rv = self.app.get('/src/ledit/sid/README', follow_redirects=True)
-        self.assertIn('<code id="sourcecode" class="no-highlight">', rv.data)
+        self.assertIn(b'<code id="sourcecode" class="no-highlight">', rv.data)
         rv = json.loads(self.app.get('/api/src/ledit/sid/README/',
                                      follow_redirects=True).data)
         self.assertIn("2.03-2", rv['path'])
@@ -462,13 +463,13 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
     def test_codesearch_box(self):
         rv = self.app.get('/src/ledit/2.03-2/ledit.ml/')
-        self.assertIn('value="package:ledit "', rv.data)
+        self.assertIn(b'value="package:ledit "', rv.data)
 
     def test_pagination(self):
         rv = self.app.get('/list/2/')
-        self.assertIn('<a href="/list/1/">&laquo; Previous</a>', rv.data)
-        self.assertIn('<a href="/list/3/">Next &raquo;</a>', rv.data)
-        self.assertIn('<strong>2</strong>', rv.data)
+        self.assertIn(b'<a href="/list/1/">&laquo; Previous</a>', rv.data)
+        self.assertIn(b'<a href="/list/3/">Next &raquo;</a>', rv.data)
+        self.assertIn(b'<strong>2</strong>', rv.data)
 
     def test_api_file_duplicates(self):
         rv = json.loads(self.app.get('/api/src/bsdgames-nonfree/'
@@ -521,13 +522,13 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
     def test_pkg_infobox_embed(self):
         rv = self.app.get('/embed/pkginfo/libcaca/0.99.beta17-1/')
-        self.assertIn('<div id="pkginfobox" class="pkginfobox_large">',
+        self.assertIn(b'<div id="pkginfobox" class="pkginfobox_large">',
                       rv.data)
-        self.assertNotIn('<footer', rv.data)  # it's an infobox-only page
+        self.assertNotIn(b'<footer', rv.data)  # it's an infobox-only page
 
     def test_info_version(self):
         rv = self.app.get('/info/package/libcaca/0.99.beta17-1/')
-        self.assertIn('<div id="pkginfobox" class="pkginfobox_large">',
+        self.assertIn(b'<div id="pkginfobox" class="pkginfobox_large">',
                       rv.data)
 
     @attr('notravis')
@@ -559,8 +560,8 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
     def test_suggestions_when_404(self):
         rv = self.app.get('/src/libcaca/0.NOPE.beta17-1/src/cacaview.c/')
-        self.assertIn('other versions of this package are available', rv.data)
-        link2 = '<a href="/src/libcaca/0.99.beta17-1/src/cacaview.c/'
+        self.assertIn(b'other versions of this package are available', rv.data)
+        link2 = b'<a href="/src/libcaca/0.99.beta17-1/src/cacaview.c/'
         self.assertIn(link2, rv.data)
 
     def test_bp_copyright_setup(self):
@@ -575,25 +576,27 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
             'copyright_news.html': '/copyright/',
             'patches_news.html':   '/patches/'
         }
+
+        local_dir = Path(self.app_wrapper.app.config["LOCAL_DIR"])
+        if not local_dir.is_dir():
+            if local_dir.exists():
+                # for some reason local_dir is a file, raise an IOError
+                raise IOError(f"{local_dir} should be a directory.")
+            else:
+                local_dir.mkdir()
+
         # Go through each news_route and ensure it contains the data we expect
         # which is the data in local/news.html file.
         # If data doesn't exist, create dummy data to test.
         for news_file in news_routes.keys():
-            fullpath = os.path.join(self.app_wrapper.app.config["LOCAL_DIR"],
-                                    news_file)
+            fullpath = local_dir / news_file
             news_string = ""
-            if not os.path.isdir(self.app_wrapper.app.config["LOCAL_DIR"]):
-                if os.path.exists(self.app_wrapper.app.config["LOCAL_DIR"]):
-                    # for some reason local_dir is a file, raise an IOError
-                    raise IOError
-                else:
-                    os.makedirs(self.app_wrapper.app.config["LOCAL_DIR"])
-            if os.path.isfile(fullpath):
-                with open(fullpath, 'r') as f:
+            if fullpath.is_file:
+                with open(fullpath, 'rb') as f:
                     news_string = f.read()
             else:
-                news_string = "<ul><li>This item was created in a test for " \
-                              + news_file + "</li></ul>"
+                news_string = b"<ul><li>This item was created in a test for " \
+                              + news_file + b"</li></ul>"
                 with open(fullpath, 'w') as f:
                     f.write(news_string)
             rv = self.app.get(news_routes[news_file])

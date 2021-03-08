@@ -116,7 +116,9 @@ class SourceView(GeneralView):
         """
         renders a directory, lists subdirs and subfiles
         """
-        hidden_files = app.config['HIDDEN_FILES'].split(" ")
+        # Convert hidden file patterns to bytes, as they are used to match
+        # paths, which are bytes.
+        hidden_files = [x.encode('utf8') for x in app.config['HIDDEN_FILES'].split(" ")]
         directory = Directory(location, hidden_files)
 
         pkg_infos = Infobox(session, location.get_package(),
@@ -140,7 +142,7 @@ class SourceView(GeneralView):
                     package=location.get_package(),
                     version=location.get_version(),
                     content=content,
-                    path=path,
+                    path=str(path),
                     pkg_infos=pkg_infos,
                     )
 
@@ -167,8 +169,8 @@ class SourceView(GeneralView):
                         package=location.get_package(),
                         version=location.get_version(),
                         mime=file_.get_mime(),
-                        raw_url=raw_url,
-                        path=path,
+                        raw_url=str(raw_url),
+                        path=str(path),
                         text_file=text_file,
                         stat=qry.location_get_stat(location.sources_path),
                         checksum=checksum,
@@ -188,16 +190,7 @@ class SourceView(GeneralView):
 
         # set render func (non-api form)
         if not self.render_func:
-            sources_path = raw_url.replace(
-                current_app.config['SOURCES_STATIC'],
-                current_app.config['SOURCES_DIR'],
-                1)
-            # ugly, but better than global variable,
-            # and better than re-requesting the db
-            # TODO: find proper solution for retrieving souces_path
-            # (without putting it in kwargs, we don't want it in
-            # json rendering eg)
-
+            sources_path = location.sources_path
             # we get the variables for highlighting and message (if they exist)
             try:
                 highlight = request.args.get('hl')
@@ -228,7 +221,7 @@ class SourceView(GeneralView):
                     version=location.get_version(),
                     mime=file_.get_mime(),
                     raw_url=raw_url,
-                    path=path,
+                    path=str(path),
                     text_file=text_file,
                     stat=qry.location_get_stat(location.sources_path),
                     checksum=checksum,

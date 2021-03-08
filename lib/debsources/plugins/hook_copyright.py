@@ -67,8 +67,7 @@ def add_package(session, pkg, pkgdir, file_table):
     if 'hooks.fs' in conf['backends']:
         if not os.path.exists(license_file):  # run license only if needed
             with io.open(license_file_tmp, 'wb') as out:
-                for (relpath, abspath) in \
-                        fs_storage.walk_pkg_files(pkgdir, file_table):
+                for relpath in file_table:
                     emit_license(out, pkg['package'], pkg['version'],
                                  relpath, c)
             os.rename(license_file_tmp, license_file)

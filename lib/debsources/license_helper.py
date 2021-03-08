@@ -16,7 +16,7 @@ import re
 from flask import url_for
 from debian import copyright
 
-from debsources.navigation import Location, SourceFile
+from debsources.navigation import Location
 
 # import debsources.query as qry
 
@@ -83,13 +83,7 @@ def get_sources_path(session, package, version, config):
                         config["SOURCES_STATIC"],
                         package, version, 'debian/copyright')
 
-    file_ = SourceFile(location)
-
-    sources_path = file_.get_raw_url().replace(
-        config['SOURCES_STATIC'],
-        config['SOURCES_DIR'],
-        1)
-    return sources_path
+    return location.sources_path
 
 
 def parse_license(sources_path):
@@ -98,7 +92,6 @@ def parse_license(sources_path):
         d_file = f.read()
         if not all(field in d_file for field in required_fields):
             raise copyright.NotMachineReadableError
-    # import pdb; pdb.set_trace()
     with io.open(sources_path, mode='rb') as f:
         return copyright.Copyright(f)
 
@@ -197,8 +190,8 @@ def create_url(glob="", base=None,):
 def match_license(synopsis):
     """ Matches a `synopsis` with a license and creates a url
     """
-    key = filter(lambda x: re.search(x, synopsis) is not None, Licenses)
-    if len(key) is not 0:
+    key = list(filter(lambda x: re.search(x, synopsis) is not None, Licenses))
+    if len(key) >= 0:
         return Licenses[key[0]]
     else:
         return None

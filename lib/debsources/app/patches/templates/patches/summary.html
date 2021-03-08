@@ -60,7 +60,7 @@
               <a href="{{ url_for('sources.source', path_to=path + '/' + line['filepath'])}}">{{ line['filepath'] }}</a> |
                 <span title='from diffstat manual: f0  for  concise, which shows only the value and a single histogram code for each of insert (+), delete (-) or modify (!)'>{{ line['deltas'] }}</span><br />
           {%- endfor %} {{ patches[patch]['summary'] }}</p></td>
-          <td><pre class="description">{{ patches[patch]['description'].decode('utf-8') }}</pre>
+          <td><pre class="description">{{ patches[patch]['description'] }}</pre>
           {%- if patches[patch]['bug'] != "" %}
           <p>Bug: <a href="https://bugs.debian.org/{{patches[patch]['bug']}}">#{{patches[patch]['bug']}}</a></p>
           {%- endif %}

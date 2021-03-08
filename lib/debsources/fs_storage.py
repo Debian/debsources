@@ -11,18 +11,18 @@
 
 from __future__ import absolute_import
 
+import glob
 import logging
 import os
 import shutil
 import subprocess
-
-import six
+from pathlib import Path
 
 from debsources.consts import DPKG_EXTRACT_UMASK
 from debsources.subprocess_workaround import subprocess_setup
 
 
-def extract_package(pkg, destdir):
+def extract_package(pkg, destdir: Path):
     """extract a package to the FS storage
     """
     def preexec_fn():
@@ -30,37 +30,37 @@ def extract_package(pkg, destdir):
         os.umask(DPKG_EXTRACT_UMASK)
 
     logging.debug('extract %s...' % pkg)
-    parentdir = os.path.dirname(destdir)
-    if not os.path.isdir(parentdir):
+    parentdir = destdir.parent
+    if not parentdir.is_dir():
         os.makedirs(parentdir)
-    if os.path.isdir(destdir):  # remove stale dir, dpkg-source doesn't clobber
-        shutil.rmtree(str(destdir))
+    if destdir.is_dir():  # remove stale dir, dpkg-source doesn't clobber
+        shutil.rmtree(destdir)
     dsc = pkg.dsc_path()
-    cmd = ['dpkg-source', '--no-copy', '--no-check', '-x', dsc, destdir]
-    logfile = destdir + '.log'
-    donefile = destdir + '.done'
-    with open(logfile, 'w') as log:
+    cmd = ['dpkg-source', '--no-copy', '--no-check', '-x', str(dsc), str(destdir)]
+    logfile = Path(str(destdir) + '.log')
+    donefile = Path(str(destdir) + '.done')
+    with logfile.open('w') as log:
         subprocess.check_call(cmd, stdout=log, stderr=subprocess.STDOUT,
                               preexec_fn=preexec_fn)
-    open(donefile, 'w').close()
+    donefile.touch()
 
 
-def remove_package(pkg, destdir):
+def remove_package(pkg, destdir: Path):
     """dispose of a package from the Debsources file system storage
     """
-    if os.path.exists(destdir):
+    if destdir.exists():
         shutil.rmtree(str(destdir))
     for meta in ['log', 'done']:
-        fname = destdir + '.' + meta
-        if os.path.exists(fname):
-            os.unlink(fname)
+        fname = Path(str(destdir) + '.' + meta)
+        if fname.exists():
+            fname.unlink()
     try:
-        os.removedirs(os.path.dirname(destdir))
+        os.removedirs(destdir.parent())
     except OSError:
         pass  # parent dir is likely non empty, due to other package versions
 
 
-def walk(sources_dir, test=None):
+def walk(sources_dir: Path, test=None):
     """iterate over FS storage files
 
     yield paths to either package directories or metadata files (e.g. .stats,
@@ -69,45 +69,28 @@ def walk(sources_dir, test=None):
     if test is given then it should be callable predicate; only paths on which
     it returns True will be returned
     """
-    for cwd, dirs, files in os.walk(sources_dir):
-        cwd_rel = os.path.relpath(cwd, sources_dir)
-        depth = len(cwd_rel.split('/'))
-        if depth == 3:
-            # e.g. (dir)  contrib/v/vor/0.5.5-2
-            # e.g. (file) contrib/v/vor/0.5.5-2.checksums
-            for item in files + dirs:
-                path = os.path.join(cwd, item)
-                if test is None or test(path):
-                    yield path
-            del(dirs[:])  # stop recursion
+    for item in glob.iglob(f'{str(sources_dir)}/*/*/*/*'):
+        # e.g. (dir)  contrib/v/vor/0.5.5-2
+        # e.g. (file) contrib/v/vor/0.5.5-2.checksums
+        item = Path(item)
+        if test is None or test(item):
+            yield item
 
 
-def walk_pkg_files(pkgdir, file_table=None):
+def walk_pkg_files(pkgdir: Path):
     """walk the source files in pkgdir, yielding pairs <relpath, abspath>.
     `relpath` is a path relative to `pkgdir`, whereas `abspath` is an absolute
     path (as long as `pkgdir` is absolute as well; otherwise it is "as
     absolute" as `pkgdir` is)
-
     """
-    if isinstance(pkgdir, six.text_type):
-        # dumb down pkgdir to bytes. Whereas pkgdir comes from Sources and
-        # hence is ASCII clean, the paths that os.walk() will encounter might
-        # not even be UTF-8 clean. Using .encode() we ensure that path
-        # operations will happen between bytes, avoding encoding issues.
-        pkgdir = pkgdir.encode('utf8')
-    if file_table:
-        for relpath in six.iterkeys(file_table):
-            abspath = os.path.join(pkgdir, relpath)
+    for root, dirs, files in os.walk(pkgdir):
+        for f in files:
+            abspath = Path(root) / f
+            relpath = abspath.relative_to(pkgdir)
             yield (relpath, abspath)
-    else:
-        for root, dirs, files in os.walk(pkgdir):
-            for f in files:
-                abspath = os.path.join(root, f)
-                relpath = os.path.relpath(abspath, pkgdir)
-                yield (relpath, abspath)
 
 
-def parse_path(fname):
+def parse_path(fname: Path):
     """parse a path pointing into the FS storage
 
     returns a dictionary like
@@ -119,27 +102,28 @@ def parse_path(fname):
 
     where the ext key is None for package directories
     """
-    steps = fname.split('/')
-    path = {'package': steps[-2],
-            'version': steps[-1],
-            'ext':     None}
-    if os.path.isdir(fname):  # e.g. contrib/v/vor/0.5.5-2
+    steps = fname.parts
+    parsed = {'package': steps[-2],
+              'version': steps[-1],
+              'ext':     None}
+    if fname.is_dir():  # e.g. contrib/v/vor/0.5.5-2
         pass
-    elif os.path.isfile(fname):  # e.g. contrib/v/vor/0.5.5-2.checksums
-        (base, ext) = os.path.splitext(path['version'])
-        path['version'] = base
-        path['ext'] = ext
+    elif fname.is_file():  # e.g. contrib/v/vor/0.5.5-2.checksums
+        *base, ext = parsed['version'].split('.')
+        parsed['version'] = '.'.join(base)
+        parsed['ext'] = f".{ext}"
     else:
-        assert False
-    return path
+        raise Exception(
+            f"Trying to parse a path that is not a file or a folder: {fname}")
+
+    return parsed
 
 
-def rm_file(pkgdir, relpath):
+def rm_file(pkgdir: Path, relpath: Path):
     """remove file `relpath` from package directory `pkgdir`
-
     """
-    path = os.path.join(pkgdir, relpath)
-    if os.path.exists(path):
-        os.unlink(path)
+    path = pkgdir / relpath
+    if path.exists():
+        path.unlink()
     else:
         logging.warning('cannot remove non existing file %s' % path)

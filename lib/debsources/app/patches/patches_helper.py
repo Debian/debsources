@@ -80,11 +80,7 @@ def get_sources_path(session, package, version, config, path):
 
     file_ = SourceFile(location)
 
-    sources_path = file_.get_raw_url().replace(
-        config['SOURCES_STATIC'],
-        config['SOURCES_DIR'],
-        1)
-    return sources_path, file_
+    return location.sources_path, file_
 
 
 def get_patch_format(session, package, version, config):

@@ -11,7 +11,6 @@
 
 from __future__ import absolute_import
 
-import os.path
 import unittest
 
 from nose.tools import istest
@@ -22,7 +21,7 @@ from debsources.tests.testdata import TEST_DATA_DIR
 
 
 def make_path(path):
-    return os.path.join(TEST_DATA_DIR, 'sources', path)
+    return TEST_DATA_DIR / 'sources' / path
 
 
 @attr('fs_storage')
@@ -38,7 +37,7 @@ class FsStorageTests(unittest.TestCase):
     def assertWalkTestChecksums(self):
         self.assertEqual(
             len([f for f in walk(make_path(''),
-                                 test=lambda x: 'checksums' in x)]),
+                                 test=lambda x: 'checksums' in str(x))]),
             36)
 
     @istest

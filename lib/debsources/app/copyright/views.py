@@ -12,6 +12,7 @@
 from __future__ import absolute_import
 
 from collections import defaultdict, Counter
+from functools import cmp_to_key
 import os
 
 from flask import current_app, request
@@ -79,9 +80,9 @@ class ChecksumLicenseView(ChecksumView):
             for package in dd:
                 version = sorted([item['version'] for item
                                  in dd[package]],
-                                 cmp=version_compare)[-1]
-                files.append(filter(lambda f: f['version'] == version,
-                                    dd[package])[0])
+                                 key=cmp_to_key(version_compare))[-1]
+                files.append(list(filter(lambda f: f['version'] == version,
+                                         dd[package]))[0])
         return files
 
     def _get_license_dict(self, files):
@@ -227,7 +228,8 @@ class SearchFileView(GeneralView):
                     origin=helper.license_url(f.package, f.version))
 
     def get_objects(self, packagename, version, path_to):
-        path = str(path_to)
+        path = bytes(path_to, encoding='utf8', errors='ignore')
+
         if version == 'all':
             files = qry.get_files_by_path_package(session, path,
                                                   packagename).all()
@@ -246,7 +248,7 @@ class SearchFileView(GeneralView):
                                 for res in files])
         else:
             return dict(count=len(files),
-                        path=path,
+                        path=str(path_to),
                         package=packagename,
                         version=version,
                         result=[dict(checksum=res.checksum,

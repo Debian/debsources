@@ -1,5 +1,4 @@
 FROM debian:buster
-MAINTAINER Matthieu Caneill <matthieu.caneill@gmail.com>
 
 ENV DEBIAN_FRONTEND noninteractive
 

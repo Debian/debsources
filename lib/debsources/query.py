@@ -12,6 +12,7 @@
 from __future__ import absolute_import, division
 
 from functools import cmp_to_key
+from pathlib import Path
 import os
 import stat
 
@@ -141,12 +142,12 @@ def pkg_names_list_versions_w_suites(session, packagename,
 ''' Navigation Queries '''
 
 
-def location_get_path_links(endpoint, path_to):
+def location_get_path_links(endpoint, path_to: Path):
     """
     returns the path hierarchy with urls, to use with 'You are here:'
     [(name, url(name)), (...), ...]
     """
-    path_dict = path_to.split('/')
+    path_dict = path_to.parts
     pathl = []
 
     # we import flask here, in order to permit the use of this module
@@ -210,7 +211,7 @@ def location_get_stat(sources_path):
     if file_type == "l":
         symlink_dest = os.readlink(sources_path)
 
-    return vars(LongFMT(file_type, file_perms, file_size, symlink_dest))
+    return LongFMT(file_type, file_perms, file_size, symlink_dest)._asdict()
 
 
 ''' SQLAlchemy queries '''

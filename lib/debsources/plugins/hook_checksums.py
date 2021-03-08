@@ -75,8 +75,8 @@ def add_package(session, pkg, pkgdir, file_table):
     if 'hooks.fs' in conf['backends']:
         if not os.path.exists(sumsfile):  # compute checksums only if needed
             with open(sumsfile_tmp, 'wb') as out:
-                for (relpath, abspath) in \
-                        fs_storage.walk_pkg_files(pkgdir, file_table):
+                for relpath in file_table:
+                    abspath = relpath.relative_to(pkgdir)
                     emit_checksum(out, relpath, abspath)
             os.rename(sumsfile_tmp, sumsfile)
 

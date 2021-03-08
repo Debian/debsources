@@ -15,6 +15,7 @@ from __future__ import absolute_import
 
 import os
 import six
+from pathlib import Path
 
 from flask import (
     current_app, jsonify, render_template, request, url_for, redirect)
@@ -494,7 +495,7 @@ class PackageVersionsView(GeneralView):
         elif request.blueprint == 'copyright':
             endpoint = '.versions'
 
-        pathl = qry.location_get_path_links(endpoint, packagename)
+        pathl = qry.location_get_path_links(endpoint, Path(packagename))
         return dict(type="package",
                     package=packagename,
                     versions=versions_w_suites,

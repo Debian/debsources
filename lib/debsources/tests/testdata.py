@@ -11,8 +11,8 @@
 
 from __future__ import absolute_import
 
-import os
+from pathlib import Path
 
-TEST_DIR = os.path.dirname(os.path.abspath(__file__))
-TEST_DATA_DIR = os.path.join(TEST_DIR, 'data')
+TEST_DIR = Path(__file__).resolve().parent
+TEST_DATA_DIR = TEST_DIR / 'data'
 TEST_DB_NAME = 'debsources-test'

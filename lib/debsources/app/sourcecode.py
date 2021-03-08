@@ -35,8 +35,8 @@ class SourceCodeIterator(object):
                       [("cpp", ['cpp','hpp']), (...), ...]
         """
         self.filepath = filepath
-        self.filename = self.filepath.split('/')[-1]
-        self.file = open(filepath)
+        self.filename = self.filepath.name
+        self.file = open(filepath, encoding=encoding, errors="ignore")
         # we store the firstline (used to determine file language)
         try:
             self.firstline = next(self.file)
@@ -71,15 +71,14 @@ class SourceCodeIterator(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         self.current_line += 1
         if self.current_line in self.hls:
             class_ = True
         else:
             class_ = False
         try:
-            line = six.text_type(next(self.file), self.encoding,
-                                 errors='replace')
+            line = next(self.file)
         except StopIteration:
             # end of file, we close it
             self.file.close()

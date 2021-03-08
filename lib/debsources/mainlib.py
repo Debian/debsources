@@ -13,8 +13,8 @@ from __future__ import absolute_import
 
 import importlib
 import logging
-import os
 from collections import defaultdict
+from pathlib import Path
 
 from debian import deb822
 import six.moves.configparser as configparser
@@ -54,14 +54,14 @@ LOG_LEVELS = {  # XXX module logging has no built-in way to do this conversion
     'critical': logging.CRITICAL,
 }
 
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 
 PROBABLE_CONF_FILES = [
-    os.path.join(ROOT_DIR, 'etc', 'config.local.ini'),
-    '/etc/debsources/config.ini',
-    '/srv/debsources/etc/config.local.ini',
-    '/srv/debsources/etc/config.ini',
-    os.path.join(ROOT_DIR, 'etc', 'config.ini'),
+    ROOT_DIR / 'etc' / 'config.local.ini',
+    Path('/etc') / 'debsources' / 'config.ini',
+    Path('/srv') / 'debsources' / 'etc' / 'config.local.ini',
+    Path('/srv') / 'debsources' / 'etc' / 'config.ini',
+    ROOT_DIR / 'etc' / 'config.ini',
     ]
 
 
@@ -79,8 +79,8 @@ def guess_conffile():
     """ returns the first probable configuration file, that exists and is not
     empty, and raises Exception if nothing is found """
     for conffile in PROBABLE_CONF_FILES:
-        if os.path.exists(conffile):
-            if os.stat(conffile).st_size:  # file is not empty
+        if conffile.exists():
+            if conffile.stat().st_size > 0:  # file is not empty
                 # TODO: debug
                 # Doing logging here prevents Flask's development server
                 # to output its usual logs in the terminal.
@@ -89,6 +89,13 @@ def guess_conffile():
 
     raise Exception('No configuration file found in %s'
                     % str(PROBABLE_CONF_FILES))
+
+
+def _to_path(key, value):
+    """Convert paths in config to pathlib.Path."""
+    if key.endswith('_dir') or key.endswith('_file'):
+        value = Path(value)
+    return value
 
 
 def parse_conf_infra(items):
@@ -113,7 +120,7 @@ def parse_conf_infra(items):
         elif key == 'single_transaction':
             assert value in ['true', 'false']
             value = (value == 'true')
-        typed[key] = value
+        typed[key] = _to_path(key, value)
     return typed
 
 
@@ -125,7 +132,8 @@ def parse_conf_webapp(items):
             value = False
         elif value.lower() == "true":
             value = True
-        typed[key.upper()] = value  # Flask only understands CAPSLOCKED keys
+        # Flask only understands CAPSLOCKED keys
+        typed[key.upper()] = _to_path(key, value)
     return typed
 
 
@@ -136,7 +144,7 @@ def load_conf(conffile, section="infra"):
     """
     conf = configparser.SafeConfigParser(DEFAULT_CONFIG[section])
 
-    if not os.path.exists(conffile):
+    if not conffile.exists():
         raise Exception('Configuration file %s does not exist' % conffile)
     conf.read(conffile)
 
@@ -150,9 +158,9 @@ def load_conf(conffile, section="infra"):
     if section == 'infra':
         typed_conf.update(parse_conf_infra(conf.items('infra')))
 
-        exclude_file = os.path.join(typed_conf['local_dir'], 'exclude.conf')
+        exclude_file = typed_conf['local_dir'] / 'exclude.conf'
         typed_conf['exclude'] = []
-        if os.path.exists(exclude_file):
+        if exclude_file.exists():
             typed_conf['exclude'] = parse_exclude(exclude_file)
 
     elif section == 'webapp':

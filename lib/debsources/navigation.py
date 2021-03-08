@@ -11,9 +11,9 @@
 
 from __future__ import absolute_import
 
-import os
 import magic
 import fnmatch
+from pathlib import Path
 
 from sqlalchemy import and_
 
@@ -30,7 +30,7 @@ import debsources.query as qry
 class Location(object):
     """ a location in a package, can be a directory or a file """
 
-    def _get_debian_path(self, session, package, version, sources_dir):
+    def _get_debian_path(self, session, package, version, sources_dir) -> Path:
         """
         Returns the Debian path of a package version.
         For example: main/h
@@ -57,13 +57,12 @@ class Location(object):
             # Problem: we don't know the area of such a package
             # so we try in main, contrib and non-free.
             for area in AREAS:
-                if os.path.exists(os.path.join(sources_dir, area,
-                                               prefix, package, version)):
-                    return os.path.join(area, prefix)
+                if Path.exists(Path(sources_dir) / area / prefix / package / version):
+                    return Path(area) / prefix
 
             raise InvalidPackageOrVersionError("%s %s" % (package, version))
 
-        return os.path.join(varea, prefix)
+        return Path(varea) / prefix
 
     def __init__(self, session, sources_dir, sources_static,
                  package, version="", path=""):
@@ -72,40 +71,30 @@ class Location(object):
                                             package, version, sources_dir)
         self.package = package
         self.version = version
-        self.path = path
-        self.path_to = os.path.join(package, version, path)
+        self.path = Path(path)
+        self.path_to = Path(package) / version / path
 
-        self.sources_path = os.path.join(
-            sources_dir,
-            debian_path,
-            self.path_to)
+        self.sources_path = Path(sources_dir) / debian_path / self.path_to
 
-        self.version_path = os.path.join(
-            sources_dir,
-            debian_path,
-            package,
-            version)
+        self.version_path = Path(sources_dir) / debian_path / package / version
 
-        if not(os.path.exists(self.sources_path)):
+        if not Path.exists(self.sources_path):
             raise FileOrFolderNotFound("%s" % (self.path_to))
 
-        self.sources_path_static = os.path.join(
-            sources_static,
-            debian_path,
-            self.path_to)
+        self.sources_path_static = Path(sources_static) / debian_path / self.path_to
 
     def is_dir(self):
         """ True if self is a directory, False if it's not """
-        return os.path.isdir(self.sources_path)
+        return Path.is_dir(self.sources_path)
 
     def is_file(self):
         """ True if sels is a file, False if it's not """
-        return os.path.isfile(self.sources_path)
+        return Path.is_file(self.sources_path)
 
     def is_symlink(self):
         """ True if a folder/file is a symbolic link file, False if it's not
         """
-        return os.path.islink(self.sources_path)
+        return Path.is_symlink(self.sources_path)
 
     def get_package(self):
         return self.package
@@ -119,13 +108,13 @@ class Location(object):
     def get_deepest_element(self):
         if self.version == "":
             return self.package
-        elif self.path == "":
+        elif self.path == Path():  # empty path
             return self.version
         else:
-            return self.path.split("/")[-1]
+            return self.path.name
 
     def get_path_to(self):
-        return self.path_to.rstrip("/")
+        return self.path_to
 
 
 class Directory(object):
@@ -144,20 +133,26 @@ class Directory(object):
         in a tuple (name, type)
         """
         def get_type(f):
-            if os.path.isdir(os.path.join(self.sources_path, f)):
+            if Path.is_dir(self.sources_path / f):
                 return "directory"
             else:
                 return "file"
-        get_stat, join_path = qry.location_get_stat, os.path.join
-        listing = sorted(dict(name=f, type=get_type(f), hidden=False,
-                              stat=get_stat(join_path(self.sources_path, f)))
-                         for f in os.listdir(self.sources_path))
+
+        listing = sorted(
+                    (dict(
+                       name=str(f.name),
+                       type=get_type(f),
+                       hidden=False,
+                       stat=qry.location_get_stat(self.sources_path / f)
+                       )
+                       for f in Path.iterdir(self.sources_path)),
+                    key=lambda x: x['name'])
 
         for hidden_file in self.hidden_files:
             for f in listing:
-                full_path = os.path.join(self.location.sources_path, f['name'])
+                full_path = bytes(self.location.sources_path / f['name'])
                 if f['type'] == "directory":
-                    full_path += "/"
+                    full_path += b"/"
                 f['hidden'] = (f['hidden'] or
                                fnmatch.fnmatch(full_path, hidden_file))
 
@@ -198,7 +193,7 @@ class SourceFile(object):
                         .filter(File.id == Checksum.file_id) \
                         .filter(PackageName.name == self.location.package) \
                         .filter(Package.version == self.location.version) \
-                        .filter(File.path == str(self.location.path)) \
+                        .filter(File.path == bytes(self.location.path)) \
                         .first()
         # WARNING: in the DB path is binary, and here
         # location.path is unicode, because the path comes from

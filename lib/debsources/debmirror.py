@@ -15,6 +15,8 @@ import logging
 import lzma
 import magic
 import os
+from pathlib import Path
+from typing import Optional
 
 from debian import deb822
 from debian.debian_support import version_compare
@@ -137,7 +139,7 @@ class SourcePackage(deb822.Sources):
         """
         return self.pkg_prefix(self['package'])
 
-    def dsc_path(self):
+    def dsc_path(self) -> Path:
         """return (absolute) path to .dsc file for this package
         """
         files_field = None
@@ -152,10 +154,10 @@ class SourcePackage(deb822.Sources):
         dsc = next(filter(
             lambda f: f['name'].endswith('.dsc'),
             self[files_field]))['name']
-        return os.path.join(self['x-debsources-mirror-root'],
-                            self['directory'], dsc)
 
-    def extraction_dir(self, basedir=None):
+        return Path(self['x-debsources-mirror-root']) / self['directory'] / dsc
+
+    def extraction_dir(self, basedir: Path) -> Optional[Path]:
         """return package extraction dir, relative to debsources sources_dir
 
         If given, prepend basedir path to the generated path. Return `None` if
@@ -166,13 +168,7 @@ class SourcePackage(deb822.Sources):
         if area is None:
             return None
 
-        steps = [area,
-                 self.prefix(),
-                 self['package'],
-                 self['version']]
-        if basedir:
-            steps.insert(0, basedir)
-        return os.path.join(*steps)
+        return basedir / area / self.prefix() / self['package'] / self['version']
 
 
 class SourceMirror(object):
