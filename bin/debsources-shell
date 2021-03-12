@@ -13,25 +13,29 @@
 
 from __future__ import absolute_import
 
+import code
 import os
 import readline
 import rlcompleter  # NOQA
 import argparse
 
-# from pprint import pprint
-
 from debsources import mainlib
 from debsources import sqla_session
-
-from debsources.app import *  # NOQA
+from debsources.models import *  # NOQA
 
 
 def main():
-    readline.parse_and_bind("tab: complete")
-    os.environ['PYTHONINSPECT'] = 'True'
-
     conf = mainlib.load_conf(mainlib.guess_conffile())
     engine, session = sqla_session._get_engine_session(conf['db_uri'])
+
+    readline.parse_and_bind("tab: complete")
+    os.environ['PYTHONINSPECT'] = 'True'
+    banner = (
+        "Debsources interactive console\n"
+        "`engine` and `session` are available!"
+    )
+    code.interact(banner=banner, local={**globals(), **locals()})
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
