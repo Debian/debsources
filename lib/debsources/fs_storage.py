@@ -55,7 +55,7 @@ def remove_package(pkg, destdir: Path):
         if fname.exists():
             fname.unlink()
     try:
-        os.removedirs(destdir.parent())
+        os.removedirs(destdir.parent)
     except OSError:
         pass  # parent dir is likely non empty, due to other package versions
 
