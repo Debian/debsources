@@ -20,6 +20,7 @@ import sqlalchemy
 import subprocess
 import tempfile
 import unittest
+from pathlib import Path
 
 import six
 
@@ -115,7 +116,7 @@ class Updater(unittest.TestCase, DbTestFixture):
     def setUp(self):
         self.db_setup()
         self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
-        self.conf = mk_conf(self.tmpdir)
+        self.conf = mk_conf(Path(self.tmpdir))
         self.longMessage = True
         self.maxDiff = None
 
@@ -195,19 +196,17 @@ class Updater(unittest.TestCase, DbTestFixture):
         PKG_AREA = 'main'
 
         # make fresh copies of sources/ and mirror dir
-        orig_sources = os.path.join(TEST_DATA_DIR, 'sources')
-        orig_mirror = os.path.join(TEST_DATA_DIR, 'mirror')
-        new_sources = os.path.join(self.tmpdir, 'sources2')
-        new_mirror = os.path.join(self.tmpdir, 'mirror2')
+        orig_sources = TEST_DATA_DIR / 'sources'
+        orig_mirror = TEST_DATA_DIR / 'mirror'
+        new_sources = Path(self.tmpdir) / 'sources2'
+        new_mirror = Path(self.tmpdir) / 'mirror2'
         shutil.copytree(orig_sources, new_sources)
         shutil.copytree(orig_mirror, new_mirror)
         self.conf['mirror_dir'] = new_mirror
         self.conf['sources_dir'] = new_sources
 
-        pkgdir = os.path.join(new_sources, PKG_AREA, GC_PACKAGE[0][0],
-                              GC_PACKAGE[0], GC_PACKAGE[1])
-        src_index = os.path.join(new_mirror, 'dists', PKG_SUITE, PKG_AREA,
-                                 'source', 'Sources.gz')
+        pkgdir = new_sources / PKG_AREA / GC_PACKAGE[0][0] / GC_PACKAGE[0] / GC_PACKAGE[1]
+        src_index = new_mirror / 'dists' / PKG_SUITE / PKG_AREA / 'source' / 'Sources.gz'
 
         # rm package to be GC'd from mirror (actually, remove everything...)
         with open(src_index, 'w') as f:
@@ -281,7 +280,7 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
     def setUp(self):
         self.db_setup()
         self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
-        self.conf = mk_conf(self.tmpdir)
+        self.conf = mk_conf(Path(self.tmpdir))
         dummy_status = updater.UpdateStatus()
 
         updater.update_statistics(dummy_status, self.conf, self.session)

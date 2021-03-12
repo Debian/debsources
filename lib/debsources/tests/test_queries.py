@@ -12,6 +12,7 @@
 from __future__ import absolute_import
 
 import unittest
+from pathlib import Path
 
 from nose.plugins.attrib import attr
 
@@ -95,8 +96,7 @@ class QueriesTest(unittest.TestCase, DbTestFixture):
 
         ctags = qry.find_ctag(self.session, "swap", "gnubg")
         self.assertEqual(ctags[0], 5)
-        # import pdb; pdb.set_trace()
-        self.assertTrue({'path': b'eval.c', 'line': 1747,
+        self.assertTrue({'path': Path('eval.c'), 'line': 1747,
                         'version': u'0.90+20091206-4', 'package': u'gnubg'}
                         in ctags[1])
 

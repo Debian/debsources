@@ -16,6 +16,7 @@ import os
 import shutil
 import tempfile
 import unittest
+from pathlib import Path
 
 from nose.tools import istest
 from nose.plugins.attrib import attr
@@ -43,7 +44,7 @@ class Archiver(unittest.TestCase, DbTestFixture):
     def setUp(self):
         self.db_setup()
         self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
-        self.conf = mk_conf(self.tmpdir)
+        self.conf = mk_conf(Path(self.tmpdir))
         self.conf['stages'] = self.TEST_STAGES
         self.longMessage = True
         self.maxDiff = None
