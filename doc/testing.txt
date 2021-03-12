@@ -6,7 +6,7 @@ Run tests locally
 Debsources test suite is managed with [Nose](https://nose.readthedocs.org/).
 To run the test suite execute the following from Debsources top-level dir:
 
-	$ nosetests -v debsources/tests/
+	$ nosetests3 -v debsources/tests/
 
 Check [Nose documentation](https://nose.readthedocs.org/en/latest/) for more
 advanced options, including how to only run specific tests, based on

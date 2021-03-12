@@ -1,4 +1,4 @@
-NOSE = nosetests
+NOSE = nosetests3
 FLAKE = flake8
 
 SRCDIR = lib/debsources
