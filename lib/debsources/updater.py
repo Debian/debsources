@@ -407,7 +407,8 @@ def update_suites(status, conf, session, mirror):
         for pkg_id, src_entry in status.sources.items():
             fields = list(pkg_id)
             fields.extend(src_entry[:-1])  # all except suites
-            fields.append(','.join(src_entry[-1]))
+            # suites are alphabetically sorted, more determinism
+            fields.append(','.join(sorted(src_entry[-1])))
             src_list.write('\t'.join(fields) + '\n')
     os.rename(src_list_path + '.new', src_list_path)
 

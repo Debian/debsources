@@ -89,16 +89,8 @@ def assert_db_schema_equal(test_subj, expected_schema, actual_schema):
                     test_subj.session.execute(q % {'schema': expected_schema})]
         actual = [dict(list(r.items())) for r in
                   test_subj.session.execute(q % {'schema': actual_schema})]
-        try:
-            test_subj.assertSequenceEqual(expected, actual,
-                                      msg='table %s differs from reference'
-                                      % tbl)
-        except Exception as e:
-            import sys
-            print(tbl, file=sys.stderr)
-            print(q, file=sys.stderr)
-            raise e
-            import pdb; pdb.set_trace()
+        test_subj.assertSequenceEqual(
+            expected, actual, msg='table %s differs from reference' % tbl)
 
 
 def assert_dir_equal(test_subj, dir1, dir2, exclude=[]):
@@ -155,24 +147,22 @@ class Updater(unittest.TestCase, DbTestFixture):
     @istest
     def producesReferenceSourcesTxt(self):
         def parse_sources_txt(fname):
-            for line in open(fname):
-                fields = line.split()
-                if fields[3].startswith('/'):
-                    fields[3] = os.path.relpath(fields[3],
-                                                self.conf['mirror_dir'])
-                if fields[4].startswith('/'):
-                    fields[4] = os.path.relpath(fields[4],
-                                                self.conf['sources_dir'])
-                yield fields
+            with open(fname) as f:
+                for line in f:
+                    fields = line.split()
+                    if fields[3].startswith('/'):
+                        fields[3] = str(Path(fields[3]).relative_to(self.conf['mirror_dir']))
+                    if fields[4].startswith('/'):
+                        fields[4] = str(Path(fields[4]).relative_to(self.conf['mirror_dir']))
+                    yield fields
 
         # given DB is pre-filled, this should be a "do-almost-nothing" update
         self.do_update()
-        srctxt_path = 'cache/sources.txt'
-        actual_srctxt = list(parse_sources_txt(os.path.join(self.tmpdir,
-                                                            srctxt_path)))
-        expected_srctxt = list(parse_sources_txt(os.path.join(TEST_DATA_DIR,
-                                                              srctxt_path)))
-        self.assertItemsEqual(actual_srctxt, expected_srctxt)
+        srctxt_path = Path('cache') / 'sources.txt'
+        # Entries need to be sorted for comparison, since no order is guaranteed
+        actual_srctxt = sorted(list(parse_sources_txt(self.tmpdir / srctxt_path)))
+        expected_srctxt = sorted(list(parse_sources_txt(TEST_DATA_DIR / srctxt_path)))
+        self.assertSequenceEqual(actual_srctxt, expected_srctxt)
 
     @istest
     def recreatesDbFromFiles(self):
