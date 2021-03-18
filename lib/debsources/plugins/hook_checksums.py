@@ -41,14 +41,14 @@ def parse_checksums(path):
 
     i.e. each line is "SHA256  PATH\n"
 
-    yield (sha256, path) pairs
+    yield (sha256, pathlib.Path) pairs
     """
     with open(path, 'rb') as checksums:
         for line in checksums:
             line = line.rstrip()
             sha256 = line[0:64].decode()  # checksums are stored as strings
-            path = line[66:]
-            yield (sha256, path)
+            filepath = Path(line[66:].decode('utf8', 'surrogateescape'))
+            yield (sha256, filepath)
 
 
 def add_package(session, pkg, pkgdir, file_table):
@@ -66,7 +66,7 @@ def add_package(session, pkg, pkgdir, file_table):
             # (and they are in old releases)
             return
         sha256 = hashutil.sha256sum(bytes(abspath))
-        out.write(b'%s  %s\n' % (sha256, bytes(relpath)))
+        out.write(sha256.encode('ascii') + b'  ' + bytes(relpath) + b'\n')
 
     if 'hooks.fs' in conf['backends']:
         if not sumsfile.exists():  # compute checksums only if needed

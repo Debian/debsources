@@ -140,7 +140,7 @@ class Directory(object):
 
         listing = sorted(
                     (dict(
-                       name=str(f.name),
+                       name=f.name,
                        type=get_type(f),
                        hidden=False,
                        stat=qry.location_get_stat(self.sources_path / f)

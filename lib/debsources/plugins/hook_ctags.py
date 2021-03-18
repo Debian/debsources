@@ -54,7 +54,7 @@ def parse_ctags(path):
     for each tag yield a tag dictionary::
 
       { 'tag':  'TAG_NAME',
-        'path': 'PATH/WITH/IN/PACKAGE',
+        'path': Path('path/within/package'),
         'line': LINE_NUMBER, # int
         'kind': 'TAG_KIND', # 1 letter
         'language': 'TAG_LANGUAGE',
@@ -70,7 +70,7 @@ def parse_ctags(path):
             tag['tag'] = fields[0].decode()
         except UnicodeDecodeError:
             raise ValueError('Tag can not be decoded to utf-8.')
-        tag['path'] = fields[1]
+        tag['path'] = Path(fields[1].decode('utf8', 'surrogatescape'))
         # note: ignore fields[2], ex_cmd
 
         for ext in fields[3:]:  # parse extension fields

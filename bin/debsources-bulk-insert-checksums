@@ -69,7 +69,7 @@ def insert_checksums(conn, sumsfile):
     checksums = []
     for (sha256, path) in parse_checksums(sumsfile):
         checksums.append({'package_id': package_id,
-                          'path': path,
+                          'path': str(path),
                           'sha256': sha256})
     if checksums:
         conn.execute(INSERT_SHA_Q, checksums)

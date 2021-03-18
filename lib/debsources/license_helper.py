@@ -106,10 +106,11 @@ def get_license(package, version, path, c):
     #     return qry.get_license_w_path(session, package, version, path)
     # import pdb; pdb.set_trace()
 
-    # We need to decode the path to utf8, because debian.copyright seems to
-    # only work with utf8 when reading the copyright file. Trade-off: non-utf8
-    # paths won't be properly recognized.
-    paragraph = c.find_files_paragraph(path.decode('utf8', errors='replace'))
+    # pathlib.Path uses a str to internally represent a path. In case of
+    # invalid bytes for utf8 encoding, surrogate escape sequences are
+    # used. debian.copyright seems to only work with utf8 when reading the
+    # copyright file, so non-utf8 paths won't be properly recognized.
+    paragraph = c.find_files_paragraph(str(path))
     if paragraph:
         try:
             return paragraph.license.synopsis
