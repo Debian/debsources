@@ -12,6 +12,7 @@
 from __future__ import absolute_import
 
 import os
+from pathlib import Path
 
 from flask import current_app, request, jsonify, url_for
 
@@ -237,10 +238,7 @@ class SourceView(GeneralView):
         Directory: we want the subdirs and subfiles (disk listing)
         File: we want to render the raw url of the file
         """
-        path_dict = path_to.split('/')
-
-        package = path_dict[0]
-        version = path_dict[1]
-        path = '/'.join(path_dict[2:])
+        package, version, *path = path_to.split('/')
+        path = Path('/'.join(path))
 
         return self._render_location(package, version, path)

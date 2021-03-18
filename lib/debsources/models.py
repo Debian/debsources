@@ -11,14 +11,18 @@
 
 from __future__ import absolute_import
 
+import warnings
+from pathlib import Path
+
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy import UniqueConstraint, PrimaryKeyConstraint
 from sqlalchemy import Index
-from sqlalchemy import Boolean, Date, DateTime, Integer, LargeBinary, String
+from sqlalchemy import Boolean, Date, DateTime, Integer, String
 from sqlalchemy.dialects.postgresql import BIGINT
 from sqlalchemy import Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+import sqlalchemy.types
 
 from debsources.consts import VCS_TYPES, SLOCCOUNT_LANGUAGES, \
     CTAGS_LANGUAGES, METRIC_TYPES, COPYRIGHT_ORACLES
@@ -142,6 +146,29 @@ class SuiteAlias(Base):
     suite = Column(String, ForeignKey('suites_info.name', ondelete='CASCADE'))
 
 
+class PathType(sqlalchemy.types.TypeDecorator):
+    """A custom binary type to work with pathlib.Path.
+
+    When writing in DB: Path -> bytes.
+    When reading from DB: bytes -> Path, using surrogateescape for non utf8 bytes.
+    """
+
+    impl = sqlalchemy.types.LargeBinary
+
+    def process_bind_param(self, value, dialect):
+        if isinstance(value, Path):
+            return bytes(value)
+        warnings.warn(f"A PathType was not created as a pathlib.Path: {str(value)}")
+        return value
+
+    def process_result_value(self, value, dialect):
+        # We need a string for pathlib.Path to work. File and folder names are
+        # bytes, and are not (necessarily) linked to an encoding, so we do a
+        # lossless conversion with surrogateescape.
+        value_str = value.decode('utf8', 'surrogateescape')
+        return Path(value_str)
+
+
 class File(Base):
     """source file table"""
 
@@ -152,7 +179,7 @@ class File(Base):
     package_id = Column(BIGINT,
                         ForeignKey('packages.id', ondelete="CASCADE"),
                         index=True, nullable=False)
-    path = Column(LargeBinary, index=True,  # path/whitin/source/pkg
+    path = Column(PathType, index=True,  # path/whitin/source/pkg
                   nullable=False)
 
     def __init__(self, version, path):

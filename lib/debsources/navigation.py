@@ -193,7 +193,7 @@ class SourceFile(object):
                         .filter(File.id == Checksum.file_id) \
                         .filter(PackageName.name == self.location.package) \
                         .filter(Package.version == self.location.version) \
-                        .filter(File.path == bytes(self.location.path)) \
+                        .filter(File.path == self.location.path) \
                         .first()
         # WARNING: in the DB path is binary, and here
         # location.path is unicode, because the path comes from

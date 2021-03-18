@@ -13,6 +13,7 @@ from __future__ import absolute_import
 
 from collections import defaultdict, Counter
 from functools import cmp_to_key
+from pathlib import Path
 
 from flask import current_app, request
 from debian.debian_support import version_compare
@@ -227,7 +228,7 @@ class SearchFileView(GeneralView):
                     origin=helper.license_url(f.package, f.version))
 
     def get_objects(self, packagename, version, path_to):
-        path = bytes(path_to, encoding='utf8', errors='ignore')
+        path = Path(path_to)
 
         if version == 'all':
             files = qry.get_files_by_path_package(session, path,
@@ -247,7 +248,7 @@ class SearchFileView(GeneralView):
                                 for res in files])
         else:
             return dict(count=len(files),
-                        path=str(path_to),
+                        path=str(path),
                         package=packagename,
                         version=version,
                         result=[dict(checksum=res.checksum,
