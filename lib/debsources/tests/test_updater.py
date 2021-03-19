@@ -107,8 +107,8 @@ class Updater(unittest.TestCase, DbTestFixture):
 
     def setUp(self):
         self.db_setup()
-        self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
-        self.conf = mk_conf(Path(self.tmpdir))
+        self.tmpdir = Path(tempfile.mkdtemp(suffix='.debsources-test'))
+        self.conf = mk_conf(self.tmpdir)
         self.longMessage = True
         self.maxDiff = None
 
@@ -138,8 +138,8 @@ class Updater(unittest.TestCase, DbTestFixture):
         exclude_pat = ['*' + ext for ext in self.conf['file_exts']] \
             + ['*.log']
         assert_dir_equal(self,
-                         os.path.join(self.tmpdir, 'sources'),
-                         os.path.join(TEST_DATA_DIR, 'sources'),
+                         self.tmpdir / 'sources',
+                         TEST_DATA_DIR / 'sources',
                          exclude=exclude_pat)
 
         assert_db_schema_equal(self, 'ref', 'public')
@@ -166,8 +166,8 @@ class Updater(unittest.TestCase, DbTestFixture):
 
     @istest
     def recreatesDbFromFiles(self):
-        orig_sources = os.path.join(TEST_DATA_DIR, 'sources')
-        dest_sources = os.path.join(self.tmpdir, 'sources')
+        orig_sources = TEST_DATA_DIR / 'sources'
+        dest_sources = self.tmpdir / 'sources'
         shutil.copytree(orig_sources, dest_sources)
         db_mv_tables_to_schema(self.session, 'ref')
 
@@ -188,8 +188,8 @@ class Updater(unittest.TestCase, DbTestFixture):
         # make fresh copies of sources/ and mirror dir
         orig_sources = TEST_DATA_DIR / 'sources'
         orig_mirror = TEST_DATA_DIR / 'mirror'
-        new_sources = Path(self.tmpdir) / 'sources2'
-        new_mirror = Path(self.tmpdir) / 'mirror2'
+        new_sources = self.tmpdir / 'sources2'
+        new_mirror = self.tmpdir / 'mirror2'
         shutil.copytree(orig_sources, new_sources)
         shutil.copytree(orig_mirror, new_mirror)
         self.conf['mirror_dir'] = new_mirror
@@ -206,7 +206,7 @@ class Updater(unittest.TestCase, DbTestFixture):
         os.utime(pkgdir, None)
         self.conf['expire_days'] = 3
         self.do_update()
-        self.assertTrue(os.path.exists(pkgdir),
+        self.assertTrue(pkgdir.exists(),
                         'young gone package %s/%s disappeared from FS storage'
                         % GC_PACKAGE)
         self.assertTrue(db_storage.lookup_package(self.session, *GC_PACKAGE),
@@ -216,7 +216,7 @@ class Updater(unittest.TestCase, DbTestFixture):
         # another update run without grace period, package should go
         self.conf['expire_days'] = 0
         self.do_update()
-        self.assertFalse(os.path.exists(pkgdir),
+        self.assertFalse(pkgdir.exists(),
                          'gone package %s/%s persisted in FS storage' %
                          GC_PACKAGE)
         self.assertFalse(db_storage.lookup_package(self.session, *GC_PACKAGE),
@@ -232,18 +232,17 @@ class Updater(unittest.TestCase, DbTestFixture):
 Package: %s
 Files: %s
 Action: remove""" % (PKG, EXCLUDED_GLOB)
-        excluded_paths = os.path.join(self.tmpdir, 'sources', '*',
-                                      PKG_PREFIX, PKG, '*', EXCLUDED_GLOB)
+        excluded_paths = self.tmpdir / 'sources' / '*' / PKG_PREFIX / PKG / '*' / EXCLUDED_GLOB
 
         # dummy update run, copying over sources/ dir
-        orig_sources = os.path.join(TEST_DATA_DIR, 'sources')
-        dest_sources = os.path.join(self.tmpdir, 'sources')
+        orig_sources = TEST_DATA_DIR / 'sources'
+        dest_sources = self.tmpdir / 'sources'
         shutil.copytree(orig_sources, dest_sources)
         self.do_update()
-        self.assertTrue(glob.glob(excluded_paths))
+        self.assertTrue(glob.glob(str(excluded_paths)))
 
         # second update run, this time with exclusions
-        exclude_tmp = os.path.join(self.tmpdir, 'exclude.conf')
+        exclude_tmp = self.tmpdir / 'exclude.conf'
         with open(exclude_tmp, 'w') as f:
             f.write(EXCLUSIONS)
         self.conf['exclude'] = mainlib.parse_exclude(exclude_tmp)
@@ -253,7 +252,7 @@ Action: remove""" % (PKG, EXCLUDED_GLOB)
         for pkg in pkgs:
             self.session.delete(pkg)
         self.do_update()
-        self.assertFalse(glob.glob(excluded_paths))
+        self.assertFalse(glob.glob(str(excluded_paths)))
 
 
 @attr('infra')
@@ -269,13 +268,13 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
 
     def setUp(self):
         self.db_setup()
-        self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
-        self.conf = mk_conf(Path(self.tmpdir))
+        self.tmpdir = Path(tempfile.mkdtemp(suffix='.debsources-test'))
+        self.conf = mk_conf(self.tmpdir)
         dummy_status = updater.UpdateStatus()
 
         updater.update_statistics(dummy_status, self.conf, self.session)
 
-        stats_data = os.path.join(self.conf['cache_dir'], 'stats.data')
+        stats_data = self.conf['cache_dir'] / 'stats.data'
         self.stats = statistics.load_metadata_cache(stats_data)
 
     def tearDown(self):
@@ -316,8 +315,7 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
 
     @istest
     def licenseStatsMatchReferenceDb(self):
-        license_stats_data = os.path.join(self.conf['cache_dir'],
-                                          'license_stats.data')
+        license_stats_data = self.conf['cache_dir'] / 'license_stats.data'
         license_stats = statistics.load_metadata_cache(license_stats_data)
         expected_stats = {  # just a few samples
             'experimental.LGPL-2.1+': 749,

@@ -323,11 +323,9 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
         # unsafe symlinks (relatives and absolutes)
 
-        sources_dir = os.path.join(self.app_wrapper.app.config['SOURCES_DIR'])
-        s_relative = os.path.join(sources_dir,
-                                  'main/b/beignet/1.0.0-1/relative-link')
-        s_absolute = os.path.join(sources_dir,
-                                  'main/b/beignet/1.0.0-1/absolute-link')
+        sources_dir = self.app_wrapper.app.config['SOURCES_DIR']
+        s_relative = sources_dir / 'main' / 'b' / 'beignet' / '1.0.0-1' / 'relative-link'
+        s_absolute = sources_dir / 'main' / 'b' / 'beignet' / '1.0.0-1' / 'absolute-link'
         try:
             # create symlinks
             if not os.path.lexists(s_relative):

@@ -16,8 +16,8 @@
 from __future__ import absolute_import
 
 import logging
-import os
 import re
+from pathlib import Path
 
 import six
 
@@ -412,15 +412,16 @@ def load_metadata_cache(fname):
     return stats
 
 
-def save_metadata_cache(stats, fname):
+def save_metadata_cache(stats, fname: Path):
     """save a `stats.data` file, atomically, reading values from an
     integer-valued dictionary
 
     """
-    with open(fname + '.new', 'w') as out:
+    fname_new = Path(str(fname) + '.new')
+    with fname_new.open('w') as out:
         for k, v in sorted(six.iteritems(stats)):
             out.write('%s\t%d\n' % (k, v))
-    os.rename(fname + '.new', fname)
+    fname_new.rename(fname)
 
 
 def get_licenses(session, suite=None):

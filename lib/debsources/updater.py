@@ -14,6 +14,8 @@ import glob
 import logging
 import os
 import subprocess
+from pathlib import Path
+from typing import List
 
 from datetime import datetime
 from email.utils import formatdate
@@ -101,7 +103,7 @@ def notify(conf, event, session, pkg, pkgdir, file_table=None):
            '--arg', pkgdir,
            '--arg', package,
            '--arg', version,
-           os.path.join(conf['bin_dir'], event + '.d')]
+           conf['bin_dir'] / f"{event}.d"]
 
     # fire shell hooks
     try:
@@ -138,9 +140,9 @@ def notify_plugins(observers, event, session, pkg, pkgdir,
             raise
 
 
-def ensure_dir(dir):
-    if not os.path.exists(dir):
-        os.makedirs(dir)
+def ensure_dir(directory: Path):
+    if not directory.exists():
+        directory.mkdir(parents=True)
 
 
 def ensure_cache_dir(conf):
@@ -148,7 +150,7 @@ def ensure_cache_dir(conf):
 
 
 def ensure_stats_dir(conf):
-    ensure_dir(os.path.join(conf['cache_dir'], 'stats'))
+    ensure_dir(conf['cache_dir'] / 'stats')
 
 
 def exclude_files(session, pkg, pkgdir, file_table, exclude_specs):
@@ -163,13 +165,13 @@ def exclude_files(session, pkg, pkgdir, file_table, exclude_specs):
              # ignore non file-based exclusion stanzas
              if 'files' in spec and
              spec['package'] == pkg['package']]
-    candidates = []  # files eligible for exclusion
+    candidates: List[Path] = []  # files eligible for exclusion
     for spec in specs:
         # enforce spec's Files field
         for pat in spec['files'].split():
             # ASSUMPTION: `pkgdir` is the CWD; enforced by _add_package
             for relpath in glob.iglob(pat):
-                candidates.append(relpath)
+                candidates.append(Path(relpath))
 
     # remove exclusion candidates from FS and DB storage
     if candidates:
@@ -201,7 +203,7 @@ def _add_package(pkg, conf, session, sticky=False):
     handles and logs exceptions
     """
     logging.info('add %s...' % pkg)
-    workdir = os.getcwd()
+    workdir: Path = Path.cwd()
     try:
         pkgdir = pkg.extraction_dir(conf['sources_dir'])
         if pkgdir is None:
@@ -304,9 +306,9 @@ def extract_new(status, conf, session, mirror):
                 logging.exception('trigger failure on %s' % pkg)
         # add entry for sources.txt, temporarily with no suite associated
         pkg_id = (pkg['package'], pkg['version'])
-        dsc_rel = os.path.relpath(pkg.dsc_path(), conf['mirror_dir'])
-        pkgdir_rel = os.path.relpath(pkg.extraction_dir(conf['sources_dir']),
-                                     conf['sources_dir'])
+        dsc_rel = pkg.dsc_path().relative_to(conf['mirror_dir'])
+        pkgdir_rel = pkg.extraction_dir(conf['sources_dir']).relative_to(
+            conf['sources_dir'])
         status.sources[pkg_id] = pkg.archive_area(), dsc_rel, pkgdir_rel, []
 
     logging.info('add new packages...')
@@ -332,7 +334,7 @@ def garbage_collect(status, conf, session, mirror):
             # might have to garbage collect it (depending on expiry)
             expire_days = conf['expire_days']
             age = None
-            if os.path.exists(pkgdir):
+            if pkgdir.exists():
                 age = datetime.now() - \
                     datetime.fromtimestamp(os.path.getmtime(pkgdir))
             if not age or age.days >= expire_days:
@@ -402,15 +404,16 @@ def update_suites(status, conf, session, mirror):
         session.flush()
 
     # update sources.txt, now that we know the suite mappings
-    src_list_path = os.path.join(conf['cache_dir'], 'sources.txt')
-    with open(src_list_path + '.new', 'w') as src_list:
+    src_list_path = conf['cache_dir'] / 'sources.txt'
+    src_list_path_new = Path(str(src_list_path) + '.new')
+    with src_list_path_new.open('w') as src_list:
         for pkg_id, src_entry in status.sources.items():
             fields = list(pkg_id)
-            fields.extend(src_entry[:-1])  # all except suites
+            fields.extend(str(x) for x in src_entry[:-1])  # all except suites
             # suites are alphabetically sorted, more determinism
             fields.append(','.join(sorted(src_entry[-1])))
             src_list.write('\t'.join(fields) + '\n')
-    os.rename(src_list_path + '.new', src_list_path)
+    src_list_path_new.rename(src_list_path)
 
 
 def __target_suites(session, suites=None):
@@ -434,8 +437,8 @@ def update_statistics(status, conf, session, suites=None):
     suites = __target_suites(session, suites)
 
     now = datetime.utcnow()
-    stats_file = os.path.join(conf['cache_dir'], 'stats.data')
-    if os.path.exists(stats_file):
+    stats_file = conf['cache_dir'] / 'stats.data'
+    if stats_file.exists():
         # If stats.data exists, load and update it, otherwise start from
         # scratch. Note: this means that we need to be careful about changing
         # stats keys, to avoid orphans.
@@ -514,10 +517,8 @@ def update_statistics(status, conf, session, suites=None):
 
     def update_license_statistics(suites):
         # compute License stats
-        license_stats_file = os.path.join(conf['cache_dir'],
-                                          'license_stats.data')
-        dual_license_file = os.path.join(conf['cache_dir'],
-                                         'dual_license.data')
+        license_stats_file = conf['cache_dir'] / 'license_stats.data'
+        dual_license_file = conf['cache_dir'] / 'dual_license.data'
         license_stats = dict()
         license_d_stats = dict()
 
@@ -576,18 +577,20 @@ def update_metadata(status, conf, session):
 
     # update package prefixes list
     if not conf['dry_run'] and 'fs' in conf['backends']:
-        prefix_path = os.path.join(conf['cache_dir'], 'pkg-prefixes')
-        with open(prefix_path + '.new', 'w') as out:
+        prefix_path = conf['cache_dir'] / 'pkg-prefixes'
+        prefix_path_new = Path(str(prefix_path) + '.new')
+        with prefix_path_new.open('w') as out:
             for prefix in db_storage.pkg_prefixes(session):
                 out.write('%s\n' % prefix)
-        os.rename(prefix_path + '.new', prefix_path)
+        prefix_path_new.rename(prefix_path)
 
     # update timestamp
     if not conf['dry_run'] and 'fs' in conf['backends']:
-        timestamp_file = os.path.join(conf['cache_dir'], 'last-update')
-        with open(timestamp_file + '.new', 'w') as out:
+        timestamp_file = conf['cache_dir'] / 'last-update'
+        timestamp_file_new = Path(str(timestamp_file) + '.new')
+        with timestamp_file_new.open('w') as out:
             out.write('%s\n' % formatdate())
-        os.rename(timestamp_file + '.new', timestamp_file)
+        timestamp_file_new.rename(timestamp_file)
 
 
 def update_charts(status, conf, session, suites=None):
@@ -611,10 +614,8 @@ def update_charts(status, conf, session, suites=None):
             for suite in suites + ['ALL']:
                 series = getattr(statistics, 'history_size_' + granularity)(
                     session, metric, interval=period, suite=suite)
-                chart_file = os.path.join(conf['cache_dir'], 'stats',
-                                          '%s-%s-%s.png' %
-                                          (suite, metric,
-                                           period.replace(' ', '-')))
+                filename = '%s-%s-%s.png' % (suite, metric, period.replace(' ', '-'))
+                chart_file = conf['cache_dir'] / 'stats' / filename
                 if not conf['dry_run']:
                     charts.size_plot(series, chart_file)
 
@@ -624,9 +625,8 @@ def update_charts(status, conf, session, suites=None):
             # historical histogram
             mseries = getattr(statistics, 'history_sloc_' + granularity)(
                 session, interval=period, suite=suite)
-            chart_file = os.path.join(conf['cache_dir'], 'stats',
-                                      '%s-sloc-%s.png' %
-                                      (suite, period.replace(' ', '-')))
+            filename = '%s-sloc-%s.png' % (suite, period.replace(' ', '-'))
+            chart_file = conf['cache_dir'] / 'stats' / filename
             if not conf['dry_run']:
                 charts.multiseries_plot(mseries, chart_file)
 
@@ -639,8 +639,8 @@ def update_charts(status, conf, session, suites=None):
         slocs = statistics.sloccount_summary(session, suite=sloc_suite)
         if suite not in ['ALL']:
             sloc_per_suite.append(slocs)
-        chart_file = os.path.join(conf['cache_dir'], 'stats',
-                                  '%s-sloc_pie-current.png' % suite)
+        filename = '%s-sloc_pie-current.png' % suite
+        chart_file = conf['cache_dir'] / 'stats' / filename
         if not conf['dry_run']:
             charts.pie_chart(slocs, chart_file)
 
@@ -649,7 +649,7 @@ def update_charts(status, conf, session, suites=None):
         top_langs = int(conf['charts_top_langs'])
     else:
         top_langs = 6
-    chart_file = os.path.join(conf['cache_dir'], 'stats', 'sloc_bar_plot.png')
+    chart_file = conf['cache_dir'] / 'stats' / 'sloc_bar_plot.png'
     charts.bar_chart(sloc_per_suite, suites, chart_file, top_langs, 'SLOC')
 
     def update_license_charts():
@@ -659,9 +659,8 @@ def update_charts(status, conf, session, suites=None):
                 mseries = getattr(statistics,
                                   'history_copyright_' + granularity)(
                     session, interval=period, suite=suite)
-                chart_file = os.path.join(conf['cache_dir'], 'stats',
-                                          'copyright_%s-license-%s.png' %
-                                          (suite, period.replace(' ', '-')))
+                filename = 'copyright_%s-license-%s.png' % (suite, period.replace(' ', '-'))
+                chart_file = conf['cache_dir'] / 'stats' / filename
                 if not conf['dry_run']:
                     charts.multiseries_plot(mseries, chart_file, cols=3)
 
@@ -669,8 +668,7 @@ def update_charts(status, conf, session, suites=None):
         overall_licenses = statistics.licenses_summary(
             statistics.get_licenses(session, 'ALL'))
         ratio = qry.get_ratio(session)
-        chart_file = os.path.join(conf['cache_dir'], 'stats',
-                                  'copyright_overall-license_pie.png')
+        chart_file = conf['cache_dir'] / 'stats' / 'copyright_overall-license_pie.png'
         if not conf['dry_run']:
             charts.pie_chart(overall_licenses, chart_file, ratio)
 
@@ -684,16 +682,13 @@ def update_charts(status, conf, session, suites=None):
             ratio = qry.get_ratio(session, suite=suite)
             # draw license pie chart
             if not conf['dry_run']:
-                chart_file = os.path.join(conf['cache_dir'], 'stats',
-                                          'copyright_%s'
-                                          '-license_pie-current.png'
-                                          % suite)
+                filename = 'copyright_%s-license_pie-current.png' % suite
+                chart_file = conf['cache_dir'] / 'stats' / filename
                 charts.pie_chart(licenses, chart_file, ratio)
 
             licenses_per_suite.append(licenses)
 
-        chart_file = os.path.join(conf['cache_dir'], 'stats',
-                                  'copyright_license_bar_plot.png')
+        chart_file = conf['cache_dir'] / 'stats' / 'copyright_license_bar_plot.png'
         if not conf['dry_run']:
             charts.bar_chart(licenses_per_suite, all_suites, chart_file,
                              top_langs, 'Number of files')

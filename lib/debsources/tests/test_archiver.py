@@ -12,7 +12,6 @@
 from __future__ import absolute_import
 
 import logging
-import os
 import shutil
 import tempfile
 import unittest
@@ -49,7 +48,7 @@ class Archiver(unittest.TestCase, DbTestFixture):
         self.longMessage = True
         self.maxDiff = None
 
-        orig_sources = os.path.join(TEST_DATA_DIR, 'sources')
+        orig_sources = TEST_DATA_DIR / 'sources'
         dest_sources = self.conf['sources_dir']
         shutil.copytree(orig_sources, dest_sources)
 
@@ -118,7 +117,7 @@ class Archiver(unittest.TestCase, DbTestFixture):
     @attr('slow')
     def removesStickySuite(self):
         SARGE_PACKAGES = [('asm', '1.5.2-1'), ('zziplib', '0.12.83-4')]
-        stats_file = os.path.join(self.conf['cache_dir'], 'stats.data')
+        stats_file = self.conf['cache_dir'] / 'stats.data'
 
         # to test stats.data cleanup
         self.conf['stages'] = self.TEST_STAGES.union(

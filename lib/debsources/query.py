@@ -39,7 +39,7 @@ def pkg_names_get_packages_prefixes(cache_dir):
     cache_dir: the cache directory, usually comes from the app config
     """
     try:
-        with open(os.path.join(cache_dir, 'pkg-prefixes')) as f:
+        with (cache_dir / 'pkg-prefixes').open() as f:
             prefixes = [l.rstrip() for l in f]
     except IOError:
         prefixes = PREFIXES_DEFAULT

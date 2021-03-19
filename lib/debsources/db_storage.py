@@ -121,11 +121,11 @@ def pkg_prefixes(session):
 def rm_file(session, package, relpath, file_table=None):
     if file_table:
         file_id = file_table[relpath]
-        file_ = session.query(File).filter_by(id=file_id).first()
+        file = session.query(File).filter_by(id=file_id).first()
     else:
-        file_ = session.query(File) \
+        file = session.query(File) \
                        .join(Package) \
                        .join(PackageName) \
                        .filter_by(name=package, path=relpath) \
                        .first()
-    session.delete(file_)
+    session.delete(file)

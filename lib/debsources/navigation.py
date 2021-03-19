@@ -85,16 +85,16 @@ class Location(object):
 
     def is_dir(self):
         """ True if self is a directory, False if it's not """
-        return Path.is_dir(self.sources_path)
+        return self.sources_path.is_dir()
 
     def is_file(self):
         """ True if sels is a file, False if it's not """
-        return Path.is_file(self.sources_path)
+        return self.sources_path.is_file()
 
     def is_symlink(self):
         """ True if a folder/file is a symbolic link file, False if it's not
         """
-        return Path.is_symlink(self.sources_path)
+        return self.sources_path.is_symlink()
 
     def get_package(self):
         return self.package

@@ -175,13 +175,13 @@ class SourceMirror(object):
     """Handle for a local Debian source mirror
     """
 
-    def __init__(self, path):
+    def __init__(self, path: Path):
         """create a handle to a local source mirror rooted at path
         """
         self.mirror_root = path
         self._suites = None    # dict: suite name -> [<package, version>]
         self._packages = None  # set(<package, version>)
-        self._dists_dir = os.path.join(path, 'dists')
+        self._dists_dir = path / 'dists'
 
     @property
     def suites(self):
@@ -218,25 +218,24 @@ class SourceMirror(object):
         uncompress them if needed
 
         """
-        def choose_comp(base):
+        def choose_comp(base: Path) -> Path:
             """pick the preferred compressed variant of a given Sources file"""
-            variants = [base + '.' + fmt
-                        for fmt in SOURCES_COMP_FMTS
-                        if os.path.exists(base + '.' + fmt)]
-            if not variants:
-                raise DebmirrorError('no supported compressed variants of '
-                                     'Sources file: ' + base)
-            else:
-                return variants[0]
+            for fmt in SOURCES_COMP_FMTS:
+                sources_file = base.with_suffix(f".{fmt}")
+                if sources_file.exists():
+                    return sources_file
+            raise DebmirrorError('no supported compressed variants of '
+                                 'Sources file: ' + base)
 
         for root, dirs, files in os.walk(self._dists_dir):
-            src_bases = set([os.path.join(root, os.path.splitext(file)[0])
-                             for file in files
-                             if os.path.splitext(file)[0] == 'Sources'])
+            src_bases = set(
+                Path(root) / Path(file).stem
+                for file in files
+                if Path(file).stem == 'Sources'
+            )
             src_indexes = [choose_comp(b) for b in src_bases]
             for f in src_indexes:
-                steps = f.split('/')
-                suite = steps[-4]  # wheezy, jessie, sid, ...
+                suite = f.parts[-4]  # wheezy, jessie, sid, ...
                 yield suite, f
 
     def pkg_prefixes(self):
@@ -246,15 +245,14 @@ class SourceMirror(object):
         their first letter, except libraries that prefix to libX
 
         """
-        pool_dir = os.path.join(self.mirror_root, 'pool')
+        pool_dir: Path = self.mirror_root / 'pool'
         prefixes = set()
         for pool_subdir in os.listdir(pool_dir):
             # make it absolute
-            pool_subdir = os.path.join(pool_dir, pool_subdir)
+            pool_subdir: Path = pool_dir / pool_subdir
             for entry in os.listdir(pool_subdir):
-                entry = os.path.join(pool_subdir, entry)
-                if os.path.isdir(entry):
-                    prefixes.add(os.path.relpath(entry, pool_subdir))
+                if (pool_subdir / entry).is_dir():
+                    prefixes.add(entry)
         return sorted(list(prefixes))
 
     def ls(self, suite=None):
@@ -308,10 +306,10 @@ class SourceMirror(object):
         """
         suites = []
         for f in os.listdir(self._dists_dir):
-            path = os.path.join(self._dists_dir, f)
-            if os.path.islink(path) and not aliases:
+            path: Path = self._dists_dir / f
+            if path.is_symlink() and not aliases:
                 continue
-            if os.path.isdir(path):
+            if path.is_dir():
                 suites.append(f)
 
         return suites
@@ -330,9 +328,9 @@ class SourceMirror(object):
                 suites[suite] = []
 
         for f in os.listdir(self._dists_dir):
-            path = os.path.join(self._dists_dir, f)
-            if os.path.isdir(path):
-                if not os.path.islink(path):
+            path = self._dists_dir / f
+            if path.is_dir():
+                if not path.is_symlink():
                     add_suite(f)
                 else:
                     add_suite(os.readlink(path))

@@ -11,7 +11,6 @@
 
 from __future__ import absolute_import
 
-import os
 import sqlalchemy
 import sqlalchemy.orm
 import subprocess
@@ -21,7 +20,7 @@ from debsources.subprocess_workaround import subprocess_setup
 from debsources.tests.testdata import TEST_DATA_DIR, TEST_DB_NAME
 
 
-TEST_DB_DUMP = os.path.join(TEST_DATA_DIR, 'db/pg-dump-custom')
+TEST_DB_DUMP = TEST_DATA_DIR / 'db' / 'pg-dump-custom'
 
 # queries to compare two DB schemas (e.g. "public.*" and "ref.*")
 DB_COMPARE_QUERIES = {

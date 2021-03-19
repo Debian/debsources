@@ -39,8 +39,7 @@ class StatsView(GeneralView):
         if suite not in statistics.suites(session, 'all'):
             raise Http404Error()  # security, to avoid suite='../../foo',
             # to include <img>s, etc.
-        stats_file = os.path.join(current_app.config["CACHE_DIR"],
-                                  "stats.data")
+        stats_file = current_app.config["CACHE_DIR"] / "stats.data"
         res = extract_stats(filename=stats_file,
                             filter_suites=["debian_" + suite])
         info = qry.get_suite_info(session, suite)
@@ -52,7 +51,7 @@ class StatsView(GeneralView):
                     rel_version=info.version)
 
     def get_stats(self):
-        stats_file = os.path.join(app.config["CACHE_DIR"], "stats.data")
+        stats_file = app.config["CACHE_DIR"] / "stats.data"
         res = extract_stats(filename=stats_file)
 
         all_suites = ["debian_" + x for x in
@@ -88,14 +87,14 @@ class SourceView(GeneralView):
             # check if it's secure
             symlink_dest = os.readlink(location.sources_path)
             dest = os.path.normpath(  # absolute, target file
-                os.path.join(os.path.dirname(location.sources_path),
-                             symlink_dest))
+                location.sources_path.parent / symlink_dest
+            )
             # note: adding trailing slash because normpath drops them
             if dest.startswith(os.path.normpath(location.version_path) + '/'):
                 # symlink is safe; redirect to its destination
                 redirect_url = os.path.normpath(
-                    os.path.join(os.path.dirname(location.path_to),
-                                 symlink_dest))
+                    location.path_to.parent / symlink_dest
+                )
                 self.render_func = bind_redirect(url_for(request.endpoint,
                                                  path_to=redirect_url),
                                                  code=301)
