@@ -328,7 +328,7 @@ class ChecksumView(GeneralView):
             results = results.slice(slice_[0], slice_[1])
         results = results.all()
 
-        return [dict(path=res.path,
+        return [dict(path=str(res.path),
                      package=res.package,
                      version=res.version)
                 for res in results]

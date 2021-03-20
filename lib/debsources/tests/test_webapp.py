@@ -477,6 +477,17 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
                          ("be43f81c20961702327c10e9bd5f5a9a2b1cc"
                           "eea850402ea562a9a76abcfa4bf"))
 
+    def test_checksum_search(self):
+        rv = self.app.get(
+            '/sha256/?checksum='
+            'be43f81c20961702327c10e9bd5f5a9a2b1cceea850402ea562a9a76abcfa4bf'
+            '&page=1')
+        self.assertIn(b'3 results', rv.data)
+        self.assertIn(
+            b'Checksum: '
+            b'be43f81c20961702327c10e9bd5f5a9a2b1cceea850402ea562a9a76abcfa4bf',
+            rv.data)
+
     def test_api_checksum_search(self):
         rv = json.loads(self.app.get(
             '/api/sha256/?checksum=be43f81c20961702327'
@@ -484,6 +495,17 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
             'a4bf&page=1').data)
         self.assertEqual(rv["count"], 3)
         self.assertEqual(len(rv["results"]), 3)
+
+    def test_checksum_search_within_package(self):
+        rv = self.app.get(
+            '/sha256/?checksum='
+            '4f721b8e5b0add185d6af7a93e577638d25eaa5c341297d95b4a27b7635b4d3f'
+            '&package=susv2')
+        self.assertIn(b'1 result', rv.data)
+        self.assertIn(
+            b'Checksum: '
+            b'4f721b8e5b0add185d6af7a93e577638d25eaa5c341297d95b4a27b7635b4d3f',
+            rv.data)
 
     def test_api_checksum_search_within_package(self):
         rv = json.loads(self.app.get(
