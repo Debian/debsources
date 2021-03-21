@@ -19,8 +19,6 @@ import logging
 import re
 from pathlib import Path
 
-import six
-
 from sqlalchemy import distinct, desc
 from sqlalchemy import func as sql_func
 
@@ -419,7 +417,7 @@ def save_metadata_cache(stats, fname: Path):
     """
     fname_new = Path(str(fname) + '.new')
     with fname_new.open('w') as out:
-        for k, v in sorted(six.iteritems(stats)):
+        for k, v in sorted(stats.items()):
             out.write('%s\t%d\n' % (k, v))
     fname_new.rename(fname)
 

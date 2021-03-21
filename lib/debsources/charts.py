@@ -15,8 +15,6 @@ import logging
 import operator
 
 import matplotlib
-import six
-from six.moves import range
 
 from itertools import cycle
 
@@ -75,7 +73,7 @@ def multiseries_plot(multiseries, fname, cols=7):
 
     styles = cycle(LINE_STYLES)
     for name, series in sorted(
-            six.iteritems(multiseries),
+            multiseries.items(),
             key=lambda x: x[1],  # by value
             reverse=True):
         ts, values = _split_series(series)
@@ -101,7 +99,7 @@ def pie_chart(items, fname, ratio=None):
     logging.debug('generate sloccount pie chart to %s...' % fname)
     cols = cm.Set1(np.arange(20) / 20.)
     plt.figure()
-    keys, values = _split_series(list(six.iteritems(items)))
+    keys, values = _split_series(items.items())
     modified_keys = ["Other: ", "Other"]
     modified_values = [0]
     for i, value in enumerate(values):

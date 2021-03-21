@@ -11,14 +11,13 @@
 
 from __future__ import absolute_import
 
+import configparser
 import importlib
 import logging
 from collections import defaultdict
 from pathlib import Path
 
 from debian import deb822
-import six.moves.configparser as configparser
-from six.moves import map
 
 from debsources import updater
 
@@ -142,7 +141,7 @@ def load_conf(conffile, section="infra"):
     load configuration from `conffile` and return it as a (typed) dictionary,
     containing the desired section
     """
-    conf = configparser.SafeConfigParser(DEFAULT_CONFIG[section])
+    conf = configparser.ConfigParser(DEFAULT_CONFIG[section])
 
     if not conffile.exists():
         raise Exception('Configuration file %s does not exist' % conffile)

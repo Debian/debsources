@@ -11,7 +11,6 @@
 
 from __future__ import absolute_import
 
-import six
 from pathlib import Path
 
 from flask import (
@@ -173,7 +172,7 @@ class GeneralView(View):
         self.err_func = err_func
 
         if get_objects:
-            if isinstance(get_objects, six.string_types):
+            if isinstance(get_objects, str):
                 self.get_objects = getattr(self, "get_" + get_objects)
             else:
                 # we don't check if it's a callable.

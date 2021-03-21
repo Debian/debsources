@@ -11,9 +11,6 @@
 
 from __future__ import absolute_import
 
-import six
-from six.moves import range
-
 from debsources.filetype import get_highlightjs_language
 
 

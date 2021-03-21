@@ -13,8 +13,6 @@ from __future__ import absolute_import
 
 import re
 
-import six
-from six.moves import range
 
 # Languages constants
 (PYTHON, RUBY, PERL, PHP, SCALA, GO, XML, HTML, MARKDOWN, CSS, JSON,
@@ -213,7 +211,7 @@ def get_highlightjs_language(filename, firstline, lang):
     (used for syntactic code coloration).
     """
     if lang is not None:
-        if lang not in six.itervalues(highlightjs):
+        if lang not in highlightjs.values():
             return None
         else:
             return lang

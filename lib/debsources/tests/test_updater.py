@@ -22,8 +22,6 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import six
-
 from nose.tools import istest
 from nose.plugins.attrib import attr
 
@@ -84,7 +82,7 @@ def db_mv_tables_to_schema(session, new_schema):
 
 
 def assert_db_schema_equal(test_subj, expected_schema, actual_schema):
-    for tbl, q in six.iteritems(DB_COMPARE_QUERIES):
+    for tbl, q in DB_COMPARE_QUERIES.items():
         expected = [dict(list(r.items())) for r in
                     test_subj.session.execute(q % {'schema': expected_schema})]
         actual = [dict(list(r.items())) for r in

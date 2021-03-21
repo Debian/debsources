@@ -13,8 +13,6 @@ from __future__ import absolute_import
 
 import unittest
 
-import six
-
 from nose.tools import istest
 from nose.plugins.attrib import attr
 
@@ -38,7 +36,7 @@ class Stats(unittest.TestCase, DbTestFixture):
         self.maxDiff = None
 
     def assertSuiteCountsEqual(self, expected, query_method):
-        for suite, expected_count in six.iteritems(expected):
+        for suite, expected_count in expected.items():
             actual_count = query_method(self.session, suite=suite)
             self.assertEqual(expected_count, actual_count,
                              '%d != %d for suite %s' %
