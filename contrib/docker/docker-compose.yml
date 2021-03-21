@@ -9,6 +9,7 @@ debsources:
   build: .
   ports:
     - "5000:5000"
+    - "5001:80"
   volumes:
     - "../../:/opt/debsources"
   links:

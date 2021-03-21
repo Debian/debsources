@@ -9,6 +9,9 @@ update-db:
 run:
 	docker-compose up
 
+start-apache:
+	docker exec -it docker_debsources_1 apache2ctl start
+
 attach:
 	docker exec -it docker_debsources_1 /bin/bash
 

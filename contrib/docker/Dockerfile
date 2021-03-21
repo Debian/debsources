@@ -5,6 +5,8 @@ ENV DEBIAN_FRONTEND noninteractive
 # PACKAGES
 RUN apt-get update && \
     apt-get install -y \
+    apache2 \
+    libapache2-mod-wsgi-py3 \
     libjs-jquery \
     libjs-highlight.js \
     python3-debian \
@@ -31,6 +33,10 @@ ADD scripts/* /opt/
 RUN mkdir /etc/debsources
 ADD config.ini /etc/debsources/
 RUN mkdir /opt/debsources
+
+# Apache
+ADD debsources.conf /etc/apache2/sites-enabled/
+RUN rm /etc/apache2/sites-enabled/000-default.conf
 
 ENV PYTHONPATH /opt/debsources/lib/
 
