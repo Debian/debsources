@@ -62,13 +62,19 @@ class SourcePackage(deb822.Sources):
             return False
         return True
 
-    def __cmp__(self, other):
-        """comparison based on <package, version> pairs only
-        """
-        cmp1 = cmp(self['package'], other['package'])
-        if cmp1:  # 'package' key is enough to discriminate
-            return cmp1
-        return version_compare(self['version'], other['version'])
+    # This used to exist in the Python 2 version of Debsources, but doesn't
+    # seem to be in use. Outdated stuff is normally deleted, but since the
+    # comparison of 2 source packages does imply the logic below, it is
+    # exceptionnally kept here commented out in case this actually needs to be
+    # implemented with Python 3.
+
+    # def __cmp__(self, other):
+    #     """comparison based on <package, version> pairs only
+    #     """
+    #     cmp1 = cmp(self['package'], other['package'])
+    #     if cmp1:  # 'package' key is enough to discriminate
+    #         return cmp1
+    #     return version_compare(self['version'], other['version'])
 
     def __hash__(self):
         """compute hash based on <package, version> pair only
