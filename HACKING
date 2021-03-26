@@ -5,6 +5,16 @@ You have 2 documented ways to get a local Debsources environment:
 either a local deployment directly in your OS, or within a Docker
 container.
 
+To test the updater, and subsequently run the webapp on it, you will need a
+(partial) Debian source mirror on your development machine. To that end, you
+might want to use the data from the Debsources testsuite, which is shipped via a
+separate Git submodule rooted at testdata/, so:
+
+  $ cd debsources/
+  $ git submodule update --init
+
+The testdata Git repository is ~150 MB, so it might take a while to retrieve.
+
 Local Debsources deployment
 ---------------------------
 
@@ -18,16 +28,6 @@ or
 
   $ export PYTHONPATH=`pwd`/debsources/lib:"$PYTHONPATH"
   $ python -c 'import debsources'  # if this fails, double-check $PYTHONPATH
-
-- to test the updater, and subsequently run the webapp on it, you will need a
-  (partial) Debian source mirror on your development machine.  To that end, you
-  might want to use the data from the Debsources testsuite, which is shipped
-  via a separate Git submodule rooted at testdata/, so:
-
-  $ cd debsources/
-  $ git submodule update --init
-
-  The testdata Git repository is ~150 MB, so it might take a while to retrieve.
 
 - create a PostgreSQL database for use by Debsources, e.g.:
 
