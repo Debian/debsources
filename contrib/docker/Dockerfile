@@ -1,5 +1,4 @@
-FROM debian:jessie
-# jessie is needed for libjs-highlight
+FROM debian:buster
 MAINTAINER Matthieu Caneill <matthieu.caneill@gmail.com>
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -29,7 +28,7 @@ RUN apt-get update && \
     git \
     python-lzma \
     python-setuptools \
-    postgresql-client-9.4
+    postgresql-client
 
 # SETUP
 ADD scripts/* /opt/
