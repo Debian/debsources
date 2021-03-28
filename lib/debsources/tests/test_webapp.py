@@ -611,16 +611,16 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         for news_file in news_routes.keys():
             fullpath = local_dir / news_file
             news_string = ""
-            if fullpath.is_file:
-                with open(fullpath, 'rb') as f:
+            if fullpath.is_file():
+                with open(fullpath, 'r') as f:
                     news_string = f.read()
             else:
-                news_string = b"<ul><li>This item was created in a test for " \
-                              + news_file + b"</li></ul>"
+                news_string = "<ul><li>This item was created in a test for " \
+                              + news_file + "</li></ul>"
                 with open(fullpath, 'w') as f:
                     f.write(news_string)
             rv = self.app.get(news_routes[news_file])
-            self.assertIn(news_string, rv.data)
+            self.assertIn(news_string, rv.data.decode())
 
 if __name__ == '__main__':
     unittest.main(exit=False)
