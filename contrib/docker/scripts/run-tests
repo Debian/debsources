@@ -1,3 +1,5 @@
 #!/bin/bash
 /opt/db-init
-nosetests3 -v /opt/debsources/lib/debsources/tests/
+
+cd /opt/debsources
+make test-travis
