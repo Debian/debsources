@@ -38,7 +38,7 @@ def parse_license_file(path):
         for line in licenses:
             fields = line.rstrip().split(b'\t')
             license = fields[0].decode('utf8')
-            filename = fields[1]
+            filename = Path(fields[1].decode('utf8', 'surrogateescape'))
             license_list.append((license, filename))
     return license_list
 

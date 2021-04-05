@@ -281,16 +281,16 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
 
     @istest
     def sizeMatchesReferenceDb(self):
-        EXPECTED_SIZE = 180732
+        EXPECTED_SIZE = 180728
         self.assertEqual(EXPECTED_SIZE, self.stats['total.disk_usage'])
 
     @istest
     def statsMatchReferenceDb(self):
         expected_stats = {  # just a few samples
-            'total.ctags': 116089,
-            'debian_sid.ctags': 28352,
-            'debian_squeeze.ctags': 30644,
-            'debian_experimental.disk_usage': 12968,
+            'total.ctags': 116832,
+            'debian_sid.ctags': 28723,
+            'debian_squeeze.ctags': 31015,
+            'debian_experimental.disk_usage': 12964,
             'total.source_files': 9333,
             'debian_experimental.source_files': 1396,
             'debian_jessie.source_files': 2038,
@@ -306,7 +306,8 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
             'debian_wheezy.sloccount.python': 2798,
             'debian_squeeze.sloccount.ruby': 193,
             'debian_wheezy.sloccount.ruby': 193,
-            'total.sloccount': 1250618,
+            'total.sloccount': 1250830,
+            'total.sloccount.javascript': 212,
             'debian_squeeze.sloccount': 315750,
         }
         self.assertDictContainsSubset(expected_stats, self.stats)

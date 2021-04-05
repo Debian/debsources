@@ -49,9 +49,9 @@ class Stats(unittest.TestCase, DbTestFixture):
             'wheezy': 39688,
             'jessie': 50528,
             'sid': 54456,
-            'experimental': 12968,
+            'experimental': 12964,
         }
-        total_size = 180732
+        total_size = 180728
         self.assertSuiteCountsEqual(sizes, statistics.disk_usage)
         self.assertEqual(total_size, statistics.disk_usage(self.session))
 
@@ -120,13 +120,13 @@ class Stats(unittest.TestCase, DbTestFixture):
     @istest
     def ctagsCountsMatchReferenceDb(self):
         ctags = {
-            'squeeze': 30644,
-            'wheezy': 20150,
-            'jessie': 23444,
-            'sid': 28352,
+            'squeeze': 31015,
+            'wheezy': 20521,
+            'jessie': 23815,
+            'sid': 28723,
             'experimental': 17284,
         }
-        total_ctags = 116089
+        total_ctags = 116832
         self.assertSuiteCountsEqual(ctags, statistics.ctags)
         self.assertEqual(total_ctags, statistics.ctags(self.session))
 
@@ -135,7 +135,7 @@ class Stats(unittest.TestCase, DbTestFixture):
         LARGEST = ('cvsnt', '2.5.03.2382-3', 293583)
         SMALLEST = ('susv3', '6.1', 10)
         LARGEST_exp = ('beignet', '1.0.0-1', 81413)
-        SMALLEST_exp = ('ledger', '3.0.0~20130313+b608ed2-1', 45848)
+        SMALLEST_exp = ('ledger', '3.0.0~20130313+b608ed2-1', 46060)
 
         slocs_all = statistics.sloc_per_package(self.session)
         self.assertEqual(slocs_all[0], LARGEST)
@@ -149,9 +149,9 @@ class Stats(unittest.TestCase, DbTestFixture):
     @istest
     def areaFiltersMatchReferenceDb(self):
         self.assertEqual(statistics.disk_usage(self.session),
-                         180732)
+                         180728)
         self.assertEqual(statistics.disk_usage(self.session, areas=['main']),
-                         155176)
+                         155172)
         self.assertEqual(statistics.disk_usage(self.session,
                                                suite='wheezy', areas=['main']),
                          35824)
@@ -172,7 +172,7 @@ class Stats(unittest.TestCase, DbTestFixture):
                              statistics.sloccount_lang(self.session, 'ansic'))
 
         area_count = statistics.ctags(self.session, areas=['main'])
-        self.assertEqual(area_count, 87507)
+        self.assertEqual(area_count, 88250)
         self.assertLessEqual(area_count, statistics.ctags(self.session))
 
     @istest
@@ -194,7 +194,7 @@ class Stats(unittest.TestCase, DbTestFixture):
         self.assertEqual(stats['etch'], 32736)
 
         stats = dict(statistics.stats_grouped_by(self.session, 'ctags'))
-        self.assertEqual(stats['wheezy'], 20150)
+        self.assertEqual(stats['wheezy'], 20521)
 
         stats = dict(statistics.stats_grouped_by(self.session,
                                                  'source_packages'))

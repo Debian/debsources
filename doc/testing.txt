@@ -72,7 +72,7 @@ updated to avoid test failures. Here is the recommended procedures to do that:
 1. start with *clean slate*: clean your DB (e.g., `dropdb debsources`) and your
    local sources directory (e.g., `rm -rf /srv/debsources/sources`). Then
    re-inizialize an empty DB (e.g.,
-   `bin/debsources-admin --createdb postgres:///debsources`)
+   `createdb debsources; bin/debsources-dbadmin --createdb postgres:///debsources`)
 
 2. do a *full update run* using a version of the code base that is trusted
    enough to create the new reference version of the DB to be used for tests

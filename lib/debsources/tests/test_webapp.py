@@ -516,8 +516,8 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
     def test_api_search_ctag(self):
         rv = json.loads(self.app.get('/api/ctag/?ctag=name').data)
-        self.assertEqual(rv["count"], 193)
-        self.assertEqual(len(rv["results"]), 193)
+        self.assertEqual(rv["count"], 195)
+        self.assertEqual(len(rv["results"]), 195)
 
     def test_api_search_ctag_within_package(self):
         rv = json.loads(self.app.get(
@@ -555,8 +555,8 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
     def test_api_stats_suite(self):
         rv = json.loads(self.app.get('/api/stats/jessie/').data)
         self.assertEqual(rv["suite"], "jessie")
-        # self.assertEqual(rv["results"]["debian_jessie.ctags"], 21767)
-        # self.assertEqual(rv["results"]["debian_jessie.disk_usage"], 43032)
+        self.assertEqual(rv["results"]["debian_jessie.ctags"], 23815)
+        self.assertEqual(rv["results"]["debian_jessie.disk_usage"], 50528)
         self.assertEqual(rv["results"]["debian_jessie.source_files"], 2038)
         self.assertEqual(rv["results"]["debian_jessie.sloccount.python"], 2916)
 

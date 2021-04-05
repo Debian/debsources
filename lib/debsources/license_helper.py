@@ -101,11 +101,6 @@ def license_url(package, version):
 
 
 def get_license(package, version, path, c):
-    # if not license_path:
-    #     # retrieve license from DB
-    #     return qry.get_license_w_path(session, package, version, path)
-    # import pdb; pdb.set_trace()
-
     # pathlib.Path uses a str to internally represent a path. In case of
     # invalid bytes for utf8 encoding, surrogate escape sequences are
     # used. debian.copyright seems to only work with utf8 when reading the
