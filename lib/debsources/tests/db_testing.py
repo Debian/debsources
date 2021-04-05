@@ -27,31 +27,27 @@ DB_COMPARE_QUERIES = {
     "package_names":
     "SELECT name \
      FROM %(schema)s.package_names \
-     ORDER BY name \
-     LIMIT 100",
+     ORDER BY name",
 
     "packages":
     "SELECT package_names.name, version, area, vcs_type, vcs_url, vcs_browser \
      FROM %(schema)s.packages, %(schema)s.package_names \
      WHERE packages.name_id = package_names.id \
-     ORDER BY package_names.name, version \
-     LIMIT 100",
+     ORDER BY package_names.name, version",
 
     "suites":
     "SELECT package_names.name, packages.version, suite \
      FROM %(schema)s.packages, %(schema)s.package_names, %(schema)s.suites \
      WHERE packages.name_id = package_names.id \
      AND suites.package_id = packages.id \
-     ORDER BY package_names.name, packages.version, suite \
-     LIMIT 100",
+     ORDER BY package_names.name, packages.version, suite",
 
     "files":
     "SELECT package_names.name, packages.version, files.path \
      FROM %(schema)s.files, %(schema)s.packages, %(schema)s.package_names \
      WHERE packages.name_id = package_names.id \
      AND files.package_id = packages.id \
-     ORDER BY package_names.name, packages.version, files.path \
-     LIMIT 100",
+     ORDER BY package_names.name, packages.version, files.path",
 
     "checksums":
     "SELECT package_names.name, packages.version, files.path, sha256 \
@@ -60,8 +56,7 @@ DB_COMPARE_QUERIES = {
      WHERE packages.name_id = package_names.id \
      AND checksums.package_id = packages.id \
      AND checksums.file_id = files.id \
-     ORDER BY package_names.name, packages.version, files.path \
-     LIMIT 100",
+     ORDER BY package_names.name, packages.version, files.path",
 
     "sloccounts":
     "SELECT package_names.name, packages.version, language, count \
@@ -69,8 +64,7 @@ DB_COMPARE_QUERIES = {
         %(schema)s.package_names \
      WHERE packages.name_id = package_names.id \
      AND sloccounts.package_id = packages.id \
-     ORDER BY package_names.name, packages.version, language \
-     LIMIT 100",
+     ORDER BY package_names.name, packages.version, language",
 
     "ctags":
     "SELECT package_names.name, packages.version,\
@@ -81,8 +75,7 @@ DB_COMPARE_QUERIES = {
      AND ctags.package_id = packages.id \
      AND ctags.file_id = files.id \
      ORDER BY package_names.name, packages.version,\
-        files.path, tag, line, kind, language \
-     LIMIT 100",
+        files.path, tag, line, kind, language",
 
     "metric":
     "SELECT package_names.name, packages.version, metric, value_ \
@@ -90,8 +83,7 @@ DB_COMPARE_QUERIES = {
      WHERE packages.name_id = package_names.id \
      AND metrics.package_id = packages.id \
      AND metric != 'size' \
-     ORDER BY package_names.name, packages.version, metric \
-     LIMIT 100",
+     ORDER BY package_names.name, packages.version, metric",
 
     # XXX projecting also on the ctags column gives different result (by a few
     # units), even if the actual ctags tables are identical. WTH ?!?!
