@@ -551,7 +551,7 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertIn(b'<div id="pkginfobox" class="pkginfobox_large">',
                       rv.data)
 
-    @attr('notravis')
+    @attr('noci')
     def test_api_stats_suite(self):
         rv = json.loads(self.app.get('/api/stats/jessie/').data)
         self.assertEqual(rv["suite"], "jessie")

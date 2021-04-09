@@ -24,8 +24,8 @@ test-fast:
 test-slow:
 	$(NOSE) $(TESTFLAGS) $(TESTDIR) -a slow
 
-test-travis:
-	$(NOSE) $(TESTFLAGS) $(TESTDIR) -a \!notravis
+test-ci:
+	$(NOSE) $(TESTFLAGS) $(TESTDIR) -a \!noci
 
 test-coverage:
 	$(NOSE) $(TESTFLAGS) $(TESTDIR) --with-coverage --cover-package=debsources
