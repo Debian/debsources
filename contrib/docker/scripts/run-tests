@@ -1,5 +1,0 @@
-#!/bin/bash
-/opt/db-init
-
-cd /opt/debsources
-make test-travis
