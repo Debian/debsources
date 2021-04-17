@@ -75,7 +75,8 @@ DB_COMPARE_QUERIES = {
      AND ctags.package_id = packages.id \
      AND ctags.file_id = files.id \
      ORDER BY package_names.name, packages.version,\
-        files.path, tag, line, kind, language",
+        files.path, tag, line, kind, language \
+     LIMIT 100",
 
     "metric":
     "SELECT package_names.name, packages.version, metric, value_ \
