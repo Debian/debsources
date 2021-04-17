@@ -124,7 +124,6 @@ class Updater(unittest.TestCase, DbTestFixture):
         updater.update(self.conf, self.session, stages)
 
     @istest
-    @attr('noci')
     def producesReferenceDb(self):
         db_mv_tables_to_schema(self.session, 'ref')
         self.do_update()

@@ -33,7 +33,7 @@ before_script:
   - bin/debsources-dbadmin --createdb postgresql://postgres@localhost/debsources
   - bin/debsources-update -vv
 
-script: make check test-ci
+script: make check test-all
 
 branches:
   except:

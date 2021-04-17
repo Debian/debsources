@@ -12,4 +12,4 @@ Build and test:
     - cd contrib/docker
     - make build
     - make update-db
-    - make test-ci
+    - make test-all

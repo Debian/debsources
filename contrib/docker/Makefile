@@ -1,7 +1,7 @@
 DOCKER_EXEC = docker exec
 CONTAINER = docker_debsources_1
 MAKE = make -C /opt/debsources/
-TEST_TARGETS = test test-all test-fast test-slow test-ci test-coverage
+TEST_TARGETS = test test-all test-fast test-slow test-coverage
 SRC_TARGETS = all doc check clean test-online-app
 
 .PHONY: build update-db run attach init-db $(SRC_TARGETS) $(TEST_TARGETS)
