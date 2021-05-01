@@ -31,14 +31,14 @@ class FsStorageTests(unittest.TestCase):
     @istest
     def assertWalkLength(self):
         self.assertEqual(len([f for f in walk(make_path(''))]),
-                         261)
+                         268)
 
     @istest
     def assertWalkTestChecksums(self):
         self.assertEqual(
             len([f for f in walk(make_path(''),
                                  test=lambda x: 'checksums' in str(x))]),
-            36)
+            37)
 
     @istest
     def parsePathDir(self):

@@ -25,6 +25,7 @@ from debsources import statistics
 from debsources.navigation import (Location, Directory,
                                    SourceFile)
 
+from debsources.url import url_decode, url_encode
 import debsources.query as qry
 from ..views import GeneralView, app, session
 from ..extract_stats import extract_stats
@@ -169,7 +170,7 @@ class SourceView(GeneralView):
                         package=location.get_package(),
                         version=location.get_version(),
                         mime=file_.get_mime(),
-                        raw_url=str(raw_url),
+                        raw_url=raw_url,
                         path=str(path),
                         text_file=text_file,
                         stat=qry.location_get_stat(location.sources_path),
@@ -216,7 +217,7 @@ class SourceView(GeneralView):
                 code=sourcefile)
 
         return dict(type="file",
-                    file=location.get_deepest_element(),
+                    file=url_encode(location.get_deepest_element()),
                     package=location.get_package(),
                     version=location.get_version(),
                     mime=file_.get_mime(),
@@ -237,6 +238,8 @@ class SourceView(GeneralView):
         Directory: we want the subdirs and subfiles (disk listing)
         File: we want to render the raw url of the file
         """
+        path_to = url_decode(path_to)
+
         package, version, *path = path_to.split('/')
         path = Path('/'.join(path))
 

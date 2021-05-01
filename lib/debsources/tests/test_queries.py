@@ -50,7 +50,7 @@ class QueriesTest(unittest.TestCase, DbTestFixture):
     def test_packages_prefixes(self):
         self.assertEqual(qry.pkg_names_get_packages_prefixes(
             self.app_wrapper.app.config["CACHE_DIR"]),
-            ['b', 'c', 'd', 'f', 'g', 'l', 'libc', 'm',
+            ['a', 'b', 'c', 'd', 'f', 'g', 'l', 'libc', 'm',
              'n', 'o', 'p', 's', 'u'])
 
     def test_list_versions(self):
@@ -104,5 +104,5 @@ class QueriesTest(unittest.TestCase, DbTestFixture):
         # overall
         self.assertEqual(qry.get_ratio(self.session), 77)
         # per suite
-        self.assertEqual(qry.get_ratio(self.session, 'jessie'), 50)
+        self.assertEqual(qry.get_ratio(self.session, 'jessie'), 51)
         self.assertEqual(qry.get_ratio(self.session, 'squeeze'), 100)

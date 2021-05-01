@@ -184,7 +184,7 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
     def test_api_packages_list(self):
         rv = json.loads(self.app.get('/api/list/').data)
         self.assertIn({'name': "libcaca"}, rv['packages'])
-        self.assertEqual(len(rv['packages']), 18)
+        self.assertEqual(len(rv['packages']), 19)
 
     def test_api_by_prefix(self):
         rv = json.loads(self.app.get('/api/prefix/libc/').data)
@@ -554,9 +554,9 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
     def test_api_stats_suite(self):
         rv = json.loads(self.app.get('/api/stats/jessie/').data)
         self.assertEqual(rv["suite"], "jessie")
-        self.assertEqual(rv["results"]["debian_jessie.ctags"], 23815)
-        self.assertEqual(rv["results"]["debian_jessie.disk_usage"], 50528)
-        self.assertEqual(rv["results"]["debian_jessie.source_files"], 2038)
+        self.assertEqual(rv["results"]["debian_jessie.ctags"], 23816)
+        self.assertEqual(rv["results"]["debian_jessie.disk_usage"], 51428)
+        self.assertEqual(rv["results"]["debian_jessie.source_files"], 2059)
         self.assertEqual(rv["results"]["debian_jessie.sloccount.python"], 2916)
 
     def test_api_released_suite(self):
@@ -620,6 +620,20 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
                     f.write(news_string)
             rv = self.app.get(news_routes[news_file])
             self.assertIn(news_string, rv.data.decode())
+
+    def test_non_utf8_filename(self):
+        # List folder containing a non-utf8 filename.
+        rv = self.app.get('/src/aspell-is/0.51-0-4/')
+        self.assertEqual(200, rv.status_code)
+        self.assertIn(
+            b'<a href="/src/aspell-is/0.51-0-4/%25EDslenska.alias/">%EDslenska.alias</a>',
+            rv.data
+        )
+        # Visit that file.
+        rv = self.app.get('/src/aspell-is/0.51-0-4/%25EDslenska.alias/')
+        self.assertEqual(200, rv.status_code)
+        self.assertIn("<h2>File: %EDslenska.alias</h2>", rv.data)
+
 
 if __name__ == '__main__':
     unittest.main(exit=False)

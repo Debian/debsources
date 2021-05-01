@@ -20,6 +20,7 @@ from sqlalchemy import func as sql_func, not_
 from collections import namedtuple
 
 from debian.debian_support import version_compare
+from debsources.url import url_encode
 from debsources.consts import PREFIXES_DEFAULT
 from debsources.consts import SUITES
 from debsources.excepts import InvalidPackageOrVersionError
@@ -147,7 +148,7 @@ def location_get_path_links(endpoint, path_to: Path):
     returns the path hierarchy with urls, to use with 'You are here:'
     [(name, url(name)), (...), ...]
     """
-    path_dict = path_to.parts
+    path_dict = [url_encode(x) for x in path_to.parts]
     pathl = []
 
     # we import flask here, in order to permit the use of this module

@@ -47,11 +47,11 @@ class Stats(unittest.TestCase, DbTestFixture):
         sizes = {
             'squeeze': 44316,
             'wheezy': 39688,
-            'jessie': 50528,
+            'jessie': 51428,
             'sid': 54456,
             'experimental': 12964,
         }
-        total_size = 180728
+        total_size = 181628
         self.assertSuiteCountsEqual(sizes, statistics.disk_usage)
         self.assertEqual(total_size, statistics.disk_usage(self.session))
 
@@ -60,11 +60,11 @@ class Stats(unittest.TestCase, DbTestFixture):
         source_packages = {
             'squeeze': 13,
             'wheezy': 12,
-            'jessie': 13,
+            'jessie': 14,
             'sid': 14,
             'experimental': 2,
         }
-        total_source_packages = 36
+        total_source_packages = 37
         self.assertSuiteCountsEqual(source_packages,
                                     statistics.source_packages)
         self.assertEqual(total_source_packages,
@@ -75,11 +75,11 @@ class Stats(unittest.TestCase, DbTestFixture):
         source_files = {
             'squeeze': 2024,
             'wheezy': 1632,
-            'jessie': 2038,
+            'jessie': 2059,
             'sid': 2613,
             'experimental': 1396,
         }
-        total_files = 9333
+        total_files = 9354
         self.assertSuiteCountsEqual(source_files, statistics.source_files)
         self.assertEqual(total_files, statistics.source_files(self.session))
 
@@ -94,14 +94,14 @@ class Stats(unittest.TestCase, DbTestFixture):
             'java': 916,
             'lex': 223,
             'lisp': 2193,
-            'makefile': 2092,
+            'makefile': 2104,
             'ml': 5044,
             'objc': 836,
             'perl': 1199,
             'python': 2916,
             'ruby': 193,
             'sed': 16,
-            'sh': 29984,
+            'sh': 30045,
             'sql': 237,
             'xml': 14932,
             'yacc': 312,
@@ -122,11 +122,11 @@ class Stats(unittest.TestCase, DbTestFixture):
         ctags = {
             'squeeze': 31015,
             'wheezy': 20521,
-            'jessie': 23815,
+            'jessie': 23816,
             'sid': 28723,
             'experimental': 17284,
         }
-        total_ctags = 116832
+        total_ctags = 116833
         self.assertSuiteCountsEqual(ctags, statistics.ctags)
         self.assertEqual(total_ctags, statistics.ctags(self.session))
 
@@ -149,15 +149,15 @@ class Stats(unittest.TestCase, DbTestFixture):
     @istest
     def areaFiltersMatchReferenceDb(self):
         self.assertEqual(statistics.disk_usage(self.session),
-                         180728)
+                         181628)
         self.assertEqual(statistics.disk_usage(self.session, areas=['main']),
-                         155172)
+                         156072)
         self.assertEqual(statistics.disk_usage(self.session,
                                                suite='wheezy', areas=['main']),
                          35824)
 
         area_count = statistics.source_packages(self.session, areas=['main'])
-        self.assertEqual(area_count, 17)
+        self.assertEqual(area_count, 18)
         self.assertLessEqual(area_count,
                              statistics.source_packages(self.session))
 
@@ -172,7 +172,7 @@ class Stats(unittest.TestCase, DbTestFixture):
                              statistics.sloccount_lang(self.session, 'ansic'))
 
         area_count = statistics.ctags(self.session, areas=['main'])
-        self.assertEqual(area_count, 88250)
+        self.assertEqual(area_count, 88251)
         self.assertLessEqual(area_count, statistics.ctags(self.session))
 
     @istest
@@ -198,7 +198,7 @@ class Stats(unittest.TestCase, DbTestFixture):
 
         stats = dict(statistics.stats_grouped_by(self.session,
                                                  'source_packages'))
-        self.assertEqual(stats['jessie'], 13)
+        self.assertEqual(stats['jessie'], 14)
 
         stats = dict(statistics.stats_grouped_by(self.session, 'source_files'))
         self.assertEqual(stats['wheezy'], 1632)

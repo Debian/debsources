@@ -31,7 +31,7 @@ class PatchesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         rv = json.loads(
             self.app.get('/patches/api/list/').data)
         self.assertIn({'name': "ocaml-curses"}, rv['packages'])
-        self.assertEqual(len(rv['packages']), 18)
+        self.assertEqual(len(rv['packages']), 19)
 
     def test_api_by_prefix(self):
         rv = json.loads(

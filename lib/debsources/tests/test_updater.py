@@ -280,20 +280,20 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
 
     @istest
     def sizeMatchesReferenceDb(self):
-        EXPECTED_SIZE = 180728
+        EXPECTED_SIZE = 181628
         self.assertEqual(EXPECTED_SIZE, self.stats['total.disk_usage'])
 
     @istest
     def statsMatchReferenceDb(self):
         expected_stats = {  # just a few samples
-            'total.ctags': 116832,
+            'total.ctags': 116833,
             'debian_sid.ctags': 28723,
             'debian_squeeze.ctags': 31015,
             'debian_experimental.disk_usage': 12964,
-            'total.source_files': 9333,
+            'total.source_files': 9354,
             'debian_experimental.source_files': 1396,
-            'debian_jessie.source_files': 2038,
-            'total.source_packages': 36,
+            'debian_jessie.source_files': 2059,
+            'total.source_packages': 37,
             'debian_squeeze.source_packages': 13,
             'debian_wheezy.source_packages': 12,
             'debian_sid.sloccount.awk': 25,
@@ -305,7 +305,7 @@ class MetadataCache(unittest.TestCase, DbTestFixture):
             'debian_wheezy.sloccount.python': 2798,
             'debian_squeeze.sloccount.ruby': 193,
             'debian_wheezy.sloccount.ruby': 193,
-            'total.sloccount': 1250830,
+            'total.sloccount': 1250903,
             'total.sloccount.javascript': 212,
             'debian_squeeze.sloccount': 315750,
         }

@@ -20,6 +20,7 @@ from sqlalchemy import and_
 from debsources.models import (Checksum, File,
                                Package, PackageName)
 from debsources import filetype
+from debsources.url import url_encode
 from debsources.consts import AREAS
 from debsources.debmirror import SourcePackage
 from debsources.excepts import FileOrFolderNotFound, \
@@ -138,15 +139,15 @@ class Directory(object):
             else:
                 return "file"
 
-        listing = sorted(
-                    (dict(
-                       name=f.name,
-                       type=get_type(f),
-                       hidden=False,
-                       stat=qry.location_get_stat(self.sources_path / f)
-                       )
-                       for f in Path.iterdir(self.sources_path)),
-                    key=lambda x: x['name'])
+        listing = [
+            {
+                'name': url_encode(f.name),
+                'type': get_type(f),
+                'hidden': False,
+                'stat': qry.location_get_stat(self.sources_path / f)
+            }
+            for f in sorted(Path.iterdir(self.sources_path))
+        ]
 
         for hidden_file in self.hidden_files:
             for f in listing:
@@ -214,4 +215,4 @@ class SourceFile(object):
 
     def get_raw_url(self):
         """ return the raw url on disk (e.g. data/main/a/azerty/foo.bar) """
-        return self.sources_path_static
+        return url_encode(str(self.sources_path_static))
