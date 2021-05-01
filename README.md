@@ -33,7 +33,7 @@ Development
 [7]: https://bugs.debian.org/cgi-bin/pkgreport.cgi?package=qa.debian.org;include=subject:debsources;tag=newcomer
 
 
-To get started with Debsources development, have a look at the `HACKING` file.
+To get started with Debsources development, have a look at the [HACKING](HACKING.md) file.
 
 
 Dependencies
