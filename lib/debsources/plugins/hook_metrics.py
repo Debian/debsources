@@ -14,6 +14,7 @@ from __future__ import absolute_import
 import logging
 import os
 import subprocess
+from pathlib import Path
 
 from debsources import db_storage
 
@@ -26,8 +27,8 @@ MY_NAME = 'metrics'
 MY_EXT = '.stats'
 
 
-def metricsfile_path(pkgdir):
-    return pkgdir + MY_EXT
+def metricsfile_path(pkgdir: Path) -> Path:
+    return Path(str(pkgdir) + MY_EXT)
 
 
 def parse_metrics(path):
@@ -46,10 +47,10 @@ def add_package(session, pkg, pkgdir, file_table):
     metric_type = 'size'
     metric_value = None
     metricsfile = metricsfile_path(pkgdir)
-    metricsfile_tmp = metricsfile + '.new'
+    metricsfile_tmp = Path(str(metricsfile) + '.new')
 
     if 'hooks.fs' in conf['backends']:
-        if not os.path.exists(metricsfile):  # run du only if needed
+        if not metricsfile.exists():  # run du only if needed
             cmd = ['du', '--summarize', pkgdir]
             metric_value = int(subprocess.check_output(cmd).split()[0])
             with open(metricsfile_tmp, 'w') as out:
@@ -81,8 +82,8 @@ def rm_package(session, pkg, pkgdir, file_table):
 
     if 'hooks.fs' in conf['backends']:
         metricsfile = metricsfile_path(pkgdir)
-        if os.path.exists(metricsfile):
-            os.unlink(metricsfile)
+        if metricsfile.exists():
+            metricsfile.unlink()
 
     if 'hooks.db' in conf['backends']:
         db_package = db_storage.lookup_package(session, pkg['package'],

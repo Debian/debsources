@@ -1,5 +1,5 @@
 db:
-  image: postgres:9.4
+  image: postgres:11
   environment:
     POSTGRES_USER: docker
     POSTGRES_PASSWORD: docker
@@ -9,6 +9,7 @@ debsources:
   build: .
   ports:
     - "5000:5000"
+    - "5001:80"
   volumes:
     - "../../:/opt/debsources"
   links:

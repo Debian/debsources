@@ -1,0 +1,15 @@
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+Build and test:
+  image: docker:latest
+  stage: build
+  services:
+    - docker:dind
+  before_script:
+    - apk add docker-compose make
+  script:
+    - cd contrib/docker
+    - make build
+    - make update-db
+    - make test-all

@@ -15,6 +15,8 @@ import logging
 import lzma
 import magic
 import os
+from pathlib import Path
+from typing import Optional
 
 from debian import deb822
 from debian.debian_support import version_compare
@@ -60,13 +62,19 @@ class SourcePackage(deb822.Sources):
             return False
         return True
 
-    def __cmp__(self, other):
-        """comparison based on <package, version> pairs only
-        """
-        cmp1 = cmp(self['package'], other['package'])
-        if cmp1:  # 'package' key is enough to discriminate
-            return cmp1
-        return version_compare(self['version'], other['version'])
+    # This used to exist in the Python 2 version of Debsources, but doesn't
+    # seem to be in use. Outdated stuff is normally deleted, but since the
+    # comparison of 2 source packages does imply the logic below, it is
+    # exceptionnally kept here commented out in case this actually needs to be
+    # implemented with Python 3.
+
+    # def __cmp__(self, other):
+    #     """comparison based on <package, version> pairs only
+    #     """
+    #     cmp1 = cmp(self['package'], other['package'])
+    #     if cmp1:  # 'package' key is enough to discriminate
+    #         return cmp1
+    #     return version_compare(self['version'], other['version'])
 
     def __hash__(self):
         """compute hash based on <package, version> pair only
@@ -137,7 +145,7 @@ class SourcePackage(deb822.Sources):
         """
         return self.pkg_prefix(self['package'])
 
-    def dsc_path(self):
+    def dsc_path(self) -> Path:
         """return (absolute) path to .dsc file for this package
         """
         files_field = None
@@ -149,12 +157,13 @@ class SourcePackage(deb822.Sources):
             raise ValueError('cannot list components of source package: %s'
                              % self)
 
-        dsc = filter(lambda f: f['name'].endswith('.dsc'),
-                     self[files_field])[0]['name']
-        return os.path.join(self['x-debsources-mirror-root'],
-                            self['directory'], dsc)
+        dsc = next(filter(
+            lambda f: f['name'].endswith('.dsc'),
+            self[files_field]))['name']
 
-    def extraction_dir(self, basedir=None):
+        return Path(self['x-debsources-mirror-root']) / self['directory'] / dsc
+
+    def extraction_dir(self, basedir: Path) -> Optional[Path]:
         """return package extraction dir, relative to debsources sources_dir
 
         If given, prepend basedir path to the generated path. Return `None` if
@@ -165,26 +174,20 @@ class SourcePackage(deb822.Sources):
         if area is None:
             return None
 
-        steps = [area,
-                 self.prefix(),
-                 self['package'],
-                 self['version']]
-        if basedir:
-            steps.insert(0, basedir)
-        return os.path.join(*steps)
+        return basedir / area / self.prefix() / self['package'] / self['version']
 
 
 class SourceMirror(object):
     """Handle for a local Debian source mirror
     """
 
-    def __init__(self, path):
+    def __init__(self, path: Path):
         """create a handle to a local source mirror rooted at path
         """
         self.mirror_root = path
         self._suites = None    # dict: suite name -> [<package, version>]
         self._packages = None  # set(<package, version>)
-        self._dists_dir = os.path.join(path, 'dists')
+        self._dists_dir = path / 'dists'
 
     @property
     def suites(self):
@@ -221,25 +224,24 @@ class SourceMirror(object):
         uncompress them if needed
 
         """
-        def choose_comp(base):
+        def choose_comp(base: Path) -> Path:
             """pick the preferred compressed variant of a given Sources file"""
-            variants = [base + '.' + fmt
-                        for fmt in SOURCES_COMP_FMTS
-                        if os.path.exists(base + '.' + fmt)]
-            if not variants:
-                raise DebmirrorError('no supported compressed variants of '
-                                     'Sources file: ' + base)
-            else:
-                return variants[0]
+            for fmt in SOURCES_COMP_FMTS:
+                sources_file = base.with_suffix(f".{fmt}")
+                if sources_file.exists():
+                    return sources_file
+            raise DebmirrorError('no supported compressed variants of '
+                                 'Sources file: ' + base)
 
         for root, dirs, files in os.walk(self._dists_dir):
-            src_bases = set([os.path.join(root, os.path.splitext(file)[0])
-                             for file in files
-                             if os.path.splitext(file)[0] == 'Sources'])
+            src_bases = set(
+                Path(root) / Path(file).stem
+                for file in files
+                if Path(file).stem == 'Sources'
+            )
             src_indexes = [choose_comp(b) for b in src_bases]
             for f in src_indexes:
-                steps = f.split('/')
-                suite = steps[-4]  # wheezy, jessie, sid, ...
+                suite = f.parts[-4]  # wheezy, jessie, sid, ...
                 yield suite, f
 
     def pkg_prefixes(self):
@@ -249,15 +251,14 @@ class SourceMirror(object):
         their first letter, except libraries that prefix to libX
 
         """
-        pool_dir = os.path.join(self.mirror_root, 'pool')
+        pool_dir: Path = self.mirror_root / 'pool'
         prefixes = set()
         for pool_subdir in os.listdir(pool_dir):
             # make it absolute
-            pool_subdir = os.path.join(pool_dir, pool_subdir)
+            pool_subdir: Path = pool_dir / pool_subdir
             for entry in os.listdir(pool_subdir):
-                entry = os.path.join(pool_subdir, entry)
-                if os.path.isdir(entry):
-                    prefixes.add(os.path.relpath(entry, pool_subdir))
+                if (pool_subdir / entry).is_dir():
+                    prefixes.add(entry)
         return sorted(list(prefixes))
 
     def ls(self, suite=None):
@@ -299,7 +300,7 @@ class SourceMirror(object):
 
                     if pkg_id not in self._packages:
                         self._packages.add(pkg_id)
-                        pkg['x-debsources-mirror-root'] = self.mirror_root
+                        pkg['x-debsources-mirror-root'] = str(self.mirror_root)
                         yield pkg
 
     def ls_suites(self, aliases=False):
@@ -311,10 +312,10 @@ class SourceMirror(object):
         """
         suites = []
         for f in os.listdir(self._dists_dir):
-            path = os.path.join(self._dists_dir, f)
-            if os.path.islink(path) and not aliases:
+            path: Path = self._dists_dir / f
+            if path.is_symlink() and not aliases:
                 continue
-            if os.path.isdir(path):
+            if path.is_dir():
                 suites.append(f)
 
         return suites
@@ -333,9 +334,9 @@ class SourceMirror(object):
                 suites[suite] = []
 
         for f in os.listdir(self._dists_dir):
-            path = os.path.join(self._dists_dir, f)
-            if os.path.isdir(path):
-                if not os.path.islink(path):
+            path = self._dists_dir / f
+            if path.is_dir():
+                if not path.is_symlink():
                     add_suite(f)
                 else:
                     add_suite(os.readlink(path))

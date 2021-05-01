@@ -15,8 +15,7 @@ import logging
 import os
 import re
 import subprocess
-
-import six
+from pathlib import Path
 
 from debsources import db_storage
 from debsources.models import SlocCount
@@ -30,8 +29,8 @@ MY_NAME = 'sloccount'
 MY_EXT = '.' + MY_NAME
 
 
-def slocfile_path(pkgdir):
-    return pkgdir + MY_EXT
+def slocfile_path(pkgdir: Path) -> Path:
+    return Path(str(pkgdir) + MY_EXT)
 
 
 def grep(args):
@@ -76,10 +75,10 @@ def add_package(session, pkg, pkgdir, file_table):
     logging.debug('add-package %s' % pkg)
 
     slocfile = slocfile_path(pkgdir)
-    slocfile_tmp = slocfile + '.new'
+    slocfile_tmp = Path(str(slocfile) + '.new')
 
     if 'hooks.fs' in conf['backends']:
-        if not os.path.exists(slocfile):  # run sloccount only if needed
+        if not slocfile.exists():  # run sloccount only if needed
             try:
                 cmd = ['sloccount'] + SLOCCOUNT_FLAGS + [pkgdir]
                 with open(slocfile_tmp, 'w') as out:
@@ -101,7 +100,7 @@ def add_package(session, pkg, pkgdir, file_table):
             # ASSUMPTION: if *a* loc count of this package has already been
             # added to the db in the past, then *all* of them have, as
             # additions are part of the same transaction
-            for (lang, locs) in six.iteritems(slocs):
+            for (lang, locs) in slocs.items():
                 sloccount = SlocCount(db_package, lang, locs)
                 session.add(sloccount)
 
@@ -112,8 +111,8 @@ def rm_package(session, pkg, pkgdir, file_table):
 
     if 'hooks.fs' in conf['backends']:
         slocfile = slocfile_path(pkgdir)
-        if os.path.exists(slocfile):
-            os.unlink(slocfile)
+        if slocfile.exists():
+            slocfile.unlink()
 
     if 'hooks.db' in conf['backends']:
         db_package = db_storage.lookup_package(session, pkg['package'],

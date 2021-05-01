@@ -11,7 +11,6 @@
 
 from __future__ import absolute_import
 
-import os
 import sqlalchemy
 import sqlalchemy.orm
 import subprocess
@@ -21,38 +20,34 @@ from debsources.subprocess_workaround import subprocess_setup
 from debsources.tests.testdata import TEST_DATA_DIR, TEST_DB_NAME
 
 
-TEST_DB_DUMP = os.path.join(TEST_DATA_DIR, 'db/pg-dump-custom')
+TEST_DB_DUMP = TEST_DATA_DIR / 'db' / 'pg-dump-custom'
 
 # queries to compare two DB schemas (e.g. "public.*" and "ref.*")
 DB_COMPARE_QUERIES = {
     "package_names":
     "SELECT name \
      FROM %(schema)s.package_names \
-     ORDER BY name \
-     LIMIT 100",
+     ORDER BY name",
 
     "packages":
     "SELECT package_names.name, version, area, vcs_type, vcs_url, vcs_browser \
      FROM %(schema)s.packages, %(schema)s.package_names \
      WHERE packages.name_id = package_names.id \
-     ORDER BY package_names.name, version \
-     LIMIT 100",
+     ORDER BY package_names.name, version",
 
     "suites":
     "SELECT package_names.name, packages.version, suite \
      FROM %(schema)s.packages, %(schema)s.package_names, %(schema)s.suites \
      WHERE packages.name_id = package_names.id \
      AND suites.package_id = packages.id \
-     ORDER BY package_names.name, packages.version, suite \
-     LIMIT 100",
+     ORDER BY package_names.name, packages.version, suite",
 
     "files":
     "SELECT package_names.name, packages.version, files.path \
      FROM %(schema)s.files, %(schema)s.packages, %(schema)s.package_names \
      WHERE packages.name_id = package_names.id \
      AND files.package_id = packages.id \
-     ORDER BY package_names.name, packages.version, files.path \
-     LIMIT 100",
+     ORDER BY package_names.name, packages.version, files.path",
 
     "checksums":
     "SELECT package_names.name, packages.version, files.path, sha256 \
@@ -61,8 +56,7 @@ DB_COMPARE_QUERIES = {
      WHERE packages.name_id = package_names.id \
      AND checksums.package_id = packages.id \
      AND checksums.file_id = files.id \
-     ORDER BY package_names.name, packages.version, files.path \
-     LIMIT 100",
+     ORDER BY package_names.name, packages.version, files.path",
 
     "sloccounts":
     "SELECT package_names.name, packages.version, language, count \
@@ -70,8 +64,7 @@ DB_COMPARE_QUERIES = {
         %(schema)s.package_names \
      WHERE packages.name_id = package_names.id \
      AND sloccounts.package_id = packages.id \
-     ORDER BY package_names.name, packages.version, language \
-     LIMIT 100",
+     ORDER BY package_names.name, packages.version, language",
 
     "ctags":
     "SELECT package_names.name, packages.version,\
@@ -91,8 +84,7 @@ DB_COMPARE_QUERIES = {
      WHERE packages.name_id = package_names.id \
      AND metrics.package_id = packages.id \
      AND metric != 'size' \
-     ORDER BY package_names.name, packages.version, metric \
-     LIMIT 100",
+     ORDER BY package_names.name, packages.version, metric",
 
     # XXX projecting also on the ctags column gives different result (by a few
     # units), even if the actual ctags tables are identical. WTH ?!?!
@@ -110,9 +102,12 @@ DB_COMPARE_QUERIES = {
 
 
 def pg_restore(dbname, dumpfile):
-    subprocess.check_call(['pg_restore', '--no-owner', '--no-privileges',
-                           '--dbname', dbname, dumpfile],
-                          preexec_fn=subprocess_setup)
+    subprocess.check_call(
+        ['pg_restore', '--no-owner', '--no-privileges',
+         '--dbname', dbname, '--clean', '--if-exists', dumpfile],
+        # --clean and --if-exists are there to prevent the error "schema public
+        # already exists"
+        preexec_fn=subprocess_setup)
 
 
 def pg_dump(dbname, dumpfile):

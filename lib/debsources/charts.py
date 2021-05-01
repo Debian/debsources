@@ -15,8 +15,6 @@ import logging
 import operator
 
 import matplotlib
-import six
-from six.moves import range
 
 from itertools import cycle
 
@@ -73,12 +71,11 @@ def multiseries_plot(multiseries, fname, cols=7):
     plt.figure()
     plt.yscale('log')
 
-    def by_value((x1, y1), (x2, y2)):
-        return cmp(y1, y2)
-
     styles = cycle(LINE_STYLES)
-    for name, series in sorted(six.iteritems(multiseries),
-                               cmp=by_value, reverse=True):
+    for name, series in sorted(
+            multiseries.items(),
+            key=lambda x: x[1],  # by value
+            reverse=True):
         ts, values = _split_series(series)
         if any(values):
             plt.plot(ts, values, next(styles), label=name)
@@ -102,7 +99,7 @@ def pie_chart(items, fname, ratio=None):
     logging.debug('generate sloccount pie chart to %s...' % fname)
     cols = cm.Set1(np.arange(20) / 20.)
     plt.figure()
-    keys, values = _split_series(list(six.iteritems(items)))
+    keys, values = _split_series(items.items())
     modified_keys = ["Other: ", "Other"]
     modified_values = [0]
     for i, value in enumerate(values):
@@ -177,7 +174,8 @@ def bar_chart(items_per_suite, suites, fname, N, y_label):
     for i in range(1, len(keys)):
         c, t = next(styles)
         bottom = bottom_sum(important[0:i], len(suites))
-        bottom = map(lambda x: int(x), bottom) # converts sqlalchemy's Decimal to int
+        # converts sqlalchemy's Decimal to int
+        bottom = list(map(lambda x: int(x), bottom))
 
         bar_charts.append(plt.bar(ind, important[i], width,
                                   color=c, hatch=t,

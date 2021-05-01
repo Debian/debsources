@@ -31,7 +31,7 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         rv = json.loads(
             self.app.get('/copyright/api/list/').data)
         self.assertIn({'name': "ocaml-curses"}, rv['packages'])
-        self.assertEqual(len(rv['packages']), 18)
+        self.assertEqual(len(rv['packages']), 19)
 
     def test_api_by_prefix(self):
         rv = json.loads(
@@ -52,36 +52,36 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
     def test_by_prefix(self):
         rv = self.app.get('/copyright/prefix/libc/')
-        self.assertIn("/license/libcaca", rv.data)
+        self.assertIn(b"/license/libcaca", rv.data)
         # suite specified
         rv = self.app.get('/copyright/prefix/libc/?suite=squeeze')
-        self.assertIn("/license/libcaca", rv.data)
+        self.assertIn(b"/license/libcaca", rv.data)
         # a non-existing suite specified
         rv = self.app.get(
             '/copyright/prefix/libc/?suite=non-existing')
-        self.assertNotIn("/license/libcaca", rv.data)
+        self.assertNotIn(b"/license/libcaca", rv.data)
         # special suite name "all" is specified
         rv = self.app.get(
             '/copyright/prefix/libc/?suite=all')
-        self.assertIn("/license/libcaca", rv.data)
+        self.assertIn(b"/license/libcaca", rv.data)
 
     def test_latest(self):
         rv = self.app.get('/copyright/license/gnubg/latest/',
                           follow_redirects=True)
-        self.assertIn("Package: gnubg / 1.02.000-2", rv.data)
+        self.assertIn(b"Package: gnubg / 1.02.000-2", rv.data)
 
     def test_non_machine_readable_license(self):
         rv = self.app.get('/copyright/license/gnubg/0.90+20091206-4/')
-        self.assertNotIn("<div class='r_files' id='copyright_info'>",
+        self.assertNotIn(b"<div class='r_files' id='copyright_info'>",
                          rv.data)
 
     def test_machine_readable_license(self):
         rv = self.app.get('/copyright/license/gnubg/1.02.000-2/')
-        self.assertIn("<div class='r_files' id='copyright_info'>", rv.data)
+        self.assertIn(b"<div class='r_files' id='copyright_info'>", rv.data)
 
     def test_common_licenses_link(self):
         rv = self.app.get('/copyright/license/gnubg/1.02.000-2/')
-        self.assertIn("/src/base-files/latest/licenses/GFDL-1.3", rv.data)
+        self.assertIn(b"/src/base-files/latest/licenses/GFDL-1.3", rv.data)
 
     def test_api_checksum(self):
         rv = json.loads(self.app.get(
@@ -163,38 +163,38 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         rv = self.app.get("/copyright/sha256/?checksum="
                           "2e6d31a5983a91251bfae5aefa1c0a"
                           "19d8ba3cf601d0e8a706b4cfa9661a6b8a")
-        self.assertIn("This checksum appears 12 times", rv.data)
-        self.assertIn("Most frequent license is: <i>GPL-2+</i>", rv.data)
+        self.assertIn(b"This checksum appears 12 times", rv.data)
+        self.assertIn(b"Most frequent license is: <i>GPL-2+</i>", rv.data)
 
     def test_checksum_view_package_filter(self):
         rv = self.app.get("/copyright/sha256/?checksum="
                           "2e6d31a5983a91251bfae5aefa1c0a"
                           "19d8ba3cf601d0e8a706b4cfa9661a6b8a&package=gnubg")
-        self.assertIn("This checksum appears 2 times", rv.data)
-        self.assertNotIn("Most common package", rv.data)
+        self.assertIn(b"This checksum appears 2 times", rv.data)
+        self.assertNotIn(b"Most common package", rv.data)
 
     def test_checksum_view_suite_filter(self):
         rv = self.app.get("/copyright/sha256/?checksum="
                           "2e6d31a5983a91251bfae5aefa1c0a"
                           "19d8ba3cf601d0e8a706b4cfa9661a6b8a&suite=latest")
-        self.assertIn("This checksum appears 8 times", rv.data)
+        self.assertIn(b"This checksum appears 8 times", rv.data)
         rv = self.app.get("/copyright/sha256/?checksum="
                           "2e6d31a5983a91251bfae5aefa1c0a"
                           "19d8ba3cf601d0e8a706b4cfa9661a6b8a&suite=jessie")
-        self.assertIn("This checksum appears 7 times", rv.data)
+        self.assertIn(b"This checksum appears 7 times", rv.data)
 
     def test_checksum_view_one_result(self):
         rv = self.app.get("/copyright/sha256/?checksum="
                           "2e6d31a5983a91251bfae5aefa1c0a"
                           "19d8ba3cf601d0e8a706b4cfa9661a6b8a&package=beignet")
-        self.assertIn("This checksum appears 1 time", rv.data)
-        self.assertNotIn("<h3>Details</h3>", rv.data)
+        self.assertIn(b"This checksum appears 1 time", rv.data)
+        self.assertNotIn(b"<h3>Details</h3>", rv.data)
 
     def test_checksum_404(self):
         rv = self.app.get("/copyright/sha256/?checksum="
                           "2e6d31a5983a91251bfae5aefa1c0a19d8"
                           "ba3cf60d0e8a706b4cfa9661a6b8a")
-        self.assertIn("0 results", rv.data)
+        self.assertIn(b"0 results", rv.data)
 
     def test_api_search_filename_package(self):
         # test package requirement
@@ -296,38 +296,40 @@ class CopyrightTestCase(DebsourcesBaseWebTests, unittest.TestCase):
     def test_search_filename_all(self):
         rv = self.app.get(
             "/copyright/file/gnubg/all/doc/gnubg/gnubg.html/").data
-        self.assertIn("File name appears 3", rv)
+        self.assertIn(b"File name appears 3", rv)
 
     def test_search_filename_suite_non_existing(self):
         rv = self.app.get(
             "/copyright/file/gnubg/not/doc/gnubg/gnubg.html/").data
-        self.assertIn("not found", rv)
+        self.assertIn(b"not found", rv)
 
     def test_search_filename_suite_filter(self):
         rv = self.app.get("/copyright/file/gnubg/jessie/doc/gnubg/gnubg.html/",
                           follow_redirects=True)
-        self.assertNotIn("File name appears", rv.data)
+        self.assertNotIn(b"File name appears", rv.data)
 
     def test_search_filename(self):
         rv = self.app.get("/copyright/file/gnubg/1.02.000-2"
                           "/doc/gnubg/gnubg.html/", follow_redirects=True)
-        self.assertIn("GFDL-1.3+", rv.data)
+        self.assertIn(b"GFDL-1.3+", rv.data)
 
     def test_synopsis_parsing(self):
         rv = self.app.get("/copyright/license/gnubg/1.02.000-2/")
-        self.assertIn("<a href=\"#license-0\">FSF-configure</a>", rv.data)
+        self.assertIn(b"<a href=\"#license-0\">FSF-configure</a>", rv.data)
         # Test separating by ',' and, or and create correct links
-        synopsis = "<a href=\"#license-0\">FSF-configure</a>, and  " \
-                   "<a href=\"http://opensource.org/licenses/GPL-2.0\">GPL-2+"\
-                   " with Libtool exception</a> or  <a href=\"http://opensou" \
-                   "rce.org/licenses/GPL-3.0\">GPL-3+</a>"
+        synopsis = (
+            b"<a href=\"#license-0\">FSF-configure</a>, and  "
+            b"<a href=\"http://opensource.org/licenses/GPL-2.0\">GPL-2+"
+            b" with Libtool exception</a> or  <a href=\"http://opensou"
+            b"rce.org/licenses/GPL-3.0\">GPL-3+</a>"
+        )
         self.assertIn(synopsis, rv.data)
 
     def test_glob_links(self):
         rv = self.app.get('/copyright/license/gnubg/1.02.000-2/')
-        self.assertIn('<a href="/src/gnubg/1.02.000-2/fonts">fonts/*.ttf</a>',
+        self.assertIn(b'<a href="/src/gnubg/1.02.000-2/fonts">fonts/*.ttf</a>',
                       rv.data)
-        self.assertIn('<a href="/src/gnubg/1.02.000-2/">*</a>', rv.data)
+        self.assertIn(b'<a href="/src/gnubg/1.02.000-2/">*</a>', rv.data)
 
 
 if __name__ == '__main__':

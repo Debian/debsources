@@ -15,8 +15,6 @@ from __future__ import absolute_import
 
 from math import ceil
 
-from six.moves import range
-
 
 class Pagination(object):
     def __init__(self, page, per_page, total_count, page_path_params=None):

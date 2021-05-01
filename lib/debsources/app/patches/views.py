@@ -75,10 +75,10 @@ class SummaryView(GeneralView):
         file_deltas = []
         lines = summary.splitlines()
         for line in lines[0:-1]:
-            filepath, deltas = line.split('|')
-            file_deltas.append(dict(filepath=filepath.replace(' ', ''),
-                                    deltas=deltas))
-        deltas_summary = '\n' + lines[-1]
+            filepath, deltas = line.split(b'|')
+            file_deltas.append(dict(filepath=filepath.strip().decode('utf8', errors='ignore'),
+                                    deltas=deltas.decode('utf8', errors='ignore')))
+        deltas_summary = '\n' + lines[-1].decode('utf8', errors='ignore')
         return file_deltas, deltas_summary
 
     def parse_patch_series(self, session, package, version, config, series):
@@ -124,13 +124,13 @@ class SummaryView(GeneralView):
         except FileOrFolderNotFound:
                 return dict(package=packagename,
                             version=version,
-                            path=path_to,
+                            path=str(path_to),
                             patches=[],
                             format='unknown')
         if not helper.is_supported(format_file):
             return dict(package=packagename,
                         version=version,
-                        path=path_to,
+                        path=str(path_to),
                         format=format_file,
                         pagination=None,
                         patches=[],
@@ -189,7 +189,7 @@ class PatchView(GeneralView):
             description, bug = helper.get_patch_details(serie_path)
             return dict(package=packagename,
                         version=version,
-                        url=loc.get_raw_url(),
+                        url=str(loc.get_raw_url()),
                         name=path_to,
                         description=description,
                         bug=bug,

@@ -14,10 +14,11 @@ from __future__ import absolute_import
 import io
 import logging
 import os
+from pathlib import Path
 
 from debian import copyright
 
-from debsources import db_storage, fs_storage
+from debsources import db_storage
 from debsources.models import FileCopyright, File
 from debsources import license_helper as helper
 
@@ -27,16 +28,18 @@ MY_NAME = 'copyright'
 MY_EXT = '.' + MY_NAME
 
 
-def license_path(pkgdir):
-    return pkgdir + MY_EXT
+def license_path(pkgdir: Path) -> Path:
+    return Path(str(pkgdir) + MY_EXT)
 
 
 def parse_license_file(path):
     license_list = []
-    with open(path) as licenses:
+    with open(path, 'rb') as licenses:
         for line in licenses:
-            fields = line.rstrip().split('\t')
-            license_list.append((fields[0], fields[1]))
+            fields = line.rstrip().split(b'\t')
+            license = fields[0].decode('utf8')
+            filename = Path(fields[1].decode('utf8', 'surrogateescape'))
+            license_list.append((license, filename))
     return license_list
 
 
@@ -45,10 +48,10 @@ def add_package(session, pkg, pkgdir, file_table):
     logging.debug('add-package %s' % pkg)
 
     license_file = license_path(pkgdir)
-    license_file_tmp = license_file + '.new'
+    license_file_tmp = Path(str(license_file) + '.new')
 
     try:
-        c = helper.parse_license(os.path.join(pkgdir, 'debian/copyright'))
+        c = helper.parse_license(pkgdir / 'debian/copyright')
     except copyright.NotMachineReadableError:
         return
 
@@ -59,14 +62,13 @@ def add_package(session, pkg, pkgdir, file_table):
         """
         synopsis = helper.get_license(package, version, relpath, copyright)
         if synopsis is not None:
-            s = '%s\t%s\n' % (synopsis, relpath.decode('utf-8'))
+            s = b'%s\t%s\n' % (synopsis.encode('utf8'), relpath)
             out.write(s)
 
     if 'hooks.fs' in conf['backends']:
-        if not os.path.exists(license_file):  # run license only if needed
-            with io.open(license_file_tmp, 'w', encoding='utf-8') as out:
-                for (relpath, abspath) in \
-                        fs_storage.walk_pkg_files(pkgdir, file_table):
+        if not license_file.exists():  # run license only if needed
+            with io.open(license_file_tmp, 'wb') as out:
+                for relpath in file_table:
                     emit_license(out, pkg['package'], pkg['version'],
                                  relpath, c)
             os.rename(license_file_tmp, license_file)
@@ -104,8 +106,8 @@ def rm_package(session, pkg, pkgdir, file_table):
 
     if 'hooks.fs' in conf['backends']:
         licensefile = license_path(pkgdir)
-        if os.path.exists(licensefile):
-            os.unlink(licensefile)
+        if licensefile.exists():
+            licensefile.unlink()
 
     if 'hooks.db' in conf['backends']:
         db_package = db_storage.lookup_package(session, pkg['package'],

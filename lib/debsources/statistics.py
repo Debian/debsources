@@ -16,10 +16,8 @@
 from __future__ import absolute_import
 
 import logging
-import os
 import re
-
-import six
+from pathlib import Path
 
 from sqlalchemy import distinct, desc
 from sqlalchemy import func as sql_func
@@ -58,11 +56,7 @@ def suites(session, suites='release'):
     db_suites = [row[0] for row in session.query(distinct(Suite.suite))]
     db_suites = [s for s in db_suites if s in SUITES[suites]]
 
-    def by_release_date(s1, s2):
-        return cmp(SUITES[suites].index(s1),
-                   SUITES[suites].index(s2))
-
-    return sorted(db_suites, cmp=by_release_date)
+    return sorted(db_suites, key=lambda x: SUITES[suites].index(x))
 
 
 def sticky_suites(session):
@@ -416,15 +410,16 @@ def load_metadata_cache(fname):
     return stats
 
 
-def save_metadata_cache(stats, fname):
+def save_metadata_cache(stats, fname: Path):
     """save a `stats.data` file, atomically, reading values from an
     integer-valued dictionary
 
     """
-    with open(fname + '.new', 'w') as out:
-        for k, v in sorted(six.iteritems(stats)):
+    fname_new = Path(str(fname) + '.new')
+    with fname_new.open('w') as out:
+        for k, v in sorted(stats.items()):
             out.write('%s\t%d\n' % (k, v))
-    os.rename(fname + '.new', fname)
+    fname_new.rename(fname)
 
 
 def get_licenses(session, suite=None):
@@ -543,8 +538,8 @@ def licenses_summary_w_dual(results):
                 else:
                     summary[result.replace(' ', '_')] = results[result]
         else:
-            key = filter(lambda x: re.search(x, result)
-                         is not None, Licenses)
+            key = list(filter(lambda x: re.search(x, result)
+                              is not None, Licenses))
             # standard licenses
             if len(key) > 0:
                 summary[result.replace(' ', '_')] = results[result]
@@ -561,8 +556,8 @@ def licenses_summary(results):
             licenses = re.split(', |and |or ', result)
             for license in licenses:
                 license = license.rstrip()
-                key = filter(lambda x: re.search(x, license)
-                             is not None, Licenses)
+                key = list(filter(lambda x: re.search(x, license)
+                                  is not None, Licenses))
                 if len(key) > 0:
                     # if license already in dict then add it up
                     if license.replace(' ', '_') in summary.keys():
@@ -572,8 +567,8 @@ def licenses_summary(results):
                 else:
                     summary['unknown'] += results[result]
         else:
-            key = filter(lambda x: re.search(x, result)
-                         is not None, Licenses)
+            key = list(filter(lambda x: re.search(x, result)
+                              is not None, Licenses))
             if len(key) > 0:
                     # if license already in dict then add it up
                     if result.replace(' ', '_') in summary.keys():

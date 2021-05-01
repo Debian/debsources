@@ -12,10 +12,10 @@
 from __future__ import absolute_import
 
 import logging
-import os
 import shutil
 import tempfile
 import unittest
+from pathlib import Path
 
 from nose.tools import istest
 from nose.plugins.attrib import attr
@@ -43,12 +43,12 @@ class Archiver(unittest.TestCase, DbTestFixture):
     def setUp(self):
         self.db_setup()
         self.tmpdir = tempfile.mkdtemp(suffix='.debsources-test')
-        self.conf = mk_conf(self.tmpdir)
+        self.conf = mk_conf(Path(self.tmpdir))
         self.conf['stages'] = self.TEST_STAGES
         self.longMessage = True
         self.maxDiff = None
 
-        orig_sources = os.path.join(TEST_DATA_DIR, 'sources')
+        orig_sources = TEST_DATA_DIR / 'sources'
         dest_sources = self.conf['sources_dir']
         shutil.copytree(orig_sources, dest_sources)
 
@@ -117,7 +117,7 @@ class Archiver(unittest.TestCase, DbTestFixture):
     @attr('slow')
     def removesStickySuite(self):
         SARGE_PACKAGES = [('asm', '1.5.2-1'), ('zziplib', '0.12.83-4')]
-        stats_file = os.path.join(self.conf['cache_dir'], 'stats.data')
+        stats_file = self.conf['cache_dir'] / 'stats.data'
 
         # to test stats.data cleanup
         self.conf['stages'] = self.TEST_STAGES.union(

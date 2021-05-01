@@ -35,7 +35,7 @@ The format is as follows:
       Debsources sources dir (which is a configuration option)
 
   - **SUITES**: a comma separated list of Debian suites of which the source
-    package is part.
+    package is part. Suite names are alphabetically sorted.
 
 
 bin/debsources-foreach

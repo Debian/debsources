@@ -11,8 +11,6 @@
 
 from __future__ import absolute_import
 
-import six
-
 from debsources import statistics
 
 
@@ -26,7 +24,7 @@ def extract_stats(filter_suites=None, filename="cache/stats.data"):
     res = dict()
 
     stats = statistics.load_metadata_cache(filename)
-    for (key, value) in six.iteritems(stats):
+    for key, value in stats.items():
         splits = key.split(".")
         # if this key/value is in the required suites, we add it
         if filter_suites is None or splits[0] in filter_suites:

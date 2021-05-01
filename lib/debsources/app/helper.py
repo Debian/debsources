@@ -11,7 +11,7 @@
 
 from __future__ import absolute_import
 
-from functools import partial
+from functools import cmp_to_key, partial
 from debian.debian_support import version_compare
 
 from flask import request, url_for, render_template, redirect
@@ -136,7 +136,7 @@ def handle_versions(version, package, path):
 
     versions = sorted([v['version'] for v in versions_w_suites
                       if version in v['suites']],
-                      cmp=version_compare)
+                      key=cmp_to_key(version_compare))
     return versions
 
 

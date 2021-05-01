@@ -1,4 +1,4 @@
-# Copyright (C) 2013  The Debsources developers <qa-debsources@lists.alioth.debian.org>.
+# Copyright (C) 2021  The Debsources developers <qa-debsources@lists.alioth.debian.org>.
 # See the AUTHORS file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/AUTHORS
 #
@@ -9,21 +9,18 @@
 # see the COPYING file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
-from __future__ import absolute_import
+"""Custom JSON encoder for the API.
 
-import hashlib
+It can handle pathlib.Path, used internally.
+"""
 
-# should be a multiple of 64 (sha1/sha256's block size)
-# FWIW coreutils' sha1sum uses 32768
-HASH_BLOCK_SIZE = 32768
+from pathlib import Path
+
+import flask.json
 
 
-def sha256sum(path):
-    m = hashlib.sha256()
-    with open(path, 'rb') as f:
-        while True:
-            chunk = f.read(HASH_BLOCK_SIZE)
-            if not chunk:
-                break
-            m.update(chunk)
-    return m.hexdigest()
+class Encoder(flask.json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Path):
+            return str(obj)
+        return super().default(self, obj)

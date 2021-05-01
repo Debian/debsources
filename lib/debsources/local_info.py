@@ -11,27 +11,27 @@
 
 from __future__ import absolute_import
 
-import os
+from pathlib import Path
 
 
-def read_html(fname):
+def read_html(fname: Path):
     """try to read an HTML file and return the contained markup.
     Return None if the file doesn't exist or is empty
 
     """
     markup = None
-    if os.path.isfile(fname):
-        with open(fname) as f:
+    if fname.is_file():
+        with fname.open() as f:
             markup = f.read().strip()
         if not markup:
             markup = None
     return markup
 
 
-def read_update_ts(fname):
+def read_update_ts(fname: Path):
     last_update = None
     try:
-        with open(fname) as f:
+        with fname.open() as f:
             last_update = f.readline().strip()
     except IOError:
         last_update = "unknown"

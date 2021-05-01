@@ -1,4 +1,4 @@
-NOSE = nosetests
+NOSE = nosetests3
 FLAKE = flake8
 
 SRCDIR = lib/debsources
@@ -23,9 +23,6 @@ test-fast:
 
 test-slow:
 	$(NOSE) $(TESTFLAGS) $(TESTDIR) -a slow
-
-test-travis:
-	$(NOSE) $(TESTFLAGS) $(TESTDIR) -a \!notravis
 
 test-coverage:
 	$(NOSE) $(TESTFLAGS) $(TESTDIR) --with-coverage --cover-package=debsources

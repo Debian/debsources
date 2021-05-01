@@ -12,7 +12,8 @@
 from __future__ import absolute_import
 
 from collections import defaultdict, Counter
-import os
+from functools import cmp_to_key
+from pathlib import Path
 
 from flask import current_app, request
 from debian.debian_support import version_compare
@@ -79,9 +80,9 @@ class ChecksumLicenseView(ChecksumView):
             for package in dd:
                 version = sorted([item['version'] for item
                                  in dd[package]],
-                                 cmp=version_compare)[-1]
-                files.append(filter(lambda f: f['version'] == version,
-                                    dd[package])[0])
+                                 key=cmp_to_key(version_compare))[-1]
+                files.append(list(filter(lambda f: f['version'] == version,
+                                         dd[package]))[0])
         return files
 
     def _get_license_dict(self, files):
@@ -227,7 +228,8 @@ class SearchFileView(GeneralView):
                     origin=helper.license_url(f.package, f.version))
 
     def get_objects(self, packagename, version, path_to):
-        path = str(path_to)
+        path = Path(path_to)
+
         if version == 'all':
             files = qry.get_files_by_path_package(session, path,
                                                   packagename).all()
@@ -246,7 +248,7 @@ class SearchFileView(GeneralView):
                                 for res in files])
         else:
             return dict(count=len(files),
-                        path=path,
+                        path=str(path),
                         package=packagename,
                         version=version,
                         result=[dict(checksum=res.checksum,
@@ -260,13 +262,11 @@ class StatsView(GeneralView):
         if suite not in statistics.suites(session, 'all'):
             raise Http404Error()  # security, to avoid suite='../../foo',
             # to include <img>s, etc.
-        stats_file = os.path.join(current_app.config["CACHE_DIR"],
-                                  "license_stats.data")
+        stats_file = current_app.config["CACHE_DIR"] / "license_stats.data"
         res = extract_stats(filename=stats_file,
                             filter_suites=[suite])
         licenses = [license.replace(suite + '.', '') for license in res.keys()]
-        dual_stats_file = os.path.join(app.config["CACHE_DIR"],
-                                       "dual_license.data")
+        dual_stats_file = app.config["CACHE_DIR"] / "dual_license.data"
         dual_res = extract_stats(filename=dual_stats_file,
                                  filter_suites=[suite])
 
@@ -284,13 +284,10 @@ class StatsView(GeneralView):
                     rel_version=info.version)
 
     def get_stats(self):
-
-        stats_file = os.path.join(app.config["CACHE_DIR"],
-                                  "license_stats.data")
+        stats_file = app.config["CACHE_DIR"] / "license_stats.data"
         res = extract_stats(filename=stats_file)
 
-        dual_stats_file = os.path.join(app.config["CACHE_DIR"],
-                                       "dual_license.data")
+        dual_stats_file = app.config["CACHE_DIR"] / "dual_license.data"
         dual_res = extract_stats(filename=dual_stats_file)
         dual_licenses = [license.replace('overall.', '') for license
                          in dual_res.keys()

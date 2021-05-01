@@ -14,7 +14,6 @@
 from __future__ import absolute_import
 
 import logging
-import os
 
 from sqlalchemy import sql
 
@@ -61,11 +60,10 @@ def _remove_stats_for(conf, session, suite):
     if updater.STAGE_STATS in conf['stages']:
         updater.update_statistics(status, conf, session, [suite])
         # remove newly orphan keys from stats.data
-        stats_file = os.path.join(conf['cache_dir'], 'stats.data')
+        stats_file = conf['cache_dir'] / 'stats.data'
         stats = statistics.load_metadata_cache(stats_file)
-        for k in stats.keys():
-            if k.startswith('debian_' + suite + '.'):
-                del(stats[k])
+        stats = {k: v for k, v in stats.items()
+                 if not k.startswith('debian_' + suite + '.')}
         statistics.save_metadata_cache(stats, stats_file)
     if updater.STAGE_CACHE in conf['stages']:
         updater.update_metadata(status, conf, session)

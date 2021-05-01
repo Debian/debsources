@@ -12,6 +12,7 @@
 from __future__ import absolute_import
 
 import os
+from pathlib import Path
 
 from flask import current_app, request, jsonify, url_for
 
@@ -24,6 +25,7 @@ from debsources import statistics
 from debsources.navigation import (Location, Directory,
                                    SourceFile)
 
+from debsources.url import url_decode, url_encode
 import debsources.query as qry
 from ..views import GeneralView, app, session
 from ..extract_stats import extract_stats
@@ -38,8 +40,7 @@ class StatsView(GeneralView):
         if suite not in statistics.suites(session, 'all'):
             raise Http404Error()  # security, to avoid suite='../../foo',
             # to include <img>s, etc.
-        stats_file = os.path.join(current_app.config["CACHE_DIR"],
-                                  "stats.data")
+        stats_file = current_app.config["CACHE_DIR"] / "stats.data"
         res = extract_stats(filename=stats_file,
                             filter_suites=["debian_" + suite])
         info = qry.get_suite_info(session, suite)
@@ -51,7 +52,7 @@ class StatsView(GeneralView):
                     rel_version=info.version)
 
     def get_stats(self):
-        stats_file = os.path.join(app.config["CACHE_DIR"], "stats.data")
+        stats_file = app.config["CACHE_DIR"] / "stats.data"
         res = extract_stats(filename=stats_file)
 
         all_suites = ["debian_" + x for x in
@@ -87,14 +88,14 @@ class SourceView(GeneralView):
             # check if it's secure
             symlink_dest = os.readlink(location.sources_path)
             dest = os.path.normpath(  # absolute, target file
-                os.path.join(os.path.dirname(location.sources_path),
-                             symlink_dest))
+                location.sources_path.parent / symlink_dest
+            )
             # note: adding trailing slash because normpath drops them
             if dest.startswith(os.path.normpath(location.version_path) + '/'):
                 # symlink is safe; redirect to its destination
                 redirect_url = os.path.normpath(
-                    os.path.join(os.path.dirname(location.path_to),
-                                 symlink_dest))
+                    location.path_to.parent / symlink_dest
+                )
                 self.render_func = bind_redirect(url_for(request.endpoint,
                                                  path_to=redirect_url),
                                                  code=301)
@@ -116,7 +117,9 @@ class SourceView(GeneralView):
         """
         renders a directory, lists subdirs and subfiles
         """
-        hidden_files = app.config['HIDDEN_FILES'].split(" ")
+        # Convert hidden file patterns to bytes, as they are used to match
+        # paths, which are bytes.
+        hidden_files = [x.encode('utf8') for x in app.config['HIDDEN_FILES'].split(" ")]
         directory = Directory(location, hidden_files)
 
         pkg_infos = Infobox(session, location.get_package(),
@@ -140,7 +143,7 @@ class SourceView(GeneralView):
                     package=location.get_package(),
                     version=location.get_version(),
                     content=content,
-                    path=path,
+                    path=str(path),
                     pkg_infos=pkg_infos,
                     )
 
@@ -168,7 +171,7 @@ class SourceView(GeneralView):
                         version=location.get_version(),
                         mime=file_.get_mime(),
                         raw_url=raw_url,
-                        path=path,
+                        path=str(path),
                         text_file=text_file,
                         stat=qry.location_get_stat(location.sources_path),
                         checksum=checksum,
@@ -188,16 +191,7 @@ class SourceView(GeneralView):
 
         # set render func (non-api form)
         if not self.render_func:
-            sources_path = raw_url.replace(
-                current_app.config['SOURCES_STATIC'],
-                current_app.config['SOURCES_DIR'],
-                1)
-            # ugly, but better than global variable,
-            # and better than re-requesting the db
-            # TODO: find proper solution for retrieving souces_path
-            # (without putting it in kwargs, we don't want it in
-            # json rendering eg)
-
+            sources_path = location.sources_path
             # we get the variables for highlighting and message (if they exist)
             try:
                 highlight = request.args.get('hl')
@@ -223,12 +217,12 @@ class SourceView(GeneralView):
                 code=sourcefile)
 
         return dict(type="file",
-                    file=location.get_deepest_element(),
+                    file=url_encode(location.get_deepest_element()),
                     package=location.get_package(),
                     version=location.get_version(),
                     mime=file_.get_mime(),
                     raw_url=raw_url,
-                    path=path,
+                    path=str(path),
                     text_file=text_file,
                     stat=qry.location_get_stat(location.sources_path),
                     checksum=checksum,
@@ -244,10 +238,9 @@ class SourceView(GeneralView):
         Directory: we want the subdirs and subfiles (disk listing)
         File: we want to render the raw url of the file
         """
-        path_dict = path_to.split('/')
+        path_to = url_decode(path_to)
 
-        package = path_dict[0]
-        version = path_dict[1]
-        path = '/'.join(path_dict[2:])
+        package, version, *path = path_to.split('/')
+        path = Path('/'.join(path))
 
         return self._render_location(package, version, path)
