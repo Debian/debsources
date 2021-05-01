@@ -632,7 +632,7 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         # Visit that file.
         rv = self.app.get('/src/aspell-is/0.51-0-4/%25EDslenska.alias/')
         self.assertEqual(200, rv.status_code)
-        self.assertIn("<h2>File: %EDslenska.alias</h2>", rv.data)
+        self.assertIn(b"<h2>File: %EDslenska.alias</h2>", rv.data)
 
 
 if __name__ == '__main__':
