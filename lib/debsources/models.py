@@ -24,8 +24,13 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy.types
 
-from debsources.consts import VCS_TYPES, SLOCCOUNT_LANGUAGES, \
-    CTAGS_LANGUAGES, METRIC_TYPES, COPYRIGHT_ORACLES
+from debsources.consts import (
+    VCS_TYPES,
+    SLOCCOUNT_LANGUAGES,
+    CTAGS_LANGUAGES,
+    METRIC_TYPES,
+    COPYRIGHT_ORACLES,
+)
 
 Base = declarative_base()
 
@@ -36,13 +41,14 @@ DB_SCHEMA_VERSION = 11
 
 class PackageName(Base):
     """ a source package name """
-    __tablename__ = 'package_names'
+
+    __tablename__ = "package_names"
 
     id = Column(BIGINT, primary_key=True)
     name = Column(String, index=True, unique=True)
-    versions = relationship("Package", backref="name",
-                            cascade="all, delete-orphan",
-                            passive_deletes=True)
+    versions = relationship(
+        "Package", backref="name", cascade="all, delete-orphan", passive_deletes=True
+    )
 
     def __init__(self, name):
         self.name = name
@@ -60,13 +66,17 @@ class PackageName(Base):
 
 class Package(Base):
     """ a (versioned) source package """
-    __tablename__ = 'packages'
+
+    __tablename__ = "packages"
 
     id = Column(BIGINT, primary_key=True)
     version = Column(String, index=True)
-    name_id = Column(BIGINT,
-                     ForeignKey('package_names.id', ondelete="CASCADE"),
-                     index=True, nullable=False)
+    name_id = Column(
+        BIGINT,
+        ForeignKey("package_names.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
     area = Column(String(8), index=True)  # main, contrib, non-free
     vcs_type = Column(Enum(*VCS_TYPES, name="vcs_types"))
     vcs_url = Column(String)
@@ -90,20 +100,25 @@ class Package(Base):
         """
         return dict(version=self.version, area=self.area)
 
-Index('ix_packages_name_id_version', Package.name_id, Package.version)
+
+Index("ix_packages_name_id_version", Package.name_id, Package.version)
 
 
 class Suite(Base):
     """
     Debian suites (squeeze, wheezy, etc) mapping with source package versions
     """
-    __tablename__ = 'suites'
-    __table_args__ = (UniqueConstraint('package_id', 'suite'),)
+
+    __tablename__ = "suites"
+    __table_args__ = (UniqueConstraint("package_id", "suite"),)
 
     id = Column(BIGINT, primary_key=True)
-    package_id = Column(BIGINT,
-                        ForeignKey('packages.id', ondelete="CASCADE"),
-                        index=True, nullable=False)
+    package_id = Column(
+        BIGINT,
+        ForeignKey("packages.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
     suite = Column(String, index=True)
 
     def __init__(self, package, suite):
@@ -116,9 +131,10 @@ class SuiteInfo(Base):
 
     Note: currently used only for sticky suites.
     """
+
     # TODO cross-reference Suite to this table
 
-    __tablename__ = 'suites_info'
+    __tablename__ = "suites_info"
 
     name = Column(String, primary_key=True)
     version = Column(String, nullable=True)
@@ -126,8 +142,7 @@ class SuiteInfo(Base):
     sticky = Column(Boolean, nullable=False)
     aliases = relationship("SuiteAlias")
 
-    def __init__(self, name, sticky=False, version=None, release_date=None,
-                 aliases=[]):
+    def __init__(self, name, sticky=False, version=None, release_date=None, aliases=[]):
         self.name = name
         if version:
             self.version = version
@@ -143,7 +158,7 @@ class SuiteAlias(Base):
 
     __tablename__ = "suites_aliases"
     alias = Column(String, primary_key=True)
-    suite = Column(String, ForeignKey('suites_info.name', ondelete='CASCADE'))
+    suite = Column(String, ForeignKey("suites_info.name", ondelete="CASCADE"))
 
 
 class PathType(sqlalchemy.types.TypeDecorator):
@@ -165,22 +180,24 @@ class PathType(sqlalchemy.types.TypeDecorator):
         # We need a string for pathlib.Path to work. File and folder names are
         # bytes, and are not (necessarily) linked to an encoding, so we do a
         # lossless conversion with surrogateescape.
-        value_str = value.decode('utf8', 'surrogateescape')
+        value_str = value.decode("utf8", "surrogateescape")
         return Path(value_str)
 
 
 class File(Base):
     """source file table"""
 
-    __tablename__ = 'files'
-    __table_args__ = (UniqueConstraint('package_id', 'path'),)
+    __tablename__ = "files"
+    __table_args__ = (UniqueConstraint("package_id", "path"),)
 
     id = Column(BIGINT, primary_key=True)
-    package_id = Column(BIGINT,
-                        ForeignKey('packages.id', ondelete="CASCADE"),
-                        index=True, nullable=False)
-    path = Column(PathType, index=True,  # path/whitin/source/pkg
-                  nullable=False)
+    package_id = Column(
+        BIGINT,
+        ForeignKey("packages.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    path = Column(PathType, index=True, nullable=False)  # path/whitin/source/pkg
 
     def __init__(self, version, path):
         self.package_id = version.id
@@ -188,16 +205,19 @@ class File(Base):
 
 
 class Checksum(Base):
-    __tablename__ = 'checksums'
-    __table_args__ = (UniqueConstraint('package_id', 'file_id'),)
+    __tablename__ = "checksums"
+    __table_args__ = (UniqueConstraint("package_id", "file_id"),)
 
     id = Column(BIGINT, primary_key=True)
-    package_id = Column(BIGINT,
-                        ForeignKey('packages.id', ondelete="CASCADE"),
-                        index=True, nullable=False)
-    file_id = Column(BIGINT,
-                     ForeignKey('files.id', ondelete="CASCADE"),
-                     index=True, nullable=False)
+    package_id = Column(
+        BIGINT,
+        ForeignKey("packages.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    file_id = Column(
+        BIGINT, ForeignKey("files.id", ondelete="CASCADE"), index=True, nullable=False
+    )
     sha256 = Column(String(64), nullable=False, index=True)
 
     def __init__(self, version, file_id, sha256):
@@ -207,13 +227,13 @@ class Checksum(Base):
 
 
 class BinaryName(Base):
-    __tablename__ = 'binary_names'
+    __tablename__ = "binary_names"
 
     id = Column(BIGINT, primary_key=True)
     name = Column(String, index=True, unique=True)
-    versions = relationship("Binary", backref="name",
-                            cascade="all, delete-orphan",
-                            passive_deletes=True)
+    versions = relationship(
+        "Binary", backref="name", cascade="all, delete-orphan", passive_deletes=True
+    )
 
     def __init__(self, name):
         self.name = name
@@ -223,16 +243,22 @@ class BinaryName(Base):
 
 
 class Binary(Base):
-    __tablename__ = 'binaries'
+    __tablename__ = "binaries"
 
     id = Column(BIGINT, primary_key=True)
     version = Column(String)
-    name_id = Column(BIGINT,
-                     ForeignKey('binary_names.id', ondelete="CASCADE"),
-                     index=True, nullable=False)
-    package_id = Column(BIGINT,
-                        ForeignKey('packages.id', ondelete="CASCADE"),
-                        index=True, nullable=False)
+    name_id = Column(
+        BIGINT,
+        ForeignKey("binary_names.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    package_id = Column(
+        BIGINT,
+        ForeignKey("packages.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
 
     def __init__(self, version, area="main"):
         self.version = version
@@ -242,16 +268,21 @@ class Binary(Base):
 
 
 class SlocCount(Base):
-    __tablename__ = 'sloccounts'
-    __table_args__ = (UniqueConstraint('package_id', 'language'),)
+    __tablename__ = "sloccounts"
+    __table_args__ = (UniqueConstraint("package_id", "language"),)
 
     id = Column(BIGINT, primary_key=True)
-    package_id = Column(BIGINT,
-                        ForeignKey('packages.id', ondelete="CASCADE"),
-                        index=True, nullable=False)
-    language = Column(Enum(*SLOCCOUNT_LANGUAGES, name="language_names"),
-                      # TODO rename enum s/language_names/sloccount/languages
-                      nullable=False)
+    package_id = Column(
+        BIGINT,
+        ForeignKey("packages.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    language = Column(
+        Enum(*SLOCCOUNT_LANGUAGES, name="language_names"),
+        # TODO rename enum s/language_names/sloccount/languages
+        nullable=False,
+    )
     count = Column(BIGINT, nullable=False)
 
     def __init__(self, version, lang, locs):
@@ -261,16 +292,19 @@ class SlocCount(Base):
 
 
 class Ctag(Base):
-    __tablename__ = 'ctags'
+    __tablename__ = "ctags"
 
     id = Column(BIGINT, primary_key=True)
-    package_id = Column(BIGINT,
-                        ForeignKey('packages.id', ondelete="CASCADE"),
-                        index=True, nullable=False)
+    package_id = Column(
+        BIGINT,
+        ForeignKey("packages.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
     tag = Column(String, nullable=False, index=True)
-    file_id = Column(BIGINT,
-                     ForeignKey('files.id', ondelete="CASCADE"),
-                     index=True, nullable=False)
+    file_id = Column(
+        BIGINT, ForeignKey("files.id", ondelete="CASCADE"), index=True, nullable=False
+    )
     line = Column(Integer, nullable=False)
     kind = Column(String)  # see `ctags --list-kinds`; unfortunately ctags
     # gives no guarantee of uniformity in kinds, they might be one-lettered
@@ -303,13 +337,16 @@ class Ctag(Base):
 
 
 class Metric(Base):
-    __tablename__ = 'metrics'
-    __table_args__ = (UniqueConstraint('package_id', 'metric'),)
+    __tablename__ = "metrics"
+    __table_args__ = (UniqueConstraint("package_id", "metric"),)
 
     id = Column(BIGINT, primary_key=True)
-    package_id = Column(BIGINT,
-                        ForeignKey('packages.id', ondelete="CASCADE"),
-                        index=True, nullable=False)
+    package_id = Column(
+        BIGINT,
+        ForeignKey("packages.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
     metric = Column(Enum(*METRIC_TYPES, name="metric_types"), nullable=False)
     value = Column("value_", BIGINT, nullable=False)
 
@@ -322,13 +359,11 @@ class Metric(Base):
 class HistorySize(Base):
     """historical record of debsources size"""
 
-    __tablename__ = 'history_size'
-    __table_args__ = (PrimaryKeyConstraint('timestamp', 'suite'),)
+    __tablename__ = "history_size"
+    __table_args__ = (PrimaryKeyConstraint("timestamp", "suite"),)
 
-    timestamp = Column(DateTime(timezone=False),
-                       index=True, nullable=False)
-    suite = Column(String,		# suite == "ALL" means totals
-                   index=True, nullable=False)
+    timestamp = Column(DateTime(timezone=False), index=True, nullable=False)
+    suite = Column(String, index=True, nullable=False)  # suite == "ALL" means totals
 
     source_packages = Column(Integer, nullable=True)
     binary_packages = Column(Integer, nullable=True)
@@ -346,13 +381,11 @@ class HistorySize(Base):
 class HistorySlocCount(Base):
     """historical record of debsources languages"""
 
-    __tablename__ = 'history_sloccount'
-    __table_args__ = (PrimaryKeyConstraint('timestamp', 'suite'),)
+    __tablename__ = "history_sloccount"
+    __table_args__ = (PrimaryKeyConstraint("timestamp", "suite"),)
 
-    timestamp = Column(DateTime(timezone=False),
-                       index=True, nullable=False)
-    suite = Column(String,		# suite == "ALL" means totals
-                   index=True, nullable=False)
+    timestamp = Column(DateTime(timezone=False), index=True, nullable=False)
+    suite = Column(String, index=True, nullable=False)  # suite == "ALL" means totals
 
     # see consts.SLOCCOUNT_LANGUAGES for the language list rationale
     lang_ada = Column(BIGINT, nullable=True)
@@ -397,14 +430,13 @@ class HistorySlocCount(Base):
 
 class FileCopyright(Base):
 
-    __tablename__ = 'copyright'
+    __tablename__ = "copyright"
 
     id = Column(BIGINT, primary_key=True)
-    file_id = Column(BIGINT,
-                     ForeignKey('files.id', ondelete="CASCADE"),
-                     index=True, nullable=False)
-    oracle = Column(Enum(*COPYRIGHT_ORACLES, name="copyright_oracles"),
-                    nullable=False)
+    file_id = Column(
+        BIGINT, ForeignKey("files.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    oracle = Column(Enum(*COPYRIGHT_ORACLES, name="copyright_oracles"), nullable=False)
     license = Column(String)
 
     def __init__(self, file_id, oracle, license):
@@ -415,20 +447,16 @@ class FileCopyright(Base):
     def to_dict(self):
         """ Serialize the object
         """
-        return dict(file_id=self.file_id,
-                    oracle=self.oracle,
-                    license=self.license)
+        return dict(file_id=self.file_id, oracle=self.oracle, license=self.license)
 
 
 class HistoryCopyright(Base):
 
-    __tablename__ = 'history_copyright'
+    __tablename__ = "history_copyright"
 
     id = Column(BIGINT, primary_key=True)
-    timestamp = Column(DateTime(timezone=False),
-                       index=True, nullable=False)
-    suite = Column(String,      # suite == "ALL" means totals
-                   index=True, nullable=False)
+    timestamp = Column(DateTime(timezone=False), index=True, nullable=False)
+    suite = Column(String, index=True, nullable=False)  # suite == "ALL" means totals
     license = Column(String)
     files = Column(BIGINT, nullable=True)
 

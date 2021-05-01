@@ -18,10 +18,10 @@ import matplotlib
 
 from itertools import cycle
 
-matplotlib.use('Agg')
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # NOQA
-import matplotlib.cm as cm       # NOQA
-import numpy as np               # NOQA
+import matplotlib.cm as cm  # NOQA
+import numpy as np  # NOQA
 
 
 def _split_series(series):
@@ -44,19 +44,19 @@ def size_plot(series, fname):
     `fname`
 
     """
-    logging.debug('generate size plot to %s...' % fname)
+    logging.debug("generate size plot to %s..." % fname)
     ts, values = _split_series(series)
 
     plt.figure()
-    plt.plot(ts, values, linestyle='-', marker='o')
+    plt.plot(ts, values, linestyle="-", marker="o")
     plt.xticks(rotation=30)
-    plt.savefig(fname, bbox_inches='tight')
+    plt.savefig(fname, bbox_inches="tight")
     plt.close()
 
 
-COLORS = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
-LINE_MARKERS = ['o', '^', 's', '*', '+', 'x', 'v']
-LINE_STYLES = [c + m + '-' for m in LINE_MARKERS for c in COLORS]
+COLORS = ["b", "g", "r", "c", "m", "y", "k"]
+LINE_MARKERS = ["o", "^", "s", "*", "+", "x", "v"]
+LINE_STYLES = [c + m + "-" for m in LINE_MARKERS for c in COLORS]
 CHART_TEXTURES = ["/", "-", "+", "x", "o", ".", "*"]
 CHART_STYLES = [c + t for t in CHART_TEXTURES for c in COLORS]
 
@@ -67,15 +67,14 @@ def multiseries_plot(multiseries, fname, cols=7):
     value> paris --- and save it to file `fname`
 
     """
-    logging.debug('generate sloccount plot to %s...' % fname)
+    logging.debug("generate sloccount plot to %s..." % fname)
     plt.figure()
-    plt.yscale('log')
+    plt.yscale("log")
 
     styles = cycle(LINE_STYLES)
     for name, series in sorted(
-            multiseries.items(),
-            key=lambda x: x[1],  # by value
-            reverse=True):
+        multiseries.items(), key=lambda x: x[1], reverse=True  # by value
+    ):
         ts, values = _split_series(series)
         if any(values):
             plt.plot(ts, values, next(styles), label=name)
@@ -83,11 +82,15 @@ def multiseries_plot(multiseries, fname, cols=7):
     # plt.legend(bbox_to_anchor=(0., 1.02, 1., .102),
     # plt.legend(bbox_to_anchor=(0, -0.04),
     plt.xticks(rotation=30)
-    plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), mode='expand',
-               loc='lower left', ncol=cols,
-               prop={'size': 8})
+    plt.legend(
+        bbox_to_anchor=(0.0, 1.02, 1.0, 0.102),
+        mode="expand",
+        loc="lower left",
+        ncol=cols,
+        prop={"size": 8},
+    )
 
-    plt.savefig(fname, bbox_inches='tight')
+    plt.savefig(fname, bbox_inches="tight")
     plt.close()
 
 
@@ -96,8 +99,8 @@ def pie_chart(items, fname, ratio=None):
     which maps a metric to a value. Save the obtained chart to `fname`
 
     """
-    logging.debug('generate sloccount pie chart to %s...' % fname)
-    cols = cm.Set1(np.arange(20) / 20.)
+    logging.debug("generate sloccount pie chart to %s..." % fname)
+    cols = cm.Set1(np.arange(20) / 20.0)
     plt.figure()
     keys, values = _split_series(items.items())
     modified_keys = ["Other: ", "Other"]
@@ -107,20 +110,19 @@ def pie_chart(items, fname, ratio=None):
             modified_values.append(value)
             modified_keys.append(keys[i])
         else:
-            modified_values[0] = (value + modified_values[0])
-            modified_keys[0] = modified_keys[0] + keys[i].replace("_", ' ') \
-                + " / "
-            if len(modified_keys[0].split('\n')[-1]) > 50:
+            modified_values[0] = value + modified_values[0]
+            modified_keys[0] = modified_keys[0] + keys[i].replace("_", " ") + " / "
+            if len(modified_keys[0].split("\n")[-1]) > 50:
                 modified_keys[0] = modified_keys[0] + "\n"
     # delete trailing /
     modified_keys[0] = modified_keys[0][0:-2]
-    plt.pie(modified_values, labels=modified_keys[1:], autopct='%1.1f%%',
-            colors=cols)
+    plt.pie(modified_values, labels=modified_keys[1:], autopct="%1.1f%%", colors=cols)
     if ratio:
-        modified_keys[0] += '\nPercentage of files with non machine' \
-                            ' readable d/copyright files  = ' \
-                            + str(ratio) + '%'
-    plt.figtext(.02, .02, modified_keys[0])
+        modified_keys[0] += (
+            "\nPercentage of files with non machine"
+            " readable d/copyright files  = " + str(ratio) + "%"
+        )
+    plt.figtext(0.02, 0.02, modified_keys[0])
     plt.savefig(fname)
     plt.close()
 
@@ -130,33 +132,33 @@ def bar_chart(items_per_suite, suites, fname, N, y_label):
     sloccount available in `items_per_suite`. Save the chart in `fname`.
 
     """
-    logging.debug('generate sloccount bat chart to %s...' % fname)
+    logging.debug("generate sloccount bat chart to %s..." % fname)
 
     try:
         latest_release = items_per_suite[-2]
     except IndexError:
         if len(items_per_suite) == 1:
-            logging.warn('sloc bar chart failed ' +
-                         'as only one suite is available')
+            logging.warn("sloc bar chart failed " + "as only one suite is available")
             return
         else:
-            logging.warn('sloc bar chart failed ' +
-                         'as there are no suites to plot')
+            logging.warn("sloc bar chart failed " + "as there are no suites to plot")
             return
     # Verify N is at most the maximum languages in a suite
     if N >= len(latest_release):
         N = len(latest_release) - 1
 
     # Generate data
-    latest = sorted(list(latest_release.items()),
-                    key=operator.itemgetter(1), reverse=True)
+    latest = sorted(
+        list(latest_release.items()), key=operator.itemgetter(1), reverse=True
+    )
     keys = [couple[0] for couple in latest[0:N]]
     important = []
     for key in keys:
         slocs = []
         for i in range(0, len(suites)):
-            slocs.append(items_per_suite[i][key]
-                         if key in items_per_suite[i].keys() else 0)
+            slocs.append(
+                items_per_suite[i][key] if key in items_per_suite[i].keys() else 0
+            )
         important.append(slocs)
     if not important:
         return
@@ -177,15 +179,16 @@ def bar_chart(items_per_suite, suites, fname, N, y_label):
         # converts sqlalchemy's Decimal to int
         bottom = list(map(lambda x: int(x), bottom))
 
-        bar_charts.append(plt.bar(ind, important[i], width,
-                                  color=c, hatch=t,
-                                  bottom=bottom))
+        bar_charts.append(
+            plt.bar(ind, important[i], width, color=c, hatch=t, bottom=bottom)
+        )
 
     plt.ylabel(y_label)
-    plt.xticks(ind + width / 2., (suites), rotation=75)
-    plt.legend((p[0] for p in bar_charts),
-               (keys), loc='center left', bbox_to_anchor=(1, 0.5))
-    plt.savefig(fname, bbox_inches='tight')
+    plt.xticks(ind + width / 2.0, (suites), rotation=75)
+    plt.legend(
+        (p[0] for p in bar_charts), (keys), loc="center left", bbox_to_anchor=(1, 0.5)
+    )
+    plt.savefig(fname, bbox_inches="tight")
     plt.close()
 
 

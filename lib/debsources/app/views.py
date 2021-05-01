@@ -13,13 +13,17 @@ from __future__ import absolute_import
 
 from pathlib import Path
 
-from flask import (
-    current_app, jsonify, render_template, request, url_for, redirect)
+from flask import current_app, jsonify, render_template, request, url_for, redirect
 from flask.views import View
 
 from debsources.excepts import (
-    Http500Error, Http404Error, Http404ErrorSuggestions, Http403Error,
-    InvalidPackageOrVersionError, Http404MissingCopyright)
+    Http500Error,
+    Http404Error,
+    Http404ErrorSuggestions,
+    Http403Error,
+    InvalidPackageOrVersionError,
+    Http404MissingCopyright,
+)
 from debsources.models import Package
 import debsources.query as qry
 from debsources.sqla_session import _close_session
@@ -29,23 +33,24 @@ from debsources.consts import SUITES
 from .forms import SearchForm
 from .pagination import Pagination
 from .infobox import Infobox
-from .helper import (format_big_num, url_for_other_page)
+from .helper import format_big_num, url_for_other_page
 from . import app_wrapper
+
 app = app_wrapper.app
 session = app_wrapper.session
 
 
 # static file serving
-if 'SERVE_STATIC_FILES' in app.config and app.config['SERVE_STATIC_FILES']:
+if "SERVE_STATIC_FILES" in app.config and app.config["SERVE_STATIC_FILES"]:
     import flask
 
-    @app.route('/javascript/<path:path>')
+    @app.route("/javascript/<path:path>")
     def javascript(path):
-        return flask.send_from_directory('/usr/share/javascript/', path)
+        return flask.send_from_directory("/usr/share/javascript/", path)
 
-    @app.route('/icons/<path:path>')
+    @app.route("/icons/<path:path>")
     def icons(path):
-        return flask.send_from_directory('/usr/share/icons/', path)
+        return flask.send_from_directory("/usr/share/icons/", path)
 
 
 @app.teardown_appcontext
@@ -59,32 +64,32 @@ def shutdown_session(exception=None):
 # TODO the context need a little bit modification
 @app.context_processor
 def skeleton_variables():
-    update_ts_file = app.config['CACHE_DIR'] / 'last-update'
+    update_ts_file = app.config["CACHE_DIR"] / "last-update"
     # TODO, this part should be moved to per blueprint context processor
     last_update = local_info.read_update_ts(update_ts_file)
 
-    packages_prefixes = qry.pkg_names_get_packages_prefixes(
-        app.config["CACHE_DIR"])
+    packages_prefixes = qry.pkg_names_get_packages_prefixes(app.config["CACHE_DIR"])
 
     credits_file = app.config["LOCAL_DIR"] / "credits.html"
     credits = local_info.read_html(credits_file)
 
-    return dict(packages_prefixes=packages_prefixes,
-                searchform=SearchForm(),
-                last_update=last_update,
-                credits=credits,
-                name=app.import_name)
+    return dict(
+        packages_prefixes=packages_prefixes,
+        searchform=SearchForm(),
+        last_update=last_update,
+        credits=credits,
+        name=app.import_name,
+    )
 
 
 # jinja2 settings
-app.jinja_env.filters['format_big_num'] = format_big_num
-app.jinja_env.globals['url_for_other_page'] = url_for_other_page
+app.jinja_env.filters["format_big_num"] = format_big_num
+app.jinja_env.globals["url_for_other_page"] = url_for_other_page
 
 
 # ERRORS
 class ErrorHandler(object):
-
-    def __init__(self, mode='html', http=404):
+    def __init__(self, mode="html", http=404):
         self.mode = mode
         self.http = http
 
@@ -92,44 +97,50 @@ class ErrorHandler(object):
         if http is not None:
             self.http = http
         try:
-            method = getattr(self, 'error_{}'.format(self.http))
+            method = getattr(self, "error_{}".format(self.http))
         except:
             raise Exception("Unimplemented HTTP error: {}".format(self.http))
         return method(error)
 
     def error_403(self, error):
-        if self.mode == 'json':
+        if self.mode == "json":
             return jsonify(dict(error=403))
         else:
-            return render_template('403.html'), 403
+            return render_template("403.html"), 403
 
     def error_404(self, error):
-        if self.mode == 'json':
+        if self.mode == "json":
             return jsonify(dict(error=404))
         else:
-            if isinstance(error, Http404ErrorSuggestions) or \
-               isinstance(error, Http404MissingCopyright):
+            if isinstance(error, Http404ErrorSuggestions) or isinstance(
+                error, Http404MissingCopyright
+            ):
                 # let's suggest all the possible locations with a different
                 # package version
-                possible_versions = qry.pkg_names_list_versions(
-                    session, error.package)
+                possible_versions = qry.pkg_names_list_versions(session, error.package)
 
                 suggestions = []
                 for possible_version in possible_versions:
                     suggestions.append(
-                        str(
-                            Path(error.package) / possible_version.version / error.path
-                        )
+                        str(Path(error.package) / possible_version.version / error.path)
                     )
 
                 if isinstance(error, Http404ErrorSuggestions):
-                    return render_template('404_suggestions.html',
-                                           suggestions=suggestions), 404
+                    return (
+                        render_template(
+                            "404_suggestions.html", suggestions=suggestions
+                        ),
+                        404,
+                    )
                 else:
-                    return render_template('copyright/404_missing.html',
-                                           suggestions=suggestions), 404
+                    return (
+                        render_template(
+                            "copyright/404_missing.html", suggestions=suggestions
+                        ),
+                        404,
+                    )
             else:
-                return render_template('404.html'), 404
+                return render_template("404.html"), 404
 
     def error_500(self, error):
         """
@@ -137,10 +148,10 @@ class ErrorHandler(object):
         """
         app.logger.exception(error)
 
-        if self.mode == 'json':
+        if self.mode == "json":
             return jsonify(dict(error=500))
         else:
-            return render_template('500.html'), 500
+            return render_template("500.html"), 500
 
 
 # TODO unlike 403,404, which could be registered per blueprint,
@@ -158,11 +169,13 @@ app.errorhandler(500)(ErrorHandler(http=500))
 
 # FOR BOTH RENDERING AND API
 class GeneralView(View):
-    def __init__(self,
-                 render_func=jsonify,
-                 err_func=ErrorHandler(mode='json'),
-                 get_objects=None,
-                 **kwargs):
+    def __init__(
+        self,
+        render_func=jsonify,
+        err_func=ErrorHandler(mode="json"),
+        get_objects=None,
+        **kwargs
+    ):
         """
         render_func: the render function, e.g. jsonify or render_template
         err_func: the function called when an error occurs
@@ -209,23 +222,22 @@ class GeneralView(View):
 # If we want to stop traffic from codesearch.d.n, just return 500 error
 class Ping(View):
     def dispatch_request(self):
-        update_ts_file = current_app.config['CACHE_DIR'] / 'last-update'
+        update_ts_file = current_app.config["CACHE_DIR"] / "last-update"
         last_update = local_info.read_update_ts(update_ts_file)
         try:
             session.query(Package).first().id  # database check
         except:
             return jsonify(dict(status="db error", http_status_code=500)), 500
-        return jsonify(dict(status="ok",
-                            http_status_code=200,
-                            last_update=last_update))
+        return jsonify(dict(status="ok", http_status_code=200, last_update=last_update))
 
 
 # for '/'
 class IndexView(GeneralView):
-
     def get_objects(self, **kwargs):
-        news_file = current_app.config["LOCAL_DIR"] / self.d['news_html']
-        archived_news_file = current_app.config["LOCAL_DIR"] / self.d['news_archive_html']
+        news_file = current_app.config["LOCAL_DIR"] / self.d["news_html"]
+        archived_news_file = (
+            current_app.config["LOCAL_DIR"] / self.d["news_archive_html"]
+        )
         news = local_info.read_html(news_file)
         archived_news = local_info.read_html(archived_news_file)
         return dict(news=news, archived_news=archived_news)
@@ -233,9 +245,10 @@ class IndexView(GeneralView):
 
 # for /news_archive
 class NewsArchiveView(GeneralView):
-
     def get_objects(self, **kwargs):
-        archived_news_file = current_app.config["LOCAL_DIR"] / self.d['news_archive_html']
+        archived_news_file = (
+            current_app.config["LOCAL_DIR"] / self.d["news_archive_html"]
+        )
         archived_news = local_info.read_html(archived_news_file)
         return dict(archived_news=archived_news)
 
@@ -247,9 +260,11 @@ class DocView(GeneralView):
     """
 
     def get_objects(self):
-        return dict(copyright=current_app.config.get("BLUEPRINT_COPYRIGHT"),
-                    sources=current_app.config.get("BLUEPRINT_SOURCES"),
-                    patches=current_app.config.get("BLUEPRINT_PATCHES"))
+        return dict(
+            copyright=current_app.config.get("BLUEPRINT_COPYRIGHT"),
+            sources=current_app.config.get("BLUEPRINT_SOURCES"),
+            patches=current_app.config.get("BLUEPRINT_PATCHES"),
+        )
 
 
 # for /about/
@@ -260,18 +275,17 @@ class AboutView(GeneralView):
 
 
 class SearchView(GeneralView):
-
     def dispatch_request(self, **kwargs):
-        if self.d.get('recv_search'):
+        if self.d.get("recv_search"):
             return self.recv_search()
         else:
             return super(SearchView, self).dispatch_request(**kwargs)
 
-    def get_query(self, query=''):
+    def get_query(self, query=""):
         """
         processes the search query and renders the results in a dict
         """
-        query = query.replace('%', '').replace('_', '')
+        query = query.replace("%", "").replace("_", "")
         suite = request.args.get("suite") or ""
         suite = suite.lower()
         if suite == "all":
@@ -280,8 +294,7 @@ class SearchView(GeneralView):
         try:
             exact_matching = qry.get_pkg_by_name(session, query, suite)
 
-            other_results = qry.get_pkg_by_similar_name(session,
-                                                        query, suite)
+            other_results = qry.get_pkg_by_similar_name(session, query, suite)
         except Exception as e:
             raise Http500Error(e)  # db problem, ...
 
@@ -292,8 +305,7 @@ class SearchView(GeneralView):
             # we exclude the 'exact' matching from other_results:
             other_results = [x for x in other_results if x != exact_matching]
 
-        results = dict(exact=exact_matching,
-                       other=other_results)
+        results = dict(exact=exact_matching, other=other_results)
         return dict(results=results, query=query, suite=suite)
 
     def get_advanced(self):
@@ -314,7 +326,6 @@ class SearchView(GeneralView):
 
 
 class ChecksumView(GeneralView):
-
     @staticmethod
     def _files_with_sum(checksum, slice_=None, package=None, suite=None):
         """
@@ -327,10 +338,10 @@ class ChecksumView(GeneralView):
             results = results.slice(slice_[0], slice_[1])
         results = results.all()
 
-        return [dict(path=str(res.path),
-                     package=res.package,
-                     version=res.version)
-                for res in results]
+        return [
+            dict(path=str(res.path), package=res.package, version=res.version)
+            for res in results
+        ]
 
     def get_objects(self, **kwargs):
         """
@@ -345,7 +356,7 @@ class ChecksumView(GeneralView):
         count = count.first()[0]
 
         # pagination:
-        if self.d.get('pagination'):
+        if self.d.get("pagination"):
             offset = int(current_app.config.get("LIST_OFFSET") or 60)
             start = (page - 1) * offset
             end = start + offset
@@ -356,18 +367,18 @@ class ChecksumView(GeneralView):
             slice_ = None
 
         # finally we get the files list
-        results = self._files_with_sum(
-            checksum, slice_=slice_, package=package)
+        results = self._files_with_sum(checksum, slice_=slice_, package=package)
 
-        return dict(results=results,
-                    sha256=checksum,
-                    count=count,
-                    page=page,
-                    pagination=pagination)
+        return dict(
+            results=results,
+            sha256=checksum,
+            count=count,
+            page=page,
+            pagination=pagination,
+        )
 
 
 class CtagView(GeneralView):
-
     def get_objects(self):
         """
         Returns the places where ctag are found.
@@ -381,7 +392,7 @@ class CtagView(GeneralView):
         package = request.args.get("package") or None
 
         # pagination:
-        if self.d.get('pagination'):
+        if self.d.get("pagination"):
             try:
                 offset = int(current_app.config.get("LIST_OFFSET"))
             except:
@@ -393,24 +404,24 @@ class CtagView(GeneralView):
             pagination = None
             slice_ = None
 
-        (count, results) = qry.find_ctag(session, ctag, slice_=slice_,
-                                         package=package)
-        if self.d.get('pagination'):
+        (count, results) = qry.find_ctag(session, ctag, slice_=slice_, package=package)
+        if self.d.get("pagination"):
             pagination = Pagination(page, offset, count)
         else:
             pagination = None
 
-        return dict(results=results,
-                    ctag=ctag,
-                    count=count,
-                    page=page,
-                    package=package,
-                    pagination=pagination)
+        return dict(
+            results=results,
+            ctag=ctag,
+            count=count,
+            page=page,
+            package=package,
+            pagination=pagination,
+        )
 
 
 class PrefixView(GeneralView):
-
-    def get_objects(self, prefix='a'):
+    def get_objects(self, prefix="a"):
         """
         returns the packages beginning with prefix
         and belonging to suite if specified.
@@ -420,30 +431,24 @@ class PrefixView(GeneralView):
         suite = suite.lower()
         if suite == "all":
             suite = ""
-        if prefix in qry.pkg_names_get_packages_prefixes(
-                app.config["CACHE_DIR"]):
+        if prefix in qry.pkg_names_get_packages_prefixes(app.config["CACHE_DIR"]):
             try:
                 if not suite:
-                    packages = qry.get_pkg_filter_prefix(session,
-                                                         prefix).all()
+                    packages = qry.get_pkg_filter_prefix(session, prefix).all()
                 else:
-                    packages = qry.get_pkg_filter_prefix(session,
-                                                         prefix,
-                                                         suite).all()
+                    packages = qry.get_pkg_filter_prefix(session, prefix, suite).all()
 
                 packages = [p.to_dict() for p in packages]
             except Exception as e:
                 raise Http500Error(e)
-            return dict(packages=packages,
-                        prefix=prefix,
-                        suite=suite)
+            return dict(packages=packages, prefix=prefix, suite=suite)
         else:
             raise Http404Error("prefix unknown: %s" % str(prefix))
 
 
 class ListPackagesView(GeneralView):
     def get_objects(self, page=1):
-        if not self.d.get('pagination'):  # api form, we retrieve all packages
+        if not self.d.get("pagination"):  # api form, we retrieve all packages
             try:
                 packages = qry.get_all_packages(session).all()
                 packages = [p.to_dict() for p in packages]
@@ -460,14 +465,10 @@ class ListPackagesView(GeneralView):
                 end = start + offset
 
                 count_packages = qry.count_packages(session)
-                packages = (qry.get_all_packages(session)
-                            .slice(start, end)
-                            )
+                packages = qry.get_all_packages(session).slice(start, end)
                 pagination = Pagination(page, offset, count_packages)
 
-                return dict(packages=packages,
-                            page=page,
-                            pagination=pagination)
+                return dict(packages=packages, page=page, pagination=pagination)
 
             except Exception as e:
                 raise Http500Error(e)
@@ -482,30 +483,30 @@ class PackageVersionsView(GeneralView):
         # we list the version with suites it belongs to
         try:
             versions_w_suites = qry.pkg_names_list_versions_w_suites(
-                session, packagename, suite, reverse=True)
+                session, packagename, suite, reverse=True
+            )
         except InvalidPackageOrVersionError:
             raise Http404Error("%s not found" % packagename)
 
         # we simply add pathl (for use with "You are here:")
-        if request.blueprint == 'sources':
-            endpoint = '.source'
-        elif request.blueprint == 'copyright':
-            endpoint = '.versions'
+        if request.blueprint == "sources":
+            endpoint = ".source"
+        elif request.blueprint == "copyright":
+            endpoint = ".versions"
 
         pathl = qry.location_get_path_links(endpoint, Path(packagename))
-        return dict(type="package",
-                    package=packagename,
-                    versions=versions_w_suites,
-                    path=packagename,
-                    suite=suite,
-                    pathl=pathl
-                    )
+        return dict(
+            type="package",
+            package=packagename,
+            versions=versions_w_suites,
+            path=packagename,
+            suite=suite,
+            pathl=pathl,
+        )
 
 
 # INFO PAGES #
 class InfoPackageView(GeneralView):
     def get_objects(self, package, version):
         pkg_infos = Infobox(session, package, version).get_infos()
-        return dict(pkg_infos=pkg_infos,
-                    package=package,
-                    version=version)
+        return dict(pkg_infos=pkg_infos, package=package, version=version)

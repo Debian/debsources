@@ -9,5 +9,5 @@
 # see the COPYING file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
-NAME = 'debsources'
-VERSION = '0.1'
+NAME = "debsources"
+VERSION = "0.1"

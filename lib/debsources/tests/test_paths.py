@@ -29,9 +29,9 @@ class PathTestCase(unittest.TestCase):
 
     def test_json_encode(self):
         test_cases = [
-            (Path('/some/filesystem/path/'), '"/some/filesystem/path"'),
-            ([Path('some/filesystem.path')], '["some/filesystem.path"]'),
-            ({'foo': (Path('a') / 'b').parent}, '{"foo": "a"}')
+            (Path("/some/filesystem/path/"), '"/some/filesystem/path"'),
+            ([Path("some/filesystem.path")], '["some/filesystem.path"]'),
+            ({"foo": (Path("a") / "b").parent}, '{"foo": "a"}'),
         ]
         for test_case in test_cases:
             self.assertEqual(Encoder().encode(test_case[0]), test_case[1])
@@ -41,13 +41,15 @@ class PathWebTestCase(DebsourcesBaseWebTests, unittest.TestCase):
     """Test Flask did register the custom JSON encoder."""
 
     def test_json_encode_through_app(self):
-        rv = json.loads(self.app.get(
-            '/copyright/api/sha256/?checksum='
-            'be43f81c20961702327c10e9bd5f5a9a2b1cceea850402ea562a9a76abcfa4bf')
-            .data)
-        self.assertEqual(len(rv['result']['copyright']), 3)
-        for result in rv['result']['copyright']:
-            self.assertEqual(result['path'], 'COPYING')
+        rv = json.loads(
+            self.app.get(
+                "/copyright/api/sha256/?checksum="
+                "be43f81c20961702327c10e9bd5f5a9a2b1cceea850402ea562a9a76abcfa4bf"
+            ).data
+        )
+        self.assertEqual(len(rv["result"]["copyright"]), 3)
+        for result in rv["result"]["copyright"]:
+            self.assertEqual(result["path"], "COPYING")
 
 
 Base = declarative_base()
@@ -56,7 +58,7 @@ Base = declarative_base()
 class EntityWithPath(Base):
     """Fake SQLAlchemy entity that contains a path."""
 
-    __tablename__ = 'entity_with_path'
+    __tablename__ = "entity_with_path"
 
     id = Column(Integer, primary_key=True)
     path = Column(PathType)
@@ -76,8 +78,8 @@ class PathDbTestCase(DbTestFixture, unittest.TestCase):
 
     def test_sqlalchemy_path(self):
         for (path, path_bytes) in [
-                (Path('/hello') / 'world', b'/hello/world'),
-                (Path('\udcff'), b'\xff'),  # non utf8, surrogateescape
+            (Path("/hello") / "world", b"/hello/world"),
+            (Path("\udcff"), b"\xff"),  # non utf8, surrogateescape
         ]:
             # Create and save an EntityWithPath in DB
             entity = EntityWithPath(path=path)
@@ -89,12 +91,12 @@ class PathDbTestCase(DbTestFixture, unittest.TestCase):
             self.assertEqual(entity_with_path.path, path)
 
             # Retrieve from DB through SQL
-            result = self.session.execute(text('SELECT * FROM entity_with_path;'))
+            result = self.session.execute(text("SELECT * FROM entity_with_path;"))
             raw_entity_with_path = list(result)
             self.assertEqual(len(raw_entity_with_path), 1)  # 1 item
             self.assertEqual(
                 bytes(raw_entity_with_path[0][1]),  # from memoryview to bytes
-                path_bytes
+                path_bytes,
             )
 
             # Clean up

@@ -21,9 +21,8 @@ from debsources.tests.db_testing import DbTestFixture
 from debsources.tests.testdata import TEST_DB_NAME
 
 
-@attr('Queries')
+@attr("Queries")
 class QueriesTest(unittest.TestCase, DbTestFixture):
-
     @classmethod
     def setUpClass(cls):
         cls.db_setup_cls()
@@ -34,7 +33,7 @@ class QueriesTest(unittest.TestCase, DbTestFixture):
         # erases a few configuration parameters needed for testing:
         uri = "postgresql:///" + TEST_DB_NAME
         app_wrapper.app.config["DB_URI"] = uri
-        app_wrapper.app.config['LIST_OFFSET'] = 5
+        app_wrapper.app.config["LIST_OFFSET"] = 5
         app_wrapper.app.testing = True
 
         app_wrapper.go()
@@ -48,61 +47,78 @@ class QueriesTest(unittest.TestCase, DbTestFixture):
         cls.db_teardown_cls()
 
     def test_packages_prefixes(self):
-        self.assertEqual(qry.pkg_names_get_packages_prefixes(
-            self.app_wrapper.app.config["CACHE_DIR"]),
-            ['a', 'b', 'c', 'd', 'f', 'g', 'l', 'libc', 'm',
-             'n', 'o', 'p', 's', 'u'])
+        self.assertEqual(
+            qry.pkg_names_get_packages_prefixes(
+                self.app_wrapper.app.config["CACHE_DIR"]
+            ),
+            ["a", "b", "c", "d", "f", "g", "l", "libc", "m", "n", "o", "p", "s", "u"],
+        )
 
     def test_list_versions(self):
         # Test without suit
         packages = qry.pkg_names_list_versions(self.session, "gnubg")
-        self.assertEqual([p.version for p in packages],
-                         ["0.90+20091206-4", "0.90+20120429-1", "1.02.000-2"])
+        self.assertEqual(
+            [p.version for p in packages],
+            ["0.90+20091206-4", "0.90+20120429-1", "1.02.000-2"],
+        )
 
         # Test with suit
         packages = qry.pkg_names_list_versions(self.session, "gnubg", "wheezy")
         self.assertEqual([p.version for p in packages], ["0.90+20120429-1"])
 
         # Test when suit_order is given as parameter
-        packages = qry.pkg_names_list_versions(self.session, "gnubg",
-                                               suite_order=["squeeze",
-                                                            "jessie", "sid",
-                                                            "wheezy"])
-        self.assertEqual([p.version for p in packages],
-                         ["0.90+20091206-4", "1.02.000-2", "0.90+20120429-1"])
+        packages = qry.pkg_names_list_versions(
+            self.session, "gnubg", suite_order=["squeeze", "jessie", "sid", "wheezy"]
+        )
+        self.assertEqual(
+            [p.version for p in packages],
+            ["0.90+20091206-4", "1.02.000-2", "0.90+20120429-1"],
+        )
 
-        packages = qry.pkg_names_list_versions(self.session, "gnubg",
-                                               suite_order=["squeeze",
-                                                            "wheezy",
-                                                            "jessie", "sid"])
-        self.assertEqual([p.version for p in packages],
-                         ["0.90+20091206-4", "0.90+20120429-1", "1.02.000-2"])
+        packages = qry.pkg_names_list_versions(
+            self.session, "gnubg", suite_order=["squeeze", "wheezy", "jessie", "sid"]
+        )
+        self.assertEqual(
+            [p.version for p in packages],
+            ["0.90+20091206-4", "0.90+20120429-1", "1.02.000-2"],
+        )
 
         # Test returning suites without suit as parameter
-        self.assertTrue({'suites': [u'wheezy'], 'version': u'0.90+20120429-1',
-                         'area': u'main'} in
-                        qry.pkg_names_list_versions_w_suites(self.session,
-                                                             "gnubg"))
+        self.assertTrue(
+            {"suites": [u"wheezy"], "version": u"0.90+20120429-1", "area": u"main"}
+            in qry.pkg_names_list_versions_w_suites(self.session, "gnubg")
+        )
 
         # Test returning suites with a suit as parameter
-        self.assertEqual(qry.pkg_names_list_versions_w_suites(self.session,
-                                                              "gnubg",
-                                                              "jessie"),
-                         [{'suites': [u'jessie', u'sid'],
-                          'version': u'1.02.000-2', 'area': u'main'}])
+        self.assertEqual(
+            qry.pkg_names_list_versions_w_suites(self.session, "gnubg", "jessie"),
+            [
+                {
+                    "suites": [u"jessie", u"sid"],
+                    "version": u"1.02.000-2",
+                    "area": u"main",
+                }
+            ],
+        )
 
     def test_find_ctag(self):
         self.assertEqual(qry.find_ctag(self.session, "swap")[0], 8)
 
         ctags = qry.find_ctag(self.session, "swap", "gnubg")
         self.assertEqual(ctags[0], 5)
-        self.assertTrue({'path': Path('eval.c'), 'line': 1747,
-                        'version': u'0.90+20091206-4', 'package': u'gnubg'}
-                        in ctags[1])
+        self.assertTrue(
+            {
+                "path": Path("eval.c"),
+                "line": 1747,
+                "version": u"0.90+20091206-4",
+                "package": u"gnubg",
+            }
+            in ctags[1]
+        )
 
     def test_ratio(self):
         # overall
         self.assertEqual(qry.get_ratio(self.session), 77)
         # per suite
-        self.assertEqual(qry.get_ratio(self.session, 'jessie'), 51)
-        self.assertEqual(qry.get_ratio(self.session, 'squeeze'), 100)
+        self.assertEqual(qry.get_ratio(self.session, "jessie"), 51)
+        self.assertEqual(qry.get_ratio(self.session, "squeeze"), 100)

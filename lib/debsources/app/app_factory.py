@@ -26,6 +26,7 @@ class AppWrapper(object):
     Contains an app and a session, and provides ways to drive all the init
     steps separately.
     """
+
     def __init__(self, config=None, session=None):
         """
         Creates a Flask application and sets up its configuration.
@@ -55,34 +56,40 @@ class AppWrapper(object):
         self.setup_blueprints()
 
     def setup_blueprints(self):
-        if 'NAME' in self.app.config.keys():
-            self.app.import_name = self.app.config.get('NAME')
+        if "NAME" in self.app.config.keys():
+            self.app.import_name = self.app.config.get("NAME")
         else:
             # don't fail with existing conf
-            self.app.import_name = 'sources'
-        if self.app.config.get('BLUEPRINT_COPYRIGHT'):
+            self.app.import_name = "sources"
+        if self.app.config.get("BLUEPRINT_COPYRIGHT"):
             from debsources.app.copyright import bp_copyright
-            # add a url-prefix
-            self.app.register_blueprint(bp_copyright,
-                                        url_prefix='/copyright')
-        if self.app.config.get('BLUEPRINT_PATCHES'):
-            from debsources.app.patches import bp_patches
-            # add a url-prefix
-            self.app.register_blueprint(bp_patches,
-                                        url_prefix='/patches')
 
-        if self.app.config.get('BLUEPRINT_SOURCES'):
-            from debsources.app.sources import bp_sources
             # add a url-prefix
-            self.app.register_blueprint(bp_sources,
-                                        # hook on the root
-                                        url_prefix=None)
+            self.app.register_blueprint(bp_copyright, url_prefix="/copyright")
+        if self.app.config.get("BLUEPRINT_PATCHES"):
+            from debsources.app.patches import bp_patches
+
+            # add a url-prefix
+            self.app.register_blueprint(bp_patches, url_prefix="/patches")
+
+        if self.app.config.get("BLUEPRINT_SOURCES"):
+            from debsources.app.sources import bp_sources
+
+            # add a url-prefix
+            self.app.register_blueprint(
+                bp_sources,
+                # hook on the root
+                url_prefix=None,
+            )
         # import documentation BP
         from debsources.app.doc import bp_doc
+
         # add a url-prefix
-        self.app.register_blueprint(bp_doc,
-                                    # hook on the root
-                                    url_prefix='/doc')
+        self.app.register_blueprint(
+            bp_doc,
+            # hook on the root
+            url_prefix="/doc",
+        )
 
     def setup_conf(self):
         """
@@ -97,21 +104,21 @@ class AppWrapper(object):
         in the configuration.
         """
         db_uri = self.app.config["DB_URI"]
-        e, s = _get_engine_session(db_uri,
-                                   verbose=self.app.config["SQLALCHEMY_ECHO"])
+        e, s = _get_engine_session(db_uri, verbose=self.app.config["SQLALCHEMY_ECHO"])
         self.engine, self.session = e, s
 
     def setup_logging(self):
         """
         Sets up everything needed for logging.
         """
-        fmt = Formatter('%(asctime)s %(levelname)s: %(message)s ' +
-                        '[in %(pathname)s:%(lineno)d]')
+        fmt = Formatter(
+            "%(asctime)s %(levelname)s: %(message)s " + "[in %(pathname)s:%(lineno)d]"
+        )
         log_level = logging.INFO
         try:
             log_level = mainlib.LOG_LEVELS[self.app.config["LOG_LEVEL"]]
         except KeyError:  # might be raised by both "config" and "LOG_LEVELS",
-            pass          # same treatment: fallback to default log_level
+            pass  # same treatment: fallback to default log_level
 
         stream_handler = StreamHandler()
         stream_handler.setFormatter(fmt)

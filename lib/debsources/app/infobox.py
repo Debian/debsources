@@ -13,8 +13,7 @@ from __future__ import absolute_import
 
 from flask import url_for, current_app
 
-from debsources.models import (
-    PackageName, Package, Suite, SlocCount, Metric, Ctag)
+from debsources.models import PackageName, Package, Suite, SlocCount, Metric, Ctag
 from debsources.excepts import Http500Error, Http404Error
 
 PTS_PREFIX = "https://tracker.debian.org/pkg/"
@@ -38,11 +37,15 @@ class Infobox(object):
     def _get_direct_infos(self):
         """ information available directly in Package table """
         try:
-            infos = (self.session.query(Package)
-                     .filter(Package.version == self.version,
-                             Package.name_id == PackageName.id,
-                             PackageName.name == self.package)
-                     .first())
+            infos = (
+                self.session.query(Package)
+                .filter(
+                    Package.version == self.version,
+                    Package.name_id == PackageName.id,
+                    PackageName.name == self.package,
+                )
+                .first()
+            )
 
         except Exception as e:  # pragma: no cover
             raise Http500Error(e)
@@ -52,12 +55,16 @@ class Infobox(object):
     def _get_associated_suites(self):
         """ associated suites, which come from Suite """
         try:
-            suites = (self.session.query(Suite.suite)
-                      .filter(Suite.package_id == Package.id,
-                              Package.version == self.version,
-                              Package.name_id == PackageName.id,
-                              PackageName.name == self.package)
-                      .all())
+            suites = (
+                self.session.query(Suite.suite)
+                .filter(
+                    Suite.package_id == Package.id,
+                    Package.version == self.version,
+                    Package.name_id == PackageName.id,
+                    PackageName.name == self.package,
+                )
+                .all()
+            )
         except Exception as e:  # pragma: no cover
             raise Http500Error(e)
 
@@ -66,13 +73,17 @@ class Infobox(object):
     def _get_sloc(self):
         """ sloccount """
         try:
-            sloc = (self.session.query(SlocCount)
-                    .filter(SlocCount.package_id == Package.id,
-                            Package.version == self.version,
-                            Package.name_id == PackageName.id,
-                            PackageName.name == self.package)
-                    .order_by(SlocCount.count.desc())
-                    .all())
+            sloc = (
+                self.session.query(SlocCount)
+                .filter(
+                    SlocCount.package_id == Package.id,
+                    Package.version == self.version,
+                    Package.name_id == PackageName.id,
+                    PackageName.name == self.package,
+                )
+                .order_by(SlocCount.count.desc())
+                .all()
+            )
         except Exception as e:  # pragma: no cover
             raise Http500Error(e)
 
@@ -81,12 +92,16 @@ class Infobox(object):
     def _get_metrics(self):
         """ metrics"""
         try:
-            metric = (self.session.query(Metric)
-                      .filter(Metric.package_id == Package.id,
-                              Package.version == self.version,
-                              Package.name_id == PackageName.id,
-                              PackageName.name == self.package)
-                      .all())
+            metric = (
+                self.session.query(Metric)
+                .filter(
+                    Metric.package_id == Package.id,
+                    Package.version == self.version,
+                    Package.name_id == PackageName.id,
+                    PackageName.name == self.package,
+                )
+                .all()
+            )
         except Exception as e:  # pragma: no cover
             raise Http500Error(e)
 
@@ -103,12 +118,16 @@ class Infobox(object):
     def _get_ctags_count(self):
         """ctags counts"""
         try:
-            ctags_count = (self.session.query(Ctag)
-                           .filter(Ctag.package_id == Package.id,
-                                   Package.version == self.version,
-                                   Package.name_id == PackageName.id,
-                                   PackageName.name == self.package)
-                           .count())
+            ctags_count = (
+                self.session.query(Ctag)
+                .filter(
+                    Ctag.package_id == Package.id,
+                    Package.version == self.version,
+                    Package.name_id == PackageName.id,
+                    PackageName.name == self.package,
+                )
+                .count()
+            )
         except Exception as e:  # pragma: no cover
             raise Http500Error(e)
 
@@ -118,8 +137,9 @@ class Infobox(object):
         """ Returns the license link in the copyright BP
 
         """
-        return url_for('copyright.license',
-                       packagename=self.package, version=self.version)
+        return url_for(
+            "copyright.license", packagename=self.package, version=self.version
+        )
 
     def get_infos(self):
         """
@@ -140,8 +160,8 @@ class Infobox(object):
         pkg_infos["area"] = infos.area
 
         if infos.vcs_type and infos.vcs_browser:
-                pkg_infos['vcs_type'] = infos.vcs_type
-                pkg_infos['vcs_browser'] = infos.vcs_browser
+            pkg_infos["vcs_type"] = infos.vcs_type
+            pkg_infos["vcs_browser"] = infos.vcs_browser
 
         pkg_infos["suites"] = self._get_associated_suites()
 
@@ -153,10 +173,10 @@ class Infobox(object):
 
         pkg_infos["ctags_count"] = self._get_ctags_count()
 
-        if current_app.config.get('BLUEPRINT_COPYRIGHT'):
-            pkg_infos['copyright'] = True
-            pkg_infos['license'] = self._get_license_link()
+        if current_app.config.get("BLUEPRINT_COPYRIGHT"):
+            pkg_infos["copyright"] = True
+            pkg_infos["license"] = self._get_license_link()
         else:
-            pkg_infos['copyright'] = False
+            pkg_infos["copyright"] = False
 
         return pkg_infos

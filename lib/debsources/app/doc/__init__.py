@@ -14,9 +14,6 @@ from __future__ import absolute_import
 from flask import Blueprint
 
 # naming rule: bp_{dirname}
-bp_doc = Blueprint('doc',
-                   __name__,
-                   template_folder='templates',
-                   static_folder='static')
+bp_doc = Blueprint("doc", __name__, template_folder="templates", static_folder="static")
 
 from . import routes  # NOQA

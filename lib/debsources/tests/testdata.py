@@ -14,5 +14,5 @@ from __future__ import absolute_import
 from pathlib import Path
 
 TEST_DIR = Path(__file__).resolve().parent
-TEST_DATA_DIR = TEST_DIR / 'data'
-TEST_DB_NAME = 'debsources-test'
+TEST_DATA_DIR = TEST_DIR / "data"
+TEST_DB_NAME = "debsources-test"

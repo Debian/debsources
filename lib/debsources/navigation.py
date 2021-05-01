@@ -17,14 +17,12 @@ from pathlib import Path
 
 from sqlalchemy import and_
 
-from debsources.models import (Checksum, File,
-                               Package, PackageName)
+from debsources.models import Checksum, File, Package, PackageName
 from debsources import filetype
 from debsources.url import url_encode
 from debsources.consts import AREAS
 from debsources.debmirror import SourcePackage
-from debsources.excepts import FileOrFolderNotFound, \
-    InvalidPackageOrVersionError
+from debsources.excepts import FileOrFolderNotFound, InvalidPackageOrVersionError
 import debsources.query as qry
 
 
@@ -44,12 +42,18 @@ class Location(object):
         prefix = SourcePackage.pkg_prefix(package)
 
         try:
-            p_id = session.query(PackageName) \
-                          .filter(PackageName.name == package).first().id
-            varea = session.query(Package) \
-                           .filter(and_(Package.name_id == p_id,
-                                        Package.version == version)) \
-                           .first().area
+            p_id = (
+                session.query(PackageName)
+                .filter(PackageName.name == package)
+                .first()
+                .id
+            )
+            varea = (
+                session.query(Package)
+                .filter(and_(Package.name_id == p_id, Package.version == version))
+                .first()
+                .area
+            )
         except:
             # the package or version doesn't exist in the database
             # BUT: packages are stored for a longer time in the filesystem
@@ -65,11 +69,11 @@ class Location(object):
 
         return Path(varea) / prefix
 
-    def __init__(self, session, sources_dir, sources_static,
-                 package, version="", path=""):
+    def __init__(
+        self, session, sources_dir, sources_static, package, version="", path=""
+    ):
         """ initialises useful attributes """
-        debian_path = self._get_debian_path(session,
-                                            package, version, sources_dir)
+        debian_path = self._get_debian_path(session, package, version, sources_dir)
         self.package = package
         self.version = version
         self.path = Path(path)
@@ -133,6 +137,7 @@ class Directory(object):
         along with their type (directory/file)
         in a tuple (name, type)
         """
+
         def get_type(f):
             if Path.is_dir(self.sources_path / f):
                 return "directory"
@@ -141,21 +146,20 @@ class Directory(object):
 
         listing = [
             {
-                'name': url_encode(f.name),
-                'type': get_type(f),
-                'hidden': False,
-                'stat': qry.location_get_stat(self.sources_path / f)
+                "name": url_encode(f.name),
+                "type": get_type(f),
+                "hidden": False,
+                "stat": qry.location_get_stat(self.sources_path / f),
             }
             for f in sorted(Path.iterdir(self.sources_path))
         ]
 
         for hidden_file in self.hidden_files:
             for f in listing:
-                full_path = bytes(self.location.sources_path / f['name'])
-                if f['type'] == "directory":
+                full_path = bytes(self.location.sources_path / f["name"])
+                if f["type"] == "directory":
                     full_path += b"/"
-                f['hidden'] = (f['hidden'] or
-                               fnmatch.fnmatch(full_path, hidden_file))
+                f["hidden"] = f["hidden"] or fnmatch.fnmatch(full_path, hidden_file)
 
         return listing
 
@@ -188,14 +192,16 @@ class SourceFile(object):
         """
         Queries the DB and returns the shasum of the file.
         """
-        shasum = session.query(Checksum.sha256) \
-                        .filter(Checksum.package_id == Package.id) \
-                        .filter(Package.name_id == PackageName.id) \
-                        .filter(File.id == Checksum.file_id) \
-                        .filter(PackageName.name == self.location.package) \
-                        .filter(Package.version == self.location.version) \
-                        .filter(File.path == self.location.path) \
-                        .first()
+        shasum = (
+            session.query(Checksum.sha256)
+            .filter(Checksum.package_id == Package.id)
+            .filter(Package.name_id == PackageName.id)
+            .filter(File.id == Checksum.file_id)
+            .filter(PackageName.name == self.location.package)
+            .filter(Package.version == self.location.version)
+            .filter(File.path == self.location.path)
+            .first()
+        )
         # WARNING: in the DB path is binary, and here
         # location.path is unicode, because the path comes from
         # the URL. TODO: check with non-unicode paths
@@ -207,7 +213,7 @@ class SourceFile(object):
         """True if self is a text file, False if it's not.
 
         """
-        return filetype.is_text_file(self.mime['type'])
+        return filetype.is_text_file(self.mime["type"])
         # for substring in text_file_mimes:
         #     if substring in self.mime['type']:
         #         return True

@@ -15,8 +15,7 @@ from debsources.filetype import get_highlightjs_language
 
 
 class SourceCodeIterator(object):
-    def __init__(self, filepath, hl=None, msg=None, encoding="utf8",
-                 lang=None):
+    def __init__(self, filepath, hl=None, msg=None, encoding="utf8", lang=None):
         """
         creates a new SourceCodeIterator object
 
@@ -50,11 +49,11 @@ class SourceCodeIterator(object):
         self.msgs = msg
         self.hls = set()
         if hl is not None:
-            hlranges = hl.split(',')
+            hlranges = hl.split(",")
             for r in hlranges:
-                if ':' in r:  # it's a range
+                if ":" in r:  # it's a range
                     try:
-                        rbegin, rend = r.split(':')
+                        rbegin, rend = r.split(":")
                         for i in range(int(rbegin), int(rend) + 1):
                             self.hls.add(i)
                     except (ValueError, TypeError):
@@ -96,8 +95,7 @@ class SourceCodeIterator(object):
         Returns a class name, usable by highlight.hs, to help it to guess
         the source language.
         """
-        return get_highlightjs_language(self.filename,
-                                        self.firstline, self.lang)
+        return get_highlightjs_language(self.filename, self.firstline, self.lang)
 
     def get_msgdict(self):
         """
@@ -108,19 +106,19 @@ class SourceCodeIterator(object):
             return dict()
         msg_list = []
         for msg in self.msgs:
-            msgsplit = msg.split(':')
+            msgsplit = msg.split(":")
             msgdict = dict()
             try:
-                msgdict['position'] = int(msgsplit[0])
+                msgdict["position"] = int(msgsplit[0])
             except ValueError:
-                msgdict['position'] = 1
+                msgdict["position"] = 1
             try:
-                msgdict['title'] = msgsplit[1]
+                msgdict["title"] = msgsplit[1]
             except IndexError:
-                msgdict['title'] = ""
+                msgdict["title"] = ""
             try:
-                msgdict['message'] = ":".join(msgsplit[2:])
+                msgdict["message"] = ":".join(msgsplit[2:])
             except IndexError:
-                msgdict['message'] = ""
+                msgdict["message"] = ""
             msg_list.append(msgdict)
         return msg_list

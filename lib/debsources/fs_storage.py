@@ -25,23 +25,25 @@ from debsources.subprocess_workaround import subprocess_setup
 def extract_package(pkg, destdir: Path):
     """extract a package to the FS storage
     """
+
     def preexec_fn():
         subprocess_setup()
         os.umask(DPKG_EXTRACT_UMASK)
 
-    logging.debug('extract %s...' % pkg)
+    logging.debug("extract %s..." % pkg)
     parentdir = destdir.parent
     if not parentdir.is_dir():
         os.makedirs(parentdir)
     if destdir.is_dir():  # remove stale dir, dpkg-source doesn't clobber
         shutil.rmtree(destdir)
     dsc = pkg.dsc_path()
-    cmd = ['dpkg-source', '--no-copy', '--no-check', '-x', str(dsc), str(destdir)]
-    logfile = Path(str(destdir) + '.log')
-    donefile = Path(str(destdir) + '.done')
-    with logfile.open('w') as log:
-        subprocess.check_call(cmd, stdout=log, stderr=subprocess.STDOUT,
-                              preexec_fn=preexec_fn)
+    cmd = ["dpkg-source", "--no-copy", "--no-check", "-x", str(dsc), str(destdir)]
+    logfile = Path(str(destdir) + ".log")
+    donefile = Path(str(destdir) + ".done")
+    with logfile.open("w") as log:
+        subprocess.check_call(
+            cmd, stdout=log, stderr=subprocess.STDOUT, preexec_fn=preexec_fn
+        )
     donefile.touch()
 
 
@@ -50,8 +52,8 @@ def remove_package(pkg, destdir: Path):
     """
     if destdir.exists():
         shutil.rmtree(str(destdir))
-    for meta in ['log', 'done']:
-        fname = Path(str(destdir) + '.' + meta)
+    for meta in ["log", "done"]:
+        fname = Path(str(destdir) + "." + meta)
         if fname.exists():
             fname.unlink()
     try:
@@ -69,7 +71,7 @@ def walk(sources_dir: Path, test=None):
     if test is given then it should be callable predicate; only paths on which
     it returns True will be returned
     """
-    for item in glob.iglob(f'{str(sources_dir)}/*/*/*/*'):
+    for item in glob.iglob(f"{str(sources_dir)}/*/*/*/*"):
         # e.g. (dir)  contrib/v/vor/0.5.5-2
         # e.g. (file) contrib/v/vor/0.5.5-2.checksums
         item = Path(item)
@@ -103,18 +105,17 @@ def parse_path(fname: Path):
     where the ext key is None for package directories
     """
     steps = fname.parts
-    parsed = {'package': steps[-2],
-              'version': steps[-1],
-              'ext':     None}
+    parsed = {"package": steps[-2], "version": steps[-1], "ext": None}
     if fname.is_dir():  # e.g. contrib/v/vor/0.5.5-2
         pass
     elif fname.is_file():  # e.g. contrib/v/vor/0.5.5-2.checksums
-        *base, ext = parsed['version'].split('.')
-        parsed['version'] = '.'.join(base)
-        parsed['ext'] = f".{ext}"
+        *base, ext = parsed["version"].split(".")
+        parsed["version"] = ".".join(base)
+        parsed["ext"] = f".{ext}"
     else:
         raise Exception(
-            f"Trying to parse a path that is not a file or a folder: {fname}")
+            f"Trying to parse a path that is not a file or a folder: {fname}"
+        )
 
     return parsed
 
@@ -126,4 +127,4 @@ def rm_file(pkgdir: Path, relpath: Path):
     if path.exists():
         path.unlink()
     else:
-        logging.warning('cannot remove non existing file %s' % path)
+        logging.warning("cannot remove non existing file %s" % path)

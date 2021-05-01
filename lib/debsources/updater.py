@@ -28,11 +28,18 @@ from . import query as qry
 
 from debsources.consts import DEBIAN_RELEASES, SLOCCOUNT_LANGUAGES
 from debsources.debmirror import SourceMirror, SourcePackage
-from debsources.models import SuiteInfo, Suite, SuiteAlias, Package, \
-    HistorySize, HistorySlocCount, HistoryCopyright
+from debsources.models import (
+    SuiteInfo,
+    Suite,
+    SuiteAlias,
+    Package,
+    HistorySize,
+    HistorySlocCount,
+    HistoryCopyright,
+)
 from debsources.subprocess_workaround import subprocess_setup
 
-KNOWN_EVENTS = ['add-package', 'rm-package']
+KNOWN_EVENTS = ["add-package", "rm-package"]
 NO_OBSERVERS = {e: [] for e in KNOWN_EVENTS}
 
 # maximum number of pending rows before performing a (bulk) insert
@@ -62,6 +69,7 @@ class UpdateStatus:
 
 # TODO fill tables: BinaryPackage, BinaryVersion
 # TODO get rid of shell hooks; they shall die a horrible death
+
 
 def notify(conf, event, session, pkg, pkgdir, file_table=None):
     """notify (Python and shell) hooks of occurred events
@@ -96,31 +104,41 @@ def notify(conf, event, session, pkg, pkgdir, file_table=None):
     package version
 
     """
-    logging.debug('notify {} for {}'.format(event, pkg))
-    package, version = pkg['package'], pkg['version']
+    logging.debug("notify {} for {}".format(event, pkg))
+    package, version = pkg["package"], pkg["version"]
     # TODO: useless, they were removed
-    cmd = ['run-parts', '--exit-on-error',
-           '--arg', pkgdir,
-           '--arg', package,
-           '--arg', version,
-           conf['bin_dir'] / f"{event}.d"]
+    cmd = [
+        "run-parts",
+        "--exit-on-error",
+        "--arg",
+        pkgdir,
+        "--arg",
+        package,
+        "--arg",
+        version,
+        conf["bin_dir"] / f"{event}.d",
+    ]
 
     # fire shell hooks
     try:
-        subprocess.check_output(cmd, stderr=subprocess.STDOUT,
-                                preexec_fn=subprocess_setup)
+        subprocess.check_output(
+            cmd, stderr=subprocess.STDOUT, preexec_fn=subprocess_setup
+        )
     except subprocess.CalledProcessError as e:
-        logging.error('shell hooks for %s on %s returned exit code %d.'
-                      ' Output: %s'
-                      % (event, pkg, e.returncode, e.output))
+        logging.error(
+            "shell hooks for %s on %s returned exit code %d."
+            " Output: %s" % (event, pkg, e.returncode, e.output)
+        )
         raise e
 
-    notify_plugins(conf['observers'], event, session, pkg, pkgdir,
-                   file_table=file_table)
+    notify_plugins(
+        conf["observers"], event, session, pkg, pkgdir, file_table=file_table
+    )
 
 
-def notify_plugins(observers, event, session, pkg, pkgdir,
-                   triggers=None, dry=False, file_table=None):
+def notify_plugins(
+    observers, event, session, pkg, pkgdir, triggers=None, dry=False, file_table=None
+):
     """notify Python hooks of occurred events
 
     If triggers is not None, only Python hooks whose names are listed in them
@@ -131,12 +149,11 @@ def notify_plugins(observers, event, session, pkg, pkgdir,
             if triggers is None:
                 action(session, pkg, pkgdir, file_table)
             elif (event, title) in triggers:
-                logging.info('notify (forced) %s/%s for %s'
-                             % (event, title, pkg))
+                logging.info("notify (forced) %s/%s for %s" % (event, title, pkg))
                 if not dry:
                     action(session, pkg, pkgdir, file_table)
         except:
-            logging.error('plugin hooks for {} on {} failed'.format(event, pkg))
+            logging.error("plugin hooks for {} on {} failed".format(event, pkg))
             raise
 
 
@@ -146,11 +163,11 @@ def ensure_dir(directory: Path):
 
 
 def ensure_cache_dir(conf):
-    ensure_dir(conf['cache_dir'])
+    ensure_dir(conf["cache_dir"])
 
 
 def ensure_stats_dir(conf):
-    ensure_dir(conf['cache_dir'] / 'stats')
+    ensure_dir(conf["cache_dir"] / "stats")
 
 
 def exclude_files(session, pkg, pkgdir, file_table, exclude_specs):
@@ -161,26 +178,28 @@ def exclude_files(session, pkg, pkgdir, file_table, exclude_specs):
 
     """
     # enforce spec's Package field
-    specs = [spec for spec in exclude_specs
-             # ignore non file-based exclusion stanzas
-             if 'files' in spec and
-             spec['package'] == pkg['package']]
+    specs = [
+        spec
+        for spec in exclude_specs
+        # ignore non file-based exclusion stanzas
+        if "files" in spec and spec["package"] == pkg["package"]
+    ]
     candidates: List[Path] = []  # files eligible for exclusion
     for spec in specs:
         # enforce spec's Files field
-        for pat in spec['files'].split():
+        for pat in spec["files"].split():
             # ASSUMPTION: `pkgdir` is the CWD; enforced by _add_package
             for relpath in glob.iglob(pat):
                 candidates.append(Path(relpath))
 
     # remove exclusion candidates from FS and DB storage
     if candidates:
-        logging.info('excluding some files from %s' % pkg)
+        logging.info("excluding some files from %s" % pkg)
         for relpath in candidates:
-            logging.debug('excluding file %s' % relpath)
+            logging.debug("excluding file %s" % relpath)
             fs_storage.rm_file(pkgdir, relpath)
-            db_storage.rm_file(session, pkg['package'], relpath, file_table)
-            del(file_table[relpath])
+            db_storage.rm_file(session, pkg["package"], relpath, file_table)
+            del file_table[relpath]
 
 
 def is_excluded_package(pkg, exclude_specs):
@@ -188,12 +207,14 @@ def is_excluded_package(pkg, exclude_specs):
 
     """
     # compute list of *matching* package exclusion stanzas
-    specs = [spec for spec in exclude_specs
-             # ignore non package exclusion stanzas
-             if 'files' not in spec and
-             spec['package'] == pkg['package'] and
-             ('version' not in spec or
-              spec['version'] == pkg['version'])]
+    specs = [
+        spec
+        for spec in exclude_specs
+        # ignore non package exclusion stanzas
+        if "files" not in spec
+        and spec["package"] == pkg["package"]
+        and ("version" not in spec or spec["version"] == pkg["version"])
+    ]
     return bool(specs)
 
 
@@ -202,14 +223,14 @@ def _add_package(pkg, conf, session, sticky=False):
 
     handles and logs exceptions
     """
-    logging.info('add %s...' % pkg)
+    logging.info("add %s..." % pkg)
     workdir: Path = Path.cwd()
     try:
-        pkgdir = pkg.extraction_dir(conf['sources_dir'])
+        pkgdir = pkg.extraction_dir(conf["sources_dir"])
         if pkgdir is None:
-            logging.warning('package %s has no extracion dir, skipping' % pkg)
+            logging.warning("package %s has no extracion dir, skipping" % pkg)
             return
-        if not conf['dry_run'] and 'fs' in conf['backends']:
+        if not conf["dry_run"] and "fs" in conf["backends"]:
             fs_storage.extract_package(pkg, pkgdir)
             os.chdir(pkgdir)
         with session.begin_nested():
@@ -217,14 +238,13 @@ def _add_package(pkg, conf, session, sticky=False):
             # hooks fail, the package won't be added to the db (it will be
             # tried again at next run)
             file_table = None
-            if not conf['dry_run'] and 'db' in conf['backends']:
-                file_table = db_storage.add_package(session, pkg, pkgdir,
-                                                    sticky)
-            exclude_files(session, pkg, pkgdir, file_table, conf['exclude'])
-            if not conf['dry_run'] and 'hooks' in conf['backends']:
-                notify(conf, 'add-package', session, pkg, pkgdir, file_table)
+            if not conf["dry_run"] and "db" in conf["backends"]:
+                file_table = db_storage.add_package(session, pkg, pkgdir, sticky)
+            exclude_files(session, pkg, pkgdir, file_table, conf["exclude"])
+            if not conf["dry_run"] and "hooks" in conf["backends"]:
+                notify(conf, "add-package", session, pkg, pkgdir, file_table)
     except:
-        logging.exception('failed to add %s' % pkg)
+        logging.exception("failed to add %s" % pkg)
     finally:
         os.chdir(workdir)
 
@@ -235,27 +255,26 @@ def _rm_package(pkg, conf, session, db_package=None):
     handles and logs exceptions
     """
     logging.info("remove %s..." % pkg)
-    pkgdir = pkg.extraction_dir(conf['sources_dir'])
+    pkgdir = pkg.extraction_dir(conf["sources_dir"])
     if not db_package:
-        db_package = db_storage.lookup_package(session, pkg['package'],
-                                               pkg['version'])
+        db_package = db_storage.lookup_package(session, pkg["package"], pkg["version"])
         if not db_package:
-            logging.warn('cannot find package %s, not removing' % pkg)
+            logging.warn("cannot find package %s, not removing" % pkg)
             return
     try:
-        if not conf['dry_run'] and 'hooks' in conf['backends']:
-            notify(conf, 'rm-package', session, pkg, pkgdir)
-        if not conf['dry_run'] and 'fs' in conf['backends']:
+        if not conf["dry_run"] and "hooks" in conf["backends"]:
+            notify(conf, "rm-package", session, pkg, pkgdir)
+        if not conf["dry_run"] and "fs" in conf["backends"]:
             fs_storage.remove_package(pkg, pkgdir)
-        if not conf['dry_run'] and 'db' in conf['backends']:
-            if not conf['single_transaction']:
+        if not conf["dry_run"] and "db" in conf["backends"]:
+            if not conf["single_transaction"]:
                 with session.begin():
                     db_storage.rm_package(session, pkg, db_package)
             else:
                 with session.begin_nested():
                     db_storage.rm_package(session, pkg, db_package)
     except:
-        logging.exception('failed to remove %s' % pkg)
+        logging.exception("failed to remove %s" % pkg)
 
 
 def _add_suite(conf, session, suite, sticky=False, aliases=[]):
@@ -266,16 +285,19 @@ def _add_suite(conf, session, suite, sticky=False, aliases=[]):
     suite_reldate = None
     if suite in DEBIAN_RELEASES:
         suite_info = DEBIAN_RELEASES[suite]
-        suite_version = suite_info['version']
-        suite_reldate = suite_info['date']
+        suite_version = suite_info["version"]
+        suite_reldate = suite_info["date"]
         if sticky:
-            assert suite_info['archived']
+            assert suite_info["archived"]
     db_aliases = [SuiteAlias(alias=alias, suite=suite) for alias in aliases]
-    db_suite = SuiteInfo(suite, sticky=sticky,
-                         version=suite_version,
-                         release_date=suite_reldate,
-                         aliases=db_aliases)
-    if not conf['dry_run'] and 'db' in conf['backends']:
+    db_suite = SuiteInfo(
+        suite,
+        sticky=sticky,
+        version=suite_version,
+        release_date=suite_reldate,
+        aliases=db_aliases,
+    )
+    if not conf["dry_run"] and "db" in conf["backends"]:
         session.add(db_suite)
 
 
@@ -286,34 +308,39 @@ def extract_new(status, conf, session, mirror):
     ensure_cache_dir(conf)
 
     def add_package(pkg):
-        if is_excluded_package(pkg, conf['exclude']):
-            logging.info('skipping excluded package %s' % pkg)
+        if is_excluded_package(pkg, conf["exclude"]):
+            logging.info("skipping excluded package %s" % pkg)
             return
-        if not db_storage.lookup_package(session, pkg['package'],
-                                         pkg['version']):
+        if not db_storage.lookup_package(session, pkg["package"], pkg["version"]):
             # use DB as completion marker: if the package has been inserted, it
             # means everything went fine last time we tried. If not, we redo
             # everything, just to be safe
             _add_package(pkg, conf, session)
-        pkgdir = pkg.extraction_dir(conf['sources_dir'])
-        if conf['force_triggers']:
+        pkgdir = pkg.extraction_dir(conf["sources_dir"])
+        if conf["force_triggers"]:
             try:
-                notify_plugins(conf['observers'], 'add-package',
-                               session, pkg, pkgdir,
-                               triggers=conf['force_triggers'],
-                               dry=conf['dry_run'])
+                notify_plugins(
+                    conf["observers"],
+                    "add-package",
+                    session,
+                    pkg,
+                    pkgdir,
+                    triggers=conf["force_triggers"],
+                    dry=conf["dry_run"],
+                )
             except:
-                logging.exception('trigger failure on %s' % pkg)
+                logging.exception("trigger failure on %s" % pkg)
         # add entry for sources.txt, temporarily with no suite associated
-        pkg_id = (pkg['package'], pkg['version'])
-        dsc_rel = pkg.dsc_path().relative_to(conf['mirror_dir'])
-        pkgdir_rel = pkg.extraction_dir(conf['sources_dir']).relative_to(
-            conf['sources_dir'])
+        pkg_id = (pkg["package"], pkg["version"])
+        dsc_rel = pkg.dsc_path().relative_to(conf["mirror_dir"])
+        pkgdir_rel = pkg.extraction_dir(conf["sources_dir"]).relative_to(
+            conf["sources_dir"]
+        )
         status.sources[pkg_id] = pkg.archive_area(), dsc_rel, pkgdir_rel, []
 
-    logging.info('add new packages...')
+    logging.info("add new packages...")
     for pkg in mirror.ls():
-        if not conf['single_transaction']:
+        if not conf["single_transaction"]:
             with session.begin():
                 add_package(pkg)
         else:
@@ -324,104 +351,113 @@ def garbage_collect(status, conf, session, mirror):
     """update stage: list db and remove disappeared and expired packages
 
     """
-    logging.info('garbage collection...')
+    logging.info("garbage collection...")
     for version in session.query(Package).filter(not_(Package.sticky)):
         pkg = SourcePackage.from_db_model(version)
-        pkg_id = (pkg['package'], pkg['version'])
-        pkgdir = pkg.extraction_dir(conf['sources_dir'])
+        pkg_id = (pkg["package"], pkg["version"])
+        pkgdir = pkg.extraction_dir(conf["sources_dir"])
         if pkg_id not in mirror.packages:
             # package is in in Debsources db, but gone from mirror: we
             # might have to garbage collect it (depending on expiry)
-            expire_days = conf['expire_days']
+            expire_days = conf["expire_days"]
             age = None
             if pkgdir.exists():
-                age = datetime.now() - \
-                    datetime.fromtimestamp(os.path.getmtime(pkgdir))
+                age = datetime.now() - datetime.fromtimestamp(os.path.getmtime(pkgdir))
             if not age or age.days >= expire_days:
                 _rm_package(pkg, conf, session, db_package=version)
             else:
-                logging.debug('not removing %s as it is too young' % pkg)
+                logging.debug("not removing %s as it is too young" % pkg)
 
-        if conf['force_triggers']:
+        if conf["force_triggers"]:
             try:
-                notify_plugins(conf['observers'], 'rm-package',
-                               session, pkg, pkgdir,
-                               triggers=conf['force_triggers'],
-                               dry=conf['dry_run'])
+                notify_plugins(
+                    conf["observers"],
+                    "rm-package",
+                    session,
+                    pkg,
+                    pkgdir,
+                    triggers=conf["force_triggers"],
+                    dry=conf["dry_run"],
+                )
             except:
-                logging.exception('trigger failure on %s' % pkg)
+                logging.exception("trigger failure on %s" % pkg)
 
 
 def update_suites(status, conf, session, mirror):
     """update stage: sweep and recreate suite mappings
 
     """
-    logging.info('update suites mappings...')
+    logging.info("update suites mappings...")
 
     insert_q = sql.insert(Suite.__table__)
     insert_params = []
 
     # load suites aliases
     suites_aliases = mirror.ls_suites_with_aliases()
-    if not conf['dry_run'] and 'db' in conf['backends']:
+    if not conf["dry_run"] and "db" in conf["backends"]:
         session.query(SuiteAlias).delete()
 
     for (suite, pkgs) in mirror.suites.items():
-        if not conf['dry_run'] and 'db' in conf['backends']:
+        if not conf["dry_run"] and "db" in conf["backends"]:
             session.query(Suite).filter_by(suite=suite).delete()
         for pkg_id in pkgs:
             (pkg, version) = pkg_id
             db_package = db_storage.lookup_package(session, pkg, version)
             if not db_package:
-                logging.warn('package %s/%s not found in suite %s, skipping'
-                             % (pkg, version, suite))
+                logging.warn(
+                    "package %s/%s not found in suite %s, skipping"
+                    % (pkg, version, suite)
+                )
             else:
-                logging.debug('add suite mapping: %s/%s -> %s'
-                              % (pkg, version, suite))
-                params = {'package_id': db_package.id,
-                          'suite': suite}
+                logging.debug("add suite mapping: %s/%s -> %s" % (pkg, version, suite))
+                params = {"package_id": db_package.id, "suite": suite}
                 insert_params.append(params)
                 if pkg_id in status.sources:
                     # fill-in incomplete suite information in status
                     status.sources[pkg_id][-1].append(suite)
                 else:
                     # defensive measure to make update_suites() more reusable
-                    logging.warn('cannot find %s/%s during suite update'
-                                 % (pkg, version))
-        if not conf['dry_run'] and 'db' in conf['backends'] \
-           and len(insert_params) >= BULK_FLUSH_THRESHOLD:
+                    logging.warn(
+                        "cannot find %s/%s during suite update" % (pkg, version)
+                    )
+        if (
+            not conf["dry_run"]
+            and "db" in conf["backends"]
+            and len(insert_params) >= BULK_FLUSH_THRESHOLD
+        ):
             session.execute(insert_q, insert_params)
             session.flush()
             insert_params = []
 
-        if not conf['dry_run'] and 'db' in conf['backends']:
+        if not conf["dry_run"] and "db" in conf["backends"]:
             session.query(SuiteInfo).filter_by(name=suite).delete()
             _add_suite(conf, session, suite, aliases=suites_aliases[suite])
 
-    if not conf['dry_run'] and 'db' in conf['backends'] \
-       and insert_params:
+    if not conf["dry_run"] and "db" in conf["backends"] and insert_params:
         session.execute(insert_q, insert_params)
         session.flush()
 
     # update sources.txt, now that we know the suite mappings
-    src_list_path = conf['cache_dir'] / 'sources.txt'
-    src_list_path_new = Path(str(src_list_path) + '.new')
-    with src_list_path_new.open('w') as src_list:
+    src_list_path = conf["cache_dir"] / "sources.txt"
+    src_list_path_new = Path(str(src_list_path) + ".new")
+    with src_list_path_new.open("w") as src_list:
         for pkg_id, src_entry in status.sources.items():
             fields = list(pkg_id)
             fields.extend(str(x) for x in src_entry[:-1])  # all except suites
             # suites are alphabetically sorted, more determinism
-            fields.append(','.join(sorted(src_entry[-1])))
-            src_list.write('\t'.join(fields) + '\n')
+            fields.append(",".join(sorted(src_entry[-1])))
+            src_list.write("\t".join(fields) + "\n")
     src_list_path_new.rename(src_list_path)
 
 
 def __target_suites(session, suites=None):
     if not suites:
         sticky_suites = statistics.sticky_suites(session)
-        suites = [suite
-                  for suite in statistics.suites(session, suites='all')
-                  if suite not in sticky_suites]
+        suites = [
+            suite
+            for suite in statistics.suites(session, suites="all")
+            if suite not in sticky_suites
+        ]
     return suites
 
 
@@ -432,12 +468,12 @@ def update_statistics(status, conf, session, suites=None):
     `suites` to override
 
     """
-    logging.info('update statistics...')
+    logging.info("update statistics...")
     ensure_cache_dir(conf)
     suites = __target_suites(session, suites)
 
     now = datetime.utcnow()
-    stats_file = conf['cache_dir'] / 'stats.data'
+    stats_file = conf["cache_dir"] / "stats.data"
     if stats_file.exists():
         # If stats.data exists, load and update it, otherwise start from
         # scratch. Note: this means that we need to be careful about changing
@@ -456,85 +492,81 @@ def update_statistics(status, conf, session, suites=None):
         """
         total_slocs = 0
         for lang in SLOCCOUNT_LANGUAGES:
-            k = prefix + '.' + lang
+            k = prefix + "." + lang
             v = 0
             if lang in summary:
                 v = summary[lang]
             d[k] = v
-            setattr(db_obj, 'lang_' + lang, v)
+            setattr(db_obj, "lang_" + lang, v)
             total_slocs += v
         d[prefix] = total_slocs
 
     # compute overall stats
-    suite = 'ALL'
+    suite = "ALL"
     siz = HistorySize(suite, timestamp=now)
     loc = HistorySlocCount(suite, timestamp=now)
-    for stat in ['disk_usage', 'source_packages', 'source_files', 'ctags']:
+    for stat in ["disk_usage", "source_packages", "source_files", "ctags"]:
         v = getattr(statistics, stat)(session)
-        stats['total.' + stat] = v
+        stats["total." + stat] = v
         setattr(siz, stat, v)
-    store_sloccount_stats(statistics.sloccount_summary(session),
-                          stats, 'total.sloccount', loc)
-    if not conf['dry_run'] and 'db' in conf['backends']:
+    store_sloccount_stats(
+        statistics.sloccount_summary(session), stats, "total.sloccount", loc
+    )
+    if not conf["dry_run"] and "db" in conf["backends"]:
         session.add(siz)
         session.add(loc)
 
     # Update HistorySize
-    suite_key = 'debian_'
-    hist_siz = {suite: HistorySize(suite, timestamp=now)
-                    for suite in suites}
-    for stat in ['disk_usage', 'source_packages', 'source_files', 'ctags']:
+    suite_key = "debian_"
+    hist_siz = {suite: HistorySize(suite, timestamp=now) for suite in suites}
+    for stat in ["disk_usage", "source_packages", "source_files", "ctags"]:
         stats_result = statistics.stats_grouped_by(session, stat)
         for res in stats_result:
             if res[0] in suites:
-                stats[suite_key + res[0] + '.' + stat] = res[1]
+                stats[suite_key + res[0] + "." + stat] = res[1]
                 setattr(hist_siz[res[0]], stat, res[1])
 
-    if not conf['dry_run'] and 'db' in conf['backends']:
+    if not conf["dry_run"] and "db" in conf["backends"]:
         for siz in hist_siz.values():
             session.add(siz)
 
     # update historySlocCount
-    sloccount_res = statistics.stats_grouped_by(session, 'sloccount')
-    hist_loc = {suite: HistorySlocCount(suite, timestamp=now)
-                    for suite in suites}
+    sloccount_res = statistics.stats_grouped_by(session, "sloccount")
+    hist_loc = {suite: HistorySlocCount(suite, timestamp=now) for suite in suites}
     for suite in suites:
-        temp = {item[1]: item[2] for item in sloccount_res
-                    if item[0] == suite}
-        store_sloccount_stats(dict(temp), stats,
-                              suite_key + suite + ".sloccount",
-                              hist_loc[suite])
+        temp = {item[1]: item[2] for item in sloccount_res if item[0] == suite}
+        store_sloccount_stats(
+            dict(temp), stats, suite_key + suite + ".sloccount", hist_loc[suite]
+        )
 
-    if not conf['dry_run'] and 'db' in conf['backends']:
+    if not conf["dry_run"] and "db" in conf["backends"]:
         for loc in hist_loc.values():
             session.add(loc)
 
     session.flush()
 
     # cache computed stats to on-disk stats file
-    if not conf['dry_run'] and 'fs' in conf['backends']:
+    if not conf["dry_run"] and "fs" in conf["backends"]:
         statistics.save_metadata_cache(stats, stats_file)
 
     def update_license_statistics(suites):
         # compute License stats
-        license_stats_file = conf['cache_dir'] / 'license_stats.data'
-        dual_license_file = conf['cache_dir'] / 'dual_license.data'
+        license_stats_file = conf["cache_dir"] / "license_stats.data"
+        dual_license_file = conf["cache_dir"] / "dual_license.data"
         license_stats = dict()
         license_d_stats = dict()
 
-        hist_lic = {suite: HistoryCopyright(suite, timestamp=now)
-                        for suite in suites}
+        hist_lic = {suite: HistoryCopyright(suite, timestamp=now) for suite in suites}
         results = statistics.get_licenses(session)
         for suite in suites:
-            temp = {item[0]: item[2] for item in results
-                        if item[1] == suite}
+            temp = {item[0]: item[2] for item in results if item[1] == suite}
             summary = statistics.licenses_summary(temp)
             for res in summary:
                 license_stats[suite + "." + res.rstrip()] = summary[res]
-                setattr(hist_lic[suite], 'license', res.replace('_', ' '))
-                setattr(hist_lic[suite], 'files', summary[res])
-                if not conf['dry_run'] and 'db' in conf['backends']:
-                        session.add(hist_lic[suite])
+                setattr(hist_lic[suite], "license", res.replace("_", " "))
+                setattr(hist_lic[suite], "files", summary[res])
+                if not conf["dry_run"] and "db" in conf["backends"]:
+                    session.add(hist_lic[suite])
             # no historical here, only save to file
             dual_query = statistics.licenses_summary_w_dual(temp)
             for res in dual_query:
@@ -542,29 +574,31 @@ def update_statistics(status, conf, session, suites=None):
 
         # overall dual licenses
         overall_d_licenses = statistics.licenses_summary_w_dual(
-            statistics.get_licenses(session, 'ALL'))
+            statistics.get_licenses(session, "ALL")
+        )
         for stat in overall_d_licenses:
-            license_d_stats['overall.' + stat] = overall_d_licenses[stat]
+            license_d_stats["overall." + stat] = overall_d_licenses[stat]
 
         # save dual licenses to file
-        if not conf['dry_run'] and 'fs' in conf['backends']:
+        if not conf["dry_run"] and "fs" in conf["backends"]:
             statistics.save_metadata_cache(license_d_stats, dual_license_file)
 
         session.flush()
         overall_licenses = statistics.licenses_summary(
-            statistics.get_licenses(session, 'ALL'))
+            statistics.get_licenses(session, "ALL")
+        )
         for stat in overall_licenses:
-            lic = HistoryCopyright('ALL', timestamp=now)
-            setattr(lic, 'license', stat.replace('_', ' '))
-            setattr(lic, 'files', overall_licenses[stat])
-            license_stats['overall.' + stat] = overall_licenses[stat]
-            if not conf['dry_run'] and 'db' in conf['backends']:
+            lic = HistoryCopyright("ALL", timestamp=now)
+            setattr(lic, "license", stat.replace("_", " "))
+            setattr(lic, "files", overall_licenses[stat])
+            license_stats["overall." + stat] = overall_licenses[stat]
+            if not conf["dry_run"] and "db" in conf["backends"]:
                 session.add(lic)
         session.flush()
-        if not conf['dry_run'] and 'fs' in conf['backends']:
+        if not conf["dry_run"] and "fs" in conf["backends"]:
             statistics.save_metadata_cache(license_stats, license_stats_file)
 
-    if 'copyright' in conf['hooks']:
+    if "copyright" in conf["hooks"]:
         update_license_statistics(suites)
 
 
@@ -572,24 +606,24 @@ def update_metadata(status, conf, session):
     """update stage: update metadata
 
     """
-    logging.info('update metadata...')
+    logging.info("update metadata...")
     ensure_cache_dir(conf)
 
     # update package prefixes list
-    if not conf['dry_run'] and 'fs' in conf['backends']:
-        prefix_path = conf['cache_dir'] / 'pkg-prefixes'
-        prefix_path_new = Path(str(prefix_path) + '.new')
-        with prefix_path_new.open('w') as out:
+    if not conf["dry_run"] and "fs" in conf["backends"]:
+        prefix_path = conf["cache_dir"] / "pkg-prefixes"
+        prefix_path_new = Path(str(prefix_path) + ".new")
+        with prefix_path_new.open("w") as out:
             for prefix in db_storage.pkg_prefixes(session):
-                out.write('%s\n' % prefix)
+                out.write("%s\n" % prefix)
         prefix_path_new.rename(prefix_path)
 
     # update timestamp
-    if not conf['dry_run'] and 'fs' in conf['backends']:
-        timestamp_file = conf['cache_dir'] / 'last-update'
-        timestamp_file_new = Path(str(timestamp_file) + '.new')
-        with timestamp_file_new.open('w') as out:
-            out.write('%s\n' % formatdate())
+    if not conf["dry_run"] and "fs" in conf["backends"]:
+        timestamp_file = conf["cache_dir"] / "last-update"
+        timestamp_file_new = Path(str(timestamp_file) + ".new")
+        with timestamp_file_new.open("w") as out:
+            out.write("%s\n" % formatdate())
         timestamp_file_new.rename(timestamp_file)
 
 
@@ -597,120 +631,126 @@ def update_charts(status, conf, session, suites=None):
     """update stage: rebuild charts"""
 
     from debsources import charts
-    logging.info('update charts...')
+
+    logging.info("update charts...")
     ensure_stats_dir(conf)
     suites = __target_suites(session, suites)
 
     CHARTS = [  # <period, granularity> paris
-        ('1 month', 'hourly'),
-        ('1 year', 'daily'),
-        ('5 years', 'weekly'),
-        ('20 years', 'monthly'),
+        ("1 month", "hourly"),
+        ("1 year", "daily"),
+        ("5 years", "weekly"),
+        ("20 years", "monthly"),
     ]
 
     # size charts, various metrics
-    for metric in ['source_packages', 'disk_usage', 'source_files', 'ctags']:
+    for metric in ["source_packages", "disk_usage", "source_files", "ctags"]:
         for (period, granularity) in CHARTS:
-            for suite in suites + ['ALL']:
-                series = getattr(statistics, 'history_size_' + granularity)(
-                    session, metric, interval=period, suite=suite)
-                filename = '%s-%s-%s.png' % (suite, metric, period.replace(' ', '-'))
-                chart_file = conf['cache_dir'] / 'stats' / filename
-                if not conf['dry_run']:
+            for suite in suites + ["ALL"]:
+                series = getattr(statistics, "history_size_" + granularity)(
+                    session, metric, interval=period, suite=suite
+                )
+                filename = "%s-%s-%s.png" % (suite, metric, period.replace(" ", "-"))
+                chart_file = conf["cache_dir"] / "stats" / filename
+                if not conf["dry_run"]:
                     charts.size_plot(series, chart_file)
 
     # sloccount: historical histograms
     for (period, granularity) in CHARTS:
-        for suite in suites + ['ALL']:
+        for suite in suites + ["ALL"]:
             # historical histogram
-            mseries = getattr(statistics, 'history_sloc_' + granularity)(
-                session, interval=period, suite=suite)
-            filename = '%s-sloc-%s.png' % (suite, period.replace(' ', '-'))
-            chart_file = conf['cache_dir'] / 'stats' / filename
-            if not conf['dry_run']:
+            mseries = getattr(statistics, "history_sloc_" + granularity)(
+                session, interval=period, suite=suite
+            )
+            filename = "%s-sloc-%s.png" % (suite, period.replace(" ", "-"))
+            chart_file = conf["cache_dir"] / "stats" / filename
+            if not conf["dry_run"]:
                 charts.multiseries_plot(mseries, chart_file)
 
     # sloccount: current pie charts
     sloc_per_suite = []
-    for suite in suites + ['ALL']:
+    for suite in suites + ["ALL"]:
         sloc_suite = suite
-        if sloc_suite == 'ALL':
+        if sloc_suite == "ALL":
             sloc_suite = None
         slocs = statistics.sloccount_summary(session, suite=sloc_suite)
-        if suite not in ['ALL']:
+        if suite not in ["ALL"]:
             sloc_per_suite.append(slocs)
-        filename = '%s-sloc_pie-current.png' % suite
-        chart_file = conf['cache_dir'] / 'stats' / filename
-        if not conf['dry_run']:
+        filename = "%s-sloc_pie-current.png" % suite
+        chart_file = conf["cache_dir"] / "stats" / filename
+        if not conf["dry_run"]:
             charts.pie_chart(slocs, chart_file)
 
     # sloccount: bar chart plot
-    if 'charts_top_langs' in conf.keys():
-        top_langs = int(conf['charts_top_langs'])
+    if "charts_top_langs" in conf.keys():
+        top_langs = int(conf["charts_top_langs"])
     else:
         top_langs = 6
-    chart_file = conf['cache_dir'] / 'stats' / 'sloc_bar_plot.png'
-    charts.bar_chart(sloc_per_suite, suites, chart_file, top_langs, 'SLOC')
+    chart_file = conf["cache_dir"] / "stats" / "sloc_bar_plot.png"
+    charts.bar_chart(sloc_per_suite, suites, chart_file, top_langs, "SLOC")
 
     def update_license_charts():
         # License: historical histogramms
         for (period, granularity) in CHARTS:
-            for suite in suites + ['ALL']:
-                mseries = getattr(statistics,
-                                  'history_copyright_' + granularity)(
-                    session, interval=period, suite=suite)
-                filename = 'copyright_%s-license-%s.png' % (suite, period.replace(' ', '-'))
-                chart_file = conf['cache_dir'] / 'stats' / filename
-                if not conf['dry_run']:
+            for suite in suites + ["ALL"]:
+                mseries = getattr(statistics, "history_copyright_" + granularity)(
+                    session, interval=period, suite=suite
+                )
+                filename = "copyright_%s-license-%s.png" % (
+                    suite,
+                    period.replace(" ", "-"),
+                )
+                chart_file = conf["cache_dir"] / "stats" / filename
+                if not conf["dry_run"]:
                     charts.multiseries_plot(mseries, chart_file, cols=3)
 
         # License: overall pie chart
         overall_licenses = statistics.licenses_summary(
-            statistics.get_licenses(session, 'ALL'))
+            statistics.get_licenses(session, "ALL")
+        )
         ratio = qry.get_ratio(session)
-        chart_file = conf['cache_dir'] / 'stats' / 'copyright_overall-license_pie.png'
-        if not conf['dry_run']:
+        chart_file = conf["cache_dir"] / "stats" / "copyright_overall-license_pie.png"
+        if not conf["dry_run"]:
             charts.pie_chart(overall_licenses, chart_file, ratio)
 
         # License: bar chart and per suite pie chart.
-        all_suites = statistics.sticky_suites(session) \
-            + __target_suites(session, None)
+        all_suites = statistics.sticky_suites(session) + __target_suites(session, None)
         licenses_per_suite = []
         for suite in all_suites:
             licenses = statistics.licenses_summary(
-                statistics.get_licenses(session, suite))
+                statistics.get_licenses(session, suite)
+            )
             ratio = qry.get_ratio(session, suite=suite)
             # draw license pie chart
-            if not conf['dry_run']:
-                filename = 'copyright_%s-license_pie-current.png' % suite
-                chart_file = conf['cache_dir'] / 'stats' / filename
+            if not conf["dry_run"]:
+                filename = "copyright_%s-license_pie-current.png" % suite
+                chart_file = conf["cache_dir"] / "stats" / filename
                 charts.pie_chart(licenses, chart_file, ratio)
 
             licenses_per_suite.append(licenses)
 
-        chart_file = conf['cache_dir'] / 'stats' / 'copyright_license_bar_plot.png'
-        if not conf['dry_run']:
-            charts.bar_chart(licenses_per_suite, all_suites, chart_file,
-                             top_langs, 'Number of files')
+        chart_file = conf["cache_dir"] / "stats" / "copyright_license_bar_plot.png"
+        if not conf["dry_run"]:
+            charts.bar_chart(
+                licenses_per_suite, all_suites, chart_file, top_langs, "Number of files"
+            )
 
     # LICENSE CHARTS
-    if 'copyright' in conf['hooks']:
+    if "copyright" in conf["hooks"]:
         update_license_charts()
 
+
 # update stages
-(STAGE_EXTRACT,
- STAGE_SUITES,
- STAGE_GC,
- STAGE_STATS,
- STAGE_CACHE,
- STAGE_CHARTS,) = list(range(1, 7))
+(STAGE_EXTRACT, STAGE_SUITES, STAGE_GC, STAGE_STATS, STAGE_CACHE, STAGE_CHARTS,) = list(
+    range(1, 7)
+)
 __STAGES = {
-    'extract': STAGE_EXTRACT,
-    'suites': STAGE_SUITES,
-    'gc': STAGE_GC,
-    'stats': STAGE_STATS,
-    'cache': STAGE_CACHE,
-    'charts': STAGE_CHARTS,
+    "extract": STAGE_EXTRACT,
+    "suites": STAGE_SUITES,
+    "gc": STAGE_GC,
+    "stats": STAGE_STATS,
+    "cache": STAGE_CACHE,
+    "charts": STAGE_CHARTS,
 }
 __STAGE2STR = {v: k for k, v in list(__STAGES.items())}
 UPDATE_STAGES = set(__STAGES.values())
@@ -720,7 +760,7 @@ def parse_stage(s):
     try:
         return __STAGES[s]
     except KeyError:
-        raise ValueError('unknown update stage %s' % s)
+        raise ValueError("unknown update stage %s" % s)
 
 
 def parse_stages(stages):
@@ -731,28 +771,28 @@ def pp_stage(stage):
     try:
         return __STAGE2STR[stage]
     except KeyError:
-        raise ValueError('unknown update stage %s' % stage)
+        raise ValueError("unknown update stage %s" % stage)
 
 
 def update(conf, session, stages=UPDATE_STAGES):
     """do a full update run
     """
-    logging.info('start')
-    logging.info('list mirror packages...')
-    mirror = SourceMirror(conf['mirror_dir'])
+    logging.info("start")
+    logging.info("list mirror packages...")
+    mirror = SourceMirror(conf["mirror_dir"])
     status = UpdateStatus()
 
     if STAGE_EXTRACT in stages:
-        extract_new(status, conf, session, mirror)      # stage 1
+        extract_new(status, conf, session, mirror)  # stage 1
     if STAGE_SUITES in stages:
-        update_suites(status, conf, session, mirror)    # stage 2
+        update_suites(status, conf, session, mirror)  # stage 2
     if STAGE_GC in stages:
         garbage_collect(status, conf, session, mirror)  # stage 3
     if STAGE_STATS in stages:
-        update_statistics(status, conf, session)        # stage 4
+        update_statistics(status, conf, session)  # stage 4
     if STAGE_CACHE in stages:
-        update_metadata(status, conf, session)          # stage 5
+        update_metadata(status, conf, session)  # stage 5
     if STAGE_CHARTS in stages:
-        update_charts(status, conf, session)            # stage 6
+        update_charts(status, conf, session)  # stage 6
 
-    logging.info('finish')
+    logging.info("finish")

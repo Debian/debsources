@@ -31,25 +31,24 @@ def add_package(session, pkg, pkgdir, sticky=False):
     - FS cache to avoid re-scanning package dir to iterate over file names
 
     """
-    logging.debug('add to db %s...' % pkg)
-    package_name = session.query(PackageName) \
-                          .filter_by(name=pkg['package']) \
-                          .first()
+    logging.debug("add to db %s..." % pkg)
+    package_name = session.query(PackageName).filter_by(name=pkg["package"]).first()
     if not package_name:
-        package_name = PackageName(pkg['package'])
+        package_name = PackageName(pkg["package"])
         session.add(package_name)
 
-    db_package = session.query(Package) \
-                        .filter_by(version=pkg['version'],
-                                   name_id=package_name.id) \
-                        .first()
+    db_package = (
+        session.query(Package)
+        .filter_by(version=pkg["version"], name_id=package_name.id)
+        .first()
+    )
     if not db_package:
-        db_package = Package(pkg['version'], package_name, sticky)
+        db_package = Package(pkg["version"], package_name, sticky)
         db_package.area = pkg.archive_area()
-        if 'vcs-browser' in pkg:
-            db_package.vcs_browser = pkg['vcs-browser']
+        if "vcs-browser" in pkg:
+            db_package.vcs_browser = pkg["vcs-browser"]
         for vcs_type in VCS_TYPES:
-            vcs_key = 'vcs-' + vcs_type
+            vcs_key = "vcs-" + vcs_type
             if vcs_key in pkg:
                 db_package.vcs_type = vcs_type
                 db_package.vcs_url = pkg[vcs_key]
@@ -71,7 +70,7 @@ def add_package(session, pkg, pkgdir, sticky=False):
 def rm_package(session, pkg, db_package):
     """Remove a package (= debmirror.SourcePackage) from the Debsources db
     """
-    logging.debug('remove from db %s...' % pkg)
+    logging.debug("remove from db %s..." % pkg)
     session.delete(db_package)
     if not db_package.name.versions:
         # just removed last version, get rid of package too
@@ -81,23 +80,21 @@ def rm_package(session, pkg, db_package):
 def lookup_package(session, package, version):
     """Lookup a package in the Debsources db, using <package, version> as key
     """
-    return session.query(Package) \
-                  .join(PackageName) \
-                  .filter(Package.version == version) \
-                  .filter(PackageName.name == package) \
-                  .first()
+    return (
+        session.query(Package)
+        .join(PackageName)
+        .filter(Package.version == version)
+        .filter(PackageName.name == package)
+        .first()
+    )
 
 
 def lookup_db_suite(session, suite, sticky=False):
-    return session.query(SuiteInfo) \
-                  .filter_by(name=suite, sticky=sticky) \
-                  .first()
+    return session.query(SuiteInfo).filter_by(name=suite, sticky=sticky).first()
 
 
 def lookup_suitemapping(session, db_package, suite):
-    return session.query(Suite) \
-                  .filter_by(package_id=db_package.id, suite=suite) \
-                  .first()
+    return session.query(Suite).filter_by(package_id=db_package.id, suite=suite).first()
 
 
 def pkg_prefixes(session):
@@ -123,9 +120,11 @@ def rm_file(session, package, relpath, file_table=None):
         file_id = file_table[relpath]
         file = session.query(File).filter_by(id=file_id).first()
     else:
-        file = session.query(File) \
-                       .join(Package) \
-                       .join(PackageName) \
-                       .filter_by(name=package, path=relpath) \
-                       .first()
+        file = (
+            session.query(File)
+            .join(Package)
+            .join(PackageName)
+            .filter_by(name=package, path=relpath)
+            .first()
+        )
     session.delete(file)

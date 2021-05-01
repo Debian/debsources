@@ -15,12 +15,49 @@ import re
 
 
 # Languages constants
-(PYTHON, RUBY, PERL, PHP, SCALA, GO, XML, HTML, MARKDOWN, CSS, JSON,
- JAVASCRIPT, COFFEESCRIPT, ACTIONSCRIPT, VBSCRIPT, LUA, JAVA, C, CPP,
- OBJECTIVEC, VALA, CSHARP, D, SQL, LISP, CLOJURE, INI, APACHE, CMAKE, VHDL,
- DIFF, BASH, TEX, BRAINFUCK, HASKELL, ERLANG, RUST, R, OCAML, SCILAB,
- MAKEFILE) \
-    = list(range(41))
+(
+    PYTHON,
+    RUBY,
+    PERL,
+    PHP,
+    SCALA,
+    GO,
+    XML,
+    HTML,
+    MARKDOWN,
+    CSS,
+    JSON,
+    JAVASCRIPT,
+    COFFEESCRIPT,
+    ACTIONSCRIPT,
+    VBSCRIPT,
+    LUA,
+    JAVA,
+    C,
+    CPP,
+    OBJECTIVEC,
+    VALA,
+    CSHARP,
+    D,
+    SQL,
+    LISP,
+    CLOJURE,
+    INI,
+    APACHE,
+    CMAKE,
+    VHDL,
+    DIFF,
+    BASH,
+    TEX,
+    BRAINFUCK,
+    HASKELL,
+    ERLANG,
+    RUST,
+    R,
+    OCAML,
+    SCILAB,
+    MAKEFILE,
+) = list(range(41))
 
 # Languages strings used by highlight.js
 highlightjs = {
@@ -65,56 +102,88 @@ highlightjs = {
     OCAML: "ocaml",
     SCILAB: "scilab",
     MAKEFILE: "makefile",
-    }
+}
 
 # Filename regexes
 filename_regexes = [
-    (PYTHON, [r'\.py$', r'\.pyw$']),
-    (RUBY, [r'\.rb$', r'\.rhtml$', r'\.ruby$']),
-    (PERL, [r'\.pl$', r'\.PL$', r'\.pm$', r'\.PM$', r'\.perl$', r'\.agi$',
-            r'\.pod$']),
-    (PHP, [r'\.php[3-6]?$', r'\.phtml$']),
-    (SCALA, [r'\.scala$']),
-    (GO, [r'\.go$']),
-    (XML, [r'\.xml$', r'\.sgml$', r'\.xsl$', r'\.xslt$', r'\.xsd$']),
-    (HTML, [r'\.htm$', r'\.html$', r'\.shtml$', r'\.hta$', r'\.htd$',
-            r'\.htt$', r'\.cfm$', r'\.xhtml$']),
-    (MARKDOWN, [r'\.md$', r'\.mdml$', r'\.markdown$', r'\.md$', r'\.mkd$']),
-    (CSS, [r'\.css$']),
-    (JSON, [r'\.json$']),
-    (JAVASCRIPT, [r'\.js$']),
-    (COFFEESCRIPT, [r'\.coffee$']),
-    (ACTIONSCRIPT, [r'\.as$']),
-    (VBSCRIPT, [r'\.vbs$']),
-    (LUA, [r'\.lua$']),
-    (JAVA, [r'\.java$', r'\.jsp$']),
-    (C, [r'\.h$', r'\.c$']),
-    (CPP, [r'\.cpp$', r'\.hpp$', r'\.c\+\+$', r'\.cc$', r'\.cxx$', r'\.hxx$',
-           r'\.hh$', r'\.h\+\+$', r'\.C$', r'\.H$']),
-    (OBJECTIVEC, [r'\.m$', r'\.mm$']),
-    (VALA, [r'\.vala$', r'\.vapi$']),
-    (CSHARP, [r'\.cs$']),
-    (D, [r'\.d$', r'\.di$']),
-    (SQL, [r'\.sql$']),
-    (LISP, [r'\.lisp$', r'\.el$']),
-    (CLOJURE, [r'\.clj$']),
-    (INI, [r'\.ini$']),
-    (APACHE, [r'apache.conf$']),
-    (CMAKE, [r'CMakeLists\.txt$', r'\.cmake$', r'\.ctest$']),
-    (VHDL, [r'\.vhd$', r'\.vhdl$']),
-    (DIFF, [r'\.patch$', r'\.diff$', r'\.rej$', r'\.debdiff$', r'\.dpatch$']),
-    (BASH, [r'\.sh$', r'\.[kza]sh$', r'^configure(\.in){0,2}$',
-            r'^configure\.ac$', r'\.bash$', r'\.m4$']),
-    (TEX, [r'\.tex$', r'\.sty$', r'\.idx$', r'\.ltx$', r'\.latex$']),
-    (BRAINFUCK, [r'\.bf$']),
-    (HASKELL, [r'\.hs$', r'\.lhs$']),
-    (ERLANG, [r'\.erl$']),
-    (RUST, [r'\.rs$']),
-    (R, [r'\.r$', r'\.R$']),
-    (OCAML, [r'\.ml$', r'\.mli$']),
-    (SCILAB, [r'\.sci$', r'\.sce$']),
-    (MAKEFILE, [r'^(GNUm|m|M)akefile$']),
-    ]
+    (PYTHON, [r"\.py$", r"\.pyw$"]),
+    (RUBY, [r"\.rb$", r"\.rhtml$", r"\.ruby$"]),
+    (PERL, [r"\.pl$", r"\.PL$", r"\.pm$", r"\.PM$", r"\.perl$", r"\.agi$", r"\.pod$"]),
+    (PHP, [r"\.php[3-6]?$", r"\.phtml$"]),
+    (SCALA, [r"\.scala$"]),
+    (GO, [r"\.go$"]),
+    (XML, [r"\.xml$", r"\.sgml$", r"\.xsl$", r"\.xslt$", r"\.xsd$"]),
+    (
+        HTML,
+        [
+            r"\.htm$",
+            r"\.html$",
+            r"\.shtml$",
+            r"\.hta$",
+            r"\.htd$",
+            r"\.htt$",
+            r"\.cfm$",
+            r"\.xhtml$",
+        ],
+    ),
+    (MARKDOWN, [r"\.md$", r"\.mdml$", r"\.markdown$", r"\.md$", r"\.mkd$"]),
+    (CSS, [r"\.css$"]),
+    (JSON, [r"\.json$"]),
+    (JAVASCRIPT, [r"\.js$"]),
+    (COFFEESCRIPT, [r"\.coffee$"]),
+    (ACTIONSCRIPT, [r"\.as$"]),
+    (VBSCRIPT, [r"\.vbs$"]),
+    (LUA, [r"\.lua$"]),
+    (JAVA, [r"\.java$", r"\.jsp$"]),
+    (C, [r"\.h$", r"\.c$"]),
+    (
+        CPP,
+        [
+            r"\.cpp$",
+            r"\.hpp$",
+            r"\.c\+\+$",
+            r"\.cc$",
+            r"\.cxx$",
+            r"\.hxx$",
+            r"\.hh$",
+            r"\.h\+\+$",
+            r"\.C$",
+            r"\.H$",
+        ],
+    ),
+    (OBJECTIVEC, [r"\.m$", r"\.mm$"]),
+    (VALA, [r"\.vala$", r"\.vapi$"]),
+    (CSHARP, [r"\.cs$"]),
+    (D, [r"\.d$", r"\.di$"]),
+    (SQL, [r"\.sql$"]),
+    (LISP, [r"\.lisp$", r"\.el$"]),
+    (CLOJURE, [r"\.clj$"]),
+    (INI, [r"\.ini$"]),
+    (APACHE, [r"apache.conf$"]),
+    (CMAKE, [r"CMakeLists\.txt$", r"\.cmake$", r"\.ctest$"]),
+    (VHDL, [r"\.vhd$", r"\.vhdl$"]),
+    (DIFF, [r"\.patch$", r"\.diff$", r"\.rej$", r"\.debdiff$", r"\.dpatch$"]),
+    (
+        BASH,
+        [
+            r"\.sh$",
+            r"\.[kza]sh$",
+            r"^configure(\.in){0,2}$",
+            r"^configure\.ac$",
+            r"\.bash$",
+            r"\.m4$",
+        ],
+    ),
+    (TEX, [r"\.tex$", r"\.sty$", r"\.idx$", r"\.ltx$", r"\.latex$"]),
+    (BRAINFUCK, [r"\.bf$"]),
+    (HASKELL, [r"\.hs$", r"\.lhs$"]),
+    (ERLANG, [r"\.erl$"]),
+    (RUST, [r"\.rs$"]),
+    (R, [r"\.r$", r"\.R$"]),
+    (OCAML, [r"\.ml$", r"\.mli$"]),
+    (SCILAB, [r"\.sci$", r"\.sce$"]),
+    (MAKEFILE, [r"^(GNUm|m|M)akefile$"]),
+]
 
 # Shebang map:
 # from http://git.geany.org/geany/tree/src/filetypes.c?h=1.23#n910
@@ -134,15 +203,11 @@ shebangs = dict(
     ash=BASH,
     dmd=D,
     # wish = TCL,
-    )
+)
 
 # if the mime type of the file contains one of the below items,
 # the file will be considered as a text file
-text_file_mimes = [
-    "text",
-    "xml",
-    "x-empty"
-]
+text_file_mimes = ["text", "xml", "x-empty"]
 
 
 def get_filetype(filename, firstline):
@@ -179,8 +244,9 @@ def get_filetype_from_firstline(firstline):
             return shebangs[interp]
         else:
             return None
-    elif (firstline.lower().startswith("<html") or
-          firstline.lower().startswith("<!doctype html")):
+    elif firstline.lower().startswith("<html") or firstline.lower().startswith(
+        "<!doctype html"
+    ):
         return HTML
     elif firstline.lower().startswith("<?xml"):
         return XML
@@ -200,8 +266,7 @@ def get_filetype_from_filename(filename):
                 if re.search(pattern, filename):
                     return language
             except:
-                raise Exception("Regex error: " + str(language) +
-                                " " + str(pattern))
+                raise Exception("Regex error: " + str(language) + " " + str(pattern))
     return None
 
 

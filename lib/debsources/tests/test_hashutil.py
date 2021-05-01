@@ -22,16 +22,17 @@ from debsources.tests.testdata import TEST_DATA_DIR
 
 
 def make_path(path: Path) -> Path:
-    return TEST_DATA_DIR / 'sources' / path
+    return TEST_DATA_DIR / "sources" / path
 
 
-@attr('hashutil')
+@attr("hashutil")
 class HashutilTests(unittest.TestCase):
     """ Unit tests for debsources.hashutil """
 
     @istest
     def assertSha256Sum(self):
-        path = Path('main') / 'libc' / 'libcaca' / '0.99.beta18-1' / 'COPYING'
+        path = Path("main") / "libc" / "libcaca" / "0.99.beta18-1" / "COPYING"
         self.assertEqual(
             sha256sum(make_path(path)),
-            'd10f0447c835a590ef137d99dd0e3ed29b5e032e7434a87315b30402bf14e7fd')
+            "d10f0447c835a590ef137d99dd0e3ed29b5e032e7434a87315b30402bf14e7fd",
+        )

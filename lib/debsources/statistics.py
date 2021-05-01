@@ -23,8 +23,18 @@ from sqlalchemy import distinct, desc
 from sqlalchemy import func as sql_func
 
 from debsources.consts import SLOCCOUNT_LANGUAGES, SUITES
-from debsources.models import Checksum, Ctag, Metric, SlocCount, \
-    Suite, SuiteInfo, Package, PackageName, FileCopyright, File
+from debsources.models import (
+    Checksum,
+    Ctag,
+    Metric,
+    SlocCount,
+    Suite,
+    SuiteInfo,
+    Package,
+    PackageName,
+    FileCopyright,
+    File,
+)
 from debsources.license_helper import Licenses
 
 
@@ -36,10 +46,10 @@ def _count(query):
 
 
 def _time_series(query):
-    return [(row['timestamp'], row['value']) for row in query]
+    return [(row["timestamp"], row["value"]) for row in query]
 
 
-def suites(session, suites='release'):
+def suites(session, suites="release"):
     """return a list of known suites (both sticky and live) present in the DB,
     sorted by release date
 
@@ -51,7 +61,7 @@ def suites(session, suites='release'):
 
     """
     if suites not in SUITES.keys():
-        raise ValueError('unknown set of suites: %s' % suites)
+        raise ValueError("unknown set of suites: %s" % suites)
 
     db_suites = [row[0] for row in session.query(distinct(Suite.suite))]
     db_suites = [s for s in db_suites if s in SUITES[suites]]
@@ -63,8 +73,7 @@ def sticky_suites(session):
     """list sticky suites currently present in Debsources DB
 
     """
-    q = session.query(SuiteInfo.name) \
-               .filter(SuiteInfo.sticky == True)  # NOQA,
+    q = session.query(SuiteInfo.name).filter(SuiteInfo.sticky == True)  # NOQA,
     # '== True' can be dropped starting with sqlalchemy >= 0.8
     return [row[0] for row in q]
 
@@ -77,14 +86,12 @@ def disk_usage(session, suite=None, areas=None):
     only count disk usage relative to archive `areas`, if given
 
     """
-    logging.debug('compute disk usage for suite %s...' % suite)
-    q = session.query(sql_func.sum(Metric.value)) \
-               .filter(Metric.metric == 'size')
+    logging.debug("compute disk usage for suite %s..." % suite)
+    q = session.query(sql_func.sum(Metric.value)).filter(Metric.metric == "size")
     if suite or areas:
         q = q.join(Package)
     if suite:
-        q = q.join(Suite) \
-             .filter(Suite.suite == suite)
+        q = q.join(Suite).filter(Suite.suite == suite)
     if areas:
         q = q.filter(Package.area.in_(areas))
     return _count(q)
@@ -103,11 +110,10 @@ def source_packages(session, suite=None, areas=None):
     each packages
 
     """
-    logging.debug('count source packages for suite %s...' % suite)
+    logging.debug("count source packages for suite %s..." % suite)
     q = session.query(sql_func.count(Package.id))
     if suite:
-        q = q.join(Suite) \
-            .filter(Suite.suite == suite)
+        q = q.join(Suite).filter(Suite.suite == suite)
     if areas:
         q = q.filter(Package.area.in_(areas))
     return _count(q)
@@ -125,13 +131,12 @@ def source_files(session, suite=None, areas=None):
     """
     # TODO when a separate File table will be present, this will need to be
     # adapted to use that instead of Checksum
-    logging.debug('count source files for suite %s...' % suite)
+    logging.debug("count source files for suite %s..." % suite)
     q = session.query(sql_func.count(Checksum.id))
     if suite or areas:
         q = q.join(Package)
     if suite:
-        q = q.join(Suite) \
-             .filter(Suite.suite == suite)
+        q = q.join(Suite).filter(Suite.suite == suite)
     if areas:
         q = q.filter(Package.area.in_(areas))
     return _count(q)
@@ -145,14 +150,14 @@ def sloccount_lang(session, language, suite=None, areas=None):
     only count packages in archive `areas`, if given
 
     """
-    logging.debug('sloccount for language %s, suite %s...' % (language, suite))
-    q = session.query(sql_func.sum(SlocCount.count)) \
-               .filter(SlocCount.language == language)
+    logging.debug("sloccount for language %s, suite %s..." % (language, suite))
+    q = session.query(sql_func.sum(SlocCount.count)).filter(
+        SlocCount.language == language
+    )
     if suite or areas:
         q = q.join(Package)
     if suite:
-        q = q.join(Suite) \
-             .filter(Suite.suite == suite)
+        q = q.join(Suite).filter(Suite.suite == suite)
     if areas:
         q = q.filter(Package.area.in_(areas))
     return _count(q)
@@ -168,13 +173,12 @@ def sloccount_summary(session, suite=None, areas=None):
     only count packages in archive `areas`, if given
 
     """
-    logging.debug('sloccount summary for suite %s...' % suite)
+    logging.debug("sloccount summary for suite %s..." % suite)
     q = session.query(SlocCount.language, sql_func.sum(SlocCount.count))
     if suite or areas:
         q = q.join(Package)
     if suite:
-        q = q.join(Suite) \
-             .filter(Suite.suite == suite)
+        q = q.join(Suite).filter(Suite.suite == suite)
     if areas:
         q = q.filter(Package.area.in_(areas))
     q = q.group_by(SlocCount.language)
@@ -189,13 +193,12 @@ def ctags(session, suite=None, areas=None):
     only count packages in archive `areas`, if given
 
     """
-    logging.debug('count ctags for suite %s...' % suite)
+    logging.debug("count ctags for suite %s..." % suite)
     q = session.query(sql_func.count(Ctag.id))
     if suite or areas:
         q = q.join(Package)
     if suite:
-        q = q.join(Suite) \
-             .filter(Suite.suite == suite)
+        q = q.join(Suite).filter(Suite.suite == suite)
     if areas:
         q = q.filter(Package.area.in_(areas))
     return _count(q)
@@ -208,12 +211,14 @@ def _hist_size_sample(session, metric, interval, projection, suite=None):
       WHERE timestamp >= now() - interval '%(interval)s' \
       %(filter)s \
       ORDER BY %(projection)s DESC, timestamp DESC"
-    kw = {'metric': metric,
-          'projection': projection,
-          'interval': interval,
-          'filter': ''}
+    kw = {
+        "metric": metric,
+        "projection": projection,
+        "interval": interval,
+        "filter": "",
+    }
     if suite:
-        kw['filter'] = "AND suite = '%s'" % suite
+        kw["filter"] = "AND suite = '%s'" % suite
     return _time_series(session.execute(q % kw))
 
 
@@ -224,38 +229,56 @@ def history_size_hourly(session, metric, interval, suite):
     http://www.postgresql.org/docs/9.1/static/functions-datetime.html
 
     """
-    logging.debug('take hourly %s sample of %s for suite %s'
-                  % (metric, interval, suite))
-    return _hist_size_sample(session, metric, interval,
-                             projection="date_trunc('hour', timestamp)",
-                             suite=suite)
+    logging.debug(
+        "take hourly %s sample of %s for suite %s" % (metric, interval, suite)
+    )
+    return _hist_size_sample(
+        session,
+        metric,
+        interval,
+        projection="date_trunc('hour', timestamp)",
+        suite=suite,
+    )
 
 
 def history_size_daily(session, metric, interval, suite):
     """like `history_size_full`, but taking daily samples"""
-    logging.debug('take daily %s sample of %s for suite %s'
-                  % (metric, interval, suite))
-    return _hist_size_sample(session, metric, interval,
-                             projection="date_trunc('day', timestamp)",
-                             suite=suite)
+    logging.debug("take daily %s sample of %s for suite %s" % (metric, interval, suite))
+    return _hist_size_sample(
+        session,
+        metric,
+        interval,
+        projection="date_trunc('day', timestamp)",
+        suite=suite,
+    )
 
 
 def history_size_weekly(session, metric, interval, suite):
     """like `history_size_full`, but taking weekly samples"""
-    logging.debug('take weekly %s sample of %s for suite %s'
-                  % (metric, interval, suite))
-    return _hist_size_sample(session, metric, interval,
-                             projection="date_trunc('week', timestamp)",
-                             suite=suite)
+    logging.debug(
+        "take weekly %s sample of %s for suite %s" % (metric, interval, suite)
+    )
+    return _hist_size_sample(
+        session,
+        metric,
+        interval,
+        projection="date_trunc('week', timestamp)",
+        suite=suite,
+    )
 
 
 def history_size_monthly(session, metric, interval, suite):
     """like `history_size_full`, but taking monthly samples"""
-    logging.debug('take monthly %s sample of %s for suite %s'
-                  % (metric, interval, suite))
-    return _hist_size_sample(session, metric, interval,
-                             projection="date_trunc('month', timestamp)",
-                             suite=suite)
+    logging.debug(
+        "take monthly %s sample of %s for suite %s" % (metric, interval, suite)
+    )
+    return _hist_size_sample(
+        session,
+        metric,
+        interval,
+        projection="date_trunc('month', timestamp)",
+        suite=suite,
+    )
 
 
 def _hist_sloc_sample(session, interval, projection, suite=None):
@@ -265,17 +288,15 @@ def _hist_sloc_sample(session, interval, projection, suite=None):
       WHERE timestamp >= now() - interval '%(interval)s' \
       %(filter)s \
       ORDER BY %(projection)s DESC, timestamp DESC"
-    kw = {'projection': projection,
-          'interval': interval,
-          'filter': ''}
+    kw = {"projection": projection, "interval": interval, "filter": ""}
     if suite:
-        kw['filter'] = "AND suite = '%s'" % suite
+        kw["filter"] = "AND suite = '%s'" % suite
 
     series = dict([(lang, []) for lang in SLOCCOUNT_LANGUAGES])
     samples = session.execute(q % kw)
     for row in samples:
         for lang in SLOCCOUNT_LANGUAGES:
-            series[lang].append((row['timestamp'], row['lang_' + lang]))
+            series[lang].append((row["timestamp"], row["lang_" + lang]))
 
     return series
 
@@ -288,34 +309,34 @@ def history_sloc_hourly(session, interval, suite):
     `interval` must be as per `history_size_full`
 
     """
-    logging.debug('take hourly sloccount sample for suite %s' % suite)
-    return _hist_sloc_sample(session, interval,
-                             projection="date_trunc('hour', timestamp)",
-                             suite=suite)
+    logging.debug("take hourly sloccount sample for suite %s" % suite)
+    return _hist_sloc_sample(
+        session, interval, projection="date_trunc('hour', timestamp)", suite=suite
+    )
 
 
 def history_sloc_daily(session, interval, suite):
     """like `history_sloc_full`, but taking daily samples"""
-    logging.debug('take daily sloccount sample for suite %s' % suite)
-    return _hist_sloc_sample(session, interval,
-                             projection="date_trunc('day', timestamp)",
-                             suite=suite)
+    logging.debug("take daily sloccount sample for suite %s" % suite)
+    return _hist_sloc_sample(
+        session, interval, projection="date_trunc('day', timestamp)", suite=suite
+    )
 
 
 def history_sloc_weekly(session, interval, suite):
     """like `history_sloc_full`, but taking weekly samples"""
-    logging.debug('take weekly sloccount sample for suite %s' % suite)
-    return _hist_sloc_sample(session, interval,
-                             projection="date_trunc('week', timestamp)",
-                             suite=suite)
+    logging.debug("take weekly sloccount sample for suite %s" % suite)
+    return _hist_sloc_sample(
+        session, interval, projection="date_trunc('week', timestamp)", suite=suite
+    )
 
 
 def history_sloc_monthly(session, interval, suite):
     """like `history_sloc_full`, but taking monthly samples"""
-    logging.debug('take monthly sloccount sample for suite %s' % suite)
-    return _hist_sloc_sample(session, interval,
-                             projection="date_trunc('month', timestamp)",
-                             suite=suite)
+    logging.debug("take monthly sloccount sample for suite %s" % suite)
+    return _hist_sloc_sample(
+        session, interval, projection="date_trunc('month', timestamp)", suite=suite
+    )
 
 
 def sloc_per_package(session, suite=None, areas=None):
@@ -330,65 +351,70 @@ def sloc_per_package(session, suite=None, areas=None):
     data are returned sorted, from the largest package to the smallest
 
     """
-    q = session.query(PackageName.name, Package.version,
-                      sql_func.sum(SlocCount.count).label('sloc'))
+    q = session.query(
+        PackageName.name, Package.version, sql_func.sum(SlocCount.count).label("sloc")
+    )
     if suite:
         q = q.select_from(Suite)
-    q = q.filter(SlocCount.package_id == Package.id) \
-         .filter(Package.name_id == PackageName.id)
+    q = q.filter(SlocCount.package_id == Package.id).filter(
+        Package.name_id == PackageName.id
+    )
     if suite:
-        q = q.filter(Suite.package_id == Package.id) \
-             .filter(Suite.suite == suite)
+        q = q.filter(Suite.package_id == Package.id).filter(Suite.suite == suite)
     if areas:
         q = q.filter(Package.area.in_(areas))
-    q = q.group_by(PackageName.name, Package.version) \
-         .order_by(desc('sloc'), PackageName.name, Package.version)
+    q = q.group_by(PackageName.name, Package.version).order_by(
+        desc("sloc"), PackageName.name, Package.version
+    )
     return q.all()
 
 
 def stats_grouped_by(session, stat, areas=None):
-    ''' Compute statistics `stat` query using grouped by
+    """ Compute statistics `stat` query using grouped by
         to minimize time execution.
 
         Reference doc/update-stats-query.bench.sql
-    '''
-    logging.debug('Compute %s stats for all suites' % stat)
-    if stat is 'source_packages':
-        q = (session.query(Suite.suite.label("suite"),
-                           sql_func.count(Package.id))
-             .join(Package)
-             .group_by(Suite.suite)
-             )
-    elif stat is 'source_files':
-        q = (session.query(Suite.suite.label("suite"),
-                           sql_func.count(Checksum.id))
-             .join(Package)
-             .join(Checksum)
-             .group_by(Suite.suite)
-             )
-    elif stat is 'disk_usage':
-        q = (session.query(Suite.suite.label("suite"),
-                           sql_func.sum(Metric.value))
-             .filter(Metric.metric == 'size')
-             .join(Package)
-             .join(Metric)
-             .group_by(Suite.suite)
-             )
-    elif stat is 'ctags':
-        q = (session.query(Suite.suite.label('suite'),
-                           sql_func.count(Ctag.id))
-             .join(Package)
-             .join(Ctag)
-             .group_by(Suite.suite)
-             )
-    elif stat is 'sloccount':
-        q = (session.query(Suite.suite.label('suite'),
-                           SlocCount.language.label('language'),
-                           sql_func.sum(SlocCount.count))
-             .join(Package)
-             .join(SlocCount)
-             .group_by(Suite.suite, SlocCount.language)
-             )
+    """
+    logging.debug("Compute %s stats for all suites" % stat)
+    if stat is "source_packages":
+        q = (
+            session.query(Suite.suite.label("suite"), sql_func.count(Package.id))
+            .join(Package)
+            .group_by(Suite.suite)
+        )
+    elif stat is "source_files":
+        q = (
+            session.query(Suite.suite.label("suite"), sql_func.count(Checksum.id))
+            .join(Package)
+            .join(Checksum)
+            .group_by(Suite.suite)
+        )
+    elif stat is "disk_usage":
+        q = (
+            session.query(Suite.suite.label("suite"), sql_func.sum(Metric.value))
+            .filter(Metric.metric == "size")
+            .join(Package)
+            .join(Metric)
+            .group_by(Suite.suite)
+        )
+    elif stat is "ctags":
+        q = (
+            session.query(Suite.suite.label("suite"), sql_func.count(Ctag.id))
+            .join(Package)
+            .join(Ctag)
+            .group_by(Suite.suite)
+        )
+    elif stat is "sloccount":
+        q = (
+            session.query(
+                Suite.suite.label("suite"),
+                SlocCount.language.label("language"),
+                sql_func.sum(SlocCount.count),
+            )
+            .join(Package)
+            .join(SlocCount)
+            .group_by(Suite.suite, SlocCount.language)
+        )
     else:
         logging.warn("Unrecognised stat %s" % stat)
         return 0
@@ -415,10 +441,10 @@ def save_metadata_cache(stats, fname: Path):
     integer-valued dictionary
 
     """
-    fname_new = Path(str(fname) + '.new')
-    with fname_new.open('w') as out:
+    fname_new = Path(str(fname) + ".new")
+    with fname_new.open("w") as out:
         for k, v in sorted(stats.items()):
-            out.write('%s\t%d\n' % (k, v))
+            out.write("%s\t%d\n" % (k, v))
     fname_new.rename(fname)
 
 
@@ -426,25 +452,28 @@ def get_licenses(session, suite=None):
     """ Count files per license filtered by `suite`
 
     """
-    logging.debug('grouped by license summary')
+    logging.debug("grouped by license summary")
     if not suite:
-        q = (session.query(FileCopyright.license, Suite.suite,
-                           sql_func.count(FileCopyright.id))
-             .join(File)
-             .join(Package)
-             .join(Suite)
-             .group_by(Suite.suite)
-             .group_by(FileCopyright.license)
-             .order_by(Suite.suite))
+        q = (
+            session.query(
+                FileCopyright.license, Suite.suite, sql_func.count(FileCopyright.id)
+            )
+            .join(File)
+            .join(Package)
+            .join(Suite)
+            .group_by(Suite.suite)
+            .group_by(FileCopyright.license)
+            .order_by(Suite.suite)
+        )
         return q.all()
     else:
-        q = (session.query(FileCopyright.license,
-                           sql_func.count(FileCopyright.id))
-             .join(File)
-             .join(Package))
-        if suite != 'ALL':
-            q = q.join(Suite) \
-                 .filter(Suite.suite == suite)
+        q = (
+            session.query(FileCopyright.license, sql_func.count(FileCopyright.id))
+            .join(File)
+            .join(Package)
+        )
+        if suite != "ALL":
+            q = q.join(Suite).filter(Suite.suite == suite)
         q = q.group_by(FileCopyright.license)
         return dict(q.all())
 
@@ -456,18 +485,16 @@ def _hist_copyright_sample(session, interval, projection, suite=None):
       WHERE timestamp >= now() - interval '%(interval)s' \
       %(filter)s \
       ORDER BY %(projection)s DESC, timestamp DESC"
-    kw = {'projection': projection,
-          'interval': interval,
-          'filter': ''}
+    kw = {"projection": projection, "interval": interval, "filter": ""}
     if suite:
-        kw['filter'] = "AND suite = '%s'" % suite
+        kw["filter"] = "AND suite = '%s'" % suite
     results = session.execute(q % kw)
     copyright = dict()
     for row in results:
-        if row['license'] in copyright.keys():
-            copyright[row['license']].append((row['timestamp'], row['files']))
+        if row["license"] in copyright.keys():
+            copyright[row["license"]].append((row["timestamp"], row["files"]))
         else:
-            copyright[row['license']] = [(row['timestamp'], row['files'])]
+            copyright[row["license"]] = [(row["timestamp"], row["files"])]
     return copyright
 
 
@@ -475,106 +502,102 @@ def history_copyright_hourly(session, interval, suite):
     """return recent size history of license, over the past `interval`
 
     """
-    logging.debug('take hourly copyright sample of %s for suite %s'
-                  % (interval, suite))
-    return _hist_copyright_sample(session, interval,
-                                  projection="date_trunc('hour', timestamp)",
-                                  suite=suite)
+    logging.debug("take hourly copyright sample of %s for suite %s" % (interval, suite))
+    return _hist_copyright_sample(
+        session, interval, projection="date_trunc('hour', timestamp)", suite=suite
+    )
 
 
 def history_copyright_daily(session, interval, suite):
     """like `history_copyright_full`, but taking daily samples"""
-    logging.debug('take daily copyright sample of %s for suite %s'
-                  % (interval, suite))
-    return _hist_copyright_sample(session, interval,
-                                  projection="date_trunc('day', timestamp)",
-                                  suite=suite)
+    logging.debug("take daily copyright sample of %s for suite %s" % (interval, suite))
+    return _hist_copyright_sample(
+        session, interval, projection="date_trunc('day', timestamp)", suite=suite
+    )
 
 
 def history_copyright_weekly(session, interval, suite):
     """like `history_copyright_full`, but taking weekly samples"""
-    logging.debug('take weekly copyright sample of %s for suite %s'
-                  % (interval, suite))
-    return _hist_copyright_sample(session, interval,
-                                  projection="date_trunc('week', timestamp)",
-                                  suite=suite)
+    logging.debug("take weekly copyright sample of %s for suite %s" % (interval, suite))
+    return _hist_copyright_sample(
+        session, interval, projection="date_trunc('week', timestamp)", suite=suite
+    )
 
 
 def history_copyright_monthly(session, interval, suite):
     """like `history_copyright_full`, but taking monthly samples"""
-    logging.debug('take monthly copyright sample of %s for suite %s'
-                  % (interval, suite))
-    return _hist_copyright_sample(session, interval,
-                                  projection="date_trunc('month', timestamp)",
-                                  suite=suite)
+    logging.debug(
+        "take monthly copyright sample of %s for suite %s" % (interval, suite)
+    )
+    return _hist_copyright_sample(
+        session, interval, projection="date_trunc('month', timestamp)", suite=suite
+    )
 
 
 def licenses_summary_w_dual(results):
     summary = dict(unknown=0)
     for result in results:
-        if any(keyword in result for keyword in ['and', 'or']):
+        if any(keyword in result for keyword in ["and", "or"]):
             # verify all are standard
-            licenses = re.split(', |and |or ', result)
+            licenses = re.split(", |and |or ", result)
             unknown = True  # verify all licenses in statement are standard
             for l in licenses:
-                key = filter(lambda x: re.search(x, l) is not None,
-                             Licenses)
+                key = filter(lambda x: re.search(x, l) is not None, Licenses)
                 if not key:
                     unknown = False
             if not unknown:
-                summary['unknown'] += results[result]
+                summary["unknown"] += results[result]
             else:
                 # search if result exists in dict but in different order
                 found = None
                 for key in summary.keys():
                     # replace spaces with _ as one loading the stats file
                     # later we don't break it correctly.
-                    if set(result.split('_')) == set(key.split(' ')):
+                    if set(result.split("_")) == set(key.split(" ")):
                         # key exists
                         found = key
                         break
                 if found is not None:
                     summary[found] += results[result]
                 else:
-                    summary[result.replace(' ', '_')] = results[result]
+                    summary[result.replace(" ", "_")] = results[result]
         else:
-            key = list(filter(lambda x: re.search(x, result)
-                              is not None, Licenses))
+            key = list(filter(lambda x: re.search(x, result) is not None, Licenses))
             # standard licenses
             if len(key) > 0:
-                summary[result.replace(' ', '_')] = results[result]
+                summary[result.replace(" ", "_")] = results[result]
             else:
-                summary['unknown'] += results[result]
+                summary["unknown"] += results[result]
     return summary
 
 
 def licenses_summary(results):
     summary = dict(unknown=0)
     for result in results:
-        if any(keyword in result for keyword in ['and', 'or']):
+        if any(keyword in result for keyword in ["and", "or"]):
             # split all licenses
-            licenses = re.split(', |and |or ', result)
+            licenses = re.split(", |and |or ", result)
             for license in licenses:
                 license = license.rstrip()
-                key = list(filter(lambda x: re.search(x, license)
-                                  is not None, Licenses))
+                key = list(
+                    filter(lambda x: re.search(x, license) is not None, Licenses)
+                )
                 if len(key) > 0:
                     # if license already in dict then add it up
-                    if license.replace(' ', '_') in summary.keys():
-                        summary[license.replace(' ', '_')] += results[result]
+                    if license.replace(" ", "_") in summary.keys():
+                        summary[license.replace(" ", "_")] += results[result]
                     else:
-                        summary[license.replace(' ', '_')] = results[result]
+                        summary[license.replace(" ", "_")] = results[result]
                 else:
-                    summary['unknown'] += results[result]
+                    summary["unknown"] += results[result]
         else:
-            key = list(filter(lambda x: re.search(x, result)
-                              is not None, Licenses))
+            key = list(filter(lambda x: re.search(x, result) is not None, Licenses))
             if len(key) > 0:
-                    # if license already in dict then add it up
-                    if result.replace(' ', '_') in summary.keys():
-                        summary[result.replace(' ', '_')] += results[result]
-                    else:
-                        summary[result.replace(' ', '_')] = results[result]
+                # if license already in dict then add it up
+                if result.replace(" ", "_") in summary.keys():
+                    summary[result.replace(" ", "_")] += results[result]
+                else:
+                    summary[result.replace(" ", "_")] = results[result]
             else:
-                summary['unknown'] += results[result]
+                summary["unknown"] += results[result]
     return summary

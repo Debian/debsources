@@ -23,19 +23,19 @@ def mk_conf(tmpdir: Path):
 
     """
     conf = {
-        'bin_dir': (TEST_DIR.parent.parent.parent / "bin").resolve(),
-        'cache_dir': tmpdir / 'cache',
-        'db_uri': 'postgresql:///' + TEST_DB_NAME,
-        'single_transaction': 'true',
-        'dry_run': False,
-        'expire_days': 0,
-        'force_triggers': '',
-        'hooks': ['sloccount', 'checksums', 'ctags', 'metrics', 'copyright'],
-        'mirror_dir': TEST_DATA_DIR / 'mirror',
-        'mirror_archive_dir': TEST_DATA_DIR / 'archive',
-        'backends': set(['hooks.fs', 'hooks', 'fs', 'db', 'hooks.db']),
-        'root_dir': TEST_DIR.parent.parent.resolve(),
-        'sources_dir': tmpdir / 'sources',
-        'exclude': [],
+        "bin_dir": (TEST_DIR.parent.parent.parent / "bin").resolve(),
+        "cache_dir": tmpdir / "cache",
+        "db_uri": "postgresql:///" + TEST_DB_NAME,
+        "single_transaction": "true",
+        "dry_run": False,
+        "expire_days": 0,
+        "force_triggers": "",
+        "hooks": ["sloccount", "checksums", "ctags", "metrics", "copyright"],
+        "mirror_dir": TEST_DATA_DIR / "mirror",
+        "mirror_archive_dir": TEST_DATA_DIR / "archive",
+        "backends": set(["hooks.fs", "hooks", "fs", "db", "hooks.db"]),
+        "root_dir": TEST_DIR.parent.parent.resolve(),
+        "sources_dir": tmpdir / "sources",
+        "exclude": [],
     }
     return conf

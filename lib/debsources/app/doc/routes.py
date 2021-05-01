@@ -20,49 +20,55 @@ from ..views import DocView, AboutView, ErrorHandler
 # site errors
 # XXX 500 handler cannot be registered on a blueprint
 # TODO see debsources.app.view#errorhandler section
-bp_doc.errorhandler(403)(
-    lambda e: (ErrorHandler()(e, http=403), 403))
-bp_doc.errorhandler(404)(
-    lambda e: (ErrorHandler()(e, http=404), 404))
+bp_doc.errorhandler(403)(lambda e: (ErrorHandler()(e, http=403), 403))
+bp_doc.errorhandler(404)(lambda e: (ErrorHandler()(e, http=404), 404))
 
 
 # DOCVIEW
 bp_doc.add_url_rule(
-    '/',
+    "/",
     view_func=DocView.as_view(
-        'doc',
-        render_func=bind_render('doc/doc.html'),
-        err_func=ErrorHandler('doc'),))
+        "doc", render_func=bind_render("doc/doc.html"), err_func=ErrorHandler("doc"),
+    ),
+)
 
 
 bp_doc.add_url_rule(
-    '/url/',
+    "/url/",
     view_func=DocView.as_view(
-        'doc_url',
-        render_func=bind_render('doc/doc_url.html'),
-        err_func=ErrorHandler('doc'),))
+        "doc_url",
+        render_func=bind_render("doc/doc_url.html"),
+        err_func=ErrorHandler("doc"),
+    ),
+)
 
 
 bp_doc.add_url_rule(
-    '/api/',
+    "/api/",
     view_func=DocView.as_view(
-        'doc_api',
-        render_func=bind_render('doc/doc_api.html'),
-        err_func=ErrorHandler('doc'),))
+        "doc_api",
+        render_func=bind_render("doc/doc_api.html"),
+        err_func=ErrorHandler("doc"),
+    ),
+)
 
 
 bp_doc.add_url_rule(
-    '/overview/',
+    "/overview/",
     view_func=DocView.as_view(
-        'doc_overview',
-        render_func=bind_render('doc/doc_overview.html'),
-        err_func=ErrorHandler('doc'),))
+        "doc_overview",
+        render_func=bind_render("doc/doc_overview.html"),
+        err_func=ErrorHandler("doc"),
+    ),
+)
 
 
 # ABOUTVIEW
 bp_doc.add_url_rule(
-    '/about/',
+    "/about/",
     view_func=AboutView.as_view(
-        'about',
-        render_func=bind_render('doc/about.html'),
-        err_func=ErrorHandler('doc'),))
+        "about",
+        render_func=bind_render("doc/about.html"),
+        err_func=ErrorHandler("doc"),
+    ),
+)

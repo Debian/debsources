@@ -20,54 +20,41 @@ from debsources.subprocess_workaround import subprocess_setup
 from debsources.tests.testdata import TEST_DATA_DIR, TEST_DB_NAME
 
 
-TEST_DB_DUMP = TEST_DATA_DIR / 'db' / 'pg-dump-custom'
+TEST_DB_DUMP = TEST_DATA_DIR / "db" / "pg-dump-custom"
 
 # queries to compare two DB schemas (e.g. "public.*" and "ref.*")
 DB_COMPARE_QUERIES = {
-    "package_names":
-    "SELECT name \
+    "package_names": "SELECT name \
      FROM %(schema)s.package_names \
      ORDER BY name",
-
-    "packages":
-    "SELECT package_names.name, version, area, vcs_type, vcs_url, vcs_browser \
+    "packages": "SELECT package_names.name, version, area, vcs_type, vcs_url, vcs_browser \
      FROM %(schema)s.packages, %(schema)s.package_names \
      WHERE packages.name_id = package_names.id \
      ORDER BY package_names.name, version",
-
-    "suites":
-    "SELECT package_names.name, packages.version, suite \
+    "suites": "SELECT package_names.name, packages.version, suite \
      FROM %(schema)s.packages, %(schema)s.package_names, %(schema)s.suites \
      WHERE packages.name_id = package_names.id \
      AND suites.package_id = packages.id \
      ORDER BY package_names.name, packages.version, suite",
-
-    "files":
-    "SELECT package_names.name, packages.version, files.path \
+    "files": "SELECT package_names.name, packages.version, files.path \
      FROM %(schema)s.files, %(schema)s.packages, %(schema)s.package_names \
      WHERE packages.name_id = package_names.id \
      AND files.package_id = packages.id \
      ORDER BY package_names.name, packages.version, files.path",
-
-    "checksums":
-    "SELECT package_names.name, packages.version, files.path, sha256 \
+    "checksums": "SELECT package_names.name, packages.version, files.path, sha256 \
      FROM %(schema)s.files, %(schema)s.packages,\
         %(schema)s.package_names, %(schema)s.checksums \
      WHERE packages.name_id = package_names.id \
      AND checksums.package_id = packages.id \
      AND checksums.file_id = files.id \
      ORDER BY package_names.name, packages.version, files.path",
-
-    "sloccounts":
-    "SELECT package_names.name, packages.version, language, count \
+    "sloccounts": "SELECT package_names.name, packages.version, language, count \
      FROM %(schema)s.sloccounts, %(schema)s.packages,\
         %(schema)s.package_names \
      WHERE packages.name_id = package_names.id \
      AND sloccounts.package_id = packages.id \
      ORDER BY package_names.name, packages.version, language",
-
-    "ctags":
-    "SELECT package_names.name, packages.version,\
+    "ctags": "SELECT package_names.name, packages.version,\
         files.path, tag, line, kind, language \
      FROM %(schema)s.ctags, %(schema)s.files,\
         %(schema)s.packages, %(schema)s.package_names \
@@ -77,24 +64,18 @@ DB_COMPARE_QUERIES = {
      ORDER BY package_names.name, packages.version,\
         files.path, tag, line, kind, language \
      LIMIT 100",
-
-    "metric":
-    "SELECT package_names.name, packages.version, metric, value_ \
+    "metric": "SELECT package_names.name, packages.version, metric, value_ \
      FROM %(schema)s.metrics, %(schema)s.packages, %(schema)s.package_names \
      WHERE packages.name_id = package_names.id \
      AND metrics.package_id = packages.id \
      AND metric != 'size' \
      ORDER BY package_names.name, packages.version, metric",
-
     # XXX projecting also on the ctags column gives different result (by a few
     # units), even if the actual ctags tables are identical. WTH ?!?!
-    "history_size":
-    "SELECT suite, source_packages, binary_packages, source_files \
+    "history_size": "SELECT suite, source_packages, binary_packages, source_files \
      FROM %(schema)s.history_size \
      ORDER BY timestamp, suite",
-
-    "history_sloccount":
-    "SELECT suite, \
+    "history_sloccount": "SELECT suite, \
        lang_ansic, lang_cpp, lang_lisp, lang_erlang, lang_python, lang_yacc \
      FROM %(schema)s.history_sloccount \
      ORDER BY timestamp, suite",
@@ -103,27 +84,35 @@ DB_COMPARE_QUERIES = {
 
 def pg_restore(dbname, dumpfile):
     subprocess.check_call(
-        ['pg_restore', '--no-owner', '--no-privileges',
-         '--dbname', dbname, '--clean', '--if-exists', dumpfile],
+        [
+            "pg_restore",
+            "--no-owner",
+            "--no-privileges",
+            "--dbname",
+            dbname,
+            "--clean",
+            "--if-exists",
+            dumpfile,
+        ],
         # --clean and --if-exists are there to prevent the error "schema public
         # already exists"
-        preexec_fn=subprocess_setup)
+        preexec_fn=subprocess_setup,
+    )
 
 
 def pg_dump(dbname, dumpfile):
-    subprocess.check_call(['pg_dump', '--no-owner', '--no-privileges', '-Fc',
-                           '-f', dumpfile, dbname],
-                          preexec_fn=subprocess_setup)
+    subprocess.check_call(
+        ["pg_dump", "--no-owner", "--no-privileges", "-Fc", "-f", dumpfile, dbname],
+        preexec_fn=subprocess_setup,
+    )
 
 
 def pg_dropdb(dbname):
-    subprocess.check_call(['dropdb', dbname],
-                          preexec_fn=subprocess_setup)
+    subprocess.check_call(["dropdb", dbname], preexec_fn=subprocess_setup)
 
 
 def pg_createdb(dbname):
-    subprocess.check_call(['createdb', dbname],
-                          preexec_fn=subprocess_setup)
+    subprocess.check_call(["createdb", dbname], preexec_fn=subprocess_setup)
 
 
 def db_setup(test_subj, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False):
@@ -138,11 +127,10 @@ def db_setup(test_subj, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False):
     try:
         pg_createdb(dbname)
     except subprocess.CalledProcessError:  # try recovering once, in case
-        pg_dropdb(dbname)			# the db already existed
+        pg_dropdb(dbname)  # the db already existed
         pg_createdb(dbname)
     test_subj.dbname = dbname
-    test_subj.db = sqlalchemy.create_engine(
-        'postgresql:///' + dbname, echo=echo)
+    test_subj.db = sqlalchemy.create_engine("postgresql:///" + dbname, echo=echo)
     pg_restore(dbname, dbdump)
     Session = sqlalchemy.orm.sessionmaker()
     test_subj.session = Session(bind=test_subj.db)
@@ -168,8 +156,7 @@ class DbTestFixture(object):
         db_setup(self, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False)
 
     @classmethod
-    def db_setup_cls(cls, dbname=TEST_DB_NAME,
-                     dbdump=TEST_DB_DUMP, echo=False):
+    def db_setup_cls(cls, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False):
         db_setup(cls, dbname=TEST_DB_NAME, dbdump=TEST_DB_DUMP, echo=False)
 
     def db_teardown(self):

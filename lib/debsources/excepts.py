@@ -12,11 +12,13 @@
 
 class InvalidPackageOrVersionError(ValueError):
     """The package or the version doesn't exist in the DB"""
+
     pass
 
 
 class FileOrFolderNotFound(Exception):
     """The Folder or File doesn't exist in the disk"""
+
     pass
 
 

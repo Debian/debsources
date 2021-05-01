@@ -21,41 +21,34 @@ from debsources.tests.testdata import TEST_DATA_DIR
 
 
 def make_path(path):
-    return TEST_DATA_DIR / 'sources' / path
+    return TEST_DATA_DIR / "sources" / path
 
 
-@attr('fs_storage')
+@attr("fs_storage")
 class FsStorageTests(unittest.TestCase):
     """ Unit tests for debsources.fs_storage """
 
     @istest
     def assertWalkLength(self):
-        self.assertEqual(len([f for f in walk(make_path(''))]),
-                         268)
+        self.assertEqual(len([f for f in walk(make_path(""))]), 268)
 
     @istest
     def assertWalkTestChecksums(self):
         self.assertEqual(
-            len([f for f in walk(make_path(''),
-                                 test=lambda x: 'checksums' in str(x))]),
-            37)
+            len([f for f in walk(make_path(""), test=lambda x: "checksums" in str(x))]),
+            37,
+        )
 
     @istest
     def parsePathDir(self):
         self.assertDictEqual(
-            parse_path(make_path('main/libc/libcaca/0.99.beta17-1')),
-            {
-                'package': 'libcaca',
-                'version': '0.99.beta17-1',
-                'ext': None,
-            })
+            parse_path(make_path("main/libc/libcaca/0.99.beta17-1")),
+            {"package": "libcaca", "version": "0.99.beta17-1", "ext": None,},
+        )
 
     @istest
     def parsePathChecksums(self):
         self.assertDictEqual(
-            parse_path(make_path('main/libc/libcaca/0.99.beta17-1.checksums')),
-            {
-                'package': 'libcaca',
-                'version': '0.99.beta17-1',
-                'ext': '.checksums',
-            })
+            parse_path(make_path("main/libc/libcaca/0.99.beta17-1.checksums")),
+            {"package": "libcaca", "version": "0.99.beta17-1", "ext": ".checksums",},
+        )

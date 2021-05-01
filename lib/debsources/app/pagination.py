@@ -35,14 +35,17 @@ class Pagination(object):
     def has_next(self):
         return self.page < self.pages
 
-    def iter_pages(self, left_edge=2, left_current=5,
-                   right_current=5, right_edge=2):
+    def iter_pages(self, left_edge=2, left_current=5, right_current=5, right_edge=2):
         last = 0
         for num in range(1, self.pages + 1):
-            if num <= left_edge or \
-               (num > self.page - left_current - 1 and
-                num < self.page + right_current) or \
-               num > self.pages - right_edge:
+            if (
+                num <= left_edge
+                or (
+                    num > self.page - left_current - 1
+                    and num < self.page + right_current
+                )
+                or num > self.pages - right_edge
+            ):
                 if last + 1 != num:
                     yield None
                 yield num

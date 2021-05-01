@@ -25,13 +25,20 @@ from debsources.consts import PREFIXES_DEFAULT
 from debsources.consts import SUITES
 from debsources.excepts import InvalidPackageOrVersionError
 from debsources.models import (
-    Checksum, Ctag, File, Package, PackageName, Suite, SuiteInfo,
-    FileCopyright)
+    Checksum,
+    Ctag,
+    File,
+    Package,
+    PackageName,
+    Suite,
+    SuiteInfo,
+    FileCopyright,
+)
 
 
 LongFMT = namedtuple("LongFMT", ["type", "perms", "size", "symlink_dest"])
 
-''' ORM queries '''
+""" ORM queries """
 
 
 def pkg_names_get_packages_prefixes(cache_dir):
@@ -40,7 +47,7 @@ def pkg_names_get_packages_prefixes(cache_dir):
     cache_dir: the cache directory, usually comes from the app config
     """
     try:
-        with (cache_dir / 'pkg-prefixes').open() as f:
+        with (cache_dir / "pkg-prefixes").open() as f:
             prefixes = [l.rstrip() for l in f]
     except IOError:
         prefixes = PREFIXES_DEFAULT
@@ -53,6 +60,7 @@ def pkg_names_list_versions(session, packagename, suite="", suite_order=None):
     versions contained in that suite are returned. If suite order is
     specified, then ordering is suite first and then by debian version.
     """
+
     def compare_with_suite_order(a, b):
         try:
             latest_a = max(suite_order.index(x.lower()) for x in a.suites)
@@ -69,29 +77,37 @@ def pkg_names_list_versions(session, packagename, suite="", suite_order=None):
             return 1 if latest_a > latest_b else -1
 
     try:
-        name_id = session.query(PackageName) \
-                         .filter(PackageName.name == packagename) \
-                         .first().id
+        name_id = (
+            session.query(PackageName)
+            .filter(PackageName.name == packagename)
+            .first()
+            .id
+        )
     except Exception:
         raise InvalidPackageOrVersionError(packagename)
 
     try:
         if not suite:
             if not suite_order:
-                versions = session.query(Package) \
-                                  .filter(Package.name_id == name_id).all()
+                versions = (
+                    session.query(Package).filter(Package.name_id == name_id).all()
+                )
                 versions = sorted(versions, key=cmp_to_key(version_compare))
             else:
                 versions_w_suites = pkg_names_list_versions_w_suites(
-                    session, packagename, as_object=True)
-                versions = sorted(versions_w_suites,
-                                  key=cmp_to_key(compare_with_suite_order))
+                    session, packagename, as_object=True
+                )
+                versions = sorted(
+                    versions_w_suites, key=cmp_to_key(compare_with_suite_order)
+                )
         else:
-            versions = (session.query(Package)
-                               .filter(Package.name_id == name_id)
-                               .filter(sql_func.lower(Suite.suite) == suite)
-                               .filter(Suite.package_id == Package.id)
-                               .all())
+            versions = (
+                session.query(Package)
+                .filter(Package.name_id == name_id)
+                .filter(sql_func.lower(Suite.suite) == suite)
+                .filter(Suite.package_id == Package.id)
+                .all()
+            )
             versions = sorted(versions, key=cmp_to_key(version_compare))
     except Exception:
         raise InvalidPackageOrVersionError(packagename)
@@ -100,9 +116,9 @@ def pkg_names_list_versions(session, packagename, suite="", suite_order=None):
     return versions
 
 
-def pkg_names_list_versions_w_suites(session, packagename,
-                                     suite="", reverse=False,
-                                     as_object=False):
+def pkg_names_list_versions_w_suites(
+    session, packagename, suite="", reverse=False, as_object=False
+):
     """
     return versions with suites. if suite is provided, then only return
     versions contained in that suite. if as_object is true, the version
@@ -116,19 +132,17 @@ def pkg_names_list_versions_w_suites(session, packagename,
     versions_w_suites = []
     try:
         for v in versions:
-            suites = session.query(Suite) \
-                            .filter(Suite.package_id == v.id) \
-                            .all()
+            suites = session.query(Suite).filter(Suite.package_id == v.id).all()
             # sort the suites according to debsources.consts.SUITES
             # use keyfunc to make it py3 compatible
-            suites.sort(key=lambda s: SUITES['all'].index(s.suite))
+            suites.sort(key=lambda s: SUITES["all"].index(s.suite))
             suites = [s.suite for s in suites]
 
             if as_object:
                 v.suites = suites
             else:
                 v = v.to_dict()
-                v['suites'] = suites
+                v["suites"] = suites
 
             versions_w_suites.append(v)
     except Exception:
@@ -140,7 +154,7 @@ def pkg_names_list_versions_w_suites(session, packagename,
     return versions_w_suites
 
 
-''' Navigation Queries '''
+""" Navigation Queries """
 
 
 def location_get_path_links(endpoint, path_to: Path):
@@ -160,14 +174,14 @@ def location_get_path_links(endpoint, path_to: Path):
     # once more here we verify our endpoint in order to provide a valid url
     # This hack is similar to the one in helper.py in redirect_to_url function
 
-    if endpoint == '.versions':
+    if endpoint == ".versions":
         for (i, p) in enumerate(path_dict):
-            pathl.append((p, url_for(endpoint,
-                                     packagename='/'.join(path_dict[:i + 1]))))
+            pathl.append(
+                (p, url_for(endpoint, packagename="/".join(path_dict[: i + 1])))
+            )
     else:
         for (i, p) in enumerate(path_dict):
-            pathl.append((p, url_for(endpoint,
-                                     path_to='/'.join(path_dict[:i + 1]))))
+            pathl.append((p, url_for(endpoint, path_to="/".join(path_dict[: i + 1]))))
     return pathl
 
 
@@ -215,7 +229,7 @@ def location_get_stat(sources_path):
     return LongFMT(file_type, file_perms, file_size, symlink_dest)._asdict()
 
 
-''' SQLAlchemy queries '''
+""" SQLAlchemy queries """
 
 
 def find_ctag(session, ctag, package=None, slice_=None):
@@ -228,16 +242,19 @@ def find_ctag(session, ctag, package=None, slice_=None):
     package: limit results to package
     """
 
-    results = (session.query(PackageName.name.label("package"),
-                             Package.version.label("version"),
-                             Ctag.file_id.label("file_id"),
-                             File.path.label("path"),
-                             Ctag.line.label("line"))
-               .filter(Ctag.tag == ctag)
-               .filter(Ctag.package_id == Package.id)
-               .filter(Ctag.file_id == File.id)
-               .filter(Package.name_id == PackageName.id)
-               )
+    results = (
+        session.query(
+            PackageName.name.label("package"),
+            Package.version.label("version"),
+            Ctag.file_id.label("file_id"),
+            File.path.label("path"),
+            Ctag.line.label("line"),
+        )
+        .filter(Ctag.tag == ctag)
+        .filter(Ctag.package_id == Package.id)
+        .filter(Ctag.file_id == File.id)
+        .filter(Package.name_id == PackageName.id)
+    )
     if package is not None:
         results = results.filter(PackageName.name == package)
 
@@ -245,63 +262,66 @@ def find_ctag(session, ctag, package=None, slice_=None):
     count = results.count()
     if slice_ is not None:
         results = results.slice(slice_[0], slice_[1])
-    results = [dict(package=res.package,
-                    version=res.version,
-                    path=res.path,
-                    line=res.line)
-               for res in results.all()]
+    results = [
+        dict(package=res.package, version=res.version, path=res.path, line=res.line)
+        for res in results.all()
+    ]
     return (count, results)
 
 
 def get_suite_info(session, suite, first=None):
-    '''Return SuiteInfo of a `suite`
+    """Return SuiteInfo of a `suite`
 
-    '''
+    """
     return session.query(SuiteInfo).filter(SuiteInfo.name == suite).first()
 
 
 def count_files_checksum(session, checksum, pkg=None, suite=None):
-    '''Count files with `checksum`
+    """Count files with `checksum`
 
-    '''
-    result = (session.query(sql_func.count(Checksum.id))
-              .filter(Checksum.sha256 == checksum)
-              )
+    """
+    result = session.query(sql_func.count(Checksum.id)).filter(
+        Checksum.sha256 == checksum
+    )
     if pkg is not None and pkg is not "":
-        result = (result.filter(PackageName.name == pkg)
-                  .filter(Checksum.package_id == Package.id)
-                  .filter(Package.name_id == PackageName.id))
+        result = (
+            result.filter(PackageName.name == pkg)
+            .filter(Checksum.package_id == Package.id)
+            .filter(Package.name_id == PackageName.id)
+        )
     if suite is not None and suite is not "":
-        result = (result.filter(Suite.suite == suite)
-                  .filter(Suite.package_id == Checksum.package_id))
+        result = result.filter(Suite.suite == suite).filter(
+            Suite.package_id == Checksum.package_id
+        )
     return result
 
 
 def get_pkg_by_name(session, pkg, suite=None):
-    ''' Returns the package filtered by name `pkg`
+    """ Returns the package filtered by name `pkg`
         Filter by `suite`
 
-    '''
-    result = (session.query(PackageName)
-              .filter_by(name=pkg)
-              )
+    """
+    result = session.query(PackageName).filter_by(name=pkg)
 
     if suite is not None and suite is not "":
-        result = (result.filter(sql_func.lower(Suite.suite) == suite)
-                  .filter(Suite.package_id == Package.id)
-                  .filter(Package.name_id == PackageName.id))
+        result = (
+            result.filter(sql_func.lower(Suite.suite) == suite)
+            .filter(Suite.package_id == Package.id)
+            .filter(Package.name_id == PackageName.id)
+        )
     return result.first()
 
 
 def get_pkg_by_similar_name(session, pkg, suite=None):
-    ''' Get non exact package result based on name `pkg`
+    """ Get non exact package result based on name `pkg`
         Filter by `suite`
 
-    '''
-    result = (session.query(PackageName)
-              .filter(sql_func.lower(PackageName.name)
-              .contains(pkg.lower()))
-              .order_by(PackageName.name))
+    """
+    result = (
+        session.query(PackageName)
+        .filter(sql_func.lower(PackageName.name).contains(pkg.lower()))
+        .order_by(PackageName.name)
+    )
 
     if suite is not None and suite is not "":
         return filter_pkg_by_suite(session, result, suite)
@@ -310,38 +330,43 @@ def get_pkg_by_similar_name(session, pkg, suite=None):
 
 
 def filter_pkg_by_suite(session, result, suite):
-    ''' Filter `result` with suite
+    """ Filter `result` with suite
 
-    '''
-    return (result.filter(sql_func.lower(Suite.suite) == suite)
-            .filter(Suite.package_id == Package.id)
-            .filter(Package.name_id == PackageName.id)
-            .order_by(PackageName.name)
-            )
+    """
+    return (
+        result.filter(sql_func.lower(Suite.suite) == suite)
+        .filter(Suite.package_id == Package.id)
+        .filter(Package.name_id == PackageName.id)
+        .order_by(PackageName.name)
+    )
 
 
 def get_files_by_checksum(session, checksum, package=None, suite=None):
-    ''' Returns a list of files whose hexdigest is checksum.
+    """ Returns a list of files whose hexdigest is checksum.
         Filter with package
 
-    '''
-    results = (session.query(PackageName.name.label("package"),
-                             Package.version.label("version"),
-                             Checksum.file_id.label("file_id"),
-                             File.path.label("path"))
-               .filter(Checksum.sha256 == checksum)
-               .filter(Checksum.package_id == Package.id)
-               .filter(Checksum.file_id == File.id)
-               .filter(Package.name_id == PackageName.id)
-               )
+    """
+    results = (
+        session.query(
+            PackageName.name.label("package"),
+            Package.version.label("version"),
+            Checksum.file_id.label("file_id"),
+            File.path.label("path"),
+        )
+        .filter(Checksum.sha256 == checksum)
+        .filter(Checksum.package_id == Package.id)
+        .filter(Checksum.file_id == File.id)
+        .filter(Package.name_id == PackageName.id)
+    )
 
     if package is not None and package != "":
 
         results = results.filter(PackageName.name == package)
 
     if suite is not None and suite is not "":
-        results = (results.filter(Suite.suite == suite)
-                   .filter(Suite.package_id == Checksum.package_id))
+        results = results.filter(Suite.suite == suite).filter(
+            Suite.package_id == Checksum.package_id
+        )
 
     return results.order_by(PackageName.name, Package.version, File.path)
 
@@ -350,15 +375,19 @@ def get_files_by_path_package(session, path, package, version=None):
     """ Return a list of files with a specific `path` and `package`
         Filter with `suite`
     """
-    results = (session.query(File.path.label("path"),
-                             PackageName.name.label("package"),
-                             Package.version.label("version"),
-                             Checksum.sha256.label("checksum"))
-               .filter(File.path == path)
-               .filter(File.package_id == Package.id)
-               .filter(Package.name_id == PackageName.id)
-               .filter(PackageName.name == package)
-               .filter(Checksum.file_id == File.id))
+    results = (
+        session.query(
+            File.path.label("path"),
+            PackageName.name.label("package"),
+            Package.version.label("version"),
+            Checksum.sha256.label("checksum"),
+        )
+        .filter(File.path == path)
+        .filter(File.package_id == Package.id)
+        .filter(Package.name_id == PackageName.id)
+        .filter(PackageName.name == package)
+        .filter(Checksum.file_id == File.id)
+    )
 
     if version is not None and version is not "":
         results = results.filter(Package.version == version)
@@ -367,17 +396,15 @@ def get_files_by_path_package(session, path, package, version=None):
 
 
 def get_pkg_filter_prefix(session, prefix, suite=None):
-    '''Get packages filter by `prefix`
+    """Get packages filter by `prefix`
 
-    '''
-    result = (session.query(PackageName)
-              .filter(sql_func.lower(PackageName.name)
-                      .startswith(prefix)))
+    """
+    result = session.query(PackageName).filter(
+        sql_func.lower(PackageName.name).startswith(prefix)
+    )
 
-    if prefix == 'l':  # we exclude 'lib*' from the 'l' prefix
-        result = (result
-                  .filter(not_(sql_func.lower(PackageName.name)
-                               .startswith('lib'))))
+    if prefix == "l":  # we exclude 'lib*' from the 'l' prefix
+        result = result.filter(not_(sql_func.lower(PackageName.name).startswith("lib")))
 
     result = result.order_by(PackageName.name)
 
@@ -388,33 +415,32 @@ def get_pkg_filter_prefix(session, prefix, suite=None):
 
 
 def get_all_packages(session):
-    ''' Get the list of packages
+    """ Get the list of packages
 
-    '''
-    return (session.query(PackageName)
-            .order_by(PackageName.name)
-            )
+    """
+    return session.query(PackageName).order_by(PackageName.name)
 
 
 def count_packages(session):
-    ''' Count the packages
+    """ Count the packages
 
-    '''
-    return (session.query(PackageName).count())
+    """
+    return session.query(PackageName).count()
 
 
 def get_license_w_path(session, package, version, path):
-    ''' Retrieve license of file using its `path`, `package` and  `version`
+    """ Retrieve license of file using its `path`, `package` and  `version`
 
-    '''
-    result = (session.query(FileCopyright.license.label('License'))
-              .filter(File.id == FileCopyright.file_id)
-              .filter(File.path == path)
-              .filter(File.package_id == Package.id)
-              .filter(Package.name_id == PackageName.id)
-              .filter(PackageName.name == package)
-              .filter(Package.version == version)
-              ).first()
+    """
+    result = (
+        session.query(FileCopyright.license.label("License"))
+        .filter(File.id == FileCopyright.file_id)
+        .filter(File.path == path)
+        .filter(File.package_id == Package.id)
+        .filter(Package.name_id == PackageName.id)
+        .filter(PackageName.name == package)
+        .filter(Package.version == version)
+    ).first()
     if result:
         return result[0]
     else:
@@ -424,15 +450,15 @@ def get_license_w_path(session, package, version, path):
 def get_ratio(session, suite=None):
     """ Get ratio of machine readable files in `suite`
     """
-    files = (session.query(File.id))
-    files_w_license = (session.query(FileCopyright.file_id))
+    files = session.query(File.id)
+    files_w_license = session.query(FileCopyright.file_id)
     if suite:
-        files_w_license = files_w_license.join(File) \
-            .join(Package) \
-            .join(Suite) \
+        files_w_license = (
+            files_w_license.join(File)
+            .join(Package)
+            .join(Suite)
             .filter(Suite.suite == suite)
-        files = files.join(Package) \
-            .join(Suite) \
-            .filter(Suite.suite == suite)
+        )
+        files = files.join(Package).join(Suite).filter(Suite.suite == suite)
     ratio = 1 - (files_w_license.count() / files.count())
     return int(ratio * 100)

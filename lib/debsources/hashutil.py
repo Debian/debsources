@@ -20,7 +20,7 @@ HASH_BLOCK_SIZE = 32768
 
 def sha256sum(path):
     m = hashlib.sha256()
-    with open(path, 'rb') as f:
+    with open(path, "rb") as f:
         while True:
             chunk = f.read(HASH_BLOCK_SIZE)
             if not chunk:

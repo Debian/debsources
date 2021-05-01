@@ -18,5 +18,5 @@ from flask_wtf import FlaskForm
 
 
 class SearchForm(FlaskForm):
-    query = TextField('package name', validators=[Required()])
-    suite = TextField('suite name')
+    query = TextField("package name", validators=[Required()])
+    suite = TextField("suite name")

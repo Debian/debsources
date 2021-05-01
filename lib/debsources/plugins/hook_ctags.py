@@ -26,19 +26,22 @@ from debsources.consts import MAX_KEY_LENGTH
 
 conf = None
 
-CTAGS_FLAGS = ['--recurse',
-               '--excmd=number',
-               '--fields=+lnz',
-               # '--extra=+q',
-               '--sort=no',
-               '--links=no']
+CTAGS_FLAGS = [
+    "--recurse",
+    "--excmd=number",
+    "--fields=+lnz",
+    # '--extra=+q',
+    "--sort=no",
+    "--links=no",
+]
 
-MY_NAME = 'ctags'
-MY_EXT = '.' + MY_NAME
+MY_NAME = "ctags"
+MY_EXT = "." + MY_NAME
 
 
 def ctags_path(pkgdir: Path) -> Path:
     return Path(str(pkgdir) + MY_EXT)
+
 
 # maximum number of ctags after which a (bulk) insert is sent to the DB
 BULK_FLUSH_THRESHOLD = 20000
@@ -60,42 +63,43 @@ def parse_ctags(path):
         'language': 'TAG_LANGUAGE',
       }
     """
+
     def parse_tag(line):
-        tag = {'kind': None, 'line': None, 'language': None}
+        tag = {"kind": None, "line": None, "language": None}
         # initialize with extension fields which are not guaranteed to exist
 
-        fields = line.rstrip().split(b'\t')
+        fields = line.rstrip().split(b"\t")
 
         try:
-            tag['tag'] = fields[0].decode()
+            tag["tag"] = fields[0].decode()
         except UnicodeDecodeError:
-            raise ValueError('Tag can not be decoded to utf-8.')
-        tag['path'] = Path(fields[1].decode('utf8', 'surrogatescape'))
+            raise ValueError("Tag can not be decoded to utf-8.")
+        tag["path"] = Path(fields[1].decode("utf8", "surrogatescape"))
         # note: ignore fields[2], ex_cmd
 
         for ext in fields[3:]:  # parse extension fields
             # caution: "typeref:struct:__RAW_R_INFO"
-            k, v = ext.decode().split(':', 1)
-            if k == 'kind':
-                tag['kind'] = v
-            elif k == 'line':
-                tag['line'] = int(v)
-            elif k == 'language':
-                tag['language'] = v.lower()
+            k, v = ext.decode().split(":", 1)
+            if k == "kind":
+                tag["kind"] = v
+            elif k == "line":
+                tag["line"] = int(v)
+            elif k == "language":
+                tag["language"] = v.lower()
             else:
                 pass  # ignore other fields
 
-        if tag['line'] is None or len(tag['tag']) > MAX_KEY_LENGTH:
-            raise ValueError('Tag is incomplete or malformed.')
+        if tag["line"] is None or len(tag["tag"]) > MAX_KEY_LENGTH:
+            raise ValueError("Tag is incomplete or malformed.")
 
         return tag
 
-    with open(path, 'rb') as ctags:
+    with open(path, "rb") as ctags:
         bad_tags = 0
         for line in ctags:
             # e.g. 'music\tsound.c\t13;"\tkind:v\tline:13\tlanguage:C\tfile:\n'
             # see CTAGS(1), section "TAG FILE FORMAT"
-            if line.startswith(b'!_TAG'):  # skip ctags metadata
+            if line.startswith(b"!_TAG"):  # skip ctags metadata
                 continue
             try:
                 yield parse_tag(line)
@@ -105,30 +109,30 @@ def parse_ctags(path):
                     logging.warn('ignore malformed tag "%s"' % line.rstrip())
 
         if bad_tags > BAD_TAGS_THRESHOLD:
-            logging.warn('%d extra malformed tag(s) ignored' %
-                         (bad_tags - BAD_TAGS_THRESHOLD))
+            logging.warn(
+                "%d extra malformed tag(s) ignored" % (bad_tags - BAD_TAGS_THRESHOLD)
+            )
 
 
 def add_package(session, pkg, pkgdir, file_table):
     global conf
-    logging.debug('add-package %s' % pkg)
+    logging.debug("add-package %s" % pkg)
 
     ctagsfile = ctags_path(pkgdir)
-    ctagsfile_tmp = Path(str(ctagsfile) + '.new')
+    ctagsfile_tmp = Path(str(ctagsfile) + ".new")
 
-    if 'hooks.fs' in conf['backends']:
+    if "hooks.fs" in conf["backends"]:
         if not ctagsfile.exists():  # extract tags only if needed
-            cmd = ['ctags'] + CTAGS_FLAGS + ['-o', ctagsfile_tmp]
+            cmd = ["ctags"] + CTAGS_FLAGS + ["-o", ctagsfile_tmp]
             # ASSUMPTION: will be run under pkgdir as CWD, which is needed to
             # get relative paths right. The assumption is enforced by the
             # updater
-            with open(os.devnull, 'w') as null:
+            with open(os.devnull, "w") as null:
                 subprocess.check_call(cmd, stderr=null)
             os.rename(ctagsfile_tmp, ctagsfile)
 
-    if 'hooks.db' in conf['backends']:
-        db_package = db_storage.lookup_package(session, pkg['package'],
-                                               pkg['version'])
+    if "hooks.db" in conf["backends"]:
+        db_package = db_storage.lookup_package(session, pkg["package"], pkg["version"])
         # poor man's cache for last <relpath, file_id>;
         # rely on the fact that ctags file are path-sorted
         curfile = {None: None}
@@ -139,30 +143,33 @@ def add_package(session, pkg, pkgdir, file_table):
             # the db in the past, then *all* of them have, as additions are
             # part of the same transaction
             for tag in parse_ctags(ctagsfile):
-                params = ({'package_id': db_package.id,
-                           'tag': tag['tag'],
-                           # 'file_id': 	# will be filled below
-                           'line': tag['line'],
-                           'kind': tag['kind'],
-                           'language': tag['language']})
-                relpath = tag['path']
+                params = {
+                    "package_id": db_package.id,
+                    "tag": tag["tag"],
+                    # 'file_id': 	# will be filled below
+                    "line": tag["line"],
+                    "kind": tag["kind"],
+                    "language": tag["language"],
+                }
+                relpath = tag["path"]
                 if file_table:
                     try:
-                        params['file_id'] = file_table[relpath]
+                        params["file_id"] = file_table[relpath]
                     except KeyError:
                         continue
                 else:
                     try:
-                        params['file_id'] = curfile[relpath]
+                        params["file_id"] = curfile[relpath]
                     except KeyError:
-                        file_ = session.query(File) \
-                                       .filter_by(package_id=db_package.id,
-                                                  path=relpath) \
-                                       .first()
+                        file_ = (
+                            session.query(File)
+                            .filter_by(package_id=db_package.id, path=relpath)
+                            .first()
+                        )
                         if not file_:
                             continue
                         curfile = {relpath: file_.id}
-                        params['file_id'] = file_.id
+                        params["file_id"] = file_.id
                 insert_params.append(params)
                 if len(insert_params) >= BULK_FLUSH_THRESHOLD:
                     session.execute(insert_q, insert_params)
@@ -175,24 +182,21 @@ def add_package(session, pkg, pkgdir, file_table):
 
 def rm_package(session, pkg, pkgdir, file_table):
     global conf
-    logging.debug('rm-package %s' % pkg)
+    logging.debug("rm-package %s" % pkg)
 
-    if 'hooks.fs' in conf['backends']:
+    if "hooks.fs" in conf["backends"]:
         ctagsfile = ctags_path(pkgdir)
         if ctagsfile.exists():
             ctagsfile.unlink()
 
-    if 'hooks.db' in conf['backends']:
-        db_package = db_storage.lookup_package(session, pkg['package'],
-                                               pkg['version'])
-        session.query(Ctag) \
-               .filter_by(package_id=db_package.id) \
-               .delete()
+    if "hooks.db" in conf["backends"]:
+        db_package = db_storage.lookup_package(session, pkg["package"], pkg["version"])
+        session.query(Ctag).filter_by(package_id=db_package.id).delete()
 
 
 def init_plugin(debsources):
     global conf
-    conf = debsources['config']
-    debsources['subscribe']('add-package', add_package, title=MY_NAME)
-    debsources['subscribe']('rm-package',  rm_package,  title=MY_NAME)
-    debsources['declare_ext'](MY_EXT, MY_NAME)
+    conf = debsources["config"]
+    debsources["subscribe"]("add-package", add_package, title=MY_NAME)
+    debsources["subscribe"]("rm-package", rm_package, title=MY_NAME)
+    debsources["declare_ext"](MY_EXT, MY_NAME)
