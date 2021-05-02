@@ -10,8 +10,6 @@
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
 
-from __future__ import absolute_import
-
 from . import bp_doc
 
 from ..helper import bind_render

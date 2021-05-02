@@ -8,7 +8,6 @@
 # of the License, or (at your option) any later version.  For more information
 # see the COPYING file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
-from __future__ import absolute_import
 import io
 import logging
 import re

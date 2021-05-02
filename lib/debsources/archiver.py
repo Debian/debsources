@@ -11,7 +11,6 @@
 
 """handle the archive of sticky suites"""
 
-from __future__ import absolute_import
 
 import logging
 

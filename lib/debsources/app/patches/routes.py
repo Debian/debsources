@@ -10,8 +10,6 @@
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
 
-from __future__ import absolute_import
-
 from flask import jsonify, request, render_template
 
 from . import bp_patches

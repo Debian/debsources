@@ -9,7 +9,6 @@
 # see the COPYING file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
-from __future__ import absolute_import
 
 import datetime
 import json
