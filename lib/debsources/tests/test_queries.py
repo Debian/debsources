@@ -1,4 +1,5 @@
-# Copyright (C) 2014-2015  The Debsources developers <qa-debsources@lists.alioth.debian.org>.
+# Copyright (C) 2014-2015  The Debsources developers
+# <qa-debsources@lists.alioth.debian.org>.
 # See the AUTHORS file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/AUTHORS
 #
