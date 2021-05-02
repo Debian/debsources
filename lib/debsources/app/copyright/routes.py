@@ -34,7 +34,9 @@ from debsources.excepts import Http404Error
 @bp_copyright.context_processor
 def skeleton_variables():
     site_name = bp_copyright.name
-    return dict(site_name=site_name,)
+    return dict(
+        site_name=site_name,
+    )
 
 
 # 403 and 404 errors
@@ -78,7 +80,12 @@ bp_copyright.add_url_rule(
 )
 
 # ping service
-bp_copyright.add_url_rule("/api/ping/", view_func=Ping.as_view("ping",))
+bp_copyright.add_url_rule(
+    "/api/ping/",
+    view_func=Ping.as_view(
+        "ping",
+    ),
+)
 
 
 # PREFIXVIEW
@@ -241,7 +248,9 @@ bp_copyright.add_url_rule(
 bp_copyright.add_url_rule(
     "/api/stats/",
     view_func=StatsView.as_view(
-        "api_stats", err_func=ErrorHandler(mode="json"), get_objects="stats",
+        "api_stats",
+        err_func=ErrorHandler(mode="json"),
+        get_objects="stats",
     ),
 )
 

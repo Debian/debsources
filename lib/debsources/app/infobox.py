@@ -29,13 +29,13 @@ except ImportError:  # pragma: no cover
 
 class Infobox(object):
     def __init__(self, session, package, version):
-        """ SQLAlchemy session, package name and version number """
+        """SQLAlchemy session, package name and version number"""
         self.session = session
         self.package = package
         self.version = version
 
     def _get_direct_infos(self):
-        """ information available directly in Package table """
+        """information available directly in Package table"""
         try:
             infos = (
                 self.session.query(Package)
@@ -53,7 +53,7 @@ class Infobox(object):
         return infos
 
     def _get_associated_suites(self):
-        """ associated suites, which come from Suite """
+        """associated suites, which come from Suite"""
         try:
             suites = (
                 self.session.query(Suite.suite)
@@ -71,7 +71,7 @@ class Infobox(object):
         return [x[0] for x in suites]
 
     def _get_sloc(self):
-        """ sloccount """
+        """sloccount"""
         try:
             sloc = (
                 self.session.query(SlocCount)
@@ -90,7 +90,7 @@ class Infobox(object):
         return [(x.language, x.count) for x in sloc]
 
     def _get_metrics(self):
-        """ metrics"""
+        """metrics"""
         try:
             metric = (
                 self.session.query(Metric)
@@ -134,9 +134,7 @@ class Infobox(object):
         return ctags_count
 
     def _get_license_link(self):
-        """ Returns the license link in the copyright BP
-
-        """
+        """Returns the license link in the copyright BP"""
         return url_for(
             "copyright.license", packagename=self.package, version=self.version
         )

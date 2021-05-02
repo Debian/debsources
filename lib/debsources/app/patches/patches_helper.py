@@ -21,8 +21,7 @@ ACCEPTED_FORMATS = ["3.0 (quilt)", "3.0 (native)"]
 
 
 def get_patch_details(path):
-    """ Parse a patch to extract the description and or bug if it exists
-    """
+    """Parse a patch to extract the description and or bug if it exists"""
     with open(path, "r") as content_file:
         patch = content_file.read()
     # check if subject exists
@@ -66,8 +65,7 @@ def get_patch_details(path):
 
 
 def get_file_deltas(serie_path):
-    """ Get file deltas from a patch using diffstat
-    """
+    """Get file deltas from a patch using diffstat"""
     p = subprocess.Popen(["diffstat", "-p1", "-f0", serie_path], stdout=subprocess.PIPE)
     summary, err = p.communicate()
     if err:
@@ -76,8 +74,7 @@ def get_file_deltas(serie_path):
 
 
 def get_sources_path(session, package, version, config, path):
-    """ Creates a sources_path. Returns exception when it arises
-    """
+    """Creates a sources_path. Returns exception when it arises"""
     location = Location(
         session, config["SOURCES_DIR"], config["SOURCES_STATIC"], package, version, path
     )
@@ -88,8 +85,7 @@ def get_sources_path(session, package, version, config, path):
 
 
 def get_patch_format(session, package, version, config):
-    """ Retrieves a patch format from /debian/source/format
-    """
+    """Retrieves a patch format from /debian/source/format"""
     source_format, loc = get_sources_path(
         session, package, version, config, "debian/source/format"
     )
@@ -99,14 +95,12 @@ def get_patch_format(session, package, version, config):
 
 
 def is_supported(format_):
-    """ Determines whether a `_format` is supported
-    """
+    """Determines whether a `_format` is supported"""
     return format_ in ACCEPTED_FORMATS
 
 
 def get_patch_series(session, package, version, config):
-    """ Retrieves the patch series from debian/patches/series
-    """
+    """Retrieves the patch series from debian/patches/series"""
     series, loc = get_sources_path(
         session, package, version, config, "debian/patches/series"
     )

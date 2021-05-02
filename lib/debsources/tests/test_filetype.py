@@ -22,7 +22,7 @@ from debsources.filetype import HTML, PHP, PYTHON, RUBY, XML, MAKEFILE
 
 @attr("filetype")
 class FiletypeTests(unittest.TestCase):
-    """ Unit tests for debsources.filetype """
+    """Unit tests for debsources.filetype"""
 
     @istest
     def pythonShebang(self):

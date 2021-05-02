@@ -56,9 +56,9 @@ def add_package(session, pkg, pkgdir, file_table):
         return
 
     def emit_license(out, package, version, relpath, copyright):
-        """ Retrieve license of the file. We use `relpath` as we want the path
-            inside the package directory which is used in the d/copyright files
-            paragraphs
+        """Retrieve license of the file. We use `relpath` as we want the path
+        inside the package directory which is used in the d/copyright files
+        paragraphs
         """
         synopsis = helper.get_license(package, version, relpath, copyright)
         if synopsis is not None:

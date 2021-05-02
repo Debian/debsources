@@ -23,8 +23,7 @@ from debsources.subprocess_workaround import subprocess_setup
 
 
 def extract_package(pkg, destdir: Path):
-    """extract a package to the FS storage
-    """
+    """extract a package to the FS storage"""
 
     def preexec_fn():
         subprocess_setup()
@@ -48,8 +47,7 @@ def extract_package(pkg, destdir: Path):
 
 
 def remove_package(pkg, destdir: Path):
-    """dispose of a package from the Debsources file system storage
-    """
+    """dispose of a package from the Debsources file system storage"""
     if destdir.exists():
         shutil.rmtree(str(destdir))
     for meta in ["log", "done"]:
@@ -121,8 +119,7 @@ def parse_path(fname: Path):
 
 
 def rm_file(pkgdir: Path, relpath: Path):
-    """remove file `relpath` from package directory `pkgdir`
-    """
+    """remove file `relpath` from package directory `pkgdir`"""
     path = pkgdir / relpath
     if path.exists():
         path.unlink()

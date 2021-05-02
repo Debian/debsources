@@ -71,17 +71,17 @@ def url_for_other_page(page, page_path_params=None):
 
 
 def redirect_to_url(endpoint, redirect_url, redirect_code=301):
-    """ This is a nasty little hack. The problem is that from the
-        different endpoints we can have as url parameters just the
-        package, or the package and a version or a path.
+    """This is a nasty little hack. The problem is that from the
+    different endpoints we can have as url parameters just the
+    package, or the package and a version or a path.
 
-        If we are in .versions we only need to supply a packagename.
+    If we are in .versions we only need to supply a packagename.
 
-        If we are in patches.summary or copyright.license then we need
-        to give packagename and version.
+    If we are in patches.summary or copyright.license then we need
+    to give packagename and version.
 
-        Navigating through patches, sources or files for license always
-        requires a path hence the last case.
+    Navigating through patches, sources or files for license always
+    requires a path hence the last case.
 
     """
     if request.blueprint == "sources" and request.endpoint != ".versions":

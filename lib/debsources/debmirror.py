@@ -33,8 +33,7 @@ class DebmirrorError(RuntimeError):
 
 
 class SourcePackage(deb822.Sources):
-    """Debian source package, as it appears in a source mirror
-    """
+    """Debian source package, as it appears in a source mirror"""
 
     @classmethod
     def from_db_model(cls, db_package):
@@ -55,8 +54,7 @@ class SourcePackage(deb822.Sources):
     # override deb822's __eq__, as in source package land we can rely on
     # <package, version> pair uniqueness
     def __eq__(self, other):
-        """equality based on <package, version> paris only
-        """
+        """equality based on <package, version> paris only"""
         if self["package"] != other["package"]:
             return False
         if self["version"] != other["version"]:
@@ -78,13 +76,11 @@ class SourcePackage(deb822.Sources):
     #     return version_compare(self['version'], other['version'])
 
     def __hash__(self):
-        """compute hash based on <package, version> pair only
-        """
+        """compute hash based on <package, version> pair only"""
         return hash((self["package"], self["version"]))
 
     def __str__(self):
-        """package/version representation of a package
-        """
+        """package/version representation of a package"""
         return "%s/%s" % (self["package"], self["version"])
 
     __repr__ = __str__
@@ -146,8 +142,7 @@ class SourcePackage(deb822.Sources):
         return self.pkg_prefix(self["package"])
 
     def dsc_path(self) -> Path:
-        """return (absolute) path to .dsc file for this package
-        """
+        """return (absolute) path to .dsc file for this package"""
         files_field = None
         for field in ["checksums-sha256", "files"]:
             if field in self:
@@ -177,12 +172,10 @@ class SourcePackage(deb822.Sources):
 
 
 class SourceMirror(object):
-    """Handle for a local Debian source mirror
-    """
+    """Handle for a local Debian source mirror"""
 
     def __init__(self, path: Path):
-        """create a handle to a local source mirror rooted at path
-        """
+        """create a handle to a local source mirror rooted at path"""
         self.mirror_root = path
         self._suites = None  # dict: suite name -> [<package, version>]
         self._packages = None  # set(<package, version>)
@@ -322,7 +315,7 @@ class SourceMirror(object):
         return suites
 
     def ls_suites_with_aliases(self):
-        """ list suites, as well as their aliases
+        """list suites, as well as their aliases
 
         Return value: { suite: [aliases] }
         Example: { sid: [unstable], jessie: [testing] }

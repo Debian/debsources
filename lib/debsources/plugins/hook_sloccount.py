@@ -34,8 +34,7 @@ def slocfile_path(pkgdir: Path) -> Path:
 
 
 def grep(args):
-    """boolean wrapper around GREP(1)
-    """
+    """boolean wrapper around GREP(1)"""
     rc = None
     with open(os.devnull, "w") as null:
         rc = subprocess.call(["grep"] + args, stdout=null, stderr=null)

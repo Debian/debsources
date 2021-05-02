@@ -75,9 +75,7 @@ class VersionsView(GeneralView):
 
 class SummaryView(GeneralView):
     def _parse_file_deltas(self, summary, package, version):
-        """ Parse a file deltas summary to create links to Debsources
-
-        """
+        """Parse a file deltas summary to create links to Debsources"""
         file_deltas = []
         lines = summary.splitlines()
         for line in lines[0:-1]:
@@ -92,9 +90,9 @@ class SummaryView(GeneralView):
         return file_deltas, deltas_summary
 
     def parse_patch_series(self, session, package, version, config, series):
-        """ Parse a list of patches available in `series` and create a dict
-            with important information such as description if it exists, file
-            changes.
+        """Parse a list of patches available in `series` and create a dict
+        with important information such as description if it exists, file
+        changes.
 
         """
         patches_info = OrderedDict()

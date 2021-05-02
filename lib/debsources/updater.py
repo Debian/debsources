@@ -203,9 +203,7 @@ def exclude_files(session, pkg, pkgdir, file_table, exclude_specs):
 
 
 def is_excluded_package(pkg, exclude_specs):
-    """check whether a given package match 1+ package exclusion stanzas
-
-    """
+    """check whether a given package match 1+ package exclusion stanzas"""
     # compute list of *matching* package exclusion stanzas
     specs = [
         spec
@@ -278,9 +276,7 @@ def _rm_package(pkg, conf, session, db_package=None):
 
 
 def _add_suite(conf, session, suite, sticky=False, aliases=[]):
-    """add suite to the table of static suite info
-
-    """
+    """add suite to the table of static suite info"""
     suite_version = None
     suite_reldate = None
     if suite in DEBIAN_RELEASES:
@@ -302,9 +298,7 @@ def _add_suite(conf, session, suite, sticky=False, aliases=[]):
 
 
 def extract_new(status, conf, session, mirror):
-    """update stage: list mirror and extract new packages
-
-    """
+    """update stage: list mirror and extract new packages"""
     ensure_cache_dir(conf)
 
     def add_package(pkg):
@@ -348,9 +342,7 @@ def extract_new(status, conf, session, mirror):
 
 
 def garbage_collect(status, conf, session, mirror):
-    """update stage: list db and remove disappeared and expired packages
-
-    """
+    """update stage: list db and remove disappeared and expired packages"""
     logging.info("garbage collection...")
     for version in session.query(Package).filter(not_(Package.sticky)):
         pkg = SourcePackage.from_db_model(version)
@@ -384,9 +376,7 @@ def garbage_collect(status, conf, session, mirror):
 
 
 def update_suites(status, conf, session, mirror):
-    """update stage: sweep and recreate suite mappings
-
-    """
+    """update stage: sweep and recreate suite mappings"""
     logging.info("update suites mappings...")
 
     insert_q = sql.insert(Suite.__table__)
@@ -603,9 +593,7 @@ def update_statistics(status, conf, session, suites=None):
 
 
 def update_metadata(status, conf, session):
-    """update stage: update metadata
-
-    """
+    """update stage: update metadata"""
     logging.info("update metadata...")
     ensure_cache_dir(conf)
 
@@ -741,9 +729,14 @@ def update_charts(status, conf, session, suites=None):
 
 
 # update stages
-(STAGE_EXTRACT, STAGE_SUITES, STAGE_GC, STAGE_STATS, STAGE_CACHE, STAGE_CHARTS,) = list(
-    range(1, 7)
-)
+(
+    STAGE_EXTRACT,
+    STAGE_SUITES,
+    STAGE_GC,
+    STAGE_STATS,
+    STAGE_CACHE,
+    STAGE_CHARTS,
+) = list(range(1, 7))
 __STAGES = {
     "extract": STAGE_EXTRACT,
     "suites": STAGE_SUITES,
@@ -775,8 +768,7 @@ def pp_stage(stage):
 
 
 def update(conf, session, stages=UPDATE_STAGES):
-    """do a full update run
-    """
+    """do a full update run"""
     logging.info("start")
     logging.info("list mirror packages...")
     mirror = SourceMirror(conf["mirror_dir"])

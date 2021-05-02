@@ -76,8 +76,7 @@ Licenses = {
 
 
 def get_sources_path(session, package, version, config):
-    """ Creates a sources_path. Returns exception when it arises
-    """
+    """Creates a sources_path. Returns exception when it arises"""
     location = Location(
         session,
         config["SOURCES_DIR"],
@@ -130,15 +129,13 @@ def get_license(package, version, path, c):
 
 
 def get_copyright_header(copyright):
-    """ Return all the header attributs
-
-    """
+    """Return all the header attributs"""
     return copyright.header._RestrictedWrapper__data
 
 
 def parse_copyright_paragraphs_for_html_render(copyright, base_url):
-    """ Returns list of File objects. If `base_url` is provided
-        then it creates links to base_url+glob
+    """Returns list of File objects. If `base_url` is provided
+    then it creates links to base_url+glob
     """
     paragraphs = []
     for par in copyright.all_files_paragraphs():
@@ -164,8 +161,7 @@ def parse_copyright_paragraphs_for_html_render(copyright, base_url):
 
 
 def parse_licenses_for_html_render(copyright):
-    """ Creates list of licenses with urls
-    """
+    """Creates list of licenses with urls"""
     licenses = []
     for par in copyright.all_license_paragraphs():
         licenses.append(
@@ -180,7 +176,8 @@ def parse_licenses_for_html_render(copyright):
 
 
 def create_url(
-    glob="", base=None,
+    glob="",
+    base=None,
 ):
     # don't create links for hidden folders/files
     if base is None or not re.search("^\.", glob):
@@ -197,8 +194,7 @@ def create_url(
 
 
 def match_license(synopsis):
-    """ Matches a `synopsis` with a license and creates a url
-    """
+    """Matches a `synopsis` with a license and creates a url"""
     key = list(filter(lambda x: re.search(x, synopsis) is not None, Licenses))
     if len(key) > 0:
         return Licenses[key[0]]
@@ -207,9 +203,7 @@ def match_license(synopsis):
 
 
 def parse_license_synopsis(copyright, synopsis):
-    """ Parses a license and created links to license texts
-
-    """
+    """Parses a license and created links to license texts"""
     license = []
     if any(keyword in synopsis for keyword in ["and", "or"]):
         licenses = re.split("(, | ?and | ?or )", synopsis)
@@ -229,8 +223,8 @@ def parse_license_synopsis(copyright, synopsis):
 
 
 def anchor_to_license(copyright, synopsis):
-    """ Matches license into a license in the licenses paragraphs and
-        creates an anchor link there.
+    """Matches license into a license in the licenses paragraphs and
+    creates an anchor link there.
 
     """
     licenses = []

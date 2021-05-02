@@ -68,8 +68,7 @@ def add_package(session, pkg, pkgdir, sticky=False):
 
 
 def rm_package(session, pkg, db_package):
-    """Remove a package (= debmirror.SourcePackage) from the Debsources db
-    """
+    """Remove a package (= debmirror.SourcePackage) from the Debsources db"""
     logging.debug("remove from db %s..." % pkg)
     session.delete(db_package)
     if not db_package.name.versions:
@@ -78,8 +77,7 @@ def rm_package(session, pkg, db_package):
 
 
 def lookup_package(session, package, version):
-    """Lookup a package in the Debsources db, using <package, version> as key
-    """
+    """Lookup a package in the Debsources db, using <package, version> as key"""
     return (
         session.query(Package)
         .join(PackageName)

@@ -270,16 +270,12 @@ def find_ctag(session, ctag, package=None, slice_=None):
 
 
 def get_suite_info(session, suite, first=None):
-    """Return SuiteInfo of a `suite`
-
-    """
+    """Return SuiteInfo of a `suite`"""
     return session.query(SuiteInfo).filter(SuiteInfo.name == suite).first()
 
 
 def count_files_checksum(session, checksum, pkg=None, suite=None):
-    """Count files with `checksum`
-
-    """
+    """Count files with `checksum`"""
     result = session.query(sql_func.count(Checksum.id)).filter(
         Checksum.sha256 == checksum
     )
@@ -297,8 +293,8 @@ def count_files_checksum(session, checksum, pkg=None, suite=None):
 
 
 def get_pkg_by_name(session, pkg, suite=None):
-    """ Returns the package filtered by name `pkg`
-        Filter by `suite`
+    """Returns the package filtered by name `pkg`
+    Filter by `suite`
 
     """
     result = session.query(PackageName).filter_by(name=pkg)
@@ -313,8 +309,8 @@ def get_pkg_by_name(session, pkg, suite=None):
 
 
 def get_pkg_by_similar_name(session, pkg, suite=None):
-    """ Get non exact package result based on name `pkg`
-        Filter by `suite`
+    """Get non exact package result based on name `pkg`
+    Filter by `suite`
 
     """
     result = (
@@ -330,9 +326,7 @@ def get_pkg_by_similar_name(session, pkg, suite=None):
 
 
 def filter_pkg_by_suite(session, result, suite):
-    """ Filter `result` with suite
-
-    """
+    """Filter `result` with suite"""
     return (
         result.filter(sql_func.lower(Suite.suite) == suite)
         .filter(Suite.package_id == Package.id)
@@ -342,8 +336,8 @@ def filter_pkg_by_suite(session, result, suite):
 
 
 def get_files_by_checksum(session, checksum, package=None, suite=None):
-    """ Returns a list of files whose hexdigest is checksum.
-        Filter with package
+    """Returns a list of files whose hexdigest is checksum.
+    Filter with package
 
     """
     results = (
@@ -372,8 +366,8 @@ def get_files_by_checksum(session, checksum, package=None, suite=None):
 
 
 def get_files_by_path_package(session, path, package, version=None):
-    """ Return a list of files with a specific `path` and `package`
-        Filter with `suite`
+    """Return a list of files with a specific `path` and `package`
+    Filter with `suite`
     """
     results = (
         session.query(
@@ -396,9 +390,7 @@ def get_files_by_path_package(session, path, package, version=None):
 
 
 def get_pkg_filter_prefix(session, prefix, suite=None):
-    """Get packages filter by `prefix`
-
-    """
+    """Get packages filter by `prefix`"""
     result = session.query(PackageName).filter(
         sql_func.lower(PackageName.name).startswith(prefix)
     )
@@ -415,23 +407,17 @@ def get_pkg_filter_prefix(session, prefix, suite=None):
 
 
 def get_all_packages(session):
-    """ Get the list of packages
-
-    """
+    """Get the list of packages"""
     return session.query(PackageName).order_by(PackageName.name)
 
 
 def count_packages(session):
-    """ Count the packages
-
-    """
+    """Count the packages"""
     return session.query(PackageName).count()
 
 
 def get_license_w_path(session, package, version, path):
-    """ Retrieve license of file using its `path`, `package` and  `version`
-
-    """
+    """Retrieve license of file using its `path`, `package` and  `version`"""
     result = (
         session.query(FileCopyright.license.label("License"))
         .filter(File.id == FileCopyright.file_id)
@@ -448,8 +434,7 @@ def get_license_w_path(session, package, version, path):
 
 
 def get_ratio(session, suite=None):
-    """ Get ratio of machine readable files in `suite`
-    """
+    """Get ratio of machine readable files in `suite`"""
     files = session.query(File.id)
     files_w_license = session.query(FileCopyright.file_id)
     if suite:

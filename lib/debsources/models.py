@@ -40,7 +40,7 @@ DB_SCHEMA_VERSION = 11
 
 
 class PackageName(Base):
-    """ a source package name """
+    """a source package name"""
 
     __tablename__ = "package_names"
 
@@ -65,7 +65,7 @@ class PackageName(Base):
 
 
 class Package(Base):
-    """ a (versioned) source package """
+    """a (versioned) source package"""
 
     __tablename__ = "packages"
 
@@ -154,7 +154,7 @@ class SuiteInfo(Base):
 
 
 class SuiteAlias(Base):
-    """ Aliases for suites (ie: unstable for sid) """
+    """Aliases for suites (ie: unstable for sid)"""
 
     __tablename__ = "suites_aliases"
     alias = Column(String, primary_key=True)
@@ -445,8 +445,7 @@ class FileCopyright(Base):
         self.license = license
 
     def to_dict(self):
-        """ Serialize the object
-        """
+        """Serialize the object"""
         return dict(file_id=self.file_id, oracle=self.oracle, license=self.license)
 
 

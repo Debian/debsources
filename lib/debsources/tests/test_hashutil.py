@@ -27,7 +27,7 @@ def make_path(path: Path) -> Path:
 
 @attr("hashutil")
 class HashutilTests(unittest.TestCase):
-    """ Unit tests for debsources.hashutil """
+    """Unit tests for debsources.hashutil"""
 
     @istest
     def assertSha256Sum(self):

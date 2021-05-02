@@ -27,7 +27,7 @@ import debsources.query as qry
 
 
 class Location(object):
-    """ a location in a package, can be a directory or a file """
+    """a location in a package, can be a directory or a file"""
 
     def _get_debian_path(self, session, package, version, sources_dir) -> Path:
         """
@@ -72,7 +72,7 @@ class Location(object):
     def __init__(
         self, session, sources_dir, sources_static, package, version="", path=""
     ):
-        """ initialises useful attributes """
+        """initialises useful attributes"""
         debian_path = self._get_debian_path(session, package, version, sources_dir)
         self.package = package
         self.version = version
@@ -89,16 +89,15 @@ class Location(object):
         self.sources_path_static = Path(sources_static) / debian_path / self.path_to
 
     def is_dir(self):
-        """ True if self is a directory, False if it's not """
+        """True if self is a directory, False if it's not"""
         return self.sources_path.is_dir()
 
     def is_file(self):
-        """ True if sels is a file, False if it's not """
+        """True if sels is a file, False if it's not"""
         return self.sources_path.is_file()
 
     def is_symlink(self):
-        """ True if a folder/file is a symbolic link file, False if it's not
-        """
+        """True if a folder/file is a symbolic link file, False if it's not"""
         return self.sources_path.is_symlink()
 
     def get_package(self):
@@ -123,7 +122,7 @@ class Location(object):
 
 
 class Directory(object):
-    """ a folder in a package """
+    """a folder in a package"""
 
     def __init__(self, location, hidden_files=[]):
         # if the directory is a toplevel one, we remove the .pc folder
@@ -165,7 +164,7 @@ class Directory(object):
 
 
 class SourceFile(object):
-    """ a source file in a package """
+    """a source file in a package"""
 
     def __init__(self, location):
         self.location = location
@@ -174,7 +173,7 @@ class SourceFile(object):
         self.mime = self._find_mime()
 
     def _find_mime(self):
-        """ returns the mime encoding and type of a file """
+        """returns the mime encoding and type of a file"""
         mime = magic.open(magic.MIME_TYPE)
         mime.load()
         type_ = mime.file(self.sources_path)
@@ -210,9 +209,7 @@ class SourceFile(object):
         return shasum
 
     def istextfile(self):
-        """True if self is a text file, False if it's not.
-
-        """
+        """True if self is a text file, False if it's not."""
         return filetype.is_text_file(self.mime["type"])
         # for substring in text_file_mimes:
         #     if substring in self.mime['type']:
@@ -220,5 +217,5 @@ class SourceFile(object):
         # return False
 
     def get_raw_url(self):
-        """ return the raw url on disk (e.g. data/main/a/azerty/foo.bar) """
+        """return the raw url on disk (e.g. data/main/a/azerty/foo.bar)"""
         return url_encode(str(self.sources_path_static))

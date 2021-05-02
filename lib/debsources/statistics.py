@@ -70,9 +70,7 @@ def suites(session, suites="release"):
 
 
 def sticky_suites(session):
-    """list sticky suites currently present in Debsources DB
-
-    """
+    """list sticky suites currently present in Debsources DB"""
     q = session.query(SuiteInfo.name).filter(SuiteInfo.sticky == True)  # NOQA,
     # '== True' can be dropped starting with sqlalchemy >= 0.8
     return [row[0] for row in q]
@@ -370,10 +368,10 @@ def sloc_per_package(session, suite=None, areas=None):
 
 
 def stats_grouped_by(session, stat, areas=None):
-    """ Compute statistics `stat` query using grouped by
-        to minimize time execution.
+    """Compute statistics `stat` query using grouped by
+    to minimize time execution.
 
-        Reference doc/update-stats-query.bench.sql
+    Reference doc/update-stats-query.bench.sql
     """
     logging.debug("Compute %s stats for all suites" % stat)
     if stat is "source_packages":
@@ -449,9 +447,7 @@ def save_metadata_cache(stats, fname: Path):
 
 
 def get_licenses(session, suite=None):
-    """ Count files per license filtered by `suite`
-
-    """
+    """Count files per license filtered by `suite`"""
     logging.debug("grouped by license summary")
     if not suite:
         q = (
@@ -499,9 +495,7 @@ def _hist_copyright_sample(session, interval, projection, suite=None):
 
 
 def history_copyright_hourly(session, interval, suite):
-    """return recent size history of license, over the past `interval`
-
-    """
+    """return recent size history of license, over the past `interval`"""
     logging.debug("take hourly copyright sample of %s for suite %s" % (interval, suite))
     return _hist_copyright_sample(
         session, interval, projection="date_trunc('hour', timestamp)", suite=suite

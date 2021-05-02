@@ -28,7 +28,9 @@ bp_doc.errorhandler(404)(lambda e: (ErrorHandler()(e, http=404), 404))
 bp_doc.add_url_rule(
     "/",
     view_func=DocView.as_view(
-        "doc", render_func=bind_render("doc/doc.html"), err_func=ErrorHandler("doc"),
+        "doc",
+        render_func=bind_render("doc/doc.html"),
+        err_func=ErrorHandler("doc"),
     ),
 )
 

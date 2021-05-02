@@ -26,7 +26,7 @@ def make_path(path):
 
 @attr("fs_storage")
 class FsStorageTests(unittest.TestCase):
-    """ Unit tests for debsources.fs_storage """
+    """Unit tests for debsources.fs_storage"""
 
     @istest
     def assertWalkLength(self):
@@ -43,12 +43,20 @@ class FsStorageTests(unittest.TestCase):
     def parsePathDir(self):
         self.assertDictEqual(
             parse_path(make_path("main/libc/libcaca/0.99.beta17-1")),
-            {"package": "libcaca", "version": "0.99.beta17-1", "ext": None,},
+            {
+                "package": "libcaca",
+                "version": "0.99.beta17-1",
+                "ext": None,
+            },
         )
 
     @istest
     def parsePathChecksums(self):
         self.assertDictEqual(
             parse_path(make_path("main/libc/libcaca/0.99.beta17-1.checksums")),
-            {"package": "libcaca", "version": "0.99.beta17-1", "ext": ".checksums",},
+            {
+                "package": "libcaca",
+                "version": "0.99.beta17-1",
+                "ext": ".checksums",
+            },
         )

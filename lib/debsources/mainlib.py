@@ -65,9 +65,7 @@ PROBABLE_CONF_FILES = [
 
 
 def parse_exclude(fname):
-    """parse file exclusion specifications from file `fname`
-
-    """
+    """parse file exclusion specifications from file `fname`"""
     exclude_specs = []
     with open(fname) as f:
         exclude_specs = list(deb822.Deb822.iter_paragraphs(f))
@@ -75,8 +73,8 @@ def parse_exclude(fname):
 
 
 def guess_conffile():
-    """ returns the first probable configuration file, that exists and is not
-    empty, and raises Exception if nothing is found """
+    """returns the first probable configuration file, that exists and is not
+    empty, and raises Exception if nothing is found"""
     for conffile in PROBABLE_CONF_FILES:
         if conffile.exists():
             if conffile.stat().st_size > 0:  # file is not empty
@@ -97,7 +95,7 @@ def _to_path(key, value):
 
 
 def parse_conf_infra(items):
-    """ returns correct typing for the [infra] section """
+    """returns correct typing for the [infra] section"""
     typed = {}
     for (key, value) in items:
         if key == "expire_days":
@@ -123,7 +121,7 @@ def parse_conf_infra(items):
 
 
 def parse_conf_webapp(items):
-    """ returns correct typing for the [webapp] section """
+    """returns correct typing for the [webapp] section"""
     typed = {}
     for (key, value) in items:
         if value.lower() == "false":
