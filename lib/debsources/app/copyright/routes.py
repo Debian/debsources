@@ -11,22 +11,23 @@
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
 
-from flask import jsonify, request, render_template
+from flask import jsonify, render_template, request
+
+from debsources.excepts import Http404Error
 
 from ..helper import bind_render, generic_before_request
-from . import bp_copyright
 from ..views import (
-    IndexView,
-    PrefixView,
-    ListPackagesView,
     ErrorHandler,
-    Ping,
-    PackageVersionsView,
-    SearchView,
+    IndexView,
+    ListPackagesView,
     NewsArchiveView,
+    PackageVersionsView,
+    Ping,
+    PrefixView,
+    SearchView,
 )
-from .views import LicenseView, ChecksumLicenseView, SearchFileView, StatsView
-from debsources.excepts import Http404Error
+from . import bp_copyright
+from .views import ChecksumLicenseView, LicenseView, SearchFileView, StatsView
 
 
 # context vars

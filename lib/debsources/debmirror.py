@@ -13,11 +13,11 @@
 
 import logging
 import lzma
-import magic
 import os
 from pathlib import Path
 from typing import Optional
 
+import magic
 from debian import deb822
 
 # supported compression formats for Sources files. Order does matter: formats

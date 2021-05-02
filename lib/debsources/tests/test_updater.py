@@ -15,25 +15,20 @@ import glob
 import logging
 import os
 import shutil
-import sqlalchemy
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 
-from nose.tools import istest
+import sqlalchemy
 from nose.plugins.attrib import attr
+from nose.tools import istest
 
-from debsources import db_storage
-from debsources import mainlib
-from debsources import models
-from debsources import statistics
-from debsources import updater
-
-from debsources.tests.db_testing import DbTestFixture, DB_COMPARE_QUERIES
-from debsources.tests.updater_testing import mk_conf
+from debsources import db_storage, mainlib, models, statistics, updater
 from debsources.subprocess_workaround import subprocess_setup
+from debsources.tests.db_testing import DB_COMPARE_QUERIES, DbTestFixture
 from debsources.tests.testdata import TEST_DATA_DIR
+from debsources.tests.updater_testing import mk_conf
 
 
 def compare_dirs(dir1, dir2, exclude=[]):

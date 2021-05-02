@@ -19,8 +19,8 @@ from pathlib import Path
 from debian import copyright
 
 from debsources import db_storage
-from debsources.models import FileCopyright, File
 from debsources import license_helper as helper
+from debsources.models import File, FileCopyright
 
 conf = None
 

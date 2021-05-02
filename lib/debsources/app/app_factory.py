@@ -12,7 +12,7 @@
 
 
 import logging
-from logging import Formatter, FileHandler, StreamHandler
+from logging import FileHandler, Formatter, StreamHandler
 
 from flask import Flask
 

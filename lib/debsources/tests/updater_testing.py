@@ -13,7 +13,7 @@
 
 from pathlib import Path
 
-from debsources.tests.testdata import TEST_DIR, TEST_DB_NAME, TEST_DATA_DIR
+from debsources.tests.testdata import TEST_DATA_DIR, TEST_DB_NAME, TEST_DIR
 
 
 def mk_conf(tmpdir: Path):

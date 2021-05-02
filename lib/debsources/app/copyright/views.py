@@ -11,28 +11,29 @@
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
 
-from collections import defaultdict, Counter
+from collections import Counter, defaultdict
 from functools import cmp_to_key
 from pathlib import Path
 
-from flask import current_app, request
-from debian.debian_support import version_compare
 from debian import copyright
+from debian.debian_support import version_compare
+from flask import current_app, request
 
 import debsources.license_helper as helper
 import debsources.query as qry
 import debsources.statistics as statistics
 from debsources.excepts import (
-    Http404ErrorSuggestions,
     FileOrFolderNotFound,
-    InvalidPackageOrVersionError,
-    Http404MissingCopyright,
     Http404Error,
+    Http404ErrorSuggestions,
+    Http404MissingCopyright,
+    InvalidPackageOrVersionError,
 )
-from ..views import GeneralView, ChecksumView, session, app
-from ..sourcecode import SourceCodeIterator
-from ..pagination import Pagination
+
 from ..extract_stats import extract_stats
+from ..pagination import Pagination
+from ..sourcecode import SourceCodeIterator
+from ..views import ChecksumView, GeneralView, app, session
 
 
 class LicenseView(GeneralView):

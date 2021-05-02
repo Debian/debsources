@@ -19,7 +19,7 @@ from sqlalchemy import sql
 
 from debsources import db_storage, statistics, updater
 from debsources.debmirror import SourcePackage
-from debsources.models import Suite, Package
+from debsources.models import Package, Suite
 
 
 def list_suites(conf, session, archive):

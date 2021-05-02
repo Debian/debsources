@@ -12,16 +12,14 @@
 # see the COPYING file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
-from __future__ import absolute_import
 
+import argparse
 import code
 import os
 import readline
 import rlcompleter  # NOQA
-import argparse
 
-from debsources import mainlib
-from debsources import sqla_session
+from debsources import mainlib, sqla_session
 from debsources.models import *  # NOQA
 
 

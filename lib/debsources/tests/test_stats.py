@@ -13,11 +13,10 @@
 
 import unittest
 
-from nose.tools import istest
 from nose.plugins.attrib import attr
+from nose.tools import istest
 
 from debsources import statistics
-
 from debsources.tests.db_testing import DbTestFixture
 
 

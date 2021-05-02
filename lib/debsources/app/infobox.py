@@ -11,10 +11,10 @@
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
 
-from flask import url_for, current_app
+from flask import current_app, url_for
 
-from debsources.models import PackageName, Package, Suite, SlocCount, Metric, Ctag
-from debsources.excepts import Http500Error, Http404Error
+from debsources.excepts import Http404Error, Http500Error
+from debsources.models import Ctag, Metric, Package, PackageName, SlocCount, Suite
 
 PTS_PREFIX = "https://tracker.debian.org/pkg/"
 # XXX move this to configuration file?

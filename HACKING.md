@@ -113,26 +113,23 @@ All new Debsources code should be [PEP8][1] compliant and pass [pyflakes][2]
 validation. Before submitting patches, please make sure that the lines of code
 they touch conform to such requirements.
 
-Additionally, `black` [3] is used to format Python source files.
+Additionally, `black` [3] and `isort` [4] are used to format Python source
+files.
 
 [1]: https://www.python.org/dev/peps/pep-0008/
 [2]: https://pypi.python.org/pypi/pyflakes
 [3]: https://black.readthedocs.io/en/stable/
+[4]: https://pycqa.github.io/isort/
 
-If you develop on Debian(-based distros), a good way to check that this is the
-case is:
+If you develop on Debian(-based distros), a good way to apply formatting and
+check that everything is good is:
 
-    # apt-get install python-flake8
-    $ flake8 file1.py file2.py ...
-
-You can check all Debsources Python source files black and flake8 compliance
-with:
-
+    # apt-get install flake8 isort
+    $ python3 -m pip install --user black
+    $ make format
     $ make check
 
-You can add a pre-commit hook to automatically test PEP8 compliance:
+You can add a pre-commit hook to automatically test PEP8 compliance (might be
+outdated):
 
     $ ln -s ../../contrib/git-pre-commit .git/hooks/pre-commit
-
-If you stumble upon Debsources source files that are not flake8-compliant,
-patches that put them back in compliance are more than welcome (hint hint).

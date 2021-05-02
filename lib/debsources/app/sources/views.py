@@ -14,24 +14,26 @@
 import os
 from pathlib import Path
 
-from flask import current_app, request, jsonify, url_for
+from flask import current_app, jsonify, request, url_for
 
-from debsources.excepts import (
-    Http403Error, Http404ErrorSuggestions, Http404Error, FileOrFolderNotFound,
-    InvalidPackageOrVersionError)
-from debsources.consts import SLOCCOUNT_LANGUAGES
-from debsources import statistics
-
-from debsources.navigation import (Location, Directory,
-                                   SourceFile)
-
-from debsources.url import url_decode, url_encode
 import debsources.query as qry
-from ..views import GeneralView, app, session
+from debsources import statistics
+from debsources.consts import SLOCCOUNT_LANGUAGES
+from debsources.excepts import (
+    FileOrFolderNotFound,
+    Http403Error,
+    Http404Error,
+    Http404ErrorSuggestions,
+    InvalidPackageOrVersionError,
+)
+from debsources.navigation import Directory, Location, SourceFile
+from debsources.url import url_decode, url_encode
+
 from ..extract_stats import extract_stats
+from ..helper import bind_redirect, bind_render
 from ..infobox import Infobox
 from ..sourcecode import SourceCodeIterator
-from ..helper import bind_render, bind_redirect
+from ..views import GeneralView, app, session
 
 
 class StatsView(GeneralView):

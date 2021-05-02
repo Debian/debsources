@@ -13,8 +13,8 @@ import io
 import logging
 import re
 
-from flask import url_for
 from debian import copyright
+from flask import url_for
 
 from debsources.navigation import Location
 

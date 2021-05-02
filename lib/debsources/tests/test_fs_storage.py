@@ -13,8 +13,8 @@
 
 import unittest
 
-from nose.tools import istest
 from nose.plugins.attrib import attr
+from nose.tools import istest
 
 from debsources.fs_storage import parse_path, walk
 from debsources.tests.testdata import TEST_DATA_DIR

@@ -11,14 +11,13 @@
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
 
-import sqlalchemy
-import sqlalchemy.orm
 import subprocess
 
+import sqlalchemy
+import sqlalchemy.orm
 
 from debsources.subprocess_workaround import subprocess_setup
 from debsources.tests.testdata import TEST_DATA_DIR, TEST_DB_NAME
-
 
 TEST_DB_DUMP = TEST_DATA_DIR / "db" / "pg-dump-custom"
 

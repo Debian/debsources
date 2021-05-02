@@ -19,10 +19,8 @@ from pathlib import Path
 from sqlalchemy import sql
 
 from debsources import db_storage
-
-from debsources.models import Ctag, File
 from debsources.consts import MAX_KEY_LENGTH
-
+from debsources.models import Ctag, File
 
 conf = None
 

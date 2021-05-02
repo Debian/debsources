@@ -14,8 +14,8 @@
 import unittest
 from pathlib import Path
 
-from nose.tools import istest
 from nose.plugins.attrib import attr
+from nose.tools import istest
 
 from debsources.hashutil import sha256sum
 from debsources.tests.testdata import TEST_DATA_DIR

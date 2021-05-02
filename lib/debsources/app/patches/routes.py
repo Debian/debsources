@@ -11,22 +11,22 @@
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
 
-from flask import jsonify, request, render_template
+from flask import jsonify, render_template, request
 
-from . import bp_patches
+from debsources.excepts import Http404Error
 
 from ..helper import bind_render, generic_before_request
 from ..views import (
+    ErrorHandler,
     IndexView,
+    ListPackagesView,
+    NewsArchiveView,
     Ping,
     PrefixView,
-    ErrorHandler,
-    ListPackagesView,
     SearchView,
-    NewsArchiveView,
 )
-from .views import SummaryView, PatchView, VersionsView
-from debsources.excepts import Http404Error
+from . import bp_patches
+from .views import PatchView, SummaryView, VersionsView
 
 
 # context vars

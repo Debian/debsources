@@ -11,10 +11,9 @@
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
 
-from . import bp_doc
-
 from ..helper import bind_render
-from ..views import DocView, AboutView, ErrorHandler
+from ..views import AboutView, DocView, ErrorHandler
+from . import bp_doc
 
 # site errors
 # XXX 500 handler cannot be registered on a blueprint

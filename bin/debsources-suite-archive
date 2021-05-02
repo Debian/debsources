@@ -12,18 +12,14 @@
 # see the COPYING file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
-from __future__ import absolute_import
-from __future__ import print_function
 
 import argparse
 import logging
-import sqlalchemy
 import sys
 
+import sqlalchemy
 
-from debsources import archiver
-from debsources import debmirror
-from debsources import mainlib
+from debsources import archiver, debmirror, mainlib
 
 
 def main():

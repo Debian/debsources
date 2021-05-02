@@ -11,30 +11,29 @@
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
 
-from functools import cmp_to_key
-from pathlib import Path
 import os
 import stat
-
-from sqlalchemy import func as sql_func, not_
 from collections import namedtuple
+from functools import cmp_to_key
+from pathlib import Path
 
 from debian.debian_support import version_compare
-from debsources.url import url_encode
-from debsources.consts import PREFIXES_DEFAULT
-from debsources.consts import SUITES
+from sqlalchemy import func as sql_func
+from sqlalchemy import not_
+
+from debsources.consts import PREFIXES_DEFAULT, SUITES
 from debsources.excepts import InvalidPackageOrVersionError
 from debsources.models import (
     Checksum,
     Ctag,
     File,
+    FileCopyright,
     Package,
     PackageName,
     Suite,
     SuiteInfo,
-    FileCopyright,
 )
-
+from debsources.url import url_encode
 
 LongFMT = namedtuple("LongFMT", ["type", "perms", "size", "symlink_dest"])
 

@@ -14,8 +14,7 @@
 import logging
 
 from debsources import fs_storage
-from debsources.models import File, Package, PackageName, SuiteInfo, Suite
-from debsources.models import VCS_TYPES
+from debsources.models import VCS_TYPES, File, Package, PackageName, Suite, SuiteInfo
 
 
 def add_package(session, pkg, pkgdir, sticky=False):

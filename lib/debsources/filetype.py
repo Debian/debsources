@@ -13,7 +13,6 @@
 
 import re
 
-
 # Languages constants
 (
     PYTHON,

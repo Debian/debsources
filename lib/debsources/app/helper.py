@@ -12,13 +12,14 @@
 
 
 from functools import cmp_to_key, partial
-from debian.debian_support import version_compare
 
-from flask import request, url_for, render_template, redirect
+from debian.debian_support import version_compare
+from flask import redirect, render_template, request, url_for
 
 import debsources.query as qry
+from debsources.excepts import Http404Error, InvalidPackageOrVersionError
 from debsources.models import SuiteAlias
-from debsources.excepts import InvalidPackageOrVersionError, Http404Error
+
 from . import app_wrapper
 
 session = app_wrapper.session

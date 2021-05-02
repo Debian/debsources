@@ -20,7 +20,6 @@ from pathlib import Path
 from debsources import db_storage
 from debsources.models import SlocCount
 
-
 conf = None
 
 SLOCCOUNT_FLAGS = ["--addlangall"]

@@ -11,9 +11,9 @@
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
 
+from flask_wtf import FlaskForm
 from wtforms import TextField
 from wtforms.validators import Required
-from flask_wtf import FlaskForm
 
 
 class SearchForm(FlaskForm):

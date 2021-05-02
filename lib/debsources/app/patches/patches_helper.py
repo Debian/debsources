@@ -9,13 +9,12 @@
 # of the License, or (at your option) any later version.  For more information
 # see the COPYING file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
-import re
 import io
 import logging
+import re
 import subprocess
 
 from debsources.navigation import Location, SourceFile
-
 
 ACCEPTED_FORMATS = ["3.0 (quilt)", "3.0 (native)"]
 

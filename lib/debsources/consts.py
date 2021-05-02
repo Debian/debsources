@@ -13,7 +13,6 @@
 
 import datetime
 
-
 # Limit on the maximum key length for Postgres columns which are subject to
 # btree indexing. The actual value is 8192, but we play safe and round down.
 # This allows to have complete indexes, rather than partial, which would

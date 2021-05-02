@@ -17,20 +17,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from nose.tools import istest
 from nose.plugins.attrib import attr
+from nose.tools import istest
 
-from debsources import archiver
-from debsources import db_storage
-from debsources import debmirror
-from debsources import mainlib
-from debsources import statistics
-from debsources import updater
-
+from debsources import archiver, db_storage, debmirror, mainlib, statistics, updater
 from debsources.consts import DEBIAN_RELEASES
 from debsources.tests.db_testing import DbTestFixture
-from debsources.tests.updater_testing import mk_conf
 from debsources.tests.testdata import TEST_DATA_DIR
+from debsources.tests.updater_testing import mk_conf
 
 
 @attr("infra")

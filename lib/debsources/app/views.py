@@ -13,28 +13,28 @@
 
 from pathlib import Path
 
-from flask import current_app, jsonify, render_template, request, url_for, redirect
+from flask import current_app, jsonify, redirect, render_template, request, url_for
 from flask.views import View
 
-from debsources.excepts import (
-    Http500Error,
-    Http404Error,
-    Http404ErrorSuggestions,
-    Http403Error,
-    InvalidPackageOrVersionError,
-    Http404MissingCopyright,
-)
-from debsources.models import Package
 import debsources.query as qry
-from debsources.sqla_session import _close_session
 from debsources import local_info
 from debsources.consts import SUITES
+from debsources.excepts import (
+    Http403Error,
+    Http404Error,
+    Http404ErrorSuggestions,
+    Http404MissingCopyright,
+    Http500Error,
+    InvalidPackageOrVersionError,
+)
+from debsources.models import Package
+from debsources.sqla_session import _close_session
 
-from .forms import SearchForm
-from .pagination import Pagination
-from .infobox import Infobox
-from .helper import format_big_num, url_for_other_page
 from . import app_wrapper
+from .forms import SearchForm
+from .helper import format_big_num, url_for_other_page
+from .infobox import Infobox
+from .pagination import Pagination
 
 app = app_wrapper.app
 session = app_wrapper.session

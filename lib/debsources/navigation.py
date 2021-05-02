@@ -11,19 +11,19 @@
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
 
-import magic
 import fnmatch
 from pathlib import Path
 
+import magic
 from sqlalchemy import and_
 
-from debsources.models import Checksum, File, Package, PackageName
+import debsources.query as qry
 from debsources import filetype
-from debsources.url import url_encode
 from debsources.consts import AREAS
 from debsources.debmirror import SourcePackage
 from debsources.excepts import FileOrFolderNotFound, InvalidPackageOrVersionError
-import debsources.query as qry
+from debsources.models import Checksum, File, Package, PackageName
+from debsources.url import url_encode
 
 
 class Location(object):

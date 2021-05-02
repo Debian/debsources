@@ -12,16 +12,14 @@
 # see the COPYING file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
-from __future__ import absolute_import
 
 import argparse
 import logging
 
-from sqlalchemy import create_engine, bindparam, LargeBinary
+from sqlalchemy import LargeBinary, bindparam, create_engine
 from sqlalchemy.sql import text as sql_query
 
-from debsources import mainlib
-from debsources import fs_storage
+from debsources import fs_storage, mainlib
 from debsources.plugins.hook_checksums import parse_checksums
 
 METADATA_SUFFIX = ".checksums"

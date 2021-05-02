@@ -19,23 +19,23 @@ import logging
 import re
 from pathlib import Path
 
-from sqlalchemy import distinct, desc
+from sqlalchemy import desc, distinct
 from sqlalchemy import func as sql_func
 
 from debsources.consts import SLOCCOUNT_LANGUAGES, SUITES
+from debsources.license_helper import Licenses
 from debsources.models import (
     Checksum,
     Ctag,
+    File,
+    FileCopyright,
     Metric,
+    Package,
+    PackageName,
     SlocCount,
     Suite,
     SuiteInfo,
-    Package,
-    PackageName,
-    FileCopyright,
-    File,
 )
-from debsources.license_helper import Licenses
 
 
 def _count(query):

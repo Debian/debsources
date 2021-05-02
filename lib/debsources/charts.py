@@ -13,14 +13,13 @@
 
 import logging
 import operator
+from itertools import cycle
 
 import matplotlib
 
-from itertools import cycle
-
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # NOQA
 import matplotlib.cm as cm  # NOQA
+import matplotlib.pyplot as plt  # NOQA
 import numpy as np  # NOQA
 
 

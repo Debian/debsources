@@ -17,9 +17,7 @@ import subprocess
 from pathlib import Path
 
 from debsources import db_storage
-
 from debsources.models import Metric
-
 
 conf = None
 

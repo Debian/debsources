@@ -12,7 +12,7 @@
 
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 
 def _get_engine_session(url, verbose=True):

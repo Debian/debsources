@@ -15,30 +15,28 @@ import glob
 import logging
 import os
 import subprocess
+from datetime import datetime
+from email.utils import formatdate
 from pathlib import Path
 from typing import List
 
-from datetime import datetime
-from email.utils import formatdate
-from sqlalchemy import sql, not_
+from sqlalchemy import not_, sql
 
-from debsources import db_storage
-from debsources import fs_storage
-from debsources import statistics
-from . import query as qry
-
+from debsources import db_storage, fs_storage, statistics
 from debsources.consts import DEBIAN_RELEASES, SLOCCOUNT_LANGUAGES
 from debsources.debmirror import SourceMirror, SourcePackage
 from debsources.models import (
-    SuiteInfo,
-    Suite,
-    SuiteAlias,
-    Package,
+    HistoryCopyright,
     HistorySize,
     HistorySlocCount,
-    HistoryCopyright,
+    Package,
+    Suite,
+    SuiteAlias,
+    SuiteInfo,
 )
 from debsources.subprocess_workaround import subprocess_setup
+
+from . import query as qry
 
 KNOWN_EVENTS = ["add-package", "rm-package"]
 NO_OBSERVERS = {e: [] for e in KNOWN_EVENTS}

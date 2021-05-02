@@ -2,7 +2,8 @@ NOSE = nosetests3
 FLAKE = flake8 --max-line-length 88 --ignore=E203,W503
 # E203 (whitespace before ':') conflicts with black formatting
 # W503 (line break before binary operator), ditto
-BLACK = black --check
+BLACK = black
+ISORT = isort --profile black --dont-follow-links -p debsources
 
 SRCDIR = lib/debsources
 BINDIR = bin
@@ -32,7 +33,13 @@ test-coverage:
 
 check:
 	$(FLAKE) $(SRCDIR)/ $(shell grep -H 'env python' $(BINDIR)/debsources-* | cut -f 1 -d :)
+	$(BLACK) --check $(SRCDIR)
+# deactivated for now - until isort>=5 is available on Alpine Linux for CICD pipeline
+# $(ISORT) --check $(SRCDIR) $(BINDIR)
+
+format:
 	$(BLACK) $(SRCDIR)
+	$(ISORT) $(SRCDIR) $(BINDIR)
 
 test-online-app:
 	contrib/test-online-app

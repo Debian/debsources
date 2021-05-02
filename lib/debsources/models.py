@@ -14,22 +14,30 @@
 import warnings
 from pathlib import Path
 
-from sqlalchemy import Column, ForeignKey
-from sqlalchemy import UniqueConstraint, PrimaryKeyConstraint
-from sqlalchemy import Index
-from sqlalchemy import Boolean, Date, DateTime, Integer, String
-from sqlalchemy.dialects.postgresql import BIGINT
-from sqlalchemy import Enum
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy.types
+from sqlalchemy import (
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    Integer,
+    PrimaryKeyConstraint,
+    String,
+    UniqueConstraint,
+)
+from sqlalchemy.dialects.postgresql import BIGINT
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 from debsources.consts import (
-    VCS_TYPES,
-    SLOCCOUNT_LANGUAGES,
+    COPYRIGHT_ORACLES,
     CTAGS_LANGUAGES,
     METRIC_TYPES,
-    COPYRIGHT_ORACLES,
+    SLOCCOUNT_LANGUAGES,
+    VCS_TYPES,
 )
 
 Base = declarative_base()

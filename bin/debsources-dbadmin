@@ -12,8 +12,6 @@
 # see the COPYING file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
-from __future__ import absolute_import
-from __future__ import print_function
 
 import argparse
 import time
@@ -21,7 +19,6 @@ import time
 from sqlalchemy import create_engine
 
 from debsources.models import Base
-
 
 if __name__ == "__main__":
     start_time = time.time()

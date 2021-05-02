@@ -13,11 +13,19 @@
 
 import unittest
 
-from nose.tools import istest
 from nose.plugins.attrib import attr
+from nose.tools import istest
 
-from debsources.filetype import get_filetype, get_highlightjs_language
-from debsources.filetype import HTML, PHP, PYTHON, RUBY, XML, MAKEFILE
+from debsources.filetype import (
+    HTML,
+    MAKEFILE,
+    PHP,
+    PYTHON,
+    RUBY,
+    XML,
+    get_filetype,
+    get_highlightjs_language,
+)
 
 
 @attr("filetype")

@@ -12,18 +12,20 @@
 
 
 from collections import OrderedDict
-from flask import request, current_app
 
-from ..views import GeneralView, session
-from debsources.excepts import (
-    Http404ErrorSuggestions,
-    FileOrFolderNotFound,
-    InvalidPackageOrVersionError,
-    Http404Error,
-)
+from flask import current_app, request
+
 import debsources.query as qry
-from ..sourcecode import SourceCodeIterator
+from debsources.excepts import (
+    FileOrFolderNotFound,
+    Http404Error,
+    Http404ErrorSuggestions,
+    InvalidPackageOrVersionError,
+)
+
 from ..pagination import Pagination
+from ..sourcecode import SourceCodeIterator
+from ..views import GeneralView, session
 from . import patches_helper as helper
 
 

@@ -17,11 +17,8 @@ from pathlib import Path
 
 from sqlalchemy import sql
 
-from debsources import db_storage
-from debsources import hashutil
-
+from debsources import db_storage, hashutil
 from debsources.models import Checksum, File
-
 
 conf = None
 

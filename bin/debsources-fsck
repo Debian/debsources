@@ -14,7 +14,6 @@
 
 # Check for DB/FS inconsistencies
 
-from __future__ import absolute_import
 
 import argparse
 import logging
@@ -24,10 +23,7 @@ from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from debsources import mainlib
-from debsources import db_storage
-from debsources import fs_storage
-
+from debsources import db_storage, fs_storage, mainlib
 from debsources.debmirror import SourcePackage
 from debsources.models import Package
 
