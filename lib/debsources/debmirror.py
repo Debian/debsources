@@ -19,7 +19,6 @@ from pathlib import Path
 from typing import Optional
 
 from debian import deb822
-from debian.debian_support import version_compare
 
 # supported compression formats for Sources files. Order does matter: formats
 # appearing early in the list will be preferred to those appearing later

@@ -17,7 +17,6 @@ from debian.debian_support import version_compare
 from flask import request, url_for, render_template, redirect
 
 import debsources.query as qry
-from debsources import consts
 from debsources.models import SuiteAlias
 from debsources.excepts import InvalidPackageOrVersionError, Http404Error
 from . import app_wrapper
@@ -54,7 +53,7 @@ def format_big_num(num):
     """
     try:
         res = "{:,}".format(num)
-    except:
+    except Exception:
         res = num
     return res
 

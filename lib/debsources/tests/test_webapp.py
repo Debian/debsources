@@ -671,7 +671,10 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         rv = self.app.get("/src/aspell-is/0.51-0-4/")
         self.assertEqual(200, rv.status_code)
         self.assertIn(
-            b'<a href="/src/aspell-is/0.51-0-4/%25EDslenska.alias/">%EDslenska.alias</a>',
+            (
+                b'<a href="/src/aspell-is/0.51-0-4/%25EDslenska.alias/">'
+                b"%EDslenska.alias</a>"
+            ),
             rv.data,
         )
         # Visit that file.

@@ -374,20 +374,20 @@ def stats_grouped_by(session, stat, areas=None):
     Reference doc/update-stats-query.bench.sql
     """
     logging.debug("Compute %s stats for all suites" % stat)
-    if stat is "source_packages":
+    if stat == "source_packages":
         q = (
             session.query(Suite.suite.label("suite"), sql_func.count(Package.id))
             .join(Package)
             .group_by(Suite.suite)
         )
-    elif stat is "source_files":
+    elif stat == "source_files":
         q = (
             session.query(Suite.suite.label("suite"), sql_func.count(Checksum.id))
             .join(Package)
             .join(Checksum)
             .group_by(Suite.suite)
         )
-    elif stat is "disk_usage":
+    elif stat == "disk_usage":
         q = (
             session.query(Suite.suite.label("suite"), sql_func.sum(Metric.value))
             .filter(Metric.metric == "size")
@@ -395,14 +395,14 @@ def stats_grouped_by(session, stat, areas=None):
             .join(Metric)
             .group_by(Suite.suite)
         )
-    elif stat is "ctags":
+    elif stat == "ctags":
         q = (
             session.query(Suite.suite.label("suite"), sql_func.count(Ctag.id))
             .join(Package)
             .join(Ctag)
             .group_by(Suite.suite)
         )
-    elif stat is "sloccount":
+    elif stat == "sloccount":
         q = (
             session.query(
                 Suite.suite.label("suite"),
@@ -535,8 +535,8 @@ def licenses_summary_w_dual(results):
             # verify all are standard
             licenses = re.split(", |and |or ", result)
             unknown = True  # verify all licenses in statement are standard
-            for l in licenses:
-                key = filter(lambda x: re.search(x, l) is not None, Licenses)
+            for license in licenses:
+                key = filter(lambda x: re.search(x, license) is not None, Licenses)
                 if not key:
                     unknown = False
             if not unknown:

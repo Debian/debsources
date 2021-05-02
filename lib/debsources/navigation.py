@@ -54,7 +54,7 @@ class Location(object):
                 .first()
                 .area
             )
-        except:
+        except Exception:
             # the package or version doesn't exist in the database
             # BUT: packages are stored for a longer time in the filesystem
             # to allow codesearch.d.n and others less up-to-date platforms

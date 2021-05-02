@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2014-2015  The Debsources developers <qa-debsources@lists.alioth.debian.org>.
+# Copyright (C) 2014-2021  The Debsources developers
+# <qa-debsources@lists.alioth.debian.org>.
 # See the AUTHORS file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/AUTHORS
 #
@@ -25,56 +26,61 @@ from sqlalchemy.sql import text as sql_query
 from debsources import fs_storage
 from debsources.plugins.hook_ctags import parse_ctags
 
-METADATA_SUFFIX = '.ctags'
+METADATA_SUFFIX = ".ctags"
 METADATA_SUFFIX_LEN = len(METADATA_SUFFIX)
 
 BINDPARAMS = [
-    bindparam('path', type_=LargeBinary),
+    bindparam("path", type_=LargeBinary),
 ]
 
-PACKAGE_ID_Q = sql_query("""
+PACKAGE_ID_Q = sql_query(
+    """
     SELECT versions.id
     FROM versions, packages
     WHERE versions.package_id = packages.id
     AND versions.version = :v
     AND packages.name = :p
-    """)
+    """
+)
 
-CTAGS_EXIST_Q = sql_query("""
+CTAGS_EXIST_Q = sql_query(
+    """
     SELECT 1
     FROM ctags
     WHERE package_id = :v
     LIMIT 1
-    """)
+    """
+)
 
-INSERT_CTAGS_Q = sql_query("""
+INSERT_CTAGS_Q = sql_query(
+    """
     INSERT INTO ctags (package_id, tag, path, line, kind, language)
     VALUES (:package_id, :tag, :path, :line, :kind, :language)
     """,
-                           bindparams=BINDPARAMS)
+    bindparams=BINDPARAMS,
+)
 
 
 def insert_ctags(conn, ctagsfile):
-    steps = ctagsfile.split('/')
+    steps = ctagsfile.split("/")
     package = steps[-2]
     version = steps[-1][:-METADATA_SUFFIX_LEN]
-    logging.debug('package %s/%s' % (package, version))
+    logging.debug("package %s/%s" % (package, version))
 
     package_id = conn.execute(PACKAGE_ID_Q, v=version, p=package).first()
     if not package_id:
-        logging.warn('skipping %s/%s (does not exist in DB)' %
-                     (package, version))
+        logging.warn("skipping %s/%s (does not exist in DB)" % (package, version))
         return
 
     has_ctags = conn.execute(CTAGS_EXIST_Q, v=package_id[0]).first()
     if has_ctags:
-        logging.warn('skipping %s/%s (already inserted)' % (package, version))
+        logging.warn("skipping %s/%s (already inserted)" % (package, version))
         return
 
-    logging.debug('INSERT INTO ctags %s/%s...' % (package, version))
+    logging.debug("INSERT INTO ctags %s/%s..." % (package, version))
     ctags = []
     for tag in parse_ctags(ctagsfile):
-        tag['package_id'] = package_id
+        tag["package_id"] = package_id
         ctags.append(tag)
     if ctags:
         conn.execute(INSERT_CTAGS_Q, ctags)
@@ -85,27 +91,29 @@ def is_ctags(p):
 
 
 def main(conf, ctagsfile=None):
-    conn = create_engine(conf['db_uri']).connect()
+    conn = create_engine(conf["db_uri"]).connect()
     if ctagsfile:
         insert_ctags(conn, ctagsfile)
     else:
-        for f in fs_storage.walk(conf['sources_dir'], test=is_ctags):
+        for f in fs_storage.walk(conf["sources_dir"], test=is_ctags):
             with conn.begin() as trans:
                 try:
                     insert_ctags(conn, f)
-                except:
-                    logging.exception('cannot inject %s' % f)
+                except Exception:
+                    logging.exception("cannot inject %s" % f)
                     trans.rollback()
 
 
-if __name__ == '__main__':
-    cmdline = argparse.ArgumentParser(
-        description='Debsources: bulk ctags insertion')
-    cmdline.add_argument('--config', '-c', dest='conffile',
-                         default=mainlib.guess_conffile(),
-                         help='alternate configuration file')
-    cmdline.add_argument('file', nargs='?',
-                         help='.ctags metadata file')
+if __name__ == "__main__":
+    cmdline = argparse.ArgumentParser(description="Debsources: bulk ctags insertion")
+    cmdline.add_argument(
+        "--config",
+        "-c",
+        dest="conffile",
+        default=mainlib.guess_conffile(),
+        help="alternate configuration file",
+    )
+    cmdline.add_argument("file", nargs="?", help=".ctags metadata file")
     args = cmdline.parse_args()
     conf = mainlib.load_configuration(args.conffile)
 

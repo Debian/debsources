@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2013-2014  The Debsources developers <qa-debsources@lists.alioth.debian.org>.
+# Copyright (C) 2013-2021  The Debsources developers
+# <qa-debsources@lists.alioth.debian.org>.
 # See the AUTHORS file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/AUTHORS
 #
@@ -26,19 +27,20 @@ if __name__ == "__main__":
     start_time = time.time()
 
     parser = argparse.ArgumentParser(description="Manage Debsources DB")
-    parser.add_argument("dburi",
-                        help="SQLAlchemy URI to the DB, e.g. postgres://"
-                        "username:password@localhost:5432/debsources")
-    parser.add_argument("--createdb",
-                        help="create DB schema",
-                        action="store_true")
-    parser.add_argument("--dropdb",
-                        help="destroy existing DB schema "
-                        "(WARNING: you will lose all data)",
-                        action="store_true")
-    parser.add_argument("--verbose",
-                        help="verbose logging (default: be quiet)",
-                        action="store_true")
+    parser.add_argument(
+        "dburi",
+        help="SQLAlchemy URI to the DB, e.g. postgres://"
+        "username:password@localhost:5432/debsources",
+    )
+    parser.add_argument("--createdb", help="create DB schema", action="store_true")
+    parser.add_argument(
+        "--dropdb",
+        help="destroy existing DB schema " "(WARNING: you will lose all data)",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--verbose", help="verbose logging (default: be quiet)", action="store_true"
+    )
     args = parser.parse_args()
 
     db = create_engine(args.dburi, echo=args.verbose)

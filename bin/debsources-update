@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2013-2014  The Debsources developers <qa-debsources@lists.alioth.debian.org>.
+# Copyright (C) 2013-2021  The Debsources developers
+# <qa-debsources@lists.alioth.debian.org>.
 # See the AUTHORS file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/AUTHORS
 #
@@ -23,35 +24,35 @@ from debsources import updater
 
 
 def main():
-    cmdline = argparse.ArgumentParser(description='Debsources updater')
+    cmdline = argparse.ArgumentParser(description="Debsources updater")
     mainlib.add_arguments(cmdline)
     args = cmdline.parse_args()
 
     conf = mainlib.load_conf(args.conffile or mainlib.guess_conffile())
     mainlib.override_conf(conf, args)
     mainlib.init_logging(conf, mainlib.log_level_of_verbosity(args.verbose))
-    logging.debug('loaded configuration from %s' % conf['conffile'])
-    conf['observers'], conf['file_exts'] = mainlib.load_hooks(conf)
+    logging.debug("loaded configuration from %s" % conf["conffile"])
+    conf["observers"], conf["file_exts"] = mainlib.load_hooks(conf)
     mainlib.conf_warnings(conf)
 
     try:
-        db = sqlalchemy.create_engine(conf['db_uri'], echo=args.verbose >= 4)
+        db = sqlalchemy.create_engine(conf["db_uri"], echo=args.verbose >= 4)
         Session = sqlalchemy.orm.sessionmaker()
-        if conf['single_transaction']:
+        if conf["single_transaction"]:
             session = Session(bind=db, autocommit=False)
-            updater.update(conf, session, stages=conf['stages'])
+            updater.update(conf, session, stages=conf["stages"])
             session.commit()
         else:
             session = Session(bind=db, autocommit=True)
-            updater.update(conf, session, stages=conf['stages'])
+            updater.update(conf, session, stages=conf["stages"])
     except SystemExit:  # exit as requested
         raise
-    except:  # store trace in log, then exit
-        logging.exception('unhandled exception. Abort')
+    except Exception:  # store trace in log, then exit
+        logging.exception("unhandled exception. Abort")
         sys.exit(2)
     finally:
         session.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

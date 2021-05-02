@@ -153,7 +153,7 @@ def notify_plugins(
                 logging.info("notify (forced) %s/%s for %s" % (event, title, pkg))
                 if not dry:
                     action(session, pkg, pkgdir, file_table)
-        except:
+        except Exception:
             logging.error("plugin hooks for {} on {} failed".format(event, pkg))
             raise
 
@@ -242,7 +242,7 @@ def _add_package(pkg, conf, session, sticky=False):
             exclude_files(session, pkg, pkgdir, file_table, conf["exclude"])
             if not conf["dry_run"] and "hooks" in conf["backends"]:
                 notify(conf, "add-package", session, pkg, pkgdir, file_table)
-    except:
+    except Exception:
         logging.exception("failed to add %s" % pkg)
     finally:
         os.chdir(workdir)
@@ -272,7 +272,7 @@ def _rm_package(pkg, conf, session, db_package=None):
             else:
                 with session.begin_nested():
                     db_storage.rm_package(session, pkg, db_package)
-    except:
+    except Exception:
         logging.exception("failed to remove %s" % pkg)
 
 
@@ -323,7 +323,7 @@ def extract_new(status, conf, session, mirror):
                     triggers=conf["force_triggers"],
                     dry=conf["dry_run"],
                 )
-            except:
+            except Exception:
                 logging.exception("trigger failure on %s" % pkg)
         # add entry for sources.txt, temporarily with no suite associated
         pkg_id = (pkg["package"], pkg["version"])
@@ -372,7 +372,7 @@ def garbage_collect(status, conf, session, mirror):
                     triggers=conf["force_triggers"],
                     dry=conf["dry_run"],
                 )
-            except:
+            except Exception:
                 logging.exception("trigger failure on %s" % pkg)
 
 

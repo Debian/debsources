@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2014  The Debsources developers <qa-debsources@lists.alioth.debian.org>.
+# Copyright (C) 2014-2021  The Debsources developers
+# <qa-debsources@lists.alioth.debian.org>.
 # See the AUTHORS file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/AUTHORS
 #
@@ -26,53 +27,58 @@ from debsources import mainlib
 
 
 def main():
-    cmdline = argparse.ArgumentParser(description='Debsources suite '
-                                      'archive manager')
-    cmdline.add_argument('action', metavar='ACTION',
-                         choices=['add', 'list', 'remove'],
-                         help='action to perform on the archive of '
-                         'sticky suites')
-    cmdline.add_argument('suite', metavar='SUITE', nargs='?', default=None,
-                         help='name of the suite to act upon '
-                         '(for "add" and "remove")')
+    cmdline = argparse.ArgumentParser(description="Debsources suite " "archive manager")
+    cmdline.add_argument(
+        "action",
+        metavar="ACTION",
+        choices=["add", "list", "remove"],
+        help="action to perform on the archive of " "sticky suites",
+    )
+    cmdline.add_argument(
+        "suite",
+        metavar="SUITE",
+        nargs="?",
+        default=None,
+        help="name of the suite to act upon " '(for "add" and "remove")',
+    )
     mainlib.add_arguments(cmdline)
     args = cmdline.parse_args()
-    if args.action in ['add', 'remove'] and args.suite is None:
-        cmdline.error('%s requires a suite name' % args.action)
+    if args.action in ["add", "remove"] and args.suite is None:
+        cmdline.error("%s requires a suite name" % args.action)
 
     conf = mainlib.load_conf(args.conffile or mainlib.guess_conffile())
     mainlib.override_conf(conf, args)
     mainlib.init_logging(conf, mainlib.log_level_of_verbosity(args.verbose))
-    logging.debug('loaded configuration from %s' % conf['conffile'])
-    conf['observers'], conf['file_exts'] = mainlib.load_hooks(conf)
+    logging.debug("loaded configuration from %s" % conf["conffile"])
+    conf["observers"], conf["file_exts"] = mainlib.load_hooks(conf)
     mainlib.conf_warnings(conf)
 
-    db = sqlalchemy.create_engine(conf['db_uri'], echo=args.verbose >= 4)
+    db = sqlalchemy.create_engine(conf["db_uri"], echo=args.verbose >= 4)
     Session = sqlalchemy.orm.sessionmaker()
-    session = Session(bind=db, autocommit=not conf['single_transaction'])
+    session = Session(bind=db, autocommit=not conf["single_transaction"])
 
     try:
-        archive = debmirror.SourceMirrorArchive(conf['mirror_archive_dir'])
-        if args.action == 'add':
+        archive = debmirror.SourceMirrorArchive(conf["mirror_archive_dir"])
+        if args.action == "add":
             archiver.add_suite(conf, session, args.suite, archive)
-        elif args.action == 'list':
+        elif args.action == "list":
             print("# name\tindexed\tavailable")
-            for (suite, present) in \
-                    archiver.list_suites(conf, session, archive).items():
-                print('%s\t%s\t%s' %
-                      (suite, present['db'], present['archive']))
-        elif args.action == 'remove':
+            for (suite, present) in archiver.list_suites(
+                conf, session, archive
+            ).items():
+                print("%s\t%s\t%s" % (suite, present["db"], present["archive"]))
+        elif args.action == "remove":
             archiver.remove_suite(conf, session, args.suite)
-        if conf['single_transaction']:
+        if conf["single_transaction"]:
             session.commit()
     except SystemExit:  # exit as requested
         raise
-    except:  # store trace in log, then exit
-        logging.exception('unhandled exception. Abort')
+    except Exception:  # store trace in log, then exit
+        logging.exception("unhandled exception. Abort")
         sys.exit(2)
     finally:
         session.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

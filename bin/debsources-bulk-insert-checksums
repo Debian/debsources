@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2014-2015  The Debsources developers <qa-debsources@lists.alioth.debian.org>.
+# Copyright (C) 2014-2021  The Debsources developers
+# <qa-debsources@lists.alioth.debian.org>.
 # See the AUTHORS file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/AUTHORS
 #
@@ -23,42 +24,48 @@ from debsources import mainlib
 from debsources import fs_storage
 from debsources.plugins.hook_checksums import parse_checksums
 
-METADATA_SUFFIX = '.checksums'
+METADATA_SUFFIX = ".checksums"
 METADATA_SUFFIX_LEN = len(METADATA_SUFFIX)
 
 BINDPARAMS = [
-    bindparam('path', type_=LargeBinary),
+    bindparam("path", type_=LargeBinary),
 ]
 
-PACKAGE_ID_Q = sql_query("""
+PACKAGE_ID_Q = sql_query(
+    """
     SELECT versions.id
     FROM versions, packages
     WHERE versions.package_id = packages.id
     AND versions.version = :v
     AND packages.name = :p
-    """)
+    """
+)
 
-CHECKSUMS_EXIST_Q = sql_query("""
+CHECKSUMS_EXIST_Q = sql_query(
+    """
     SELECT 1
     FROM checksums
     WHERE package_id = :v
     LIMIT 1
-    """)
+    """
+)
 
-INSERT_SHA_Q = sql_query("""
+INSERT_SHA_Q = sql_query(
+    """
     INSERT INTO checksums (package_id, path, sha256)
     VALUES (:package_id, :path, :sha256)
     """,
-                         bindparams=BINDPARAMS)
+    bindparams=BINDPARAMS,
+)
 
 
 def insert_checksums(conn, sumsfile):
-    steps = sumsfile.split('/')
+    steps = sumsfile.split("/")
     package = steps[-2]
     version = steps[-1][:-METADATA_SUFFIX_LEN]
 
-    logging.debug('package %s/%s' % (package, version))
-    logging.debug('INSERT INTO checksums %s/%s...' % (package, version))
+    logging.debug("package %s/%s" % (package, version))
+    logging.debug("INSERT INTO checksums %s/%s..." % (package, version))
 
     package_id = conn.execute(PACKAGE_ID_Q, v=version, p=package).first()[0]
     assert package_id is not None
@@ -68,9 +75,9 @@ def insert_checksums(conn, sumsfile):
 
     checksums = []
     for (sha256, path) in parse_checksums(sumsfile):
-        checksums.append({'package_id': package_id,
-                          'path': str(path),
-                          'sha256': sha256})
+        checksums.append(
+            {"package_id": package_id, "path": str(path), "sha256": sha256}
+        )
     if checksums:
         conn.execute(INSERT_SHA_Q, checksums)
 
@@ -80,27 +87,29 @@ def is_checksum(p):
 
 
 def main(conf, sumsfile=None):
-    conn = create_engine(conf['db_uri'])
+    conn = create_engine(conf["db_uri"])
     if sumsfile:
         insert_checksums(conn, sumsfile)
     else:
-        for f in fs_storage.walk(conf['sources_dir'], test=is_checksum):
+        for f in fs_storage.walk(conf["sources_dir"], test=is_checksum):
             with conn.begin() as trans:
                 try:
                     insert_checksums(conn, f)
-                except:
-                    logging.exception('cannot inject %s' % f)
+                except Exception:
+                    logging.exception("cannot inject %s" % f)
                     trans.rollback()
 
 
-if __name__ == '__main__':
-    cmdline = argparse.ArgumentParser(
-        description='Debsources: bulk checksum insertion')
-    cmdline.add_argument('--config', '-c', dest='conffile',
-                         default=mainlib.guess_conffile(),
-                         help='alternate configuration file')
-    cmdline.add_argument('file', nargs='?',
-                         help='.checksum metadata file')
+if __name__ == "__main__":
+    cmdline = argparse.ArgumentParser(description="Debsources: bulk checksum insertion")
+    cmdline.add_argument(
+        "--config",
+        "-c",
+        dest="conffile",
+        default=mainlib.guess_conffile(),
+        help="alternate configuration file",
+    )
+    cmdline.add_argument("file", nargs="?", help=".checksum metadata file")
     args = cmdline.parse_args()
     conf = mainlib.load_configuration(args.conffile)
 

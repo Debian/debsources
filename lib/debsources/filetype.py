@@ -265,7 +265,7 @@ def get_filetype_from_filename(filename):
             try:
                 if re.search(pattern, filename):
                     return language
-            except:
+            except Exception:
                 raise Exception("Regex error: " + str(language) + " " + str(pattern))
     return None
 

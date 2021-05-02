@@ -47,8 +47,8 @@ def pkg_names_get_packages_prefixes(cache_dir):
     cache_dir: the cache directory, usually comes from the app config
     """
     try:
-        with (cache_dir / "pkg-prefixes").open() as f:
-            prefixes = [l.rstrip() for l in f]
+        with (cache_dir / "pkg-prefixes").open() as file:
+            prefixes = [line.rstrip() for line in file]
     except IOError:
         prefixes = PREFIXES_DEFAULT
     return prefixes
@@ -279,13 +279,13 @@ def count_files_checksum(session, checksum, pkg=None, suite=None):
     result = session.query(sql_func.count(Checksum.id)).filter(
         Checksum.sha256 == checksum
     )
-    if pkg is not None and pkg is not "":
+    if pkg is not None and pkg != "":
         result = (
             result.filter(PackageName.name == pkg)
             .filter(Checksum.package_id == Package.id)
             .filter(Package.name_id == PackageName.id)
         )
-    if suite is not None and suite is not "":
+    if suite is not None and suite != "":
         result = result.filter(Suite.suite == suite).filter(
             Suite.package_id == Checksum.package_id
         )
@@ -299,7 +299,7 @@ def get_pkg_by_name(session, pkg, suite=None):
     """
     result = session.query(PackageName).filter_by(name=pkg)
 
-    if suite is not None and suite is not "":
+    if suite is not None and suite != "":
         result = (
             result.filter(sql_func.lower(Suite.suite) == suite)
             .filter(Suite.package_id == Package.id)
@@ -319,7 +319,7 @@ def get_pkg_by_similar_name(session, pkg, suite=None):
         .order_by(PackageName.name)
     )
 
-    if suite is not None and suite is not "":
+    if suite is not None and suite != "":
         return filter_pkg_by_suite(session, result, suite)
     else:
         return result
@@ -357,7 +357,7 @@ def get_files_by_checksum(session, checksum, package=None, suite=None):
 
         results = results.filter(PackageName.name == package)
 
-    if suite is not None and suite is not "":
+    if suite is not None and suite != "":
         results = results.filter(Suite.suite == suite).filter(
             Suite.package_id == Checksum.package_id
         )
@@ -383,7 +383,7 @@ def get_files_by_path_package(session, path, package, version=None):
         .filter(Checksum.file_id == File.id)
     )
 
-    if version is not None and version is not "":
+    if version is not None and version != "":
         results = results.filter(Package.version == version)
 
     return results.order_by(PackageName.name, Package.version, File.path)
@@ -400,7 +400,7 @@ def get_pkg_filter_prefix(session, prefix, suite=None):
 
     result = result.order_by(PackageName.name)
 
-    if suite is not None and suite is not "":
+    if suite is not None and suite != "":
         return filter_pkg_by_suite(session, result, suite)
     else:
         return result

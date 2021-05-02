@@ -143,18 +143,18 @@ def parse_copyright_paragraphs_for_html_render(copyright, base_url):
         for files in par.files:
             globs.append({"files": files, "url": create_url(files, base_url)})
         try:
-            l = {
+            license = {
                 "license": parse_license_synopsis(copyright, par.license.synopsis),
                 "text": par.license.text,
             }
         except (AttributeError, ValueError):
-            l = {"license": None, "text": None}
+            license = {"license": None, "text": None}
         paragraphs.append(
             {
                 "globs": globs,
                 "copyright": par.copyright,
                 "comment": par.comment,
-                "license": l,
+                "license": license,
             }
         )
     return paragraphs
@@ -175,12 +175,9 @@ def parse_licenses_for_html_render(copyright):
     return licenses
 
 
-def create_url(
-    glob="",
-    base=None,
-):
+def create_url(glob="", base=None):
     # don't create links for hidden folders/files
-    if base is None or not re.search("^\.", glob):
+    if base is None or not re.search(r"^\.", glob):
         if glob.count("*") > 0:
             # find deepest folder without *
             parts = glob.split("/")
@@ -207,12 +204,14 @@ def parse_license_synopsis(copyright, synopsis):
     license = []
     if any(keyword in synopsis for keyword in ["and", "or"]):
         licenses = re.split("(, | ?and | ?or )", synopsis)
-        for l in licenses:
-            link = match_license(l)
+        for license_item in licenses:
+            link = match_license(license_item)
             if not link:
-                license.append([l, anchor_to_license(copyright, l)])
+                license.append(
+                    [license_item, anchor_to_license(copyright, license_item)]
+                )
             else:
-                license.append([l, link])
+                license.append([license_item, link])
     else:
         link = match_license(synopsis)
         if not link:

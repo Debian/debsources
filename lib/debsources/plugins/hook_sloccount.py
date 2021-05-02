@@ -41,9 +41,9 @@ def grep(args):
     return rc == 0
 
 
-SLOC_TBL_HEADER = re.compile("^Totals grouped by language")
-SLOC_TBL_FOOTER = re.compile("^\s*$")
-SLOC_TBL_LINE = re.compile("^(?P<lang>[^:]+):\s+(?P<locs>\d+)")
+SLOC_TBL_HEADER = re.compile(r"^Totals grouped by language")
+SLOC_TBL_FOOTER = re.compile(r"^\s*$")
+SLOC_TBL_LINE = re.compile(r"^(?P<lang>[^:]+):\s+(?P<locs>\d+)")
 
 
 def parse_sloccount(path):

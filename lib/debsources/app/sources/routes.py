@@ -15,9 +15,18 @@ from flask import redirect, url_for, request, jsonify, render_template
 
 from ..helper import bind_render, generic_before_request
 from ..views import (
-    IndexView, SearchView, CtagView, ChecksumView, PrefixView,
-    ListPackagesView, InfoPackageView, Ping, ErrorHandler,
-    PackageVersionsView, NewsArchiveView)
+    IndexView,
+    SearchView,
+    CtagView,
+    ChecksumView,
+    PrefixView,
+    ListPackagesView,
+    InfoPackageView,
+    Ping,
+    ErrorHandler,
+    PackageVersionsView,
+    NewsArchiveView,
+)
 
 from .views import StatsView, SourceView
 from . import bp_sources
@@ -28,293 +37,332 @@ from debsources.excepts import Http404Error
 @bp_sources.context_processor
 def skeleton_variables():
     site_name = bp_sources.name
-    return dict(site_name=site_name,)
+    return dict(
+        site_name=site_name,
+    )
 
 
 # site errors
 # XXX 500 handler cannot be registered on a blueprint
 # TODO see debsources.app.view#errorhandler section
-bp_sources.errorhandler(403)(
-    lambda e: (ErrorHandler()(e, http=403), 403))
-bp_sources.errorhandler(404)(
-    lambda e: (ErrorHandler()(e, http=404), 404))
+bp_sources.errorhandler(403)(lambda e: (ErrorHandler()(e, http=403), 403))
+bp_sources.errorhandler(404)(lambda e: (ErrorHandler()(e, http=404), 404))
 
 
 # Before request
 @bp_sources.before_request
 def before_request():
     try:
-        if 'embedded' in request.endpoint:
+        if "embedded" in request.endpoint:
             return generic_before_request(request, 3)
-        elif 'source' in request.endpoint.split('.')[1]:
+        elif "source" in request.endpoint.split(".")[1]:
             return generic_before_request(request, 2)
     except Http404Error:
-        return render_template('404.html'), 404
+        return render_template("404.html"), 404
+
 
 # ping service
 bp_sources.add_url_rule(
-    '/api/ping/',
+    "/api/ping/",
     view_func=Ping.as_view(
-        'ping',))
+        "ping",
+    ),
+)
 
 
 # INDEXVIEW
 bp_sources.add_url_rule(
-    '/',
+    "/",
     view_func=IndexView.as_view(
-        'index',
-        render_func=bind_render('sources/index.html'),
-        err_func=ErrorHandler('sources'),
-        news_html='sources_news.html',
-        news_archive_html='sources_news_archive.html'))
+        "index",
+        render_func=bind_render("sources/index.html"),
+        err_func=ErrorHandler("sources"),
+        news_html="sources_news.html",
+        news_archive_html="sources_news_archive.html",
+    ),
+)
 
 
 # NEWSARCHIVEVIEW
 bp_sources.add_url_rule(
-    '/news_archive',
+    "/news_archive",
     view_func=NewsArchiveView.as_view(
-        'news_archive',
-        render_func=bind_render('news_archive.html'),
-        err_func=ErrorHandler('sources'),
-        news_archive_html='sources_news_archive.html'))
+        "news_archive",
+        render_func=bind_render("news_archive.html"),
+        err_func=ErrorHandler("sources"),
+        news_archive_html="sources_news_archive.html",
+    ),
+)
 
 
 # STATSVIEW
 bp_sources.add_url_rule(
-    '/stats/',
+    "/stats/",
     view_func=StatsView.as_view(
-        'stats',
-        render_func=bind_render('sources/stats.html'),
-        err_func=ErrorHandler('sources'),
-        get_objects='stats',))
+        "stats",
+        render_func=bind_render("sources/stats.html"),
+        err_func=ErrorHandler("sources"),
+        get_objects="stats",
+    ),
+)
 
 
 # api
 bp_sources.add_url_rule(
-    '/api/stats/',
+    "/api/stats/",
     view_func=StatsView.as_view(
-        'api_stats',
-        err_func=ErrorHandler(mode='json'),
-        get_objects='stats',))
+        "api_stats",
+        err_func=ErrorHandler(mode="json"),
+        get_objects="stats",
+    ),
+)
 
 
 bp_sources.add_url_rule(
-    '/stats/<suite>/',
+    "/stats/<suite>/",
     view_func=StatsView.as_view(
-        'stats_suite',
-        render_func=bind_render('sources/stats_suite.html'),
-        err_func=ErrorHandler('sources'),
-        get_objects='stats_suite',))
+        "stats_suite",
+        render_func=bind_render("sources/stats_suite.html"),
+        err_func=ErrorHandler("sources"),
+        get_objects="stats_suite",
+    ),
+)
 
 
 # api
 bp_sources.add_url_rule(
-    '/api/stats/<suite>/',
+    "/api/stats/<suite>/",
     view_func=StatsView.as_view(
-        'api_stats_suite',
+        "api_stats_suite",
         render_func=jsonify,
-        err_func=ErrorHandler(mode='json'),
-        get_objects='stats_suite'))
+        err_func=ErrorHandler(mode="json"),
+        get_objects="stats_suite",
+    ),
+)
 
 
 # SEARCHVIEW
 bp_sources.add_url_rule(
-    '/search/',
+    "/search/",
     view_func=SearchView.as_view(
-        'recv_search',
-        render_func=bind_render('sources/index.html'),
-        err_func=ErrorHandler('sources'),
-        recv_search=True),
-    methods=['GET', 'POST'])
+        "recv_search",
+        render_func=bind_render("sources/index.html"),
+        err_func=ErrorHandler("sources"),
+        recv_search=True,
+    ),
+    methods=["GET", "POST"],
+)
 
 
 bp_sources.add_url_rule(
-    '/advancedsearch/',
+    "/advancedsearch/",
     view_func=SearchView.as_view(
-        'advanced_search',
-        render_func=bind_render('sources/search_advanced.html'),
-        err_func=ErrorHandler('sources'),
-        get_objects='advanced',))
+        "advanced_search",
+        render_func=bind_render("sources/search_advanced.html"),
+        err_func=ErrorHandler("sources"),
+        get_objects="advanced",
+    ),
+)
 
 
 # api
 bp_sources.add_url_rule(
-    '/api/advancedsearch/',
+    "/api/advancedsearch/",
     view_func=SearchView.as_view(
-        'api_advanced_search',
-        render_func=jsonify,
-        err_func=ErrorHandler(mode='json')))
+        "api_advanced_search", render_func=jsonify, err_func=ErrorHandler(mode="json")
+    ),
+)
 
 
 bp_sources.add_url_rule(
-    '/search/<query>/',
+    "/search/<query>/",
     view_func=SearchView.as_view(
-        'search',
-        render_func=bind_render('search.html'),
-        err_func=ErrorHandler('sources'),
-        get_objects='query',))
+        "search",
+        render_func=bind_render("search.html"),
+        err_func=ErrorHandler("sources"),
+        get_objects="query",
+    ),
+)
 
 
 # api
 bp_sources.add_url_rule(
-    '/api/search/<query>/',
+    "/api/search/<query>/",
     view_func=SearchView.as_view(
-        'api_search',
+        "api_search",
         render_func=jsonify,
-        err_func=ErrorHandler(mode='json'),
-        get_objects='query'))
+        err_func=ErrorHandler(mode="json"),
+        get_objects="query",
+    ),
+)
 
 
 # ChecksumView
 bp_sources.add_url_rule(
-    '/sha256/',
+    "/sha256/",
     view_func=ChecksumView.as_view(
-        'checksum',
-        render_func=bind_render('sources/checksum.html'),
-        err_func=ErrorHandler('sources'),
-        pagination=True))
+        "checksum",
+        render_func=bind_render("sources/checksum.html"),
+        err_func=ErrorHandler("sources"),
+        pagination=True,
+    ),
+)
 
 
 # api
 bp_sources.add_url_rule(
-    '/api/sha256/',
+    "/api/sha256/",
     view_func=ChecksumView.as_view(
-        'api_checksum',
-        render_func=jsonify,
-        err_func=ErrorHandler(mode='json')))
+        "api_checksum", render_func=jsonify, err_func=ErrorHandler(mode="json")
+    ),
+)
 
 
 # CtagView
 bp_sources.add_url_rule(
-    '/ctag/',
+    "/ctag/",
     view_func=CtagView.as_view(
-        'ctag',
-        render_func=bind_render('sources/ctag.html'),
-        err_func=ErrorHandler('sources'),
-        pagination=True))
+        "ctag",
+        render_func=bind_render("sources/ctag.html"),
+        err_func=ErrorHandler("sources"),
+        pagination=True,
+    ),
+)
 
 
 # api
 bp_sources.add_url_rule(
-    '/api/ctag/',
+    "/api/ctag/",
     view_func=CtagView.as_view(
-        'api_ctag',
-        render_func=jsonify,
-        err_func=ErrorHandler(mode='json')))
+        "api_ctag", render_func=jsonify, err_func=ErrorHandler(mode="json")
+    ),
+)
 
 
 # PREFIXVIEW
 bp_sources.add_url_rule(
-    '/prefix/<prefix>/',
+    "/prefix/<prefix>/",
     view_func=PrefixView.as_view(
-        'prefix',
-        render_func=bind_render('prefix.html'),
-        err_func=ErrorHandler('sources'),))
+        "prefix",
+        render_func=bind_render("prefix.html"),
+        err_func=ErrorHandler("sources"),
+    ),
+)
 
 
 # api
 bp_sources.add_url_rule(
-    '/api/prefix/<prefix>/',
+    "/api/prefix/<prefix>/",
     view_func=PrefixView.as_view(
-        'api_prefix',
-        render_func=jsonify,
-        err_func=ErrorHandler(mode='json')))
+        "api_prefix", render_func=jsonify, err_func=ErrorHandler(mode="json")
+    ),
+)
 
 
 # LISTPACKAGESVIEW
 bp_sources.add_url_rule(
-    '/list/<int:page>/',
+    "/list/<int:page>/",
     view_func=ListPackagesView.as_view(
-        'list_packages',
-        render_func=bind_render('list.html'),
-        err_func=ErrorHandler('sources'),
-        pagination=True))
+        "list_packages",
+        render_func=bind_render("list.html"),
+        err_func=ErrorHandler("sources"),
+        pagination=True,
+    ),
+)
 
 
 # api
 bp_sources.add_url_rule(
-    '/api/list/',
+    "/api/list/",
     view_func=ListPackagesView.as_view(
-        'api_list_packages',
-        render_func=jsonify,
-        err_func=ErrorHandler(mode='json')))
+        "api_list_packages", render_func=jsonify, err_func=ErrorHandler(mode="json")
+    ),
+)
 
 # VERSIONSVIEW
 bp_sources.add_url_rule(
-    '/src/<string:packagename>/',
+    "/src/<string:packagename>/",
     view_func=PackageVersionsView.as_view(
-        'versions',
-        render_func=bind_render('sources/source_package.html'),
-        err_func=ErrorHandler('sources')))
+        "versions",
+        render_func=bind_render("sources/source_package.html"),
+        err_func=ErrorHandler("sources"),
+    ),
+)
 
 # api
 bp_sources.add_url_rule(
-    '/api/src/<string:packagename>/',
+    "/api/src/<string:packagename>/",
     view_func=PackageVersionsView.as_view(
-        'api_versions',
-        render_func=jsonify,
-        err_func=ErrorHandler(mode='json')))
+        "api_versions", render_func=jsonify, err_func=ErrorHandler(mode="json")
+    ),
+)
 
 
 # SOURCEVIEW
 bp_sources.add_url_rule(
-    '/src/<path:path_to>/',
+    "/src/<path:path_to>/",
     view_func=SourceView.as_view(
-        'source',
+        "source",
         # the render func is set by the views.
-        err_func=ErrorHandler('sources'),
-        templatename='sources/source_file.html'))
+        err_func=ErrorHandler("sources"),
+        templatename="sources/source_file.html",
+    ),
+)
 
 
 # api
 bp_sources.add_url_rule(
-    '/api/src/<path:path_to>/',
+    "/api/src/<path:path_to>/",
     view_func=SourceView.as_view(
-        'api_source',
-        err_func=ErrorHandler(mode='json'),
-        api=True))
+        "api_source", err_func=ErrorHandler(mode="json"), api=True
+    ),
+)
 
 
 # SOURCE FILE EMBEDDED ROUTING
 bp_sources.add_url_rule(
-    '/embed/file/<path:path_to>/',
+    "/embed/file/<path:path_to>/",
     view_func=SourceView.as_view(
-        'embedded_source',
-        err_func=ErrorHandler('sources'),
-        templatename="sources/source_file_embedded.html"))
+        "embedded_source",
+        err_func=ErrorHandler("sources"),
+        templatename="sources/source_file_embedded.html",
+    ),
+)
 
 
 # we redirect the old used embedded file page (/embedded/<path>)
 # to the new one (/embed/file/<path>)
 @bp_sources.route("/embedded/<path:path_to>/")
 def old_embedded_file(path_to, **kwargs):
-    return redirect(url_for(".embedded_source",
-                            path_to=path_to,
-                            **request.args))
+    return redirect(url_for(".embedded_source", path_to=path_to, **request.args))
 
 
 # INFO PER-VERSION
 bp_sources.add_url_rule(
-    '/info/package/<package>/<version>/',
+    "/info/package/<package>/<version>/",
     view_func=InfoPackageView.as_view(
-        'info_package',
-        render_func=bind_render('sources/infopackage.html'),
-        err_func=ErrorHandler('sources'),))
+        "info_package",
+        render_func=bind_render("sources/infopackage.html"),
+        err_func=ErrorHandler("sources"),
+    ),
+)
 
 
 # api
 bp_sources.add_url_rule(
-    '/api/info/package/<package>/<version>/',
+    "/api/info/package/<package>/<version>/",
     view_func=InfoPackageView.as_view(
-        'api_info_package',
-        render_func=jsonify,
-        err_func=ErrorHandler(mode='json')))
+        "api_info_package", render_func=jsonify, err_func=ErrorHandler(mode="json")
+    ),
+)
 
 
 # INFO PER-VERSION (EMBEDDED)
 bp_sources.add_url_rule(
-    '/embed/pkginfo/<package>/<version>/',
+    "/embed/pkginfo/<package>/<version>/",
     view_func=InfoPackageView.as_view(
-        'embedded_info_package',
-        render_func=bind_render('sources/infopackage_embed.html'),
-        err_func=ErrorHandler('sources')))
+        "embedded_info_package",
+        render_func=bind_render("sources/infopackage_embed.html"),
+        err_func=ErrorHandler("sources"),
+    ),
+)

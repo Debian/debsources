@@ -36,7 +36,7 @@ class SourceCodeIterator(object):
         # we store the firstline (used to determine file language)
         try:
             self.firstline = next(self.file)
-        except:  # empty file
+        except Exception:  # empty file
             self.firstline = ""
 
         self.file.seek(0)
@@ -61,7 +61,7 @@ class SourceCodeIterator(object):
                 else:  # it's a single line
                     try:
                         self.hls.add(int(r))
-                    except:
+                    except Exception:
                         pass
 
     def __iter__(self):

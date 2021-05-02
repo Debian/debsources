@@ -1,5 +1,8 @@
 NOSE = nosetests3
-FLAKE = flake8
+FLAKE = flake8 --max-line-length 88 --ignore=E203,W503
+# E203 (whitespace before ':') conflicts with black formatting
+# W503 (line break before binary operator), ditto
+BLACK = black --check
 
 SRCDIR = lib/debsources
 BINDIR = bin
@@ -29,6 +32,7 @@ test-coverage:
 
 check:
 	$(FLAKE) $(SRCDIR)/ $(shell grep -H 'env python' $(BINDIR)/debsources-* | cut -f 1 -d :)
+	$(BLACK) $(SRCDIR)
 
 test-online-app:
 	contrib/test-online-app

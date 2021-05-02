@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2013-2014  The Debsources developers <qa-debsources@lists.alioth.debian.org>.
+# Copyright (C) 2013-2021  The Debsources developers
+# <qa-debsources@lists.alioth.debian.org>.
 # See the AUTHORS file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/AUTHORS
 #
@@ -35,56 +36,54 @@ Session = sessionmaker()
 
 # Global. List of allowed extensions in FS storage (will be extended querying
 # plugin information)
-file_extensions = ['.done', '.log']
+file_extensions = [".done", ".log"]
 
 
 def fs_check_missing(conf, session, fix=False):
-    logging.info('fs storage: check for missing data...')
+    logging.info("fs storage: check for missing data...")
     for version in session.query(Package).all():
         pkg = SourcePackage.from_db_model(version)
-        pkgdir = pkg.extraction_dir(conf['sources_dir'])
+        pkgdir = pkg.extraction_dir(conf["sources_dir"])
         if not pkgdir.is_dir():
-            logging.warn('missing package directory: %s' % pkgdir)
+            logging.warn("missing package directory: %s" % pkgdir)
         for ext in file_extensions:
             metafile = Path(str(pkgdir) + ext)
             if not metafile.is_file():
-                logging.warn('missing metadata file: %s' % metafile)
+                logging.warn("missing metadata file: %s" % metafile)
 
 
 def fs_check_stale(conf, session, fix=False):
     checked_versions = {}
 
     def have_version(package, version):
-        """check if a given package/version exists in the DB, with memoization
-        """
+        """check if a given package/version exists in the DB, with memoization"""
         pkg_id = (package, version)
         if pkg_id not in checked_versions.has_key:
-            checked_versions[pkg_id] = \
-                bool(db_storage.lookup_package(session, package, version))
+            checked_versions[pkg_id] = bool(
+                db_storage.lookup_package(session, package, version)
+            )
         return checked_versions[pkg_id]
 
-    logging.info('fs storage: check for stale data...')
-    for entry in fs_storage.walk(conf['sources_dir']):
+    logging.info("fs storage: check for stale data...")
+    for entry in fs_storage.walk(conf["sources_dir"]):
         path = fs_storage.parse_path(entry)
         if entry.is_dir():
-            if not have_version(path['package'], path['version']):
-                logging.warn('orphan package directory: %s' % entry)
+            if not have_version(path["package"], path["version"]):
+                logging.warn("orphan package directory: %s" % entry)
                 if fix:
-                    logging.info('removing orphan package directory %s' %
-                                 entry)
+                    logging.info("removing orphan package directory %s" % entry)
                     shutil.rmtree(entry)
         elif entry.is_file():
-            if path['ext'] in file_extensions:
-                if not have_version(path['package'], path['version']):
-                    logging.warn('orphan metadata file: %s' % entry)
+            if path["ext"] in file_extensions:
+                if not have_version(path["package"], path["version"]):
+                    logging.warn("orphan metadata file: %s" % entry)
                     if fix:
-                        logging.info('removing orphan metadata file %s' %
-                                     entry)
+                        logging.info("removing orphan metadata file %s" % entry)
                         entry.unlink()
             else:
-                logging.warn('unknown metadata file: %s' % entry)
+                logging.warn("unknown metadata file: %s" % entry)
                 if fix:
-                    logging.info('removing unknown metadata file %s' % entry)
+                    logging.info("removing unknown metadata file %s" % entry)
                     entry.unlink()
 
 
@@ -93,21 +92,23 @@ def main(conf, session, fix):
     fs_check_stale(conf, session, fix)
 
 
-if __name__ == '__main__':
-    cmdline = argparse.ArgumentParser(description='Debsources fsck')
-    cmdline.add_argument('--config', '-c', dest='conffile',
-                         default=mainlib.guess_conffile(),
-                         help='alternate configuration file')
-    cmdline.add_argument('--fix', '-f',
-                         action='store_true',
-                         help='fix errors')
+if __name__ == "__main__":
+    cmdline = argparse.ArgumentParser(description="Debsources fsck")
+    cmdline.add_argument(
+        "--config",
+        "-c",
+        dest="conffile",
+        default=mainlib.guess_conffile(),
+        help="alternate configuration file",
+    )
+    cmdline.add_argument("--fix", "-f", action="store_true", help="fix errors")
     args = cmdline.parse_args()
 
     conf = mainlib.load_configuration(args.conffile)
     mainlib.init_logging(conf, logging.INFO)
     (_observers, exts) = mainlib.load_hooks(conf)
     file_extensions.extend(exts.keys())
-    db = create_engine(conf['db_uri'])
+    db = create_engine(conf["db_uri"])
     session = Session(bind=db)
 
     main(conf, session, args.fix)

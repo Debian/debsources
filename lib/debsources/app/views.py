@@ -98,7 +98,7 @@ class ErrorHandler(object):
             self.http = http
         try:
             method = getattr(self, "error_{}".format(self.http))
-        except:
+        except Exception:
             raise Exception("Unimplemented HTTP error: {}".format(self.http))
         return method(error)
 
@@ -226,7 +226,7 @@ class Ping(View):
         last_update = local_info.read_update_ts(update_ts_file)
         try:
             session.query(Package).first().id  # database check
-        except:
+        except Exception:
             return jsonify(dict(status="db error", http_status_code=500)), 500
         return jsonify(dict(status="ok", http_status_code=200, last_update=last_update))
 
@@ -386,7 +386,7 @@ class CtagView(GeneralView):
         """
         try:
             page = int(request.args.get("page"))
-        except:
+        except Exception:
             page = 1
         ctag = request.args.get("ctag")
         package = request.args.get("package") or None
@@ -395,7 +395,7 @@ class CtagView(GeneralView):
         if self.d.get("pagination"):
             try:
                 offset = int(current_app.config.get("LIST_OFFSET"))
-            except:
+            except Exception:
                 offset = 60
             start = (page - 1) * offset
             end = start + offset

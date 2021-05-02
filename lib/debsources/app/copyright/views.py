@@ -106,16 +106,18 @@ class ChecksumLicenseView(ChecksumView):
                 # parse file
                 try:
                     c = helper.parse_license(license_path)
-                    l = helper.get_license(f["package"], f["version"], f["path"], c)
+                    license = helper.get_license(
+                        f["package"], f["version"], f["path"], c
+                    )
                 except copyright.NotMachineReadableError:
-                    l = None
+                    license = None
                 result.append(
                     dict(
                         oracle="debian",
                         path=f["path"],
                         package=f["package"],
                         version=f["version"],
-                        license=l,
+                        license=license,
                         origin=helper.license_url(f["package"], f["version"]),
                     )
                 )
@@ -233,15 +235,15 @@ class SearchFileView(GeneralView):
 
         try:
             c = helper.parse_license(license_path)
-            l = helper.get_license(f.package, f.version, f.path, c)
+            license = helper.get_license(f.package, f.version, f.path, c)
         except copyright.NotMachineReadableError:
-            l = None
+            license = None
         return dict(
             oracle="debian",
             path=f.path,
             package=f.package,
             version=f.version,
-            license=l,
+            license=license,
             origin=helper.license_url(f.package, f.version),
         )
 

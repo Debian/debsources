@@ -7,11 +7,11 @@ Build and test:
   services:
     - docker:dind
   before_script:
-    - apk add black=20.8_beta1-r0 docker-compose make
+    - apk add black=20.8_beta1-r0 py3-flake8 docker-compose make
   script:
     - cd contrib/docker
     - make build
     - make update-db
     - make test-all
     - cd ../..
-    - black --check lib/debsources
+    - make check
