@@ -85,7 +85,7 @@ class SourceCodeIterator(object):
         if self.number_of_lines is not None:
             return self.number_of_lines
         self.number_of_lines = 0
-        with open(self.filepath) as sfile:
+        with open(self.filepath, errors="ignore") as sfile:
             for line in sfile:
                 self.number_of_lines += 1
         return self.number_of_lines
