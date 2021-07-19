@@ -21,7 +21,7 @@ ACCEPTED_FORMATS = ["3.0 (quilt)", "3.0 (native)"]
 
 def get_patch_details(path):
     """Parse a patch to extract the description and or bug if it exists"""
-    with open(path, "r") as content_file:
+    with open(path, "r", errors="ignore") as content_file:
         patch = content_file.read()
     # check if subject exists
     keywords = ["description:", "subject:"]
