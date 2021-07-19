@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 DEBSOURCES_LIB = Path(__file__).resolve().parent.parent / "lib"
-sys.path.append(DEBSOURCES_LIB)
+sys.path.append(str(DEBSOURCES_LIB))
 
 from debsources.app import app_wrapper
 
