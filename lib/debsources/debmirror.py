@@ -277,24 +277,25 @@ class SourceMirror(object):
             type_ = mime.file(src_index)
             mime.close()
 
-            with open(src_index) as i:
-                if type_ == "application/x-xz":
-                    # we need to decompress ourselves xz files
-                    content = lzma.decompress(i.read()).decode("utf-8")
-                else:
-                    content = i
+            if type_ == "application/x-xz":
+                # we need to decompress ourselves xz files
+                with open(src_index, "rb") as f:
+                    content = lzma.decompress(f.read()).decode("utf-8")
+            else:
+                with open(src_index) as f:
+                    content = f
 
-                for pkg in SourcePackage.iter_paragraphs(content):
-                    pkg_id = (pkg["package"], pkg["version"])
+            for pkg in SourcePackage.iter_paragraphs(content):
+                pkg_id = (pkg["package"], pkg["version"])
 
-                    if cursuite not in self._suites:
-                        self._suites[cursuite] = []
-                    self._suites[cursuite].append(pkg_id)
+                if cursuite not in self._suites:
+                    self._suites[cursuite] = []
+                self._suites[cursuite].append(pkg_id)
 
-                    if pkg_id not in self._packages:
-                        self._packages.add(pkg_id)
-                        pkg["x-debsources-mirror-root"] = str(self.mirror_root)
-                        yield pkg
+                if pkg_id not in self._packages:
+                    self._packages.add(pkg_id)
+                    pkg["x-debsources-mirror-root"] = str(self.mirror_root)
+                    yield pkg
 
     def ls_suites(self, aliases=False):
         """list suites available in the archive
