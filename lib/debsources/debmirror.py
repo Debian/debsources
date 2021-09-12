@@ -263,6 +263,20 @@ class SourceMirror(object):
         considered at all!)
 
         """
+
+        def _iter_paragraphs(content):
+            for pkg in SourcePackage.iter_paragraphs(content):
+                pkg_id = (pkg["package"], pkg["version"])
+
+                if cursuite not in self._suites:
+                    self._suites[cursuite] = []
+                self._suites[cursuite].append(pkg_id)
+
+                if pkg_id not in self._packages:
+                    self._packages.add(pkg_id)
+                    pkg["x-debsources-mirror-root"] = str(self.mirror_root)
+                    yield pkg
+
         self._suites = {}
         self._packages = set()
 
@@ -281,21 +295,10 @@ class SourceMirror(object):
                 # we need to decompress ourselves xz files
                 with open(src_index, "rb") as f:
                     content = lzma.decompress(f.read()).decode("utf-8")
+                    yield from _iter_paragraphs(content)
             else:
                 with open(src_index) as f:
-                    content = f
-
-            for pkg in SourcePackage.iter_paragraphs(content):
-                pkg_id = (pkg["package"], pkg["version"])
-
-                if cursuite not in self._suites:
-                    self._suites[cursuite] = []
-                self._suites[cursuite].append(pkg_id)
-
-                if pkg_id not in self._packages:
-                    self._packages.add(pkg_id)
-                    pkg["x-debsources-mirror-root"] = str(self.mirror_root)
-                    yield pkg
+                    yield from _iter_paragraphs(f)
 
     def ls_suites(self, aliases=False):
         """list suites available in the archive
