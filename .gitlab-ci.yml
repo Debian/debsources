@@ -7,7 +7,7 @@ Build and test:
   services:
     - docker:dind
   before_script:
-    - apk add black=20.8_beta1-r0 py3-flake8 py3-isort docker-compose make
+    - apk add black py3-flake8 py3-isort docker-compose make
   script:
     - cd contrib/docker
     - make build
