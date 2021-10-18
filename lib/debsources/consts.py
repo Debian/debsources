@@ -235,7 +235,13 @@ SUITES = {
     "devel": [],  # known release variants; filled below
     "all": [],  # all known releases + variants; filled below
 }
-SUITE_VARIANTS = ["%s-updates", "%s-proposed-updates", "%s-backports", "%s-lts"]
+SUITE_VARIANTS = [
+    "%s-updates",
+    "%s-proposed-updates",
+    "%s-backports",
+    "%s-backports-sloppy",
+    "%s-lts",
+]
 for s in SUITES["release"]:
     for v in SUITE_VARIANTS:
         variant = v % s
@@ -243,9 +249,6 @@ for s in SUITES["release"]:
 
 SUITES["devel"].append("experimental")
 SUITES["devel"].append("etch-m68k")
-SUITES["devel"].append("wheezy-backports-sloppy")
-SUITES["devel"].append("jessie-backports-sloppy")
-SUITES["devel"].append("stretch-backports-sloppy")
 SUITES["devel"].append("jessie-kfreebsd")
 SUITES["devel"].append("jessie-kfreebsd-proposed-updates")
 
