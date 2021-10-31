@@ -11,7 +11,7 @@
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
 
-from flask import jsonify, redirect, render_template, request, url_for
+from flask import jsonify, render_template, request
 
 from debsources.excepts import Http404Error
 
