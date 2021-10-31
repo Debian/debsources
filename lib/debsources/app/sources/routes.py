@@ -330,13 +330,6 @@ bp_sources.add_url_rule(
 )
 
 
-# we redirect the old used embedded file page (/embedded/<path>)
-# to the new one (/embed/file/<path>)
-@bp_sources.route("/embedded/<path:path_to>/")
-def old_embedded_file(path_to, **kwargs):
-    return redirect(url_for(".embedded_source", path_to=path_to, **request.args))
-
-
 # INFO PER-VERSION
 bp_sources.add_url_rule(
     "/info/package/<package>/<version>/",
