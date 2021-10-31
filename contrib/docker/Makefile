@@ -15,6 +15,9 @@ update-db:
 run:
 	docker-compose up -d
 
+logs:
+	docker logs -f docker_debsources_1
+
 stop:
 	docker-compose stop
 
