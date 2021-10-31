@@ -79,7 +79,7 @@ def lookup_package(session, package, version):
     """Lookup a package in the Debsources db, using <package, version> as key"""
     return (
         session.query(Package)
-        .join(PackageName)
+        .join(PackageName, PackageName.id == Package.name_id)
         .filter(Package.version == version)
         .filter(PackageName.name == package)
         .first()
@@ -119,8 +119,8 @@ def rm_file(session, package, relpath, file_table=None):
     else:
         file = (
             session.query(File)
-            .join(Package)
-            .join(PackageName)
+            .join(Package, Package.id == File.package_id)
+            .join(PackageName, PackageName.id == Package.name_id)
             .filter_by(name=package, path=relpath)
             .first()
         )

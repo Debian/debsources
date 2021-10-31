@@ -115,7 +115,13 @@ def pie_chart(items, fname, ratio=None):
                 modified_keys[0] = modified_keys[0] + "\n"
     # delete trailing /
     modified_keys[0] = modified_keys[0][0:-2]
-    plt.pie(modified_values, labels=modified_keys[1:], autopct="%1.1f%%", colors=cols)
+    plt.pie(
+        modified_values,
+        labels=modified_keys[1:],
+        autopct="%1.1f%%",
+        colors=cols,
+        normalize=True,
+    )
     if ratio:
         modified_keys[0] += (
             "\nPercentage of files with non machine"

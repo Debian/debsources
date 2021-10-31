@@ -132,7 +132,7 @@ def remove_suite(conf, session, suite):
     if updater.STAGE_GC in conf["stages"]:
         for package in (
             session.query(Package)
-            .join(Suite)
+            .join(Suite, Suite.package_id == Package.id)
             .filter(Suite.suite == suite)
             .filter(Package.sticky)
         ):

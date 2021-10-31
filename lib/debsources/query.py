@@ -438,11 +438,15 @@ def get_ratio(session, suite=None):
     files_w_license = session.query(FileCopyright.file_id)
     if suite:
         files_w_license = (
-            files_w_license.join(File)
-            .join(Package)
-            .join(Suite)
+            files_w_license.join(File, File.id == FileCopyright.file_id)
+            .join(Package, Package.id == File.package_id)
+            .join(Suite, Suite.package_id == Package.id)
             .filter(Suite.suite == suite)
         )
-        files = files.join(Package).join(Suite).filter(Suite.suite == suite)
+        files = (
+            files.join(Package, Package.id == File.package_id)
+            .join(Suite, Suite.package_id == Package.id)
+            .filter(Suite.suite == suite)
+        )
     ratio = 1 - (files_w_license.count() / files.count())
     return int(ratio * 100)

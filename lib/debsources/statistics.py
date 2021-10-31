@@ -10,9 +10,7 @@
 # see the COPYING file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
-"""Compute several statistics about Debsouces content
-
-"""
+"""Compute several statistics about Debsources content."""
 
 
 import logging
@@ -87,9 +85,9 @@ def disk_usage(session, suite=None, areas=None):
     logging.debug("compute disk usage for suite %s..." % suite)
     q = session.query(sql_func.sum(Metric.value)).filter(Metric.metric == "size")
     if suite or areas:
-        q = q.join(Package)
+        q = q.join(Package, Package.id == Metric.package_id)
     if suite:
-        q = q.join(Suite).filter(Suite.suite == suite)
+        q = q.join(Suite, Suite.package_id == Package.id).filter(Suite.suite == suite)
     if areas:
         q = q.filter(Package.area.in_(areas))
     return _count(q)
@@ -111,7 +109,7 @@ def source_packages(session, suite=None, areas=None):
     logging.debug("count source packages for suite %s..." % suite)
     q = session.query(sql_func.count(Package.id))
     if suite:
-        q = q.join(Suite).filter(Suite.suite == suite)
+        q = q.join(Suite, Suite.package_id == Package.id).filter(Suite.suite == suite)
     if areas:
         q = q.filter(Package.area.in_(areas))
     return _count(q)
@@ -132,9 +130,9 @@ def source_files(session, suite=None, areas=None):
     logging.debug("count source files for suite %s..." % suite)
     q = session.query(sql_func.count(Checksum.id))
     if suite or areas:
-        q = q.join(Package)
+        q = q.join(Package, Package.id == Checksum.package_id)
     if suite:
-        q = q.join(Suite).filter(Suite.suite == suite)
+        q = q.join(Suite, Suite.package_id == Package.id).filter(Suite.suite == suite)
     if areas:
         q = q.filter(Package.area.in_(areas))
     return _count(q)
@@ -153,9 +151,9 @@ def sloccount_lang(session, language, suite=None, areas=None):
         SlocCount.language == language
     )
     if suite or areas:
-        q = q.join(Package)
+        q = q.join(Package, Package.id == SlocCount.package_id)
     if suite:
-        q = q.join(Suite).filter(Suite.suite == suite)
+        q = q.join(Suite, Suite.package_id == Package.id).filter(Suite.suite == suite)
     if areas:
         q = q.filter(Package.area.in_(areas))
     return _count(q)
@@ -174,9 +172,9 @@ def sloccount_summary(session, suite=None, areas=None):
     logging.debug("sloccount summary for suite %s..." % suite)
     q = session.query(SlocCount.language, sql_func.sum(SlocCount.count))
     if suite or areas:
-        q = q.join(Package)
+        q = q.join(Package, Package.id == SlocCount.package_id)
     if suite:
-        q = q.join(Suite).filter(Suite.suite == suite)
+        q = q.join(Suite, Suite.package_id == Package.id).filter(Suite.suite == suite)
     if areas:
         q = q.filter(Package.area.in_(areas))
     q = q.group_by(SlocCount.language)
@@ -194,9 +192,9 @@ def ctags(session, suite=None, areas=None):
     logging.debug("count ctags for suite %s..." % suite)
     q = session.query(sql_func.count(Ctag.id))
     if suite or areas:
-        q = q.join(Package)
+        q = q.join(Package, Package.id == Ctag.package_id)
     if suite:
-        q = q.join(Suite).filter(Suite.suite == suite)
+        q = q.join(Suite, Suite.package_id == Package.id).filter(Suite.suite == suite)
     if areas:
         q = q.filter(Package.area.in_(areas))
     return _count(q)
@@ -377,29 +375,29 @@ def stats_grouped_by(session, stat, areas=None):
     if stat == "source_packages":
         q = (
             session.query(Suite.suite.label("suite"), sql_func.count(Package.id))
-            .join(Package)
+            .join(Package, Package.id == Suite.package_id)
             .group_by(Suite.suite)
         )
     elif stat == "source_files":
         q = (
             session.query(Suite.suite.label("suite"), sql_func.count(Checksum.id))
-            .join(Package)
-            .join(Checksum)
+            .join(Package, Package.id == Suite.package_id)
+            .join(Checksum, Checksum.package_id == Package.id)
             .group_by(Suite.suite)
         )
     elif stat == "disk_usage":
         q = (
             session.query(Suite.suite.label("suite"), sql_func.sum(Metric.value))
             .filter(Metric.metric == "size")
-            .join(Package)
-            .join(Metric)
+            .join(Package, Package.id == Suite.package_id)
+            .join(Metric, Metric.package_id == Package.id)
             .group_by(Suite.suite)
         )
     elif stat == "ctags":
         q = (
             session.query(Suite.suite.label("suite"), sql_func.count(Ctag.id))
-            .join(Package)
-            .join(Ctag)
+            .join(Package, Package.id == Suite.package_id)
+            .join(Ctag, Ctag.package_id == Package.id)
             .group_by(Suite.suite)
         )
     elif stat == "sloccount":
@@ -409,8 +407,8 @@ def stats_grouped_by(session, stat, areas=None):
                 SlocCount.language.label("language"),
                 sql_func.sum(SlocCount.count),
             )
-            .join(Package)
-            .join(SlocCount)
+            .join(Package, Package.id == Suite.package_id)
+            .join(SlocCount, SlocCount.package_id == Package.id)
             .group_by(Suite.suite, SlocCount.language)
         )
     else:
@@ -454,9 +452,9 @@ def get_licenses(session, suite=None):
             session.query(
                 FileCopyright.license, Suite.suite, sql_func.count(FileCopyright.id)
             )
-            .join(File)
-            .join(Package)
-            .join(Suite)
+            .join(File, File.id == FileCopyright.file_id)
+            .join(Package, Package.id == File.package_id)
+            .join(Suite, Suite.package_id == Package.id)
             .group_by(Suite.suite)
             .group_by(FileCopyright.license)
             .order_by(Suite.suite)
@@ -465,11 +463,13 @@ def get_licenses(session, suite=None):
     else:
         q = (
             session.query(FileCopyright.license, sql_func.count(FileCopyright.id))
-            .join(File)
-            .join(Package)
+            .join(File, File.id == FileCopyright.file_id)
+            .join(Package, Package.id == File.package_id)
         )
         if suite != "ALL":
-            q = q.join(Suite).filter(Suite.suite == suite)
+            q = q.join(Suite, Suite.package_id == Package.id).filter(
+                Suite.suite == suite
+            )
         q = q.group_by(FileCopyright.license)
         return dict(q.all())
 

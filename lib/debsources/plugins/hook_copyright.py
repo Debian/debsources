@@ -76,7 +76,7 @@ def add_package(session, pkg, pkgdir, file_table):
         db_package = db_storage.lookup_package(session, pkg["package"], pkg["version"])
         if (
             not session.query(FileCopyright)
-            .join(File)
+            .join(File, File.id == FileCopyright.file_id)
             .filter(File.package_id == db_package.id)
             .first()
         ):
