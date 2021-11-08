@@ -300,7 +300,7 @@ bp_sources.add_url_rule(
 
 # SOURCEVIEW
 bp_sources.add_url_rule(
-    "/src/<path:path_to>/",
+    "/src/<filepath:path_to>/",
     view_func=SourceView.as_view(
         "source",
         # the render func is set by the views.
@@ -312,7 +312,7 @@ bp_sources.add_url_rule(
 
 # api
 bp_sources.add_url_rule(
-    "/api/src/<path:path_to>/",
+    "/api/src/<filepath:path_to>/",
     view_func=SourceView.as_view(
         "api_source", err_func=ErrorHandler(mode="json"), api=True
     ),
@@ -321,7 +321,7 @@ bp_sources.add_url_rule(
 
 # SOURCE FILE EMBEDDED ROUTING
 bp_sources.add_url_rule(
-    "/embed/file/<path:path_to>/",
+    "/embed/file/<filepath:path_to>/",
     view_func=SourceView.as_view(
         "embedded_source",
         err_func=ErrorHandler("sources"),

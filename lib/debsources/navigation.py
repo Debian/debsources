@@ -145,7 +145,8 @@ class Directory(object):
 
         listing = [
             {
-                "name": url_encode(f.name),
+                "name": f.name,
+                "percent_encoded_name": url_encode(f.name),
                 "type": get_type(f),
                 "hidden": False,
                 "stat": qry.location_get_stat(self.sources_path / f),

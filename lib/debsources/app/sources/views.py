@@ -27,7 +27,7 @@ from debsources.excepts import (
     InvalidPackageOrVersionError,
 )
 from debsources.navigation import Directory, Location, SourceFile
-from debsources.url import url_decode, url_encode
+from debsources.url import url_encode
 
 from ..extract_stats import extract_stats
 from ..helper import bind_redirect, bind_render
@@ -240,8 +240,6 @@ class SourceView(GeneralView):
         Directory: we want the subdirs and subfiles (disk listing)
         File: we want to render the raw url of the file
         """
-        path_to = url_decode(path_to)
-
         package, version, *path = path_to.split('/')
         path = Path('/'.join(path))
 

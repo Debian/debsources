@@ -6,7 +6,7 @@ def url_encode(name: str) -> str:
 
     E.g. hello\udced -> hello%ED
     """
-    return urllib.parse.quote(bytes(name, "utf8", "surrogateescape"))
+    return urllib.parse.quote(name, encoding="utf8", errors="surrogateescape")
 
 
 def url_decode(url: str) -> str:
@@ -14,4 +14,4 @@ def url_decode(url: str) -> str:
 
     E.g. hello%ED -> hello\udced
     """
-    return urllib.parse.unquote(url, "utf8", "surrogateescape")
+    return urllib.parse.unquote(url, encoding="utf8", errors="surrogateescape")

@@ -282,6 +282,7 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
             {
                 "type": "file",
                 "name": "ledit.ml",
+                "percent_encoded_name": "ledit.ml",
                 "hidden": False,
                 "stat": {
                     "perms": "rw-r--r--",
@@ -311,6 +312,7 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
             {
                 "type": "file",
                 "name": "README.md",
+                "percent_encoded_name": "README.md",
                 "hidden": False,
                 "stat": {
                     "perms": "rwxrwxrwx",

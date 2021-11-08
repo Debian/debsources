@@ -17,6 +17,7 @@ from logging import FileHandler, Formatter, StreamHandler
 from flask import Flask
 
 from debsources import mainlib
+from debsources.app.file_path_converter import FilePathConverter
 from debsources.app.json_encoder import Encoder
 from debsources.sqla_session import _get_engine_session
 
@@ -36,6 +37,9 @@ class AppWrapper(object):
         self.session = session
         self.app = Flask(__name__)
         self.app.json_encoder = Encoder
+
+        # Custom map converter for URLs accepting file paths
+        self.app.url_map.converters["filepath"] = FilePathConverter
 
         if config is None:
             self.setup_conf()

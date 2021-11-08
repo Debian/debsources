@@ -52,15 +52,15 @@
   </tr>
 {% endfor %}
 
-{% for file_ in subfiles %}
-  <tr{% if file_['hidden'] %} class="hidden_file"{% endif %}>
+{% for file in subfiles %}
+  <tr{% if file['hidden'] %} class="hidden_file"{% endif %}>
     <td class="item-img"><img src="{{ config['ICONS_FOLDER'] }}22x22/mimetypes/ascii.png" alt="- " /></td>
-    {% if config["DIR_LS_LONG"] %}<td class="stat-type"><span>{{ file_.stat.type }}</span></td>{% endif %}
-    <td class="stat-perms"><span>{{ file_.stat.perms }}</span></td>
-    {% if config["DIR_LS_LONG"] %}<td class="stat-size"><span>{{ "{:,d}".format(file_.stat.size) }}</span></td>{% endif %}
-    <td class="item-name"><a href="{{ url_for('.source', path_to=path+'/'+file_.name) }}">{{ file_.name }}</a>
+    {% if config["DIR_LS_LONG"] %}<td class="stat-type"><span>{{ file.stat.type }}</span></td>{% endif %}
+    <td class="stat-perms"><span>{{ file.stat.perms }}</span></td>
+    {% if config["DIR_LS_LONG"] %}<td class="stat-size"><span>{{ "{:,d}".format(file.stat.size) }}</span></td>{% endif %}
+    <td class="item-name"><a href="{{ url_for('.source', path_to=path+'/'+file.name) }}">{{ file.percent_encoded_name }}</a>
       {% if config["DIR_LS_LONG"] %}
-        {% if file_.stat.symlink_dest is not none %}{{ " → " + file_.stat.symlink_dest }}{% endif %}
+        {% if file.stat.symlink_dest is not none %}{{ " → " + file.stat.symlink_dest }}{% endif %}
       {% endif %}
     </td>
   </tr>
