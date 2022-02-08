@@ -29,6 +29,7 @@ from debsources.excepts import (
 )
 from debsources.models import Package
 from debsources.sqla_session import _close_session
+from debsources.url import url_encode
 
 from . import app_wrapper
 from .forms import SearchForm
@@ -339,7 +340,12 @@ class ChecksumView(GeneralView):
         results = results.all()
 
         return [
-            dict(path=str(res.path), package=res.package, version=res.version)
+            {
+                "path": str(res.path),
+                "percent_encoded_path": url_encode(str(res.path)),
+                "package": res.package,
+                "version": res.version,
+            }
             for res in results
         ]
 

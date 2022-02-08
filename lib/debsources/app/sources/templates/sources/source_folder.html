@@ -44,7 +44,7 @@
     {% if config["DIR_LS_LONG"] %}<td class="stat-type"><span>{{ dir.stat.type }}</span></td>{% endif %}
     <td class="stat-perms"><span>{{ dir.stat.perms }}</span></td>
     {% if config["DIR_LS_LONG"] %}<td class="stat-size"><span>{{ "{:,d}".format(dir.stat.size) }}</span></td>{% endif %}
-    <td class="item-name"><a href="{{ url_for('.source', path_to=path+'/'+dir.name) }}">{{ dir.name }}</a>
+    <td class="item-name"><a href="{{ url_for('.source', path_to=path+'/'+dir.percent_encoded_name) }}">{{ dir.name }}</a>
       {% if config["DIR_LS_LONG"] %}
         {% if dir.stat.symlink_dest is not none %}{{ " → " + dir.stat.symlink_dest }}{% endif %}
       {% endif %}

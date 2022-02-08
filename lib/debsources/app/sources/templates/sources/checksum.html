@@ -21,8 +21,9 @@
 <ul>
   {% for result in results %}
     {% set path_to=result.package + "/" + result.version + "/" + result.path %}
+    {% set encoded_path_to=result.package + "/" + result.version + "/" + result.percent_encoded_path %}
     <li>
-      <a href="{{ url_for('.source', path_to=path_to) }}">{{ path_to }}</a>
+      <a href="{{ url_for('.source', path_to=path_to) }}">{{ encoded_path_to }}</a>
     </li>
   {% endfor %}
 </ul>
