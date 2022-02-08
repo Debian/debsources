@@ -5,11 +5,11 @@ used.  This allows to keep most of the path human-readable, and only
 characters outside of those allowed in an URL are displayed under the
 form %XY.
 
-To create an URL from a file path, double-percent encoding is used.
-This is because URLs are percent-decoded by gateways before passing
-down the result to the application through WSGI.  Using double-percent
-encoding allows to be safe, and avoids the gateway to drop bytes that
-can't be decoded to ASCII or UTF-8.
+To create an URL from a file path, double-percent encoding is used for
+non-ascii characters.  This is because URLs are percent-decoded by
+gateways before passing down the result to the application through
+WSGI.  Using double-percent encoding allows to be safe, and avoids the
+gateway to drop bytes that can't be decoded to ASCII or UTF-8.
 
 For example, a file b"hello\xed" can't be decoded to UTF-8.
 
@@ -35,15 +35,23 @@ class FilePathConverter(PathConverter):
     defining URL routes.
     """
 
-    def to_python(self, value):
+    def to_python(self, value: str) -> str:
         """Decode URL to utf-8 surrogate-escaped string."""
         return url_decode(value)
 
-    def to_url(self, value):
+    def to_url(self, value: str) -> str:
         """Encode utf-8 surrogate-escaped string to URL.
 
-        Since URLs are decoded twice, once by the WSGI gateway, and
-        once by the Python application, producing such URLs needs a
-        double-percent encoding. See module documentation.
+        Non-ascii characters are percent-encoded twice - see module
+        documentation.
         """
-        return urllib.parse.quote(url_encode(value))
+        result = ""
+
+        for x in value:
+            try:
+                x.encode("ascii")
+                char = x
+            except UnicodeEncodeError:
+                char = url_encode(x)
+            result += char
+        return urllib.parse.quote(result)
