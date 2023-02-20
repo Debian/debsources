@@ -20,9 +20,9 @@ gets removed from the mirror network.
 
 or, more precisely on sources.d.o machine:
 
-    ```shell
-    sudo -u debsources PYTHONPATH=./lib bin/debsources-suite-archive add squeeze -vvv --single-transaction no
-    ```
+```shell
+sudo -u debsources PYTHONPATH=./lib bin/debsources-suite-archive add squeeze -vvv --single-transaction no
+```
 
 4) run `bin/debsources-suite-archive list` and check that the given suite is
    marked as both available and indexed, i.e., `True` on both columns
