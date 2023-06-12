@@ -209,6 +209,11 @@ DEBIAN_RELEASES = {
         "date": datetime.date(2021, 8, 14),
         "archived": False,
     },
+    "bookworm": {
+        "version": "12",
+        "date": datetime.date(2023, 6, 10),
+        "archived": False,
+    },
 }
 
 SUITES = {
@@ -230,6 +235,7 @@ SUITES = {
         "buster",
         "bullseye",
         "bookworm",
+        "trixie",
         "sid",
     ],
     "devel": [],  # known release variants; filled below
