@@ -19,7 +19,7 @@ The format is as follows:
 
   - **VERSION**: source package version
 
-  - **AREA**: package archive area, one of `main`, `contrib`, `non-free`
+  - **AREA**: package archive area, one of `main`, `contrib`, `non-free`, `non-free-firmware`
 
   - **DSC**: absolute path to the corresponding `.dsc` file  
 	  

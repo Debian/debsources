@@ -60,7 +60,7 @@ class Location(object):
             # to allow codesearch.d.n and others less up-to-date platforms
             # to point here.
             # Problem: we don't know the area of such a package
-            # so we try in main, contrib and non-free.
+            # so we try in main, contrib, non-free and non-free-firmware.
             for area in AREAS:
                 if Path.exists(Path(sources_dir) / area / prefix / package / version):
                     return Path(area) / prefix

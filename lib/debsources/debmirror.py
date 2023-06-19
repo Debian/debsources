@@ -88,8 +88,8 @@ class SourcePackage(deb822.Sources):
     def archive_area(self):
         """return package are in the debian achive
 
-        one of: main, contrib, non-free. Return `None` if the archive area
-        cannot be figured out
+        one of: main, contrib, non-free, non-free-firmware. Return `None` if
+        the archive area cannot be figured out
 
         """
         area = None
@@ -97,6 +97,8 @@ class SourcePackage(deb822.Sources):
             sec = self["section"]
             if sec.startswith("contrib"):
                 area = "contrib"
+            elif sec.startswith("non-free-firmware"):
+                area = "non-free-firmware"
             elif sec.startswith("non-free"):
                 area = "non-free"
             else:
@@ -106,6 +108,8 @@ class SourcePackage(deb822.Sources):
             try:
                 directory = self["directory"]
                 steps = directory.split("/")
+                if "non-free-firmware" in steps:
+                    area = "non-free-firmware"
                 if "non-free" in steps:
                     area = "non-free"
                 elif "contrib" in steps:

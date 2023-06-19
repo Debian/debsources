@@ -122,7 +122,7 @@ METRIC_TYPES = ("size",)
 
 
 # debian package areas
-AREAS = ["main", "contrib", "non-free"]
+AREAS = ["main", "contrib", "non-free", "non-free-firmware"]
 
 # sane (?) default if the package prefix file is not available
 PREFIXES_DEFAULT = [

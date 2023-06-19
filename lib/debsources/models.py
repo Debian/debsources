@@ -85,7 +85,7 @@ class Package(Base):
         index=True,
         nullable=False,
     )
-    area = Column(String(8), index=True)  # main, contrib, non-free
+    area = Column(String(8), index=True)  # main, contrib, non-free, non-free-firmware
     vcs_type = Column(Enum(*VCS_TYPES, name="vcs_types"))
     vcs_url = Column(String)
     vcs_browser = Column(String)
