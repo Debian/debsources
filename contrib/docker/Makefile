@@ -1,5 +1,3 @@
-DOCKER_EXEC = docker exec
-CONTAINER = docker_debsources_1
 MAKE = make -C /opt/debsources/
 TEST_TARGETS = test test-all test-fast test-slow test-coverage
 SRC_TARGETS = all doc check clean test-online-app
@@ -7,31 +5,31 @@ SRC_TARGETS = all doc check clean test-online-app
 .PHONY: build update-db run attach init-db $(SRC_TARGETS) $(TEST_TARGETS)
 
 build:
-	docker-compose build --pull
+	docker compose build --pull
 
 update-db:
-	docker-compose run debsources /opt/db-update
+	docker compose run app /opt/db-update
 
 run:
-	docker-compose up -d
+	docker compose up -d
 
 logs:
-	docker logs -f docker_debsources_1
+	docker compose logs app
 
 stop:
-	docker-compose stop
+	docker compose stop
 
 start-apache:
-	$(DOCKER_EXEC) -it $(CONTAINER) apache2ctl start
+	docker compose exec -it app apache2ctl start
 
 attach:
-	$(DOCKER_EXEC) -it $(CONTAINER) /bin/bash
+	docker compose exec -it app /bin/bash
 
 init-db:
-	$(DOCKER_EXEC) $(CONTAINER) /opt/db-init
+	docker compose exec app /opt/db-init
 
 $(SRC_TARGETS):
-	$(DOCKER_EXEC) $(CONTAINER) $(MAKE) $@
+	docker compose exec app $(MAKE) $@
 
 $(TEST_TARGETS): run init-db
-	$(DOCKER_EXEC) $(CONTAINER) $(MAKE) $@
+	docker compose exec app $(MAKE) $@

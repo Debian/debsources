@@ -19,8 +19,8 @@ You can run debsources test suite in a docker container using the following
 commands (containers must be running):
 
   $ cd contrib/docker
-  $ docker-compose build
-  $ docker-compose run debsources /opt/run-tests
+  $ docker compose build
+  $ docker compose run app /opt/run-tests
 
 Test attributes
 ---------------

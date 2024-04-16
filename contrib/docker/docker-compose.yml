@@ -1,22 +1,24 @@
-db:
-  image: postgres:11
-  environment:
-    POSTGRES_USER: docker
-    POSTGRES_PASSWORD: docker
-    POSTGRES_DB: debsources
+name: debsources
 
-debsources:
-  build: .
-  ports:
-    - "5000:5000"
-    - "5001:80"
-  volumes:
-    - "../../:/opt/debsources"
-  links:
-    - db
-  environment:
-    PGUSER: docker
-    PGPASSWORD: docker
-    PGHOST: db_1
-  working_dir: /opt/debsources
-  command: /opt/run-web
+services:
+  db:
+    image: postgres:11
+    environment:
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: debsources
+
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+      - "5001:80"
+    volumes:
+      - "../../:/opt/debsources"
+    environment:
+      PGUSER: docker
+      PGPASSWORD: docker
+      PGHOST: db
+      PGPORT: 5432
+    working_dir: /opt/debsources
+    command: /opt/run-web

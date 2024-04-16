@@ -1,11 +1,11 @@
 #!/bin/bash
 
 echo "Waiting for PostgreSQL to launch on 5432..."
-while ! nc -z db_1 5432; do
+while ! nc -z ${PGHOST} ${PGPORT}; do
     sleep 0.1
 done
 echo "PostgreSQL launched"
 
 echo "Creating Debsources DB schema..."
-/opt/debsources/bin/debsources-dbadmin --createdb postgresql://docker:docker@db_1:5432/debsources
+/opt/debsources/bin/debsources-dbadmin --createdb postgresql://${PGUSER}:${PGPASSWORD}@${PGHOST}:${PGPORT}/debsources
 echo "Debsources DB schema created"
