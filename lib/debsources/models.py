@@ -43,10 +43,6 @@ from debsources.consts import (
 Base = declarative_base()
 
 
-# used for migrations, see scripts under debsources/migrate/
-DB_SCHEMA_VERSION = 11
-
-
 class PackageName(Base):
     """a source package name"""
 
@@ -85,7 +81,7 @@ class Package(Base):
         index=True,
         nullable=False,
     )
-    area = Column(String(8), index=True)  # main, contrib, non-free, non-free-firmware
+    area = Column(String, index=True)  # main, contrib, non-free, non-free-firmware
     vcs_type = Column(Enum(*VCS_TYPES, name="vcs_types"))
     vcs_url = Column(String)
     vcs_browser = Column(String)
@@ -437,7 +433,6 @@ class HistorySlocCount(Base):
 
 
 class FileCopyright(Base):
-
     __tablename__ = "copyright"
 
     id = Column(BIGINT, primary_key=True)
@@ -458,7 +453,6 @@ class FileCopyright(Base):
 
 
 class HistoryCopyright(Base):
-
     __tablename__ = "history_copyright"
 
     id = Column(BIGINT, primary_key=True)
