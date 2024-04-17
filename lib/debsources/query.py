@@ -174,12 +174,12 @@ def location_get_path_links(endpoint, path_to: Path):
     # This hack is similar to the one in helper.py in redirect_to_url function
 
     if endpoint == ".versions":
-        for (i, p) in enumerate(path_dict):
+        for i, p in enumerate(path_dict):
             pathl.append(
                 (p, url_for(endpoint, packagename="/".join(path_dict[: i + 1])))
             )
     else:
-        for (i, p) in enumerate(path_dict):
+        for i, p in enumerate(path_dict):
             pathl.append((p, url_for(endpoint, path_to="/".join(path_dict[: i + 1]))))
     return pathl
 
@@ -216,7 +216,7 @@ def location_get_stat(sources_path):
             file_type = sign
             break
     file_perms = ""
-    for (flag, do_true, do_false) in perm_flags:
+    for flag, do_true, do_false in perm_flags:
         file_perms += do_true if (sources_mode & flag) else do_false
 
     file_size = sources_size
@@ -353,7 +353,6 @@ def get_files_by_checksum(session, checksum, package=None, suite=None):
     )
 
     if package is not None and package != "":
-
         results = results.filter(PackageName.name == package)
 
     if suite is not None and suite != "":

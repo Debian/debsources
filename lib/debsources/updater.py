@@ -143,7 +143,7 @@ def notify_plugins(
     If triggers is not None, only Python hooks whose names are listed in them
     will be triggered. Note: shell hooks will not be triggered in that case.
     """
-    for (title, action) in observers[event]:
+    for title, action in observers[event]:
         try:
             if triggers is None:
                 action(session, pkg, pkgdir, file_table)
@@ -386,7 +386,7 @@ def update_suites(status, conf, session, mirror):
     if not conf["dry_run"] and "db" in conf["backends"]:
         session.query(SuiteAlias).delete()
 
-    for (suite, pkgs) in mirror.suites.items():
+    for suite, pkgs in mirror.suites.items():
         if not conf["dry_run"] and "db" in conf["backends"]:
             session.query(Suite).filter_by(suite=suite).delete()
         for pkg_id in pkgs:
@@ -632,7 +632,7 @@ def update_charts(status, conf, session, suites=None):
 
     # size charts, various metrics
     for metric in ["source_packages", "disk_usage", "source_files", "ctags"]:
-        for (period, granularity) in CHARTS:
+        for period, granularity in CHARTS:
             for suite in suites + ["ALL"]:
                 series = getattr(statistics, "history_size_" + granularity)(
                     session, metric, interval=period, suite=suite
@@ -643,7 +643,7 @@ def update_charts(status, conf, session, suites=None):
                     charts.size_plot(series, chart_file)
 
     # sloccount: historical histograms
-    for (period, granularity) in CHARTS:
+    for period, granularity in CHARTS:
         for suite in suites + ["ALL"]:
             # historical histogram
             mseries = getattr(statistics, "history_sloc_" + granularity)(
@@ -678,7 +678,7 @@ def update_charts(status, conf, session, suites=None):
 
     def update_license_charts():
         # License: historical histogramms
-        for (period, granularity) in CHARTS:
+        for period, granularity in CHARTS:
             for suite in suites + ["ALL"]:
                 mseries = getattr(statistics, "history_copyright_" + granularity)(
                     session, interval=period, suite=suite

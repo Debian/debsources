@@ -78,7 +78,7 @@ class PathDbTestCase(DbTestFixture, unittest.TestCase):
         cls.db_teardown_cls()
 
     def test_sqlalchemy_path(self):
-        for (path, path_bytes) in [
+        for path, path_bytes in [
             (Path("/hello") / "world", b"/hello/world"),
             (Path("\udcff"), b"\xff"),  # non utf8, surrogateescape
         ]:

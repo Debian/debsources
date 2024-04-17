@@ -30,7 +30,6 @@ from debsources.tests.updater_testing import mk_conf
 @attr("infra")
 @attr("postgres")
 class Archiver(unittest.TestCase, DbTestFixture):
-
     TEST_STAGES = set([updater.STAGE_EXTRACT, updater.STAGE_SUITES, updater.STAGE_GC])
 
     def setUp(self):

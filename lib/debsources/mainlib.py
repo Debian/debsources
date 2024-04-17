@@ -97,7 +97,7 @@ def _to_path(key, value):
 def parse_conf_infra(items):
     """returns correct typing for the [infra] section"""
     typed = {}
-    for (key, value) in items:
+    for key, value in items:
         if key == "expire_days":
             value = int(value)
         elif key == "dry_run":
@@ -123,7 +123,7 @@ def parse_conf_infra(items):
 def parse_conf_webapp(items):
     """returns correct typing for the [webapp] section"""
     typed = {}
-    for (key, value) in items:
+    for key, value in items:
         if value.lower() == "false":
             value = False
         elif value.lower() == "true":

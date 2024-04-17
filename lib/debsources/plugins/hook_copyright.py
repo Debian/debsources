@@ -84,7 +84,7 @@ def add_package(session, pkg, pkgdir, file_table):
             # added to the db in the past, then *all* of them have, as
             # additions are part of the same transaction
             licenses = parse_license_file(license_file)
-            for (synopsis, path) in licenses:
+            for synopsis, path in licenses:
                 if file_table:
                     try:
                         file_id = file_table[path]

@@ -82,7 +82,7 @@ def add_package(session, pkg, pkgdir, file_table):
             # ASSUMPTION: if *a* checksum of this package has already
             # been added to the db in the past, then *all* of them have,
             # as additions are part of the same transaction
-            for (sha256, relpath) in parse_checksums(sumsfile):
+            for sha256, relpath in parse_checksums(sumsfile):
                 params = {"package_id": db_package.id, "sha256": sha256}
                 if file_table:
                     try:

@@ -85,7 +85,7 @@ class QueriesTest(unittest.TestCase, DbTestFixture):
 
         # Test returning suites without suit as parameter
         self.assertTrue(
-            {"suites": [u"wheezy"], "version": u"0.90+20120429-1", "area": u"main"}
+            {"suites": ["wheezy"], "version": "0.90+20120429-1", "area": "main"}
             in qry.pkg_names_list_versions_w_suites(self.session, "gnubg")
         )
 
@@ -94,9 +94,9 @@ class QueriesTest(unittest.TestCase, DbTestFixture):
             qry.pkg_names_list_versions_w_suites(self.session, "gnubg", "jessie"),
             [
                 {
-                    "suites": [u"jessie", u"sid"],
-                    "version": u"1.02.000-2",
-                    "area": u"main",
+                    "suites": ["jessie", "sid"],
+                    "version": "1.02.000-2",
+                    "area": "main",
                 }
             ],
         )
@@ -110,8 +110,8 @@ class QueriesTest(unittest.TestCase, DbTestFixture):
             {
                 "path": Path("eval.c"),
                 "line": 1747,
-                "version": u"0.90+20091206-4",
-                "package": u"gnubg",
+                "version": "0.90+20091206-4",
+                "package": "gnubg",
             }
             in ctags[1]
         )

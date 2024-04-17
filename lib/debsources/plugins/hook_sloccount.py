@@ -97,7 +97,7 @@ def add_package(session, pkg, pkgdir, file_table):
             # ASSUMPTION: if *a* loc count of this package has already been
             # added to the db in the past, then *all* of them have, as
             # additions are part of the same transaction
-            for (lang, locs) in slocs.items():
+            for lang, locs in slocs.items():
                 sloccount = SlocCount(db_package, lang, locs)
                 session.add(sloccount)
 

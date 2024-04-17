@@ -102,7 +102,7 @@ def add_suite(conf, session, suite, archive):
     if updater.STAGE_SUITES in conf["stages"]:
         suitemap_q = sql.insert(Suite.__table__)
         suitemaps = []
-        for (pkg, version) in archive.suites[suite]:
+        for pkg, version in archive.suites[suite]:
             db_package = db_storage.lookup_package(session, pkg, version)
             if not db_package:
                 logging.warn(
