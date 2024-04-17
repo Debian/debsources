@@ -26,7 +26,8 @@ DB_COMPARE_QUERIES = {
     "package_names": "SELECT name \
      FROM %(schema)s.package_names \
      ORDER BY name",
-    "packages": "SELECT package_names.name, version, area, vcs_type, vcs_url, vcs_browser \
+    "packages": "SELECT package_names.name, version, area, \
+     vcs_type, vcs_url, vcs_browser \
      FROM %(schema)s.packages, %(schema)s.package_names \
      WHERE packages.name_id = package_names.id \
      ORDER BY package_names.name, version",
