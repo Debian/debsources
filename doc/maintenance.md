@@ -1,5 +1,4 @@
-Recreate the DB
-===============
+# Recreate the DB
 
 To recreate the DB using the current state of Debsources file storage as
 reference:
@@ -7,15 +6,13 @@ reference:
 1. reset the current DB by either emptying all tables or simply recreating the
    DB, e.g. with:
 
-     $ bin/debsources-dbadmin --dropdb --createdb postgresql:///debsources
+   $ bin/debsources-dbadmin --dropdb --createdb postgresql:///debsources
 
 2. refill DB backend(s), skipping filesystem:
 
-     $ bin/debsources-update --backend db --backend hooks --backend hooks.db
+   $ bin/debsources-update --backend db --backend hooks --backend hooks.db
 
-
-Add/remove plugins
-==================
+# Add/remove plugins
 
 To add a plugin:
 
@@ -23,8 +20,8 @@ To add a plugin:
 
 2. trigger the `add-package` event:
 
-    $ bin/debsources-update -vvv --backend hooks.fs --backend hooks.db \
-                                 --trigger add-package/NAME
+   $ bin/debsources-update -vvv --backend hooks.fs --backend hooks.db \
+    --trigger add-package/NAME
 
 3. add the hook to the `hooks` configuration entry in config(.local).ini
 

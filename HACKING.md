@@ -1,5 +1,4 @@
-Getting started with Debsources development
-===========================================
+# Getting started with Debsources development
 
 You have 2 documented ways to get a local Debsources environment:
 either a local deployment directly in your OS, or within a Docker
@@ -10,24 +9,23 @@ To test the updater, and subsequently run the webapp on it, you will need a
 might want to use the data from the Debsources testsuite, which is shipped via a
 separate Git submodule rooted at testdata/, so:
 
-  $ cd debsources/
-  $ git submodule update --init
+$ cd debsources/
+$ git submodule update --init
 
 The testdata Git repository is ~150 MB, so it might take a while to retrieve.
 
-Local Debsources deployment
----------------------------
+## Local Debsources deployment
 
 - clone the Debsources Git repository:
 
   $ git clone https://salsa.debian.org/qa/debsources.git
-or
+  or
   $ git clone git@salsa.debian.org:qa/debsources.git
 
 - ensure the Python interpreter can find Debsources' Python modules:
 
   $ export PYTHONPATH=`pwd`/debsources/lib:"$PYTHONPATH"
-  $ python -c 'import debsources'  # if this fails, double-check $PYTHONPATH
+  $ python -c 'import debsources' # if this fails, double-check $PYTHONPATH
 
 - create a PostgreSQL database for use by Debsources, e.g.:
 
@@ -67,14 +65,14 @@ or
 - run the webapp:
 
   $ bin/debsources-run-app
-  * Running on http://127.0.0.1:5000/
-  * Restarting with reloader
+
+  - Running on http://127.0.0.1:5000/
+  - Restarting with reloader
 
   you can now visit the above URL with your browser and verify that everything
   is OK.
 
-Docker container
----------------
+## Docker container
 
 - Ensure docker is installed and the service is running, then build
   the Debsources image (may take a while):
@@ -96,18 +94,14 @@ Docker container
 
   $ make attach
 
-You're ready for Debsources hacking!  How about giving Debsources easy hacks a
-go now?  <http://deb.li/debsrceasy>
+You're ready for Debsources hacking! How about giving Debsources easy hacks a
+go now? <http://deb.li/debsrceasy>
 
-
-Running tests
--------------
+## Running tests
 
 See [testing.md](doc/testing.md].
 
-
-Coding conventions
-==================
+# Coding conventions
 
 All new Debsources code should be [PEP8][1] compliant and pass [pyflakes][2]
 validation. Before submitting patches, please make sure that the lines of code

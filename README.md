@@ -1,14 +1,14 @@
-Development
-===========
+# Development
 
-* **source code** is available using [Git][1]:
+- **source code** is available using [Git][1]:
 
         $ git clone https://salsa.debian.org/qa/debsources.git
-     or $ git clone git@salsa.debian.org:qa/debsources.git
+
+  or $ git clone git@salsa.debian.org:qa/debsources.git
 
   and browsable [on the Web][2].
 
-* please report **bugs** to the [Debian Bug Tracking System][6] (short URL:
+- please report **bugs** to the [Debian Bug Tracking System][6] (short URL:
   <http://deb.li/debsrcbugs>), against the `qa.debian.org` pseudo-package,
   using a subject line that begins with "debsources:".
 
@@ -19,10 +19,10 @@ Development
   (`bin/debsources-reportbug` in the Debsources' Git repo is a convenience
   script that does the above for you)
 
-* for discussions about Debsources please **contact** the
+- for discussions about Debsources please **contact** the
   [debian-qa-debsources mailing list][4] or the `#debian-debsources` IRC channel on [OFTC][5]
 
-* opportunities for new contributors (AKA **easy hacks**) are [available][7] as
+- opportunities for new contributors (AKA **easy hacks**) are [available][7] as
   well (short URL: <http://deb.li/debsrceasy>)
 
 [1]: http://git-scm.com/
@@ -32,15 +32,11 @@ Development
 [6]: https://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=qa.debian.org;tag=debsources
 [7]: https://bugs.debian.org/cgi-bin/pkgreport.cgi?package=qa.debian.org;include=subject:debsources;tag=newcomer
 
-
 To get started with Debsources development, have a look at the [HACKING](HACKING.md) file.
 
+# Dependencies
 
-Dependencies
-============
-
-Webapp
-------
+## Webapp
 
 Debian packages:
 
@@ -56,9 +52,7 @@ Debian packages:
 - python-magic
 - tango-icon-theme
 
-
-Infrastructure
---------------
+## Infrastructure
 
 (work in progress, likely incomplete)
 
@@ -74,8 +68,7 @@ Debian packages:
 - python-sqlalchemy
 - sloccount
 
-Other
------
+## Other
 
 To re-generate the documentation:
 

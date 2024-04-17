@@ -1,17 +1,16 @@
-Local Information
-=================
+# Local Information
 
 You can customize a Debsources instance to publish on the web local
-information, such as news, instance-specific information, etc.  To do so you
-should create files containing HTML snippets in the *local directory* of your
+information, such as news, instance-specific information, etc. To do so you
+should create files containing HTML snippets in the _local directory_ of your
 Debsources instance, which by default is located at `$DEBSOURCES_ROOT/local/`.
 
 You can customize the path of your local directory in `config.ini` as follows:
 
-	[DEFAULT]
-	# ...
-	local_dir: /some/where/else    # defaults to: %(root_dir)s/local
-	# ...
+    [DEFAULT]
+    # ...
+    local_dir: /some/where/else    # defaults to: %(root_dir)s/local
+    # ...
 
 At present, you can add the following kind of local information to your
 Debsources instance:

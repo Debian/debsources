@@ -1,7 +1,6 @@
+# Archive format
 
-Archive format
-==============
-
+```
 				binary	source	debsources
 version	name	release date	pkgs	pkgs	notes
 
@@ -35,5 +34,6 @@ version	name	release date	pkgs	pkgs	notes
 6.0	squeeze	 6 Feb 2011	~29,000	~15,000	Sources, pool, .dsc
 
 7	wheezy	 4 May 2013	~37,000	~17,600	Sources, pool, .dsc
+```
 
 (some data from https://en.wikipedia.org/wiki/Debian#Timeline)

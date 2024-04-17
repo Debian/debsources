@@ -1,8 +1,6 @@
-Research
-========
+# Research
 
-Persistence
------------
+## Persistence
 
 With the AQMP backend, tasks are persistent by default (messages are
 saved both in-memory and on disk).
@@ -14,21 +12,19 @@ run again. It is possible to enable 'late acks', meaning tasks will be
 aknowledged only after a successful execution. Tasks need to be
 idempotent for that to work correctly.
 
- - http://celery.readthedocs.org/en/latest/faq.html#faq-acks-late-vs-retry
+- http://celery.readthedocs.org/en/latest/faq.html#faq-acks-late-vs-retry
 
- - http://celery.readthedocs.org/en/latest/configuration.html#celery-acks-late
+- http://celery.readthedocs.org/en/latest/configuration.html#celery-acks-late
 
-
-
-Transactional tasks
--------------------
+## Transactional tasks
 
 Celery does not support transactional task queues.
 
 Several libraries try to add the feature:
 
 pyramid_transactional_celery
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+```
 
  -> https://pypi.python.org/pypi/pyramid_transactional_celery
 
@@ -45,10 +41,10 @@ django-transaction-barrier
 
 -> https://libraries.io/pypi/django-transaction-barrier
 
-For django. 
+For django.
 
 
-Unit tests 
+Unit tests
 ----------
 
 For unit testing, tasks can easily be made synchronous.
@@ -78,10 +74,10 @@ This mean tasks running the hooks can send the results of the plugins
 to a callback which will insert those results into the database.
 
 This solution allows:
- 
+
  - running the hooks on machines that don't have access to the
    database
- 
+
  - not importing a package if one of the hooks failed
 
 However, it increases the network overhead. In particular, the ctags
@@ -128,14 +124,14 @@ When a node does not have edges, it means the resource is needed by
 all tasks in the cluster.
 
 Running tasks near the resources
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
 
 The simplest way to run tasks on machine with access to the needed
 resources is to create several queues, one for each resource:
 
- - mirror
+- mirror
 
- - database
+- database
 
 For example, several workers can listen to the 'mirror' queue, and all
 tasks routed to that queue will run only on those workers.
@@ -146,12 +142,9 @@ thus there is no single repository of sources. In this case, we can
 dynamically find workers running on the same machine as the
 "add_package" task, and direct the hooks tasks on those workers.
 
+# Implementation details
 
-Implementation details
-======================
-
-sqlalchemy session
-------------------
+## sqlalchemy session
 
 The session is setup in the DBTask class, which will be used as the
 base class for all celery tasks that need to access the database. That
@@ -180,11 +173,9 @@ In unit tests, we must close the session of all task classes, for example:
         add_package.session.close()
         add_package.engine.dispose()
 
-
 [1] http://celery.readthedocs.org/en/latest/userguide/tasks.html#instantiation
 
-plugin tasks
-------------
+## plugin tasks
 
 Celery has a way to define tasks that don't depend on a celery
 application: use the `celery.shared_task decorator` instead of
@@ -204,48 +195,36 @@ started.
         debsources_conf['observers'], debsources_conf['file_exts'] = \
             mainlib.load_hooks(debsources_conf)
 
-
-    
-
 [1] http://docs.celeryproject.org/en/latest/django/first-steps-with-django.html#using-the-shared-task-decorator
 [2] http://celery.readthedocs.org/en/latest/userguide/signals.html#celeryd-init
 
+# Celery configuration
 
-Celery configuration
-====================
-
-Result backend
---------------
+## Result backend
 
 To use chords, we need to keep a result backend for keeping the results
 of tasks and passing them to other tasks. Result backends are disabled by default, and several choices are available[1]:
- 
- - sqlalchemy
- - memcached
- - redis
- - rabbitmq
- - ...
+
+- sqlalchemy
+- memcached
+- redis
+- rabbitmq
+- ...
 
 [1]
 http://celery.readthedocs.org/en/latest/configuration.html#task-result-backend-settings
 
-Dependencies
-============
+# Dependencies
 
- - python-celery
- - rabbitmq
+- python-celery
+- rabbitmq
 
+# Running
 
-Running
-=======
-
-Worker
-------
+## Worker
 
     bin/debsources-async-celery worker
 
-
-Updater
--------
+## Updater
 
     bin/debsources-async-update

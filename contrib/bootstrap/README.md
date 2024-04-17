@@ -1,13 +1,11 @@
-Generating Bootstrap
-====================
+# Generating Bootstrap
 
 We use bootstrap's customizer to ensure our bootstrap is the small and also
 stays with the aesthetics of debian.
 
 The file `config.json` contains related configuration.
 
-How To Generate
------------------
+## How To Generate
 
 - Go to https://getbootstrap.com/customize/
 
@@ -15,6 +13,7 @@ How To Generate
   `/contrib/bootstrap` to match.
 
 - Download the `bootstrap.zip` file
+
   ```sh
   BASE=/path/to/debsouces/repo # make sure this points to top level
   unzip ~/Downloads/bootstrap.zip -d /tmp # Download location may vary
