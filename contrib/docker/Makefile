@@ -20,10 +20,10 @@ stop:
 	docker compose stop
 
 start-apache:
-	docker compose exec -it app apache2ctl start
+	docker compose exec app apache2ctl start
 
 attach:
-	docker compose exec -it app /bin/bash
+	docker compose exec app /bin/bash
 
 init-db:
 	docker compose exec app /opt/db-init
