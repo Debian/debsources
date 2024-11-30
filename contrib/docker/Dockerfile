@@ -40,4 +40,4 @@ RUN rm /etc/apache2/sites-enabled/000-default.conf
 
 ENV PYTHONPATH /opt/debsources/lib/
 
-EXPOSE 5000
+EXPOSE 3000
