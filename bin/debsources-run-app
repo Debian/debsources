@@ -25,7 +25,7 @@ if __name__ == "__main__":
         help="Host, use 0.0.0.0 to listen on all IPs.",
     )
     parser.add_argument(
-        "--port", type=int, default=5000, required=False, help="Port in use"
+        "--port", type=int, default=3000, required=False, help="Port in use"
     )
     args = parser.parse_args()
 
