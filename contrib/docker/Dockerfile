@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM debian:bookworm
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -19,12 +19,12 @@ RUN apt-get update && \
     python3-psycopg2 \
     python3-sqlalchemy \
     sloccount \
+    python3-coverage \
     python3-nose \
-    python3-nose2-cov \
     python3-flaskext.wtf \
     dpkg-dev \
     diffstat \
-    netcat \
+    netcat-traditional \
     git \
     postgresql-client
 

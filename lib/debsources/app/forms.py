@@ -12,10 +12,10 @@
 
 
 from flask_wtf import FlaskForm
-from wtforms import TextField
-from wtforms.validators import Required
+from wtforms import StringField
+from wtforms.validators import DataRequired
 
 
 class SearchForm(FlaskForm):
-    query = TextField("package name", validators=[Required()])
-    suite = TextField("suite name")
+    query = StringField("package name", validators=[DataRequired()])
+    suite = StringField("suite name")
