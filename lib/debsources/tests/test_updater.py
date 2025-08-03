@@ -79,14 +79,8 @@ def db_mv_tables_to_schema(session, new_schema):
 
 def assert_db_schema_equal(test_subj, expected_schema, actual_schema):
     for tbl, q in DB_COMPARE_QUERIES.items():
-        expected = [
-            dict(list(r.items()))
-            for r in test_subj.session.execute(q % {"schema": expected_schema})
-        ]
-        actual = [
-            dict(list(r.items()))
-            for r in test_subj.session.execute(q % {"schema": actual_schema})
-        ]
+        expected = test_subj.session.execute(q % {"schema": expected_schema}).fetchmany()
+        actual = test_subj.session.execute(q % {"schema": actual_schema}).fetchmany()
         test_subj.assertSequenceEqual(
             expected, actual, msg="table %s differs from reference" % tbl
         )
