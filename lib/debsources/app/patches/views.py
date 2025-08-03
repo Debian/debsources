@@ -225,7 +225,7 @@ class PatchView(GeneralView):
                 packagename, version, "debian/patches/" + path_to.rstrip()
             )
         if "api" in request.endpoint:
-            summary = helper.get_file_deltas(serie_path)
+            file_deltas = helper.get_file_deltas(serie_path)
             description, bug = helper.get_patch_details(serie_path)
             return dict(
                 package=packagename,
@@ -234,7 +234,7 @@ class PatchView(GeneralView):
                 name=path_to,
                 description=description,
                 bug=bug,
-                file_deltas=summary,
+                file_deltas=file_deltas.decode("utf8", errors="ignore"),
             )
         sourcefile = SourceCodeIterator(serie_path)
 
