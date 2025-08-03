@@ -24,4 +24,4 @@ class Encoder(flask.json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Path):
             return str(obj)
-        return super().default(self, obj)
+        return super().default(obj)
