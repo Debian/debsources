@@ -17,6 +17,7 @@ from pathlib import Path
 from nose.plugins.attrib import attr
 
 import debsources.query as qry
+from debsources.app.app_factory import AppWrapper
 from debsources.tests.db_testing import DbTestFixture
 from debsources.tests.testdata import TEST_DB_NAME
 
@@ -27,8 +28,7 @@ class QueriesTest(unittest.TestCase, DbTestFixture):
     def setUpClass(cls):
         cls.db_setup_cls()
 
-        # creates an app object, which is used to run queries
-        from debsources.app import app_wrapper
+        app_wrapper = AppWrapper()
 
         # erases a few configuration parameters needed for testing:
         uri = "postgresql:///" + TEST_DB_NAME
@@ -43,7 +43,7 @@ class QueriesTest(unittest.TestCase, DbTestFixture):
 
     @classmethod
     def tearDownClass(cls):
-        cls.app_wrapper.engine.dispose()
+        cls.app_wrapper.app.engine.dispose()
         cls.db_teardown_cls()
 
     def test_packages_prefixes(self):

@@ -9,8 +9,3 @@
 # of the License, or (at your option) any later version.  For more information
 # see the COPYING file at the top-level directory of this distribution and at
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
-
-
-from debsources.app.app_factory import AppWrapper
-
-app_wrapper = AppWrapper()

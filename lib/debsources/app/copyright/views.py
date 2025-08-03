@@ -33,14 +33,14 @@ from debsources.excepts import (
 from ..extract_stats import extract_stats
 from ..pagination import Pagination
 from ..sourcecode import SourceCodeIterator
-from ..views import ChecksumView, GeneralView, app, session
+from ..views import ChecksumView, GeneralView
 
 
 class LicenseView(GeneralView):
     def get_objects(self, packagename, version):
         try:
             sources_path = helper.get_sources_path(
-                session, packagename, version, current_app.config
+                current_app.session, packagename, version, current_app.config
             )
         except (FileOrFolderNotFound, InvalidPackageOrVersionError) as e:
             if isinstance(e, FileOrFolderNotFound):
@@ -100,7 +100,10 @@ class ChecksumLicenseView(ChecksumView):
                 # once DB full, remove license path
                 try:
                     license_path = helper.get_sources_path(
-                        session, f["package"], f["version"], current_app.config
+                        current_app.session,
+                        f["package"],
+                        f["version"],
+                        current_app.config,
                     )
                 except (FileOrFolderNotFound, InvalidPackageOrVersionError):
                     raise Http404ErrorSuggestions(f["package"], f["version"], "")
@@ -229,7 +232,7 @@ class SearchFileView(GeneralView):
         # once DB full, remove license path
         try:
             license_path = helper.get_sources_path(
-                session, f.package, f.version, current_app.config
+                current_app.session, f.package, f.version, current_app.config
             )
         except (FileOrFolderNotFound, InvalidPackageOrVersionError):
             raise Http404ErrorSuggestions(f.package, f.version, "")
@@ -252,10 +255,12 @@ class SearchFileView(GeneralView):
         path = Path(path_to)
 
         if version == "all":
-            files = qry.get_files_by_path_package(session, path, packagename).all()
+            files = qry.get_files_by_path_package(
+                current_app.session, path, packagename
+            ).all()
         else:
             files = qry.get_files_by_path_package(
-                session, path, packagename, version
+                current_app.session, path, packagename, version
             ).all()
         if "api" in request.endpoint:
             if not files:
@@ -283,20 +288,20 @@ class SearchFileView(GeneralView):
 
 class StatsView(GeneralView):
     def get_stats_suite(self, suite, **kwargs):
-        if suite not in statistics.suites(session, "all"):
+        if suite not in statistics.suites(current_app.session, "all"):
             raise Http404Error()  # security, to avoid suite='../../foo',
             # to include <img>s, etc.
         stats_file = current_app.config["CACHE_DIR"] / "license_stats.data"
         res = extract_stats(filename=stats_file, filter_suites=[suite])
         licenses = [license.replace(suite + ".", "") for license in res.keys()]
-        dual_stats_file = app.config["CACHE_DIR"] / "dual_license.data"
+        dual_stats_file = current_app.config["CACHE_DIR"] / "dual_license.data"
         dual_res = extract_stats(filename=dual_stats_file, filter_suites=[suite])
 
         dual_licenses = [
             license.replace(suite + ".", "") for license in dual_res.keys()
         ]
 
-        info = qry.get_suite_info(session, suite)
+        info = qry.get_suite_info(current_app.session, suite)
 
         return dict(
             results=res,
@@ -309,10 +314,10 @@ class StatsView(GeneralView):
         )
 
     def get_stats(self):
-        stats_file = app.config["CACHE_DIR"] / "license_stats.data"
+        stats_file = current_app.config["CACHE_DIR"] / "license_stats.data"
         res = extract_stats(filename=stats_file)
 
-        dual_stats_file = app.config["CACHE_DIR"] / "dual_license.data"
+        dual_stats_file = current_app.config["CACHE_DIR"] / "dual_license.data"
         dual_res = extract_stats(filename=dual_stats_file)
         dual_licenses = [
             license.replace("overall.", "")
@@ -326,8 +331,12 @@ class StatsView(GeneralView):
             if "overall." in license
         ]
 
-        release_suites = [x for x in statistics.suites(session, suites="release")]
-        devel_suites = [x for x in statistics.suites(session, suites="devel")]
+        release_suites = [
+            x for x in statistics.suites(current_app.session, suites="release")
+        ]
+        devel_suites = [
+            x for x in statistics.suites(current_app.session, suites="devel")
+        ]
 
         return dict(
             results=res,

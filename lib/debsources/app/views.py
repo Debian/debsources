@@ -31,61 +31,68 @@ from debsources.models import Package
 from debsources.sqla_session import _close_session
 from debsources.url import url_encode
 
-from . import app_wrapper
 from .forms import SearchForm
 from .helper import format_big_num, url_for_other_page
 from .infobox import Infobox
 from .pagination import Pagination
 
-app = app_wrapper.app
-session = app_wrapper.session
 
+def setup_app_root_views(app):
+    """Set up views not belonging in any blueprint."""
+    # static file serving
+    if "SERVE_STATIC_FILES" in app.config and app.config["SERVE_STATIC_FILES"]:
+        import flask
 
-# static file serving
-if "SERVE_STATIC_FILES" in app.config and app.config["SERVE_STATIC_FILES"]:
-    import flask
+        @app.route("/javascript/<path:path>")
+        def javascript(path):
+            return flask.send_from_directory("/usr/share/javascript/", path)
 
-    @app.route("/javascript/<path:path>")
-    def javascript(path):
-        return flask.send_from_directory("/usr/share/javascript/", path)
+        @app.route("/icons/<path:path>")
+        def icons(path):
+            return flask.send_from_directory("/usr/share/icons/", path)
 
-    @app.route("/icons/<path:path>")
-    def icons(path):
-        return flask.send_from_directory("/usr/share/icons/", path)
+    @app.teardown_appcontext
+    def shutdown_session(exception=None):
+        _close_session(app.session)
 
+    # variables needed by "base.html" skeleton
+    # packages_prefixes and search form (for the left menu),
+    # last_update (for the footer)
+    # TODO the context need a little bit modification
+    @app.context_processor
+    def skeleton_variables():
+        update_ts_file = app.config["CACHE_DIR"] / "last-update"
+        # TODO, this part should be moved to per blueprint context processor
+        last_update = local_info.read_update_ts(update_ts_file)
 
-@app.teardown_appcontext
-def shutdown_session(exception=None):
-    _close_session(session)
+        packages_prefixes = qry.pkg_names_get_packages_prefixes(app.config["CACHE_DIR"])
 
+        credits_file = app.config["LOCAL_DIR"] / "credits.html"
+        credits = local_info.read_html(credits_file)
 
-# variables needed by "base.html" skeleton
-# packages_prefixes and search form (for the left menu),
-# last_update (for the footer)
-# TODO the context need a little bit modification
-@app.context_processor
-def skeleton_variables():
-    update_ts_file = app.config["CACHE_DIR"] / "last-update"
-    # TODO, this part should be moved to per blueprint context processor
-    last_update = local_info.read_update_ts(update_ts_file)
+        return dict(
+            packages_prefixes=packages_prefixes,
+            searchform=SearchForm(),
+            last_update=last_update,
+            credits=credits,
+            name=app.import_name,
+        )
 
-    packages_prefixes = qry.pkg_names_get_packages_prefixes(app.config["CACHE_DIR"])
+    # jinja2 settings
+    app.jinja_env.filters["format_big_num"] = format_big_num
+    app.jinja_env.globals["url_for_other_page"] = url_for_other_page
 
-    credits_file = app.config["LOCAL_DIR"] / "credits.html"
-    credits = local_info.read_html(credits_file)
+    # TODO unlike 403,404, which could be registered per blueprint,
+    # there could be only one 500 error handler for the whole app.
+    # thus, the 500 handler should be aware of the active blueprint,
+    # so that correct page template will be rendered for the blueprint.
+    # we should avoid hard-coding the 'source'
+    app.errorhandler(500)(ErrorHandler(http=500))
 
-    return dict(
-        packages_prefixes=packages_prefixes,
-        searchform=SearchForm(),
-        last_update=last_update,
-        credits=credits,
-        name=app.import_name,
-    )
-
-
-# jinja2 settings
-app.jinja_env.filters["format_big_num"] = format_big_num
-app.jinja_env.globals["url_for_other_page"] = url_for_other_page
+    # following is a plain text, bp-agnostic one.
+    # app.errorhandler(403)(lambda _: ("Forbidden", 403))
+    # app.errorhandler(404)(lambda _: ("File not Found", 404))
+    # app.errorhandler(500)(lambda _: ("Server Error", 500))
 
 
 # ERRORS
@@ -118,7 +125,9 @@ class ErrorHandler(object):
             ):
                 # let's suggest all the possible locations with a different
                 # package version
-                possible_versions = qry.pkg_names_list_versions(session, error.package)
+                possible_versions = qry.pkg_names_list_versions(
+                    current_app.session, error.package
+                )
 
                 suggestions = []
                 for possible_version in possible_versions:
@@ -147,25 +156,12 @@ class ErrorHandler(object):
         """
         logs a 500 error and returns the correct template
         """
-        app.logger.exception(error)
+        current_app.logger.exception(error)
 
         if self.mode == "json":
             return jsonify(dict(error=500))
         else:
             return render_template("500.html"), 500
-
-
-# TODO unlike 403,404, which could be registered per blueprint,
-# there could be only one 500 error handler for the whole app.
-# thus, the 500 handler should be aware of the active blueprint,
-# so that correct page template will be rendered for the blueprint.
-# we should avoid hard-coding the 'source'
-app.errorhandler(500)(ErrorHandler(http=500))
-
-# following is a plain text, bp-agnostic one.
-# app.errorhandler(403)(lambda _: ("Forbidden", 403))
-# app.errorhandler(404)(lambda _: ("File not Found", 404))
-# app.errorhandler(500)(lambda _: ("Server Error", 500))
 
 
 # FOR BOTH RENDERING AND API
@@ -226,7 +222,7 @@ class Ping(View):
         update_ts_file = current_app.config["CACHE_DIR"] / "last-update"
         last_update = local_info.read_update_ts(update_ts_file)
         try:
-            session.query(Package).first().id  # database check
+            current_app.session.query(Package).first().id  # database check
         except Exception:
             return jsonify(dict(status="db error", http_status_code=500)), 500
         return jsonify(dict(status="ok", http_status_code=200, last_update=last_update))
@@ -293,9 +289,11 @@ class SearchView(GeneralView):
             suite = ""
 
         try:
-            exact_matching = qry.get_pkg_by_name(session, query, suite)
+            exact_matching = qry.get_pkg_by_name(current_app.session, query, suite)
 
-            other_results = qry.get_pkg_by_similar_name(session, query, suite)
+            other_results = qry.get_pkg_by_similar_name(
+                current_app.session, query, suite
+            )
         except Exception as e:
             raise Http500Error(e)  # db problem, ...
 
@@ -333,7 +331,9 @@ class ChecksumView(GeneralView):
         Returns a list of files whose hexdigest is checksum.
         You can slice the results, passing slice=(start, end).
         """
-        results = qry.get_files_by_checksum(session, checksum, package, suite)
+        results = qry.get_files_by_checksum(
+            current_app.session, checksum, package, suite
+        )
 
         if slice_ is not None:
             results = results.slice(slice_[0], slice_[1])
@@ -358,7 +358,7 @@ class ChecksumView(GeneralView):
         package = request.args.get("package") or None
 
         # we count the number of results:
-        count = qry.count_files_checksum(session, checksum, package)
+        count = qry.count_files_checksum(current_app.session, checksum, package)
         count = count.first()[0]
 
         # pagination:
@@ -410,7 +410,9 @@ class CtagView(GeneralView):
             pagination = None
             slice_ = None
 
-        (count, results) = qry.find_ctag(session, ctag, slice_=slice_, package=package)
+        (count, results) = qry.find_ctag(
+            current_app.session, ctag, slice_=slice_, package=package
+        )
         if self.d.get("pagination"):
             pagination = Pagination(page, offset, count)
         else:
@@ -437,12 +439,18 @@ class PrefixView(GeneralView):
         suite = suite.lower()
         if suite == "all":
             suite = ""
-        if prefix in qry.pkg_names_get_packages_prefixes(app.config["CACHE_DIR"]):
+        if prefix in qry.pkg_names_get_packages_prefixes(
+            current_app.config["CACHE_DIR"]
+        ):
             try:
                 if not suite:
-                    packages = qry.get_pkg_filter_prefix(session, prefix).all()
+                    packages = qry.get_pkg_filter_prefix(
+                        current_app.session, prefix
+                    ).all()
                 else:
-                    packages = qry.get_pkg_filter_prefix(session, prefix, suite).all()
+                    packages = qry.get_pkg_filter_prefix(
+                        current_app.session, prefix, suite
+                    ).all()
 
                 packages = [p.to_dict() for p in packages]
             except Exception as e:
@@ -456,7 +464,7 @@ class ListPackagesView(GeneralView):
     def get_objects(self, page=1):
         if not self.d.get("pagination"):  # api form, we retrieve all packages
             try:
-                packages = qry.get_all_packages(session).all()
+                packages = qry.get_all_packages(current_app.session).all()
                 packages = [p.to_dict() for p in packages]
                 return dict(packages=packages)
             except Exception as e:
@@ -464,14 +472,14 @@ class ListPackagesView(GeneralView):
         else:  # we paginate
             # WARNING: not serializable (TODO: serialize Pagination obj)
             try:
-                offset = int(app.config.get("LIST_OFFSET") or 60)
+                offset = int(current_app.config.get("LIST_OFFSET") or 60)
 
                 # we calculate the range of results
                 start = (page - 1) * offset
                 end = start + offset
 
-                count_packages = qry.count_packages(session)
-                packages = qry.get_all_packages(session).slice(start, end)
+                count_packages = qry.count_packages(current_app.session)
+                packages = qry.get_all_packages(current_app.session).slice(start, end)
                 pagination = Pagination(page, offset, count_packages)
 
                 return dict(packages=packages, page=page, pagination=pagination)
@@ -489,7 +497,7 @@ class PackageVersionsView(GeneralView):
         # we list the version with suites it belongs to
         try:
             versions_w_suites = qry.pkg_names_list_versions_w_suites(
-                session, packagename, suite, reverse=True
+                current_app.session, packagename, suite, reverse=True
             )
         except InvalidPackageOrVersionError:
             raise Http404Error("%s not found" % packagename)
@@ -514,5 +522,5 @@ class PackageVersionsView(GeneralView):
 # INFO PAGES #
 class InfoPackageView(GeneralView):
     def get_objects(self, package, version):
-        pkg_infos = Infobox(session, package, version).get_infos()
+        pkg_infos = Infobox(current_app.session, package, version).get_infos()
         return dict(pkg_infos=pkg_infos, package=package, version=version)

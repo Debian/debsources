@@ -20,10 +20,6 @@ import debsources.query as qry
 from debsources.excepts import Http404Error, InvalidPackageOrVersionError
 from debsources.models import SuiteAlias
 
-from . import app_wrapper
-
-session = app_wrapper.session
-
 
 def bind_render(template, **kwargs):
     """
@@ -107,7 +103,7 @@ def redirect_to_url(endpoint, redirect_url, redirect_code=301):
         )
 
 
-def handle_latest_version(endpoint, package, path):
+def _handle_latest_version(session, endpoint, package, path):
     """
     redirects to the latest version for the requested page,
     when 'latest' is provided instead of a version number
@@ -130,7 +126,7 @@ def handle_latest_version(endpoint, package, path):
     return redirect_to_url(endpoint, redirect_url)
 
 
-def handle_versions(version, package, path):
+def _handle_versions(session, version, package, path):
     check_for_alias = (
         session.query(SuiteAlias).filter(SuiteAlias.alias == version).first()
     )
@@ -148,11 +144,11 @@ def handle_versions(version, package, path):
     return versions
 
 
-def parse_version(endpoint, package, version, path):
+def _parse_version(session, endpoint, package, version, path):
     if version == "latest":  # we search the latest available version
-        return handle_latest_version(request.endpoint, package, path)
+        return _handle_latest_version(session, request.endpoint, package, path)
 
-    versions = handle_versions(version, package, path)
+    versions = _handle_versions(session, version, package, path)
     if versions:
         redirect_url_parts = [package, versions[-1]]
         if path:
@@ -161,7 +157,7 @@ def parse_version(endpoint, package, version, path):
         return redirect_to_url(request.endpoint, redirect_url, redirect_code=302)
 
 
-def generic_before_request(request, offset):
+def generic_before_request(session, request, offset):
     if "api" in request.endpoint:
         offset += 1
     path_dict = request.path.split("/")
@@ -169,4 +165,4 @@ def generic_before_request(request, offset):
     version = path_dict[offset + 1]
     # -1 is to delete ending slash
     path = "/".join(path_dict[offset + 2 : -1])
-    return parse_version(request.endpoint, package, version, path)
+    return _parse_version(session, request.endpoint, package, version, path)

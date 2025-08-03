@@ -11,7 +11,7 @@
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
 
-from flask import jsonify, render_template, request
+from flask import current_app, jsonify, render_template, request
 
 from debsources.excepts import Http404Error
 
@@ -49,7 +49,7 @@ def before_request():
     endpoints = ["summary", "api_summary", "patch_view", "api_patch_view"]
     if request.endpoint.replace("patches.", "", 1) in endpoints:
         try:
-            return generic_before_request(request, 2)
+            return generic_before_request(current_app.session, request, 2)
         except Http404Error:
             return render_template("404.html"), 404
 

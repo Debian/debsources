@@ -35,8 +35,7 @@ class DebsourcesBaseWebTests(DbTestFixture):
         # create/destroy it many times), and this a big gain of time.
         cls.db_setup_cls()
 
-        # creates an app object, which is used to run queries
-        from debsources.app import app_wrapper
+        app_wrapper = AppWrapper()
 
         # erases a few configuration parameters needed for testing:
         uri = "postgresql:///" + TEST_DB_NAME
@@ -51,7 +50,7 @@ class DebsourcesBaseWebTests(DbTestFixture):
 
     @classmethod
     def tearDownClass(cls):
-        cls.app_wrapper.engine.dispose()
+        cls.app_wrapper.app.engine.dispose()
         cls.db_teardown_cls()
 
 

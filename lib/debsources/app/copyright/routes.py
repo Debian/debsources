@@ -11,7 +11,7 @@
 # https://salsa.debian.org/qa/debsources/blob/master/COPYING
 
 
-from flask import jsonify, render_template, request
+from flask import current_app, jsonify, render_template, request
 
 from debsources.excepts import Http404Error
 
@@ -50,7 +50,7 @@ def before_request():
     endpoints = ["license", "file", "api_file"]
     if request.endpoint.replace("copyright.", "", 1) in endpoints:
         try:
-            return generic_before_request(request, 3)
+            return generic_before_request(current_app.session, request, 3)
         except Http404Error:
             return render_template("404.html"), 404
 

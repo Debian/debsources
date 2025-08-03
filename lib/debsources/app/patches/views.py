@@ -25,7 +25,7 @@ from debsources.excepts import (
 
 from ..pagination import Pagination
 from ..sourcecode import SourceCodeIterator
-from ..views import GeneralView, session
+from ..views import GeneralView
 from . import patches_helper as helper
 
 
@@ -38,7 +38,7 @@ class VersionsView(GeneralView):
         # we list the version with suites it belongs to
         try:
             versions_w_suites = qry.pkg_names_list_versions_w_suites(
-                session, packagename, suite, reverse=True
+                current_app.session, packagename, suite, reverse=True
             )
         except InvalidPackageOrVersionError:
             raise Http404Error("%s not found" % packagename)
@@ -46,7 +46,7 @@ class VersionsView(GeneralView):
         for i, v in enumerate(versions_w_suites):
             try:
                 format_file = helper.get_patch_format(
-                    session, packagename, v["version"], current_app.config
+                    current_app.session, packagename, v["version"], current_app.config
                 )
             except FileOrFolderNotFound:
                 format_file = ""
@@ -57,7 +57,10 @@ class VersionsView(GeneralView):
                 versions_w_suites[i]["supported"] = True
                 try:
                     series = helper.get_patch_series(
-                        session, packagename, v["version"], current_app.config
+                        current_app.session,
+                        packagename,
+                        v["version"],
+                        current_app.config,
                     )
                 except (FileOrFolderNotFound, InvalidPackageOrVersionError):
                     series = []
@@ -134,7 +137,7 @@ class SummaryView(GeneralView):
 
         try:
             format_file = helper.get_patch_format(
-                session, packagename, version, current_app.config
+                current_app.session, packagename, version, current_app.config
             )
         except InvalidPackageOrVersionError:
             raise Http404ErrorSuggestions(packagename, version, "")
@@ -160,7 +163,7 @@ class SummaryView(GeneralView):
         # are there any patches for the package?
         try:
             series = helper.get_patch_series(
-                session, packagename, version, current_app.config
+                current_app.session, packagename, version, current_app.config
             )
         except (FileOrFolderNotFound, InvalidPackageOrVersionError):
             return dict(
@@ -181,7 +184,11 @@ class SummaryView(GeneralView):
             page, offset, count, {"packagename": packagename, "version": version}
         )
         info = self.parse_patch_series(
-            session, packagename, version, current_app.config, series[start:end]
+            current_app.session,
+            packagename,
+            version,
+            current_app.config,
+            series[start:end],
         )
         if "api" in request.endpoint:
             return dict(
@@ -207,7 +214,7 @@ class PatchView(GeneralView):
     def get_objects(self, packagename, version, path_to):
         try:
             serie_path, loc = helper.get_sources_path(
-                session,
+                current_app.session,
                 packagename,
                 version,
                 current_app.config,

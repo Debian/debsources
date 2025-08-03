@@ -29,7 +29,9 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    from debsources.app import app_wrapper
+    from debsources.app.app_factory import AppWrapper
+
+    app_wrapper = AppWrapper()
 
     app_wrapper.go()
     print("Running on %s:%d" % (args.host, args.port))

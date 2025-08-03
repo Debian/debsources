@@ -19,6 +19,7 @@ from flask import Flask
 from debsources import mainlib
 from debsources.app.file_path_converter import FilePathConverter
 from debsources.app.json_encoder import Encoder
+from debsources.app.views import setup_app_root_views
 from debsources.sqla_session import _get_engine_session
 
 
@@ -28,13 +29,11 @@ class AppWrapper(object):
     steps separately.
     """
 
-    def __init__(self, config=None, session=None):
+    def __init__(self, config=None):
         """
         Creates a Flask application and sets up its configuration.
-        If config and/or session are provided, they will overload the
-        default behavior.
+        If config is provided, it overrides the default.
         """
-        self.session = session
         self.app = Flask(__name__)
         self.app.json_encoder = Encoder
 
@@ -51,12 +50,12 @@ class AppWrapper(object):
         Sets up SQLAlchemy, logging, and imports all the views.
         After creating an AppWrapper and calling this method, the app is ready.
         """
-        if self.session is None:
-            self.setup_sqlalchemy()
+        setup_app_root_views(self.app)
+
+        self.setup_sqlalchemy()
 
         self.setup_logging()
 
-        # setup blueprint
         self.setup_blueprints()
 
     def setup_blueprints(self):
@@ -107,9 +106,9 @@ class AppWrapper(object):
         Creates an engine and a session for SQLAlchemy, using the database URI
         in the configuration.
         """
-        db_uri = self.app.config["DB_URI"]
-        e, s = _get_engine_session(db_uri, verbose=self.app.config["SQLALCHEMY_ECHO"])
-        self.engine, self.session = e, s
+        self.app.engine, self.app.session = _get_engine_session(
+            self.app.config["DB_URI"], verbose=self.app.config["SQLALCHEMY_ECHO"]
+        )
 
     def setup_logging(self):
         """

@@ -33,19 +33,19 @@ from ..extract_stats import extract_stats
 from ..helper import bind_redirect, bind_render
 from ..infobox import Infobox
 from ..sourcecode import SourceCodeIterator
-from ..views import GeneralView, app, session
+from ..views import GeneralView
 
 
 class StatsView(GeneralView):
 
     def get_stats_suite(self, suite, **kwargs):
-        if suite not in statistics.suites(session, 'all'):
+        if suite not in statistics.suites(current_app.session, 'all'):
             raise Http404Error()  # security, to avoid suite='../../foo',
             # to include <img>s, etc.
         stats_file = current_app.config["CACHE_DIR"] / "stats.data"
         res = extract_stats(filename=stats_file,
                             filter_suites=["debian_" + suite])
-        info = qry.get_suite_info(session, suite)
+        info = qry.get_suite_info(current_app.session, suite)
 
         return dict(results=res,
                     languages=SLOCCOUNT_LANGUAGES,
@@ -54,15 +54,15 @@ class StatsView(GeneralView):
                     rel_version=info.version)
 
     def get_stats(self):
-        stats_file = app.config["CACHE_DIR"] / "stats.data"
+        stats_file = current_app.config["CACHE_DIR"] / "stats.data"
         res = extract_stats(filename=stats_file)
 
         all_suites = ["debian_" + x for x in
-                      statistics.suites(session, suites='all')]
+                      statistics.suites(current_app.session, suites='all')]
         release_suites = ["debian_" + x for x in
-                          statistics.suites(session, suites='release')]
+                          statistics.suites(current_app.session, suites='release')]
         devel_suites = ["debian_" + x for x in
-                        statistics.suites(session, suites='devel')]
+                        statistics.suites(current_app.session, suites='devel')]
 
         return dict(results=res,
                     languages=SLOCCOUNT_LANGUAGES,
@@ -79,7 +79,7 @@ class SourceView(GeneralView):
         renders a location page, can be a folder or a file
         """
         try:
-            location = Location(session,
+            location = Location(current_app.session,
                                 current_app.config["SOURCES_DIR"],
                                 current_app.config["SOURCES_STATIC"],
                                 package, version, path)
@@ -121,10 +121,10 @@ class SourceView(GeneralView):
         """
         # Convert hidden file patterns to bytes, as they are used to match
         # paths, which are bytes.
-        hidden_files = [x.encode('utf8') for x in app.config['HIDDEN_FILES'].split(" ")]
+        hidden_files = [x.encode('utf8') for x in current_app.config['HIDDEN_FILES'].split(" ")]
         directory = Directory(location, hidden_files)
 
-        pkg_infos = Infobox(session, location.get_package(),
+        pkg_infos = Infobox(current_app.session, location.get_package(),
                             location.get_version()).get_infos()
 
         content = directory.get_listing()
@@ -154,11 +154,11 @@ class SourceView(GeneralView):
         renders a file
         """
         file_ = SourceFile(location)
-        checksum = file_.get_sha256sum(session)
-        number_of_duplicates = (qry.count_files_checksum(session, checksum)
+        checksum = file_.get_sha256sum(current_app.session)
+        number_of_duplicates = (qry.count_files_checksum(current_app.session, checksum)
                                 .first()[0]
                                 )
-        pkg_infos = Infobox(session,
+        pkg_infos = Infobox(current_app.session,
                             location.get_package(),
                             location.get_version()).get_infos()
         text_file = file_.istextfile()
