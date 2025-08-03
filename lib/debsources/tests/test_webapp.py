@@ -453,7 +453,7 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertIn("2.03-2", rv["path"])
 
     def test_source_file_text_suite(self):
-        rv = self.app.get("/src/ledit/unstable/README", follow_redirects=True)
+        rv = self.app.get("/src/ledit/unstable/README/", follow_redirects=True)
         self.assertIn(b'<code id="sourcecode" class="no-highlight">', rv.data)
         rv = json.loads(
             self.app.get("/api/src/ledit/unstable/README/", follow_redirects=True).data
@@ -467,7 +467,7 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertIn("2.03-2", rv["path"])
 
     def test_source_file_text_suite_alias(self):
-        rv = self.app.get("/src/ledit/sid/README", follow_redirects=True)
+        rv = self.app.get("/src/ledit/sid/README/", follow_redirects=True)
         self.assertIn(b'<code id="sourcecode" class="no-highlight">', rv.data)
         rv = json.loads(
             self.app.get("/api/src/ledit/sid/README/", follow_redirects=True).data
