@@ -113,7 +113,6 @@ def parse_ctags(path):
 
 
 def add_package(session, pkg, pkgdir, file_table):
-    global conf
     logging.debug("add-package %s" % pkg)
 
     ctagsfile = ctags_path(pkgdir)
@@ -179,7 +178,6 @@ def add_package(session, pkg, pkgdir, file_table):
 
 
 def rm_package(session, pkg, pkgdir, file_table):
-    global conf
     logging.debug("rm-package %s" % pkg)
 
     if "hooks.fs" in conf["backends"]:

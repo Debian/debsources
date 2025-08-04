@@ -17,12 +17,10 @@ conf = None
 
 
 def add_package(session, pkg, pkgdir, file_table):
-    global conf
     logging.debug("add-package %s %s" % (pkg, pkgdir))
 
 
 def rm_package(session, pkg, pkgdir, file_table):
-    global conf
     logging.debug("rm-package %s %s" % (pkg, pkgdir))
 
 

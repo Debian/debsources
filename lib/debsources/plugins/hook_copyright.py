@@ -44,7 +44,6 @@ def parse_license_file(path):
 
 
 def add_package(session, pkg, pkgdir, file_table):
-    global conf
     logging.debug("add-package %s" % pkg)
 
     license_file = license_path(pkgdir)
@@ -104,7 +103,6 @@ def add_package(session, pkg, pkgdir, file_table):
 
 
 def rm_package(session, pkg, pkgdir, file_table):
-    global conf
     logging.debug("rm-package %s" % pkg)
 
     if "hooks.fs" in conf["backends"]:

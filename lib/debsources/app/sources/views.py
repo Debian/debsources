@@ -121,7 +121,9 @@ class SourceView(GeneralView):
         """
         # Convert hidden file patterns to bytes, as they are used to match
         # paths, which are bytes.
-        hidden_files = [x.encode('utf8') for x in current_app.config['HIDDEN_FILES'].split(" ")]
+        hidden_files = [
+            x.encode("utf8") for x in current_app.config["HIDDEN_FILES"].split(" ")
+        ]
         directory = Directory(location, hidden_files)
 
         pkg_infos = Infobox(current_app.session, location.get_package(),
