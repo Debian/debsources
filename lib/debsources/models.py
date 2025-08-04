@@ -174,6 +174,10 @@ class PathType(sqlalchemy.types.TypeDecorator):
 
     impl = sqlalchemy.types.LargeBinary
 
+    # Objects can be cached with their string representation as key.
+    # https://docs.sqlalchemy.org/en/14/errors.html#error-cprf
+    cache_ok = True
+
     def process_bind_param(self, value, dialect):
         if isinstance(value, Path):
             return bytes(value)
