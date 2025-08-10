@@ -123,6 +123,14 @@ def pkg_names_list_versions_w_suites(
     versions contained in that suite. if as_object is true, the version
     is returned as a Package object with suites list added to it.
     """
+
+    def suite_index(suite):
+        try:
+            index = SUITES["all"].index(suite)
+        except ValueError:
+            index = float("infinity")
+        return index
+
     # FIXME a left outer join on (Package, Suite) is more preferred.
     # However, per https://stackoverflow.com/a/997467, custom aggregation
     # function to concatenate the suite names for the group_by should be
@@ -134,7 +142,7 @@ def pkg_names_list_versions_w_suites(
             suites = session.query(Suite).filter(Suite.package_id == v.id).all()
             # sort the suites according to debsources.consts.SUITES
             # use keyfunc to make it py3 compatible
-            suites.sort(key=lambda s: SUITES["all"].index(s.suite))
+            suites.sort(key=lambda s: suite_index(s.suite))
             suites = [s.suite for s in suites]
 
             if as_object:
