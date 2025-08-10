@@ -214,6 +214,11 @@ DEBIAN_RELEASES = {
         "date": datetime.date(2023, 6, 10),
         "archived": False,
     },
+    "trixie": {
+        "version": "13",
+        "date": datetime.date(2025, 8, 9),
+        "archived": False,
+    },
 }
 
 SUITES = {
@@ -236,6 +241,7 @@ SUITES = {
         "bullseye",
         "bookworm",
         "trixie",
+        "forky",
         "sid",
     ],
     "devel": [],  # known release variants; filled below
