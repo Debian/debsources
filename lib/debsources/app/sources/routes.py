@@ -300,7 +300,7 @@ bp_sources.add_url_rule(
 
 # SOURCEVIEW
 bp_sources.add_url_rule(
-    "/src/<filepath:path_to>/",
+    "/src/<filepath:path_to>",
     view_func=SourceView.as_view(
         "source",
         # the render func is set by the views.

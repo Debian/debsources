@@ -75,7 +75,7 @@ class PatchesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
         # test debian/patches/series link
         self.assertIn(
-            b'<a href="/src/beignet/1.0.0-1/debian/patches/series/">', rv.data
+            b'<a href="/src/beignet/1.0.0-1/debian/patches/series">', rv.data
         )
 
         # test non quilt package
@@ -91,7 +91,7 @@ class PatchesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
     def test_file_deltas_links(self):
         rv = self.app.get("/patches/beignet/1.0.0-1/")
-        self.assertIn(b'<a href="/src/beignet/1.0.0-1/src/cl_utils.h/">', rv.data)
+        self.assertIn(b'<a href="/src/beignet/1.0.0-1/src/cl_utils.h">', rv.data)
 
     def test_3_native_format(self):
         rv = self.app.get("/patches/nvidia-support/20131102+1/")

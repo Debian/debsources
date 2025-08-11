@@ -254,21 +254,21 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
     def test_package(self):
         rv = self.app.get("/src/ledit/")
-        self.assertIn(b"/src/ledit/2.01-6/", rv.data)
-        self.assertIn(b"/src/ledit/2.03-1/", rv.data)
-        self.assertIn(b"/src/ledit/2.03-2/", rv.data)
+        self.assertIn(b"/src/ledit/2.01-6", rv.data)
+        self.assertIn(b"/src/ledit/2.03-1", rv.data)
+        self.assertIn(b"/src/ledit/2.03-2", rv.data)
         self.assertIn(b"[jessie, sid]", rv.data)
         # with suite specified
         rv = self.app.get("/src/ledit/?suite=squeeze")
-        self.assertIn(b"/src/ledit/2.01-6/", rv.data)
-        self.assertNotIn(b"/src/ledit/2.03-1/", rv.data)
-        self.assertNotIn(b"/src/ledit/2.03-2/", rv.data)
+        self.assertIn(b"/src/ledit/2.01-6", rv.data)
+        self.assertNotIn(b"/src/ledit/2.03-1", rv.data)
+        self.assertNotIn(b"/src/ledit/2.03-2", rv.data)
         self.assertNotIn(b"[jessie, sid]", rv.data)
         # with a non-existing suite
         rv = self.app.get("/src/ledit/?suite=non-existing")
-        self.assertNotIn(b"/src/ledit/2.01-6/", rv.data)
-        self.assertNotIn(b"/src/ledit/2.03-1/", rv.data)
-        self.assertNotIn(b"/src/ledit/2.03-2/", rv.data)
+        self.assertNotIn(b"/src/ledit/2.01-6", rv.data)
+        self.assertNotIn(b"/src/ledit/2.03-1", rv.data)
+        self.assertNotIn(b"/src/ledit/2.03-2", rv.data)
         self.assertNotIn(b"[jessie, sid]", rv.data)
 
     def test_api_folder(self):
@@ -327,7 +327,7 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         rv = self.app.get("/src/beignet/1.0.0-1/README.md/")
 
         # safe symlink
-        self.assertIn(b"/src/beignet/1.0.0-1/docs/Beignet.mdwn/", rv.data)
+        self.assertIn(b"/src/beignet/1.0.0-1/docs/Beignet.mdwn", rv.data)
 
         # unsafe symlinks (relatives and absolutes)
 
@@ -393,7 +393,7 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
 
         # parent folder link
         self.assertIn(
-            b'<a id="link_parent_folder" href="/src/ledit/2.01-6/">'
+            b'<a id="link_parent_folder" href="/src/ledit/2.01-6">'
             + b"parent folder</a>",
             rv.data,
         )
@@ -621,9 +621,9 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertEqual(rv["results"]["debian_sid.sloccount.ansic"], 208800)
 
     def test_suggestions_when_404(self):
-        rv = self.app.get("/src/libcaca/0.NOPE.beta17-1/src/cacaview.c/")
+        rv = self.app.get("/src/libcaca/0.NOPE.beta17-1/src/cacaview.c")
         self.assertIn(b"other versions of this package are available", rv.data)
-        link2 = b'<a href="/src/libcaca/0.99.beta17-1/src/cacaview.c/'
+        link2 = b'<a href="/src/libcaca/0.99.beta17-1/src/cacaview.c'
         self.assertIn(link2, rv.data)
 
     def test_bp_copyright_setup(self):
@@ -673,7 +673,7 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertEqual(200, rv.status_code)
         self.assertIn(
             (
-                b'<a href="/src/aspell-is/0.51-0-4/%25EDslenska.alias/">'
+                b'<a href="/src/aspell-is/0.51-0-4/%25EDslenska.alias">'
                 b"%EDslenska.alias</a>"
             ),
             rv.data,
@@ -682,6 +682,14 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         rv = self.app.get("/src/aspell-is/0.51-0-4/%25EDslenska.alias/")
         self.assertEqual(200, rv.status_code)
         self.assertIn(b"<h2>File: %EDslenska.alias</h2>", rv.data)
+
+
+    def test_no_trailing_slash_for_file(self):
+        """Requesting files must work with and without trailing slash."""
+        rv = self.app.get("/src/libcaca/0.99.beta18-1/AUTHORS/")
+        self.assertEqual(200, rv.status_code)
+        rv = self.app.get("/src/libcaca/0.99.beta18-1/AUTHORS")
+        self.assertEqual(200, rv.status_code)
 
 
 if __name__ == "__main__":
