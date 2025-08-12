@@ -683,7 +683,6 @@ class DebsourcesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertEqual(200, rv.status_code)
         self.assertIn(b"<h2>File: %EDslenska.alias</h2>", rv.data)
 
-
     def test_no_trailing_slash_for_file(self):
         """Requesting files must work with and without trailing slash."""
         rv = self.app.get("/src/libcaca/0.99.beta18-1/AUTHORS/")
