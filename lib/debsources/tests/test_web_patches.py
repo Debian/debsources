@@ -74,9 +74,7 @@ class PatchesTestCase(DebsourcesBaseWebTests, unittest.TestCase):
         self.assertIn(b"8 \t5 +\t3 -\t0 !", rv.data)
 
         # test debian/patches/series link
-        self.assertIn(
-            b'<a href="/src/beignet/1.0.0-1/debian/patches/series">', rv.data
-        )
+        self.assertIn(b'<a href="/src/beignet/1.0.0-1/debian/patches/series">', rv.data)
 
         # test non quilt package
         rv = self.app.get("/patches/cvsnt/2.5.03.2382-3/")
